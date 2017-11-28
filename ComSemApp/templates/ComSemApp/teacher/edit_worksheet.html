@@ -1,0 +1,31 @@
+<p>
+    courseid : {{ course_id.course_id }}<br />
+</p>
+
+{% if worksheet %}
+    <p>
+        worksheetid : {{ worksheet.worksheet_id }}<br />
+        worksheet date: {{ worksheet.date }}<br />
+        worksheet course_id : {{ worksheet.course_id }}<br />
+        worksheet edit status : {{ worksheet.edit_status }}<br />
+    </p>
+{% else %}
+    <p>No worksheet info</p>
+{% endif %}
+
+
+{% if expressions %}
+    <p>{{ expressions }}</p>
+{% else %}
+    <p>No expressions are available.</p>
+{% endif %}
+
+{% if enrollments %}
+    <ul>
+    {% for enrollment in enrollments %}
+        <li>{{ enrollment.student_id.firstname }} {{ enrollment.student_id.lastname }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No students are enrolled.</p>
+{% endif %}

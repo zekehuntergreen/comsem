@@ -1,0 +1,26 @@
+body {
+	padding: 0 !important;
+}
+
+/* copy table-hover's highlighting for programmatic highlighting*/
+.table-hover > tbody > tr.cs-active > td {
+	background-color: rgba(26, 188, 156, 0.15);
+}
+
+textarea {
+	resize: vertical;
+	min-height: 50px;
+ }
+
+.csRecorderButton{
+	margin-bottom: 25px;
+}
+
+select.input-sm{
+	/* restore bs style */
+	height: 30px !important;
+}
+
+.table th {
+	border-top: none !important;
+}

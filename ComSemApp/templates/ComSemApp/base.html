@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+{% load static %}
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Communication Seminar</title>
+
+		<!-- Minton -->
+		<link href="{% static "ComSemApp/Minton/css/bootstrap.min.css" %}" rel="stylesheet" type="text/css">
+		<link href="{% static "ComSemApp/Minton/css/icons.css" %}" rel="stylesheet" type="text/css">
+		<link href="{% static "ComSemApp/Minton/css/style.css" %}" rel="stylesheet" type="text/css">
+
+		<script src="{% static "ComSemApp/Minton/js/modernizr.min.js"  %}"></script>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+		<!-- js cookies -->
+		<script src="{% static "ComSemApp/js/js-cookie/src/js.cookie.js" %}"></script>
+
+		<script>
+			$.ajaxSetup({
+				beforeSend: function(xhr, settings) {
+					if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+						// Only send the token to relative URLs i.e. locally.
+						xhr.setRequestHeader("X-CSRFToken", Cookies.get('csrftoken'));
+					}
+				}
+			});
+		</script>
+
+		<link href="{% static "ComSemApp/css/com_sem_styles.css" %}" rel="stylesheet" v="2" />
+
+	</head>
+
+	{% block body %}
+
+	{% endblock %}
+
+	<!-- MINTON -->
+    <script>
+    var resizefunc = [];
+    </script>
+
+    <!-- Plugins  -->
+    <!-- <script src="{% static "ComSemApp/Minton/js/jquery.min.js" %}"></script> -->
+    <script src="{% static "ComSemApp/Minton/js/popper.min.js" %}"></script><!-- Popper for Bootstrap -->
+    <script src="{% static "ComSemApp/Minton/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "ComSemApp/Minton/js/detect.js" %}"></script>
+    <script src="{% static "ComSemApp/Minton/js/fastclick.js" %}"></script>
+    <script src="{% static "ComSemApp/Minton/js/jquery.slimscroll.js" %}"></script>
+    <script src="{% static "ComSemApp/Minton/js/jquery.blockUI.js" %}"></script>
+    <script src="{% static "ComSemApp/Minton/js/waves.js" %}"></script>
+    <script src="{% static "ComSemApp/Minton/js/wow.min.js" %}"></script>
+    <script src="{% static "ComSemApp/Minton/js/jquery.nicescroll.js" %}"></script>
+    <script src="{% static "ComSemApp/Minton/js/jquery.scrollTo.min.js" %}"></script>
+    <script src="{% static "ComSemApp/Minton-plugins/switchery/switchery.min.js" %}"></script>
+
+    <!-- Counter Up  -->
+    <script src="{% static "ComSemApp/Minton-plugins/waypoints/lib/jquery.waypoints.min.js" %}"></script>
+    <script src="{% static "ComSemApp/Minton-plugins/counterup/jquery.counterup.min.js" %}"></script>
+
+    <!-- circliful Chart -->
+    <script src="{% static "ComSemApp/Minton-plugins/jquery-circliful/js/jquery.circliful.min.js" %}"></script>
+    <script src="{% static "ComSemApp/Minton-plugins/jquery-sparkline/jquery.sparkline.min.js" %}"></script>
+
+    <!-- skycons -->
+    <script src="{% static "ComSemApp/Minton-plugins/skyicons/skycons.min.js" type="text/javascript" %}"></script>
+
+    <!-- Page js  -->
+    <script src="{% static "ComSemApp/Minton/pages/jquery.dashboard.js" %}"></script>
+
+    <!-- Custom main Js -->
+    <script src="{% static "ComSemApp/Minton/js/jquery.core.js" %}"></script>
+    <script src="{% static "ComSemApp/Minton/js/jquery.app.js" %}"></script>
+
+    <!-- recordmp3 needed by ComSemRecording -->
+    <!-- <script src="{% static "ComSemApp/js/Recordmp3js/recordmp3.js" %}"></script> -->
+
+
+
+</html>

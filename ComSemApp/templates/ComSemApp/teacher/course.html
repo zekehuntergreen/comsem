@@ -1,0 +1,216 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% block content %}
+
+	<!-- Page-Title -->
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="page-title-box">
+				<h4 class="page-title">Course Information </h4>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+
+		<!-- course info -->
+		<div class="col-lg-5 col-md-5 col-sm-4">
+			{% include 'ComSemApp/course_details.html' %}
+		</div>
+
+		<!-- course students -->
+		<div class="col-lg-7 col-md-7 col-sm-8">
+			<div class="portlet">
+
+				<div class="portlet-heading portlet-default">
+					<h4 class="portlet-title m-t-0 header-title"><b>Students</b></h4>
+
+					<div class="portlet-widgets">
+
+						<a data-toggle="collapse" data-parent="#accordion1" href="#courseStudentsPortlet"><i class="ion-minus-round"></i></a>
+
+					</div>
+					<div class="clearfix"></div>
+
+				</div>
+
+				<div id="courseStudentsPortlet" class="panel-collapse collapse show">
+					<div class="portlet-body">
+
+						<table id="courseStudentsTable" class="table table-hover table-sm"></table>
+
+						<script>
+							$(function(){
+								$('#courseStudentsTable').load("{% url 'course_students' %}", {'course_id' : {{ course.id }}})
+							})
+						</script>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- worksheets -->
+	<div class="row">
+
+		<div class="col-12">
+
+			<div class="card-box" style="min-height:400px;">
+
+				<div class="row">
+
+					<div class="col-6">
+						<h4 class="m-t-0 header-title"><b>Worksheets</b></h4>
+					</div>
+					<div class="col-6">
+						<button class="btn btn-sm btn-outline-info float-right">
+							New
+						</button>
+					</div>
+
+				</div>
+
+				<div class="panel-body">
+
+					{% if worksheets %}
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Date</th>
+								<th>Topic</th>
+								<th>Status</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for worksheet in worksheets %}
+							<tr>
+								<td>$worksheetNumber</td>
+								<td>{{ worksheet.date }}</td>
+								<td>{{ worksheet.topic }}</td>
+								<td>
+									<span class='badge badge-{% if worksheet.released %}success{% else %}warning{% endif %}'>{% if worksheet.released %}Released{% else %}Unreleased{% endif %}</span>
+								</td>
+								<td>
+									{% if worksheet.released %}
+										<div class="row">
+											<form method='GET' action='ViewWorksheet/' name='ViewWorksheet'>
+												<input hidden type='text' name='worksheetID' value='<?=$worksheetIDs[$i]?>'>
+												<button class='btn btn-sm btn-outline-primary'>Review</button>
+											</form>
+										</div>
+									{% else %}
+										<div class="row">
+
+											<a href="{% url 'teacher_worksheet' worksheet.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
+
+											<form method='GET' name='publishworksheet{<?=$i?>}' action='PublishWorksheet.php'>
+												<input hidden type='text' name='worksheetID' value='<?=$worksheetIDs[$i]?>'>
+												<button type='button' name='publishworksheet' class='btn btn-sm btn-outline-success' style="margin-left: 10px;">Release</button>
+											</form>
+
+											<form method='GET' name='deleteworksheet{<?=$i?>}' action='DeleteWorksheet.php'>
+												<input hidden type='text' name='worksheetID' value='<?=$worksheetIDs[$i]?>'>
+												<input hidden type='text' name='courseID' value='<?=$courseID?>'>
+												<button type='button' name='deleteworksheet' class='btn btn-sm btn-outline-danger' style="margin-left: 10px;">Delete</button>
+											</form>
+										</div>
+									{% endif %}
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+					{% else %}
+						<p>No available worksheets.</p>
+					{% endif %}
+
+				</div>
+			</div>
+
+
+			<!-- END PAGE CONTENT -->
+		</div>
+	</div>
+
+	<form method="GET" action="/Teacher/MyCourses/ViewCourse/" id="reloadPage" style="display: none">
+		<input hidden type="text" name="courseID" value="<?=$courseID?>" />
+	</form>
+
+	<script>
+
+		$("button[name='deleteworksheet']").on("click", function(e){
+			e.preventDefault();
+			var memberForm = $(this).closest("form");
+			var worksheetID = $(memberForm).find("input[name='worksheetID']").val();
+
+
+			$(":button").prop("disabled", true);
+			$.ajax({
+				type: "GET",
+				url: "DeleteWorksheet.php",
+				data: {
+					"worksheetID":worksheetID
+				},
+				success: function(data) {
+					$('#reloadPage').submit();
+				}
+			});
+		});
+
+		// New Worksheet Handler
+		$("button[name='newworksheet']").on("click", function(e) {
+			e.preventDefault();
+			var topic = $("input[name='topic']").val();
+			var courseid = $("input[name='courseID']").val();
+			var worksheetnumber = $("input[name='worksheet_number']").val();
+			var original = $("input[name='worksheetTypeOriginal']").prop('checked');
+			var text = $("input[name='worksheetTypeText']").prop('checked');
+			var audio = $("input[name='worksheetTypeAudio']").prop('checked');
+
+			$(":button").prop("disabled", true);
+
+			$.ajax({
+				type: "GET",
+				url: "CreateWorksheet.php",
+				data: {
+					"topic": topic,
+					"worksheet_number": worksheetnumber,
+					"worksheetTypeOriginal": original,
+					"worksheetTypeText": text,
+					"worksheetTypeAudio": audio,
+					"courseid": courseid
+				},
+				success: function(data){
+					$('#reloadPage').submit();
+				}
+			});
+		});
+
+
+		// Publish Worksheet Handler
+		$("button[name='publishworksheet']").on("click", function(e) {
+
+			$(":button").prop("disabled", true);
+
+			var parentForm = $(this).closest("form");
+			var worksheetID = $(parentForm).find("input[name=worksheetID]").val();
+
+			$.ajax({
+				type: "GET",
+				url: "PublishWorksheet.php",
+				data: {
+					"worksheetID": worksheetID
+				},
+				success: function(data){
+					$('#reloadPage').submit();
+				}
+			});
+		});
+
+	</script>
+
+{% endblock %}
