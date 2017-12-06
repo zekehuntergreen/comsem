@@ -1,0 +1,23 @@
+<div class="col-md-12">
+	<div class="form-group">
+
+		<label for="recorderRecord">Record Reformulation:</label><br />
+
+		<button id="recorderRecord" class="btn btn-sm btn-outline-danger csRecorderButton" type="button" onclick="startRecording(this);">
+			<i class="ti-control-record"></i>
+		</button>
+
+		<button id="recorderStop" class="btn btn-sm btn-outline-primary csRecorderButton" type="button" onclick="stopRecording(this);" disabled>
+			<i class="ti-control-stop"></i>
+		</button>
+
+		<div class="float-right">
+			<div id="recordingslist" style="display: inline-block"></div>
+
+			<button type="button" id="deleteRecordingButton" class="btn btn-sm btn-outline-warning csRecorderButton" style="display: none">
+				<i class="ti-trash"></i>
+			</button>
+		</div>
+
+	</div>
+</div>

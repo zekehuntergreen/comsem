@@ -57,7 +57,7 @@
 
 		<div class="col-12">
 
-			<div class="card-box" style="min-height:400px;">
+			<div class="card-box">
 
 				<div class="row">
 
@@ -65,9 +65,8 @@
 						<h4 class="m-t-0 header-title"><b>Worksheets</b></h4>
 					</div>
 					<div class="col-6">
-						<button class="btn btn-sm btn-outline-info float-right">
-							New
-						</button>
+						{% url 'teacher_worksheet' course.id 0 as new_worksheet %}
+						<a href="{{ new_worksheet }}" class="btn btn-sm btn-outline-info float-right">New</a>
 					</div>
 
 				</div>
@@ -87,8 +86,8 @@
 						</thead>
 						<tbody>
 							{% for worksheet in worksheets %}
-							<tr>
-								<td>$worksheetNumber</td>
+							<tr worksheet_id="{{ worksheet.id }}">
+								<td>{{ forloop.counter }}</td>
 								<td>{{ worksheet.date }}</td>
 								<td>{{ worksheet.topic }}</td>
 								<td>
@@ -104,19 +103,11 @@
 										</div>
 									{% else %}
 										<div class="row">
+											<a href="{% url 'teacher_worksheet' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
 
-											<a href="{% url 'teacher_worksheet' worksheet.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
+											<button type='button' name='' class='btn btn-sm btn-outline-success release_worksheet_button' style="margin-left: 10px;">Release</button>
 
-											<form method='GET' name='publishworksheet{<?=$i?>}' action='PublishWorksheet.php'>
-												<input hidden type='text' name='worksheetID' value='<?=$worksheetIDs[$i]?>'>
-												<button type='button' name='publishworksheet' class='btn btn-sm btn-outline-success' style="margin-left: 10px;">Release</button>
-											</form>
-
-											<form method='GET' name='deleteworksheet{<?=$i?>}' action='DeleteWorksheet.php'>
-												<input hidden type='text' name='worksheetID' value='<?=$worksheetIDs[$i]?>'>
-												<input hidden type='text' name='courseID' value='<?=$courseID?>'>
-												<button type='button' name='deleteworksheet' class='btn btn-sm btn-outline-danger' style="margin-left: 10px;">Delete</button>
-											</form>
+											<button type="button" class='btn btn-sm btn-outline-danger delete_worksheet_button' style="margin-left: 10px;">Delete</button>
 										</div>
 									{% endif %}
 								</td>
@@ -125,7 +116,7 @@
 						</tbody>
 					</table>
 					{% else %}
-						<p>No available worksheets.</p>
+						<p>No worksheets have been created yet. <a href="{{ new_worksheet }}">Click here</a> to create one.</p>
 					{% endif %}
 
 				</div>
@@ -136,80 +127,59 @@
 		</div>
 	</div>
 
-	<form method="GET" action="/Teacher/MyCourses/ViewCourse/" id="reloadPage" style="display: none">
-		<input hidden type="text" name="courseID" value="<?=$courseID?>" />
-	</form>
 
 	<script>
 
-		$("button[name='deleteworksheet']").on("click", function(e){
-			e.preventDefault();
-			var memberForm = $(this).closest("form");
-			var worksheetID = $(memberForm).find("input[name='worksheetID']").val();
-
-
-			$(":button").prop("disabled", true);
+		var delete_worksheet_id;
+		function delete_worksheet(){
+			$worksheet_row = $('tr[worksheet_id=' + delete_worksheet_id + ']');
 			$.ajax({
-				type: "GET",
-				url: "DeleteWorksheet.php",
+				type: "POST",
+				url: "{% url 'delete_worksheet' %}",
 				data: {
-					"worksheetID":worksheetID
+					"worksheet_id": delete_worksheet_id,
+					"course_id": {{ course.id }},
 				},
 				success: function(data) {
-					$('#reloadPage').submit();
+					$worksheet_row.slideUp()
+				},
+				error: function(XMLHttpRequest, textStatus, errorThrown) {
+
+					// MAKE A COM SEM ERRORS FUNCTION
+					alert("Status: " + textStatus); alert("Error: " + errorThrown);
 				}
 			});
-		});
+		}
 
-		// New Worksheet Handler
-		$("button[name='newworksheet']").on("click", function(e) {
-			e.preventDefault();
-			var topic = $("input[name='topic']").val();
-			var courseid = $("input[name='courseID']").val();
-			var worksheetnumber = $("input[name='worksheet_number']").val();
-			var original = $("input[name='worksheetTypeOriginal']").prop('checked');
-			var text = $("input[name='worksheetTypeText']").prop('checked');
-			var audio = $("input[name='worksheetTypeAudio']").prop('checked');
 
-			$(":button").prop("disabled", true);
-
+		var release_worksheet_id;
+		function release_worksheet(){
 			$.ajax({
-				type: "GET",
-				url: "CreateWorksheet.php",
+				type: "POST",
+				url: "{% url 'release_worksheet' %}",
 				data: {
-					"topic": topic,
-					"worksheet_number": worksheetnumber,
-					"worksheetTypeOriginal": original,
-					"worksheetTypeText": text,
-					"worksheetTypeAudio": audio,
-					"courseid": courseid
+					"worksheet_id": release_worksheet_id
 				},
 				success: function(data){
-					$('#reloadPage').submit();
+					location.reload();
 				}
 			});
-		});
+		}
 
+		$(function(){
 
-		// Publish Worksheet Handler
-		$("button[name='publishworksheet']").on("click", function(e) {
-
-			$(":button").prop("disabled", true);
-
-			var parentForm = $(this).closest("form");
-			var worksheetID = $(parentForm).find("input[name=worksheetID]").val();
-
-			$.ajax({
-				type: "GET",
-				url: "PublishWorksheet.php",
-				data: {
-					"worksheetID": worksheetID
-				},
-				success: function(data){
-					$('#reloadPage').submit();
-				}
+			$(".delete_worksheet_button").on("click", function(e){
+				delete_worksheet_id = $(this).parents('tr').attr('worksheet_id')
+				cs_confirm("Delete Worksheet", "Are you sure you'd like to delete this worksheet?", delete_worksheet, true);
 			});
+
+			$(".release_worksheet_button").on("click", function(e){
+				release_worksheet_id = $(this).parents('tr').attr('worksheet_id')
+				cs_confirm("Release Worksheet", "Are you sure you'd like to release this worksheet? You will no longer be able to edit it.", release_worksheet, false);
+			});
+
 		});
+
 
 	</script>
 

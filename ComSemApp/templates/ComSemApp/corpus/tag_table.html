@@ -1,0 +1,32 @@
+<table class='table table-hover table-sm'>
+	<thead>
+		<tr>
+			<th class="checkbox-cell">
+				<div class="checkbox checkbox-success">
+					<input id="checkAll" type="checkbox">
+					<label for="checkAll"></label>
+				</div>
+			</th>
+			<th>Tag Name</th>
+			<th>Tag Type</th>
+			<th>Frequency</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for tag in tags %}
+		<input type=hidden name="searched_word_or_tag" value="{{ tag.tag }}">
+		<tr>
+			<td  class="checkbox-cell">
+				<div class="checkbox checkbox-primary">
+					<input type="checkbox" name="checktags[]" value="{{ tag.tag }}" id="result{{ forloop.counter }}">
+					<label for="result{{ forloop.counter }}"></label>
+				</div>
+			</td>
+			<td>{{ tag.tag }}</td>
+			<td>{{ tag.type }}</td>
+			<td>{{ tag.frequency }}</td>
+			<input hidden type="text" name="tags[]" value="{{ tag.tag }}">
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>

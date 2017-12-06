@@ -24,3 +24,7 @@ select.input-sm{
 .table th {
 	border-top: none !important;
 }
+
+.cs-table-container {
+	overflow-x: scroll;
+}

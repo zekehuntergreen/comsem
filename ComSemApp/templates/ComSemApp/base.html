@@ -13,11 +13,13 @@
 		<!-- Minton -->
 		<link href="{% static "ComSemApp/Minton/css/bootstrap.min.css" %}" rel="stylesheet" type="text/css">
 		<link href="{% static "ComSemApp/Minton/css/icons.css" %}" rel="stylesheet" type="text/css">
-		<link href="{% static "ComSemApp/Minton/css/style.css" %}" rel="stylesheet" type="text/css">
+		<link href="{% static "ComSemApp/Minton/css/style.css" %}" rel="stylesheet" type="text/css" v="2">
 
 		<script src="{% static "ComSemApp/Minton/js/modernizr.min.js"  %}"></script>
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+		<script src="{% static "ComSemApp/js/ComSemRecording.js" %}"></script>
 
 		<!-- js cookies -->
 		<script src="{% static "ComSemApp/js/js-cookie/src/js.cookie.js" %}"></script>
@@ -33,13 +35,43 @@
 			});
 		</script>
 
-		<link href="{% static "ComSemApp/css/com_sem_styles.css" %}" rel="stylesheet" v="2" />
+		<link href="{% static "ComSemApp/css/com_sem_styles.css" %}" rel="stylesheet" v="1" />
 
 	</head>
 
 	{% block body %}
 
 	{% endblock %}
+
+	<div class="modal fade" id="cs_confirm_modal">
+		<div class="modal-dialog modal-md">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body"></div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+					<button id="confirm_modal_confirm" type="button" class="btn" data-dismiss="modal">Confirm</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		function cs_confirm(title, text, on_confirm, urgent){
+			$("#cs_confirm_modal .modal-title").html(title)
+			$("#cs_confirm_modal .modal-body").html(text)
+			$("#cs_confirm_modal #confirm_modal_confirm").click(on_confirm)
+			if(urgent){
+				$("#cs_confirm_modal #confirm_modal_confirm").removeClass('btn-outline-danger btn-outline-primary').addClass('btn-outline-danger')
+			} else {
+				$("#cs_confirm_modal #confirm_modal_confirm").removeClass('btn-outline-danger btn-outline-primary').addClass('btn-outline-primary')
+			}
+			$("#cs_confirm_modal").modal()
+		}
+	</script>
 
 	<!-- MINTON -->
     <script>
@@ -79,7 +111,7 @@
     <script src="{% static "ComSemApp/Minton/js/jquery.app.js" %}"></script>
 
     <!-- recordmp3 needed by ComSemRecording -->
-    <!-- <script src="{% static "ComSemApp/js/Recordmp3js/recordmp3.js" %}"></script> -->
+    <script src="{% static "ComSemApp/js/Recordmp3js/recordmp3.js" %}"></script>
 
 
 

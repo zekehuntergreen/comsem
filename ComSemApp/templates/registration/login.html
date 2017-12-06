@@ -45,6 +45,12 @@
 				</div>
 			</div>
 
+			{% if form.errors %}
+			<div class="alert alert-danger mt-1" role="alert">
+				Your username and password didn't match. Please try again.
+			</div>
+			{% endif %}
+
 			<!-- TO DO  -->
 			<!-- <div class="form-group row">
 				<div class="col-12">

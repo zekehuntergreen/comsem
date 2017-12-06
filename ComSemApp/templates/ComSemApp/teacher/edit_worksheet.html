@@ -1,31 +1,243 @@
-<p>
-    courseid : {{ course_id.course_id }}<br />
-</p>
+{% extends 'ComSemApp/sidebar.html' %}
 
-{% if worksheet %}
-    <p>
-        worksheetid : {{ worksheet.worksheet_id }}<br />
-        worksheet date: {{ worksheet.date }}<br />
-        worksheet course_id : {{ worksheet.course_id }}<br />
-        worksheet edit status : {{ worksheet.edit_status }}<br />
-    </p>
-{% else %}
-    <p>No worksheet info</p>
-{% endif %}
+{% load static %}
+
+{% block content %}
+
+<!-- page head -->
+<form method="GET" id="editWorksheetForm">
+
+	<input type="hidden" id="course_id" name="course_id" value="{{ course.id }}">
+	<input type="hidden" id="worksheet_id" name="worksheet_id" value="{{ worksheet.id }}">
+
+	<!-- Page-Title -->
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="page-title-box">
+
+				<h4 class="page-title">
+					{% if not worksheet.id %}New Worksheet{% else %}Edit Worksheet{{ worksheet.number }}{% endif %}
+					<small>{{ course }}</small>
+				</h4>
+
+				<button type="submit" class="btn btn-sm btn-success float-right" id="SaveWorksheet">Save Worksheet</button>
 
 
-{% if expressions %}
-    <p>{{ expressions }}</p>
-{% else %}
-    <p>No expressions are available.</p>
-{% endif %}
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
 
-{% if enrollments %}
-    <ul>
-    {% for enrollment in enrollments %}
-        <li>{{ enrollment.student_id.firstname }} {{ enrollment.student_id.lastname }}</li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No students are enrolled.</p>
-{% endif %}
+	{% include 'ComSemApp/recording_alerts.html' %}
+
+	<div class="row">
+
+		<div class="col-12">
+
+			<div class="card-box">
+				<h4 class="m-t-0 header-title"><b>Worksheet Info</b></h4>
+
+				<div class="row">
+
+					<div class="col-12 col-md-6">
+
+
+						<label for="topic">Topic</label>
+						<input class="form-control" type="text" id="topic" name="topic" placeholder="Enter Topic" value="{{ worksheet.topic}}" autocomplete="off">
+
+					</div>
+
+					<div class="col-12 col-md-6">
+
+						<label for="display_original">My Students Will See</label>
+
+						<div class="checkbox checkbox-primary">
+							<input type="checkbox" id="display_original" name="display_original" {% if worksheet.display_original %}checked='checked'{% endif %}>
+							<label for="display_original">
+								Original Expression
+							</label>
+						</div>
+
+						<div class="checkbox checkbox-primary">
+
+							<input type="checkbox" id="display_reformulation_text" name="display_reformulation_text" {% if worksheet.display_reformulation_text %}checked='checked'{% endif %}>
+							<label for="display_reformulation_text">
+								Text Reformulation
+							</label>
+						</div>
+
+						<!-- not yet implemented -->
+						<div class="checkbox checkbox-primary">
+
+							<input type="checkbox" id="display_reformulation_audio" name="display_reformulation_audio" {% if worksheet.display_reformulation_audio %}checked='checked'{% endif %}>
+							<label for="display_reformulation_audio">
+								Audio Reformulation
+							</label>
+						</div>
+
+						<div class="checkbox checkbox-primary">
+
+							<div class="radio radio-primary form-check-inline">
+								<input type="radio" value="true" name="display_all_expressions" {% if worksheet.display_all_expressions %}checked='checked'{% endif %} id="allExpressionsYes">
+								<label for="allExpressionsYes"> All Expressions </label>
+							</div>
+
+							<div class="radio radio-primary form-check-inline">
+								<input type="radio" value="false" name="display_all_expressions" {% if not worksheet.display_all_expressions %}checked='checked'{% endif %} id="allExpressionsNo">
+								<label for="allExpressionsNo"> Expressions Assigned to Them </label>
+							</div>
+
+						</div>
+
+						<script>
+							// handle worksheet preferences checkboxes - hide the expression inputs if unchecked
+							$(function(){
+								$('#display_reformulation_text, #display_reformulation_audio').on('change', function(){
+									var checked = $(this).prop('checked');
+									var id = $(this).attr('id');
+									if(checked){
+										$('#' + id + 'Row').show();
+									} else {
+										$('#' + id + 'Row').hide();
+									}
+								})
+							});
+
+						</script>
+
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+</form>
+
+
+<div class="row">
+
+	<!-- expressions -->
+	<div class="col-6">
+		<div class="card-box">
+
+			<div class="row">
+				<div class="col-md-6">
+					<h4 class="m-t-0 header-title"><b>Expressions</b></h4>
+				</div>
+
+				<div class="col-md-6">
+					<button id="newExpressionButton" type="button" name="NewExpression" class="btn btn-sm btn-outline-info pull-right">
+						<i class="fa fa-plus"></i>
+					</button>
+				</div>
+
+			</div>
+
+			<div id="expressionsTableContainer" style="max-height:600px;overflow-y:scroll"></div>
+
+		</div>
+	</div>
+
+	<!-- expression editor -->
+	<div class="col-6">
+		<div class="card-box">
+			<h4 class="m-t-0 header-title"><b>Expression Editor</b></h4>
+
+			<div class="control-group controls" id="ExpressionEditor" style="display: none">
+
+				<input hidden type="text" name="expressionID" id="expressionID" value="">
+				<input hidden type="text" name="expressionIndex" id="expressionIndex" value="">
+
+				<div class="form-group row">
+					<div class="col-12">
+						<h4 id="newExpressionHeader" class="text-muted m-b-10 font-14" style="display: none">New Expression</h4>
+						<h4 id="editExpressionHeader" class="text-muted m-b-10 font-14" style="display: none">Edit Expression</h4>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-12">
+
+						<div class="form-group">
+							<label for="selectstudent">Student: </label>
+							<select class="form-control" name="studentID" id="studentID">
+								<option selected="selected" value="0">All-Do</option>
+								{% for student in students %}
+								<option value='{{ student.student.id }}'>{{ student.student }}</option>
+								{% endfor %}
+							</select>
+						</div>
+
+					</div>
+
+				</div>
+
+
+
+				<div class="row">
+					<div class="col-12">
+						<div class="form-group">
+							<label for="expression">Expression:</label>
+							<input autocomplete="off" type="text" value="" class="form-control" id="expression" name="expression">
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-12">
+						<div class="form-group">
+							<label for="contextVocabulary">Context/Vocab: </label>
+							<input autocomplete="off" id="contextVocabulary" name="contextVocabulary" value="" type="text" class="form-control">
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-12">
+						<div class="form-group">
+							<label for="pronunciation">Pronunciation:</label>
+							<input autocomplete="off" type="text" value="" class="form-control" id="pronunciation" name="pronunciation">
+						</div>
+					</div>
+				</div>
+
+				<div class="row" id="display_reformulation_textRow" style="{% if not worksheet.display_reformulation_text %}display: none{% endif %}">
+					<div class="col-12">
+						<div class="form-group">
+							<label for="expression">Reformulation:</label>
+							<input autocomplete="off" type="text" value="" class="form-control" id="reformulation" name="reformulation">
+						</div>
+					</div>
+				</div>
+
+				<div class="row" id="display_reformulation_audioRow" style="{% if not worksheet.display_reformulation_audio %}display: none{% endif %}">
+					{% include 'ComSemApp/audio_recording.html' %}
+				</div>
+
+				<br />
+				<div class="row">
+					<div class="col-12 text-center">
+						<div class="btn-group" role="group">
+							<button type="submit" id="saveExpression"  name="SaveExpression" class="btn btn-outline-success">Save Expression</button>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+
+		</div>
+	</div>
+
+</div>
+
+<script>
+	expressions = {{ expressions|safe|default:'[]' }};
+	save_url = "{% url 'save_worksheet' %}";
+	redirect_url = "{% url 'teacher_course' course.id %}"
+</script>
+<script src="{% static "ComSemApp/js/edit_worksheet.js" %}"></script>
+
+{% endblock %}

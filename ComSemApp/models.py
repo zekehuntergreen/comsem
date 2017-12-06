@@ -78,6 +78,10 @@ class Course(models.Model):
     def __str__(self):
         return " - ".join([str(self.session), str(self.course_type)])
 
+    def is_active(self):
+        today = datetime.date.today()
+        return self.session.start_date <= today <= self.session.end_date
+
 
 class CourseType(models.Model):
     institution = models.ForeignKey('Institution', on_delete=models.CASCADE)
@@ -97,7 +101,7 @@ class Session(models.Model):
 
     def __str__(self):
         return " - ".join([str(self.session_type), str(self.start_date.year)])
-    
+
 
 class SessionType(models.Model):
     institution = models.ForeignKey('Institution', on_delete=models.CASCADE)
@@ -144,7 +148,7 @@ class TeachingInstance(models.Model):
 class Worksheet(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     course = models.ForeignKey('Course', on_delete=models.CASCADE)
-    topic = models.ForeignKey('Topic')
+    topic = models.ForeignKey('Topic', on_delete=models.PROTECT)
     released = models.BooleanField(default=False)
     display_original = models.BooleanField(default=True)
     display_reformulation_text = models.BooleanField(default=True)
@@ -158,8 +162,8 @@ class Worksheet(models.Model):
 class Expression(models.Model):
     worksheet = models.ForeignKey('Worksheet', on_delete=models.CASCADE)
     expression = models.TextField()
-    enrollment = models.ForeignKey('Enrollment', on_delete=models.SET_NULL, null=True) # the student that the expression is assigned to
-    all_do = models.BooleanField(default=False)
+    student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True) # the student that the expression is assigned to (null means all_do)
+    # all_do = models.BooleanField(default=False)
     pronunciation = models.CharField(max_length=255, blank=True, null=True)
     context_vocabulary = models.CharField(max_length=255, blank=True, null=True)
     reformulation_text = models.TextField(blank=True, null=True)
@@ -170,8 +174,8 @@ class Expression(models.Model):
 
 
 class SequentialWords(models.Model):
-    expression = models.ForeignKey('Expression')
-    word = models.ForeignKey('Word')
+    expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
+    word = models.ForeignKey('Word', on_delete=models.PROTECT)
     position = models.IntegerField(validators=[MinValueValidator(0)])
 
     def __str__(self):
@@ -183,7 +187,7 @@ class SequentialWords(models.Model):
 
 
 class Topic(models.Model):
-    topic = models.TextField()
+    topic = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.topic
@@ -229,7 +233,8 @@ class StudentAttempt(models.Model):
 
 class Word(models.Model):
     form = models.CharField(max_length=255)
-    tag = models.ForeignKey('Tag')
+    tag = models.ForeignKey('Tag', on_delete=models.PROTECT)
+    frequency = models.IntegerField()
 
     def __str__(self):
         return self.form
@@ -238,6 +243,7 @@ class Word(models.Model):
 class Tag(models.Model):
     tag = models.CharField(max_length=255)
     type = models.CharField(max_length=255)
+    frequency = models.IntegerField()
 
     def __str__(self):
         return self.tag

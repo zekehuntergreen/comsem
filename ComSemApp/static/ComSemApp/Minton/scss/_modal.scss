@@ -4,20 +4,6 @@ Modal
 .modal {
   .modal-dialog {
 
-    .close {
-      top: -18px;
-      position: absolute;
-      right: -18px;
-      height: 36px;
-      width: 36px;
-      background-color: $dark;
-      opacity: 1;
-      border: 2px solid $white;
-      text-shadow: none;
-      color: $white;
-      border-radius: 50%;
-    }
-
     .modal-title {
       margin: 0;
     }

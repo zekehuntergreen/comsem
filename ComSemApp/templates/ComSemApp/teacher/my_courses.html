@@ -5,16 +5,13 @@
 
 		<div class="col-lg-8 col-md-8 col-sm-12">
 
-			<div class="card-box" style="min-height:600px;">
+			<div class="card-box cs-table-container" style="min-height:600px;">
 
 				<div class="row">
 					<div class="col-6">
 						<h4 class="m-t-0 header-title">
 							<b>My Courses</b>
 						</h4>
-						<p class="text-muted m-b-30 font-14">
-							<?=$institutionName?>
-						</p>
 					</div>
 
 					<!-- course status button group -->
@@ -27,7 +24,6 @@
 							<label class="btn btn-sm btn-outline-primary" id="showAllCourses">
 								<input type="radio"  autocomplete="off"> All
 							</label>
-
 						</div>
 					</div>
 
@@ -45,78 +41,78 @@
 				</div>
 
 
-				<div class="panel-body" style="min-height: 150px;">
+				{% if courses %}
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th>Active</th>
+							<th>Session</th>
+							<th>Year</th>
+							<th>Course</th>
+							<th>Section</th>
+							<th></th>
+							<th class="d-xs-none"></th>
+						</tr>
+					</thead>
 
-					{% if courses %}
-					<table class="table table-hover">
-						<thead>
-							<tr>
-								<th>Active</th>
-								<th>Session</th>
-								<th>Year</th>
-								<th>Course</th>
-								<th>Section</th>
-								<th></th>
-								<th class="hidden-sm hidden-xs"></th>
+					<tbody>
+						{% for course in courses %}
+							<tr class="courseRow course-{{ course.status }}" course_id="{{ course.id }}" style="display:{% if course.is_active %}table-row{% else %}none{% endif %}">
+								<td class='text-center'><i class='fa fa-lg {% if course.is_active %}fa-check{% else %}fa-times{% endif %}'></i></td>
+								<td>{{ course.session.session_type.name }}</td>
+								<td>{{ course.session.start_date.year }}</td>
+								<td>{{ course.course_type.name }}</td>
+								<td>{{ course.section }}</td>
+								<td>
+									<a href="{% url 'teacher_course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</button>
+								</td>
+								<td class='hidden-sm hidden-xs'>
+									<button type='button' class='btn btn-sm btn-outline-primary showStudents'>Show Students</button>
+								</td>
 							</tr>
-						</thead>
+						{% endfor %}
 
-						<tbody>
+					</tbody>
+				</table>
+				{% else %}
+					<p>No available courses.</p>
+				{% endif %}
 
-							{% for course in courses %}
-								<tr class="courseRow course-{{ course.status }}" course_id="{{ course.id }}" style="display:{% if course.active %}table-row{% else %}none{% endif %}">
-									<td class='text-center'><i class='fa fa-lg {% if course.active %}fa-check{% else %}fa-times{% endif %}'></i></td>
-									<td>{{ course.session.session_type.name }}</td>
-									<td>{{ course.session.start_date.year }}</td>
-									<td>{{ course.course_type.name }}</td>
-									<td>{{ course.section }}</td>
-									<td>
-										<a href="{% url 'teacher_course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</button>
-									</td>
-									<td class='hidden-sm hidden-xs'>
-										<button type='button' class='btn btn-sm btn-outline-primary showStudents'>Show Students</button>
-									</td>
-								</tr>
-							{% endfor %}
+				<script>
+					// handle the show students buttons. request and insert table content, set row to appear active
+					$(document).ready(function(){
+						$(".showStudents").click(function(){
+							var $courseRow = $(this).parents("tr.courseRow");
+							var course_id = $courseRow.attr("course_id");
 
-						</tbody>
-					</table>
-					{% else %}
-						<p>No available courses.</p>
-					{% endif %}
+							$('#courseStudentsTable').load(
+								"{% url 'course_students' %}", {'course_id' : course_id},
+								function(response){
+									$("#courseStudentsTable").html(response);
 
-					<script>
-						// handle the show students buttons. request and insert table content, set row to appear active
-						$(document).ready(function(){
-							$(".showStudents").click(function(){
-								var $courseRow = $(this).parents("tr.courseRow");
-								var course_id = $courseRow.attr("course_id");
+									// highlight current row by giving it the active class
+									$(".courseRow").removeClass('cs-active');
+									$courseRow.addClass('cs-active');
+								}
+							)
 
-								$('#courseStudentsTable').load(
-									"{% url 'course_students' %}", {'course_id' : course_id},
-									function(response){
-										$("#courseStudentsTable").html(response);
-
-										// highlight current row by giving it the active class
-										$(".courseRow").removeClass('cs-active');
-										$courseRow.addClass('cs-active');
-									}
-								)
-								
-							});
 						});
-					</script>
-				</div>
+					});
+				</script>
 			</div>
 		</div>
 
 
-		<div class="col-lg-4 col-md-4 hidden-sm hidden-xs">
+		<div class="col-lg-4 col-md-4 hidden-sm-down">
 			<div class="card-box" style="min-height:600px;">
 
-				<h4 class="m-t-0 header-title"><b>Students in Course</b></h4>
+				<div class="row">
+					<div class="col-12">
+						<h4 class="m-t-0 header-title"><b>Students in Course</b></h4>
+					</div>
+				</div>
 
-				<table id="courseStudentsTable" class="table table-hover"></table>
+				<table id="courseStudentsTable" class="table table-hover" style="margin-top: 23px"></table>
 
 			</div>
 		</div>

@@ -2024,7 +2024,7 @@ code, pre {
 /*===========
 Modal
 =========== */
-.modal .modal-dialog .close {
+/*.modal .modal-dialog .close {
   top: -18px;
   position: absolute;
   right: -18px;
@@ -2035,7 +2035,7 @@ Modal
   border: 2px solid #ffffff;
   text-shadow: none;
   color: #ffffff;
-  border-radius: 50%; }
+  border-radius: 50%; }*/
 .modal .modal-dialog .modal-title {
   margin: 0; }
 .modal .modal-dialog .modal-content {

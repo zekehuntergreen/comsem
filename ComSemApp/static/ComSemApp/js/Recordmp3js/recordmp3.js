@@ -1,7 +1,7 @@
 (function(window){
 
-  var WORKER_PATH = '/js/Recordmp3js/js/recorderWorker.js';
-  var encoderWorker = new Worker('/js/Recordmp3js/js/mp3Worker.js');
+  var WORKER_PATH = '/static/ComSemApp/js/Recordmp3js/js/recorderWorker.js';
+  var encoderWorker = new Worker('/static/ComSemApp/js/Recordmp3js/js/mp3Worker.js');
 
   var Recorder = function(source, cfg){
     var config = cfg || {};

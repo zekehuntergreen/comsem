@@ -1,0 +1,545 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% block content %}
+
+<!-- Page-Title -->
+<div class="row">
+	<div class="col-sm-12">
+		<div class="page-title-box">
+			<h4 class="page-title">
+				Corpus Search
+			</h4>
+			<div class="clearfix"></div>
+		</div>
+	</div>
+</div>
+
+<!-- search criteria -->
+<div class="row">
+
+
+	<!-- 1. ADD TO SEARCH QUERY  -->
+    <div class="col-md-12 col-lg-4">
+
+        <div class="card-box searchCardBox">
+
+            <form class="csSpacer" method="POST" role="form" action="" id="word_or_tag_load">
+
+				<table class="csSpacer">
+					<tr>
+						<td class="align-top">
+							<div class="row">
+								<div class="col-12">
+									<h4 class="m-t-0 header-title"><b>Add to Search Query</b></h4>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-12">
+									<div class="form-group">
+										<label for="new_word">Load Word</label>
+						                <input type="text" class="form-control input-sm" id="new_word" name="new_word" placeholder="Type a word to search">
+									</div>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-12">
+									<div class="form-group">
+										<label for="new_tag">Load part-of-speech tag</label>
+										<select class="form-control input-sm" id="new_tag" name="new_tag">
+											<option selected="selected" value="ALL">Full Tagset (20 Most Frequent)</option>
+											<option value="Noun">Noun</option>
+											<option value="Pronoun">Pronoun</option>
+											<option value="Verb">Verb</option>
+											<option value="Adjective">Adjective</option>
+											<option value="Adverb">Adverb</option>
+											<option value="Preposition">Preposition</option>
+											<option value="Conjunction">Conjunction</option>
+											<option value="Determiner">Determiner</option>
+											<option value="Interjection">Interjection</option>
+											<option value="Other">Other</option>
+										</select>
+									</div>
+								</div>
+							</div>
+
+						</td>
+					</tr>
+
+					<tr>
+						<td class="align-bottom">
+							<div class="row" style="margin-top: 10px;">
+								<div class="col-6">
+									<button class="btn btn-sm btn-outline-primary addToSearch" type="button" output="html">
+										<span>Selector <i class="ti-angle-right"></i></span>
+									</button>
+								</div>
+								<div class="col-6">
+									<button class="btn btn-sm btn-outline-primary pull-right addToSearch" type="button" output="json">
+										<span>Query Builder <i class="ti-angle-double-right"></i></span>
+									</button>
+								</div>
+							</div>
+						</td>
+					</tr>
+				</table>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+	<!-- 2. SELECT -->
+    <div class="col-md-12 col-lg-4">
+
+        <div class="card-box searchCardBox">
+
+            <form class="csSpacer" method="POST" action="" id="SubmitNewEntity" autocomplete="off">
+
+				<table class="csSpacer">
+					<tr>
+						<td class="align-top">
+							<div class="row">
+								<div class="col-sm-12 col-md-6">
+									<h4 class="m-b-10 header-title">
+										Selector
+									</h4>
+								</div>
+								<div class="col-sm-12 col-md-6">
+									<a href= "javascript:window.open('http://ucrel.lancs.ac.uk/claws7tags.html','width=700,height=650')" target="_blank" class="text-muted m-b-10 font-13 float-right">About CLAWS7 Tagset</a>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-12 nicescroll" id="DynamicField"></div>
+			                </div>
+						</td>
+					</tr>
+
+
+					<tr>
+						<td class="align-bottom">
+							<div class="row" class="align-bottom">
+			                    <div class="col-sm-12 col-md-6">
+			                        <button class='btn btn-sm btn-outline-danger' type="button" name="ClearSelector">Clear</button>
+								</div>
+								<div class="col-sm-12 col-md-6">
+			                        <button type="button" class="btn btn-sm btn-outline-primary pull-right" name="SubmitSelector">Query Builder <i class="ti-angle-right"></i></button>
+			                    </div>
+			                </div>
+						</td>
+					</tr>
+				</table>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+	<!-- 3. BUILD QUERY -->
+	<div class="col-md-12 col-lg-4">
+
+        <div class="card-box searchCardBox">
+
+			<form class="csSpacer" method="POST" id="SubmitSearchForm">
+
+				<input type="hidden" name="searchCriteria" id="searchCriteria" />
+
+				<table class="csSpacer">
+					<tr>
+						<td class="align-top">
+
+							<div class="row">
+								<div class="col-12">
+									<h4 class="m-t-0 header-title">
+										Query Builder
+									</h4>
+								</div>
+
+							</div>
+
+							<div class="row">
+								<div class="col-12">
+									<div class="radio radio-primary form-check-inline">
+										<input type="radio" name="searchType" value="1" id="searchType1">
+										<label for="searchType1"> Sequential </label>
+									</div>
+									<div class="radio radio-primary form-check-inline">
+										<input type="radio" name="searchType" value="0" checked="checked" id="searchType0">
+										<label for="searchType0"> Non-Sequential </label>
+									</div>
+								</div>
+
+							</div>
+
+							<div class="row">
+								<div class="col-12 nicescroll" id="sortParams">
+									<table style="display: none" class="table table-hover table-sm">
+					                    <thead>
+					                        <tr>
+					                            <th>Type</th>
+					                            <th>Content</th>
+					                            <th></th>
+					                        </tr>
+					                    </thead>
+					                    <tbody></tbody>
+					                </table>
+								</div>
+							</div>
+						</td>
+					</tr>
+
+					<tr>
+						<td class="align-bottom">
+							<div class="row">
+			                    <div class="col-4">
+									<label for="newOffset">Offset</label>
+									<input class="form-control input-sm" type="number" min="1" max="8" value="1" id="newOffset" name="addOffset">
+								</div>
+								<div class="col-8">
+									<button class="btn btn-sm btn-outline-primary" id="addOffsetButton" type="button" style="bottom: 0px; position: absolute; min-height: 10px !important; ">Add</button>
+								</div>
+							</div>
+
+							<div class="row" style="margin-top: 15px">
+								<div class="col-6">
+			                        <button class='btn btn-sm btn-outline-danger' type="button" name="ClearSelector" id="clearQueryBuilder">Clear</button>
+								</div>
+
+								<div class="col-6">
+									<button class="btn btn-sm btn-outline-success pull-right" type="submit">
+										 <span>Search <i class="ti-angle-right"></i></span>
+									</button>
+								</div>
+			                </div>
+						</td>
+					</tr>
+				</table>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+
+<!-- results -->
+<br />
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-box" id="searchResults" style="display: none"></div>
+	</div>
+</div>
+
+<script>
+    var numOffsets = 0;
+	var searchCriteria = [];
+
+	function buildSearchQueryRow(words, searched_word_or_tag, tags){
+
+		var num_words = words.length;
+		var num_tags = tags.length;
+
+		if (num_words > 0) {
+			$.ajax({
+				type: "POST",
+				url: "buildrow.php",
+				data: {
+					'words' : words,
+					'searchedword' : searched_word_or_tag
+				},
+				success: function(data){
+					$("#DynamicField").empty();
+					$("#sortParams table").show().find("tbody").append(data);
+
+					appendCriterion('word', searched_word_or_tag, words)
+
+				}
+			});
+			$("button[name='SubmitSelector']").prop("disabled",false);
+		} else if (num_tags > 0) {
+
+			var searchedtag = $("input[name='searchedtag']").val();
+
+			$.ajax({
+				type: "POST",
+				url: "buildtagrow.php",
+				data: {
+					'tags' : tags,
+					'searchedtag': searched_word_or_tag,
+				},
+				success: function(data){
+					$("#DynamicField").empty();
+					$("#sortParams table").show().find("tbody").append(data);
+
+					appendCriterion('tag', searched_word_or_tag, tags)
+
+				}
+			});
+			$("button[name='SubmitSelector']").prop("disabled",false);
+
+		} else {
+			if ( (num_tags == 0) && (num_words == 0)){
+				alert("Please select at least one entry, or clear the list");
+				$("button[name='SubmitSelector']").prop("disabled",false);
+				return false;
+			}
+		}
+	}
+
+
+	// type in ('word', 'tag')
+	function appendCriterion(type, word_or_tag, list){
+		searchCriteria.push({
+			type: type,
+			word_or_tag: word_or_tag,
+			list: list,
+		});
+		$('#searchCriteria').val(JSON.stringify(searchCriteria));
+	}
+
+    $(document).ready(function() {
+
+		$("#SubmitSearchForm").submit(function(e){
+			e.preventDefault();
+			var data = {
+				'searchCriteria': $('#searchCriteria').val(),
+				'searchType': $('[name=searchType]:checked').val(),
+			}
+			$('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load('searchResults.php', data );
+		});
+
+
+		// add offset
+        $("#addOffsetButton").click(function() {
+            var offsetVal = $("#newOffset").val();
+
+			if (offsetVal == 0)
+                return false;
+
+            var toAdd = "<tr><td>offset</td><td>" + offsetVal + "</td><td><button class='btn btn-sm btn-outline-danger float-right' type='button' name='DeleteRow'><i class='ti-trash'></i></button></td><input hidden type='text' value='' name='offset[" + numOffsets + "]'></tr>";
+
+            numOffsets = numOffsets + 1;
+
+			appendCriterion('offset', offsetVal, null)
+
+            $("#sortParams table").append(toAdd).show();
+        });
+
+		// clear selector
+		$("button[name='ClearSelector']").click(function() {
+            $("#DynamicField").empty();
+        });
+
+		//clear query Builder
+		$('#clearQueryBuilder').click(function(){
+			$('#sortParams table').hide().find('tbody').html('');
+			searchCriteria = [];
+			$('#searchCriteria').val(JSON.stringify(searchCriteria));
+		});
+
+
+		// submit selector
+		$("button[name='SubmitSelector']").click(function() {
+
+            $(this).prop("disabled",true);
+            var words = [];
+            var searched_word_or_tag = $("input[name='searched_word_or_tag']").val();
+
+            $("input[name^='checkwords']").each(function() {
+                if ($(this).is(':checked')) {
+                    words.push($(this).val());
+                }
+            });
+            var tags = [];
+            $("input[name^='checktags']").each(function() {
+                if ($(this).is(':checked')) {
+                    tags.push($(this).val());
+                }
+            });
+
+
+			buildSearchQueryRow(words, searched_word_or_tag, tags);
+
+        });
+
+    });
+
+
+
+    $(document).on("click", "button[name='DeleteRow']", function() {
+
+		// delete the criteria from the search criteria array, put new json string in input field
+		var index = $(this).parents('tr').index();
+		searchCriteria.splice(index, 1);
+		$('#searchCriteria').val(JSON.stringify(searchCriteria));
+
+		// remove the row from the document
+        $(this).closest('tr').remove();
+    });
+
+
+
+    $('input[name="new_word"]').keypress(function(e){
+        if (e.which == 13) return false;
+    });
+
+    $(".addToSearch").on("click", function(e){
+        e.preventDefault();
+
+		var output = $(this).attr('output'); // refine the search in the second box or go directly to the query builder?
+		var word_or_tag = $('#new_word').val() ? 'word' : 'tag'; // is this a word or tag? if word input has content, it's a word
+		var word_or_tag_val = '';
+
+        $(this).prop("disabled",true);
+		$("#DynamicField").empty();
+
+		if(word_or_tag == 'word'){
+			word_or_tag_val = $("input[name='new_word']").val();
+		} else {
+			word_or_tag_val = $("select[name='new_tag']").val();
+		}
+
+
+		if(output == "search"){
+			$("#LoadingInfo").append("<strong>loading...</strong>");
+		}
+
+
+
+        $.ajax({
+            type: "POST",
+            url: "{% url 'populate_word_tag' %}",
+            data: {
+				'word_or_tag': word_or_tag,
+				'word_or_tag_val': word_or_tag_val,
+				'output': output,
+			},
+
+            success: function(data){
+
+				$("input[name=new_word]").val('');
+				$("#LoadingInfo").empty();
+
+				if(data) {
+					try {
+						data = JSON.parse(data);
+						if(data.error){
+		                    $("#DynamicField").html(data.error);
+						} else {
+							// add to criterion array, query builder table
+							words = [];
+							tags = [];
+							searched_word_or_tag = data.word_or_tag;
+
+							if(data.type == "tag"){
+								tags = data.list;
+							} else {
+								words = data.list;
+							}
+
+
+							buildSearchQueryRow(words, searched_word_or_tag, tags);
+						}
+
+					} catch(e) {
+						// insert onto search table
+	                    $("#DynamicField").html(data);
+					}
+				}
+            }
+        });
+        $(this).prop("disabled",false);
+    });
+
+
+    $(document).on("change", "#checkAll", function(e){
+        e.preventDefault();
+        $("input:checkbox").prop('checked', $(this).prop("checked"));
+    });
+
+	$(function() {
+		$(document).on('click', '.btn-add', function(e) {
+			e.preventDefault();
+
+			var controlForm = $('.controls form:first'),
+			container = controlForm.children()
+			currentEntry = $(this).parents('.entry:first'),
+			newEntry = $(currentEntry.clone()).appendTo(controlForm);
+
+			newEntry.find('input').val('');
+			newEntry.find('input[name^=offset]').val(0);
+			controlForm.find('.entry:not(:last) .btn-add')
+			.removeClass('btn-add').addClass('btn-remove')
+			.removeClass('btn-primary').addClass('btn-danger')
+			.html('<span>Remove Word</span>');
+		}).on('click', '.btn-remove', function(e) {
+			$(this).parents('.entry:first').remove();
+			e.preventDefault();
+			return false;
+		});
+	});
+
+</script>
+<style>
+    #language-list{float:left;list-style:none;margin:0;width:100%;padding:0;opacity:1.0;}
+    #language-list li{padding: 10px;background-color: #8b8b8b; border-bottom:#F0F0F0 1px solid;border-width:#F0F0F0 1px solid; opacity:1.0;}
+    #language-list li:hover{background: rgba(56, 110, 128, 1);}
+
+    #tags-list{float:left;list-style:none;margin:0;width:100%;padding:0;opacity: 1;}
+    #tags-list li{padding: 10px;background-color: #8b8b8b; border-bottom:#F0F0F0 1px solid;border-width:#F0F0F0 1px solid;}
+    #tags-list li:hover{background: rgba(56, 110, 128, 1);}
+
+    .btn-add {
+        min-height: 34px;
+    }
+    .btn-remove {
+        min-height: 34px;
+    }
+    .btn-primary {
+        min-height: 34px;
+        position: static;
+    }
+
+    .select {
+        position:relative;
+    }
+
+	.searchCardBox {
+		height: 100%;
+
+	}
+
+	#DynamicField,#sortParams{
+		overflow: hidden;
+		max-height: 250px;
+	}
+
+	td.checkbox-cell, th.checkbox-cell{
+		text-align: center;
+		vertical-align: middle;
+	}
+
+	.checkbox-cell label {
+		top: -5px;
+	}
+
+	.checkbox-cell label:after {
+		padding-left: 1px;
+	}
+
+	.csSpacer {
+		height: 100%;
+		width: 100%;
+	}
+</style>
+
+
+{% endblock %}

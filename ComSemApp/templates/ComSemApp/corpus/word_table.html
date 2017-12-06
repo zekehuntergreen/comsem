@@ -1,0 +1,35 @@
+<table class='table table-hover table-sm' style="width: 100%">
+	<thead>
+		<tr>
+			<th class="checkbox-cell">
+				<div class="checkbox checkbox-success">
+					<input id="checkAll" type="checkbox">
+					<label for="checkAll"></label>
+				</div>
+			</th>
+			<th>Form</th>
+			<th>Tag</th>
+			<th>Type</th>
+			<th>Frequency</th>
+		</tr>
+	</thead>
+
+	<tbody>
+		<input hidden name="searched_word_or_tag" value="<?=$word?>">
+		{% for word in words %}
+		<tr>
+			<td class="checkbox-cell">
+				<div class="checkbox checkbox-primary">
+					<input type="checkbox" name="checkwords[]" value="{{ word.id }}" id="result{{ forloop.counter }}">
+					<label for="result{{ forloop.counter }}"></label>
+				</div>
+			</td>
+			<td>{{ word.form }}</td>
+			<td>{{ word.tag }}</td>
+			<td>{{ word.tag.type }}</td>
+			<td>{{ word.frequency }}</td>
+			<input hidden type="text" name="words[]" value="{{ word.id }}">
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
