@@ -1,3 +1,6 @@
+{% if words %}
+<input type="hidden" id="search_type" value="word" />
+<input hidden name="val" value="{{ val }}">
 <table class='table table-hover table-sm' style="width: 100%">
 	<thead>
 		<tr>
@@ -15,12 +18,11 @@
 	</thead>
 
 	<tbody>
-		<input hidden name="searched_word_or_tag" value="<?=$word?>">
 		{% for word in words %}
 		<tr>
 			<td class="checkbox-cell">
 				<div class="checkbox checkbox-primary">
-					<input type="checkbox" name="checkwords[]" value="{{ word.id }}" id="result{{ forloop.counter }}">
+					<input type="checkbox" name="selector_checked[]" value="{{ word.id }}" id="result{{ forloop.counter }}">
 					<label for="result{{ forloop.counter }}"></label>
 				</div>
 			</td>
@@ -33,3 +35,6 @@
 		{% endfor %}
 	</tbody>
 </table>
+{% else %}
+	No entries matched <i>{{ val }}</i>.
+{% endif %}

@@ -85,19 +85,19 @@
 					</tr>
 				</table>
 
-            </form>
+			</form>
 
-        </div>
+		</div>
 
-    </div>
+	</div>
 
 
 	<!-- 2. SELECT -->
-    <div class="col-md-12 col-lg-4">
+	<div class="col-md-12 col-lg-4">
 
-        <div class="card-box searchCardBox">
+		<div class="card-box searchCardBox">
 
-            <form class="csSpacer" method="POST" action="" id="SubmitNewEntity" autocomplete="off">
+			<form class="csSpacer" method="POST" action="" id="SubmitNewEntity" autocomplete="off">
 
 				<table class="csSpacer">
 					<tr>
@@ -123,28 +123,28 @@
 					<tr>
 						<td class="align-bottom">
 							<div class="row" class="align-bottom">
-			                    <div class="col-sm-12 col-md-6">
-			                        <button class='btn btn-sm btn-outline-danger' type="button" name="ClearSelector">Clear</button>
+								<div class="col-sm-12 col-md-6">
+									<button class='btn btn-sm btn-outline-danger' type="button" name="ClearSelector">Clear</button>
 								</div>
 								<div class="col-sm-12 col-md-6">
-			                        <button type="button" class="btn btn-sm btn-outline-primary pull-right" name="SubmitSelector">Query Builder <i class="ti-angle-right"></i></button>
-			                    </div>
-			                </div>
+									<button type="button" class="btn btn-sm btn-outline-primary pull-right" name="SubmitSelector">Query Builder <i class="ti-angle-right"></i></button>
+								</div>
+							</div>
 						</td>
 					</tr>
 				</table>
 
-            </form>
+			</form>
 
-        </div>
+		</div>
 
-    </div>
+	</div>
 
 
 	<!-- 3. BUILD QUERY -->
 	<div class="col-md-12 col-lg-4">
 
-        <div class="card-box searchCardBox">
+		<div class="card-box searchCardBox">
 
 			<form class="csSpacer" method="POST" id="SubmitSearchForm">
 
@@ -180,15 +180,15 @@
 							<div class="row">
 								<div class="col-12 nicescroll" id="sortParams">
 									<table style="display: none" class="table table-hover table-sm">
-					                    <thead>
-					                        <tr>
-					                            <th>Type</th>
-					                            <th>Content</th>
-					                            <th></th>
-					                        </tr>
-					                    </thead>
-					                    <tbody></tbody>
-					                </table>
+										<thead>
+											<tr>
+												<th>Type</th>
+												<th>Content</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody></tbody>
+									</table>
 								</div>
 							</div>
 						</td>
@@ -208,23 +208,23 @@
 
 							<div class="row" style="margin-top: 15px">
 								<div class="col-6">
-			                        <button class='btn btn-sm btn-outline-danger' type="button" name="ClearSelector" id="clearQueryBuilder">Clear</button>
+									<button class='btn btn-sm btn-outline-danger' type="button" name="ClearSelector" id="clearQueryBuilder">Clear</button>
 								</div>
 
 								<div class="col-6">
 									<button class="btn btn-sm btn-outline-success pull-right" type="submit">
-										 <span>Search <i class="ti-angle-right"></i></span>
+										<span>Search <i class="ti-angle-right"></i></span>
 									</button>
 								</div>
-			                </div>
+							</div>
 						</td>
 					</tr>
 				</table>
 
-            </form>
+			</form>
 
-        </div>
-    </div>
+		</div>
+	</div>
 
 </div>
 
@@ -233,7 +233,7 @@
 <br />
 
 <div class="row">
-    <div class="col-md-12">
+	<div class="col-md-12">
         <div class="card-box" id="searchResults" style="display: none"></div>
 	</div>
 </div>
@@ -242,70 +242,28 @@
     var numOffsets = 0;
 	var searchCriteria = [];
 
-	function buildSearchQueryRow(words, searched_word_or_tag, tags){
+	function buildSearchQueryRow(type, val, id_list){
 
-		var num_words = words.length;
-		var num_tags = tags.length;
+		row_string = "<tr><td>" + type + "</td><td>" + val + "</td><td><button class='btn btn-sm btn-outline-danger float-right' type='button' name='DeleteRow'><i class='ti-trash'></i></button></td></tr>"
 
-		if (num_words > 0) {
-			$.ajax({
-				type: "POST",
-				url: "buildrow.php",
-				data: {
-					'words' : words,
-					'searchedword' : searched_word_or_tag
-				},
-				success: function(data){
-					$("#DynamicField").empty();
-					$("#sortParams table").show().find("tbody").append(data);
-
-					appendCriterion('word', searched_word_or_tag, words)
-
-				}
-			});
-			$("button[name='SubmitSelector']").prop("disabled",false);
-		} else if (num_tags > 0) {
-
-			var searchedtag = $("input[name='searchedtag']").val();
-
-			$.ajax({
-				type: "POST",
-				url: "buildtagrow.php",
-				data: {
-					'tags' : tags,
-					'searchedtag': searched_word_or_tag,
-				},
-				success: function(data){
-					$("#DynamicField").empty();
-					$("#sortParams table").show().find("tbody").append(data);
-
-					appendCriterion('tag', searched_word_or_tag, tags)
-
-				}
-			});
-			$("button[name='SubmitSelector']").prop("disabled",false);
-
-		} else {
-			if ( (num_tags == 0) && (num_words == 0)){
-				alert("Please select at least one entry, or clear the list");
-				$("button[name='SubmitSelector']").prop("disabled",false);
-				return false;
-			}
-		}
+		$("#DynamicField").empty();
+		$("#sortParams table").show().find("tbody").append(row_string);
+		appendCriterion(type, val, id_list)
+		$("button[name='SubmitSelector']").prop("disabled",false);
 	}
 
 
 	// type in ('word', 'tag')
-	function appendCriterion(type, word_or_tag, list){
+	function appendCriterion(type, val, id_list){
 		searchCriteria.push({
 			type: type,
-			word_or_tag: word_or_tag,
-			list: list,
+			val: val,
+			id_list: id_list,
 		});
 		$('#searchCriteria').val(JSON.stringify(searchCriteria));
 	}
 
-    $(document).ready(function() {
+	$(document).ready(function() {
 
 		$("#SubmitSearchForm").submit(function(e){
 			e.preventDefault();
@@ -313,30 +271,30 @@
 				'searchCriteria': $('#searchCriteria').val(),
 				'searchType': $('[name=searchType]:checked').val(),
 			}
-			$('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load('searchResults.php', data );
+			$('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load("{% url 'search_results' %}", data );
 		});
 
 
 		// add offset
-        $("#addOffsetButton").click(function() {
-            var offsetVal = $("#newOffset").val();
+		$("#addOffsetButton").click(function() {
+			var offsetVal = $("#newOffset").val();
 
 			if (offsetVal == 0)
-                return false;
+				return false;
 
-            var toAdd = "<tr><td>offset</td><td>" + offsetVal + "</td><td><button class='btn btn-sm btn-outline-danger float-right' type='button' name='DeleteRow'><i class='ti-trash'></i></button></td><input hidden type='text' value='' name='offset[" + numOffsets + "]'></tr>";
+			var toAdd = "<tr><td>offset</td><td>" + offsetVal + "</td><td><button class='btn btn-sm btn-outline-danger float-right' type='button' name='DeleteRow'><i class='ti-trash'></i></button></td><input hidden type='text' value='' name='offset[" + numOffsets + "]'></tr>";
 
-            numOffsets = numOffsets + 1;
+			numOffsets = numOffsets + 1;
 
 			appendCriterion('offset', offsetVal, null)
 
-            $("#sortParams table").append(toAdd).show();
-        });
+			$("#sortParams table").append(toAdd).show();
+		});
 
 		// clear selector
 		$("button[name='ClearSelector']").click(function() {
-            $("#DynamicField").empty();
-        });
+			$("#DynamicField").empty();
+		});
 
 		//clear query Builder
 		$('#clearQueryBuilder').click(function(){
@@ -349,32 +307,26 @@
 		// submit selector
 		$("button[name='SubmitSelector']").click(function() {
 
-            $(this).prop("disabled",true);
-            var words = [];
-            var searched_word_or_tag = $("input[name='searched_word_or_tag']").val();
+			$(this).prop("disabled",true);
+			var type = $('#search_type').val()
+			var id_list = [];
+			var val = $("input[name='val']").val();
 
-            $("input[name^='checkwords']").each(function() {
-                if ($(this).is(':checked')) {
-                    words.push($(this).val());
-                }
-            });
-            var tags = [];
-            $("input[name^='checktags']").each(function() {
-                if ($(this).is(':checked')) {
-                    tags.push($(this).val());
-                }
-            });
+			$("input[name^='selector_checked']").each(function() {
+				if ($(this).is(':checked')) {
+					id_list.push($(this).val());
+				}
+			});
 
+			buildSearchQueryRow(type, val, id_list);
 
-			buildSearchQueryRow(words, searched_word_or_tag, tags);
+		});
 
-        });
-
-    });
+	});
 
 
 
-    $(document).on("click", "button[name='DeleteRow']", function() {
+	$(document).on("click", "button[name='DeleteRow']", function() {
 
 		// delete the criteria from the search criteria array, put new json string in input field
 		var index = $(this).parents('tr').index();
@@ -387,83 +339,66 @@
 
 
 
-    $('input[name="new_word"]').keypress(function(e){
-        if (e.which == 13) return false;
-    });
+	$('input[name="new_word"]').keypress(function(e){
+		if (e.which == 13) return false;
+	});
 
-    $(".addToSearch").on("click", function(e){
-        e.preventDefault();
+	$(".addToSearch").on("click", function(e){
+		e.preventDefault();
 
 		var output = $(this).attr('output'); // refine the search in the second box or go directly to the query builder?
-		var word_or_tag = $('#new_word').val() ? 'word' : 'tag'; // is this a word or tag? if word input has content, it's a word
-		var word_or_tag_val = '';
+		var type = $('#new_word').val() ? 'word' : 'tag'; // is this a word or tag? if word input has content, it's a word
+		var val = '';
 
-        $(this).prop("disabled",true);
+		$(this).prop("disabled",true);
 		$("#DynamicField").empty();
 
-		if(word_or_tag == 'word'){
-			word_or_tag_val = $("input[name='new_word']").val();
+		if(type == 'word'){
+			val = $("input[name='new_word']").val();
 		} else {
-			word_or_tag_val = $("select[name='new_tag']").val();
+			val = $("select[name='new_tag']").val();
 		}
 
 
-		if(output == "search"){
+		if(output == "html"){
 			$("#LoadingInfo").append("<strong>loading...</strong>");
 		}
 
-
-
-        $.ajax({
-            type: "POST",
-            url: "{% url 'populate_word_tag' %}",
-            data: {
-				'word_or_tag': word_or_tag,
-				'word_or_tag_val': word_or_tag_val,
+		$.ajax({
+			type: "POST",
+			url: "{% url 'populate_word_tag' %}",
+			data: {
+				'type': type,
+				'val': val,
 				'output': output,
 			},
 
-            success: function(data){
+			success: function(data){
 
 				$("input[name=new_word]").val('');
 				$("#LoadingInfo").empty();
 
-				if(data) {
-					try {
-						data = JSON.parse(data);
-						if(data.error){
-		                    $("#DynamicField").html(data.error);
-						} else {
-							// add to criterion array, query builder table
-							words = [];
-							tags = [];
-							searched_word_or_tag = data.word_or_tag;
-
-							if(data.type == "tag"){
-								tags = data.list;
-							} else {
-								words = data.list;
-							}
-
-
-							buildSearchQueryRow(words, searched_word_or_tag, tags);
-						}
-
-					} catch(e) {
-						// insert onto search table
-	                    $("#DynamicField").html(data);
+				if(output == 'json') {
+					if(data.id_list.length == 0){
+						$("#DynamicField").html("No entries matched <i>" + val + "</i>.");
+					} else {
+						// add to criterion array, query builder table
+						buildSearchQueryRow(type, val, data.id_list);
 					}
+				} else {
+					// insert onto search table
+					$("#DynamicField").html(data);
 				}
-            }
-        });
-        $(this).prop("disabled",false);
-    });
+			}
+		});
+		$(this).prop("disabled",false);
+	});
 
 
-    $(document).on("change", "#checkAll", function(e){
-        e.preventDefault();
-        $("input:checkbox").prop('checked', $(this).prop("checked"));
-    });
+	$(document).on("change", "#checkAll", function(e){
+		e.preventDefault();
+		$("input:checkbox").prop('checked', $(this).prop("checked"));
+	});
 
 	$(function() {
 		$(document).on('click', '.btn-add', function(e) {

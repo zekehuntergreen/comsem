@@ -15,15 +15,13 @@ from .models import *
 
 # TESTS
 def is_teacher(user):
-    return user.groups.filter(name='teacher').exists()
+    return Teacher.objects.filter(user=user).exists()
 
 # is user a teacher in the course?
 def teaches_course(teacher, course_id):
     return TeachingInstance.objects.filter(teacher=teacher, course_id=course_id).exists()
 
 
-def index(request):
-    return HttpResponse("<b>Communication Seminar</b> index.")
 
 
 @login_required
@@ -156,7 +154,6 @@ def teacher_worksheet(request, course_id, worksheet_id):
             expressions[i]['reformulation_audio'] = False if expressions[i]['reformulation_audio'] == '0' else True
 
         context['worksheet'] = worksheet
-        print(json.dumps(expressions))
         context['expressions'] = json.dumps(expressions)
 
     template = loader.get_template('ComSemApp/teacher/edit_worksheet.html')

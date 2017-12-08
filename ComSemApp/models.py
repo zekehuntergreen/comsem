@@ -73,6 +73,7 @@ class Institution(models.Model):
 class Course(models.Model):
     session = models.ForeignKey('Session', on_delete=models.CASCADE)
     course_type = models.ForeignKey('CourseType', on_delete=models.CASCADE)
+    teachers = models.ManyToManyField('Teacher')
     section = models.IntegerField()
 
     def __str__(self):
@@ -86,6 +87,7 @@ class Course(models.Model):
 class CourseType(models.Model):
     institution = models.ForeignKey('Institution', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
+    verbose_name = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -114,7 +116,7 @@ class SessionType(models.Model):
 
     class Meta:
         verbose_name = "Session Type"
-        order_with_respect_to = 'order'
+        # order_with_respect_to = 'order'
 
 
 class Enrollment(models.Model):
@@ -123,20 +125,6 @@ class Enrollment(models.Model):
 
     def __str__(self):
         return " - ".join([str(self.student), str(self.course)])
-
-
-class TeachingInstance(models.Model):
-    teacher = models.ForeignKey('Teacher', on_delete=models.CASCADE)
-    course = models.ForeignKey('Course', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return " - ".join([str(self.teacher), str(self.course)])
-
-    class Meta:
-        verbose_name = "Teaching Instance"
-
-
-
 
 
 
@@ -163,7 +151,6 @@ class Expression(models.Model):
     worksheet = models.ForeignKey('Worksheet', on_delete=models.CASCADE)
     expression = models.TextField()
     student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True) # the student that the expression is assigned to (null means all_do)
-    # all_do = models.BooleanField(default=False)
     pronunciation = models.CharField(max_length=255, blank=True, null=True)
     context_vocabulary = models.CharField(max_length=255, blank=True, null=True)
     reformulation_text = models.TextField(blank=True, null=True)
@@ -185,7 +172,6 @@ class SequentialWords(models.Model):
         verbose_name_plural = "Sequential Words"
 
 
-
 class Topic(models.Model):
     topic = models.CharField(max_length=255, unique=True)
 
@@ -197,7 +183,6 @@ class Topic(models.Model):
 
 
 # ATTEMPTS AND SUBMISSIONS
-
 
 class StudentSubmission(models.Model):
     enrollment = models.ForeignKey('Enrollment', on_delete=models.SET_NULL, null=True) # the student who made the attempt

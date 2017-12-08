@@ -62,6 +62,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "ComSemApp.context_processors.user_info", 
             ],
         },
     },
@@ -118,7 +119,7 @@ USE_L10N = True
 USE_TZ = True
 
 # where should the login form redirect to?
-LOGIN_REDIRECT_URL = '/teacher/'
+LOGIN_REDIRECT_URL = '/initiate_roles/'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/

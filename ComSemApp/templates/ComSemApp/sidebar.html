@@ -80,17 +80,25 @@
 								<h5 class="text-overflow"><small>Welcome, {{ user.username }}</small> </h5>
 							</div>
 
-							<!-- <a href="javascript:void(0);" class="dropdown-item notify-item">
-								<i class="mdi mdi-account-star-variant"></i> <span>Profile</span>
-							</a>
+							{% for role in user_info %}
+								<a href="{% url role %}" class="dropdown-item notify-item" >
+									<span class="user_role">{{ role }}</span>
+								</a>
+							{% endfor %}
+
+							<style>
+							.user_role {
+								margin-left: 28px;
+								text-transform: uppercase;
+								font-size: 12px;
+								font-weight: 700;
+							}
+							</style>
+
 
 							<a href="javascript:void(0);" class="dropdown-item notify-item">
 								<i class="mdi mdi-settings"></i> <span>Settings</span>
 							</a>
-
-							<a href="javascript:void(0);" class="dropdown-item notify-item">
-								<i class="mdi mdi-lock-open"></i> <span>Lock Screen</span>
-							</a> -->
 
 							<a href="{% url 'logout' %}" class="dropdown-item notify-item">
 								<i class="mdi mdi-logout"></i> <span>Logout</span>
@@ -163,5 +171,6 @@
 	</div> <!-- close id='wrapper' -->
 
 </body>
+
 
 {% endblock %}

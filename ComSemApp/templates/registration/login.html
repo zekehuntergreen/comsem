@@ -3,20 +3,13 @@
 {% block title %}Login{% endblock %}
 
 {% block body %}
-    <!-- <h2>Login</h2>
-    <form method="post">
-
-        {{ form.as_p }}
-        <button type="submit">Login</button>
-    </form> -->
-
 
 <body>
 
 	<div class="wrapper-page">
 
 		<div class="text-center">
-			<span class="logo-lg"><i class="ion-chatboxes"></i> <span>ComSem</span> </a>
+			<a href="{% url 'index' %}" class="logo-lg"><i class="ion-chatboxes"></i> <span>ComSem</span> </a>
 		</div>
 
 		<form class="form-horizontal m-t-20" method="post" name="loginform" id="loginform">
