@@ -13,7 +13,13 @@
 		<!-- Minton -->
 		<link href="{% static "ComSemApp/Minton/css/bootstrap.min.css" %}" rel="stylesheet" type="text/css">
 		<link href="{% static "ComSemApp/Minton/css/icons.css" %}" rel="stylesheet" type="text/css">
-		<link href="{% static "ComSemApp/Minton/css/style.css" %}" rel="stylesheet" type="text/css" v="2">
+
+		{% with 'ComSemApp/Minton/css-'|add:minton_style|add:'/style.css' as minton_style_css %}
+		<link href="{% static minton_style_css %}" rel="stylesheet" type="text/css" v="2">
+		{% endwith %}
+
+
+
 
 		<script src="{% static "ComSemApp/Minton/js/modernizr.min.js"  %}"></script>
 
@@ -25,6 +31,7 @@
 		<script src="{% static "ComSemApp/js/js-cookie/src/js.cookie.js" %}"></script>
 
 		<script>
+			// necessary to append the csrf token to all ajax calls to django
 			$.ajaxSetup({
 				beforeSend: function(xhr, settings) {
 					if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
@@ -43,39 +50,61 @@
 
 	{% endblock %}
 
-	<div class="modal fade" id="cs_confirm_modal">
-		<div class="modal-dialog modal-md">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h4 class="modal-title"></h4>
-					<button type="button" class="close" data-dismiss="modal">&times;</button>
-				</div>
-				<div class="modal-body"></div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-					<button id="confirm_modal_confirm" type="button" class="btn" data-dismiss="modal">Confirm</button>
-				</div>
-			</div>
-		</div>
-	</div>
+	<!-- messages -->
+	{% if messages %}
+		{% for message in messages %}
+		<script>
+			$(function(){
+				var tag = 'info'
+				{% if message.tags %}
+					tag = "{{ message.tags }}";
+				{% endif %}
+				cs_notification(tag, "{{ message }}")
+			})
+		</script>
+		{% endfor %}
+	{% endif %}
+
+
 
 	<script>
-		function cs_confirm(title, text, on_confirm, urgent){
-			$("#cs_confirm_modal .modal-title").html(title)
-			$("#cs_confirm_modal .modal-body").html(text)
-			$("#cs_confirm_modal #confirm_modal_confirm").click(on_confirm)
-			if(urgent){
-				$("#cs_confirm_modal #confirm_modal_confirm").removeClass('btn-outline-danger btn-outline-primary').addClass('btn-outline-danger')
-			} else {
-				$("#cs_confirm_modal #confirm_modal_confirm").removeClass('btn-outline-danger btn-outline-primary').addClass('btn-outline-primary')
+		var cs_ajax_error = function(jqXHR, textStatus, errorThrown){
+			cs_notification('error', errorThrown)
+		}
+
+		function cs_notification(tag, message){
+			$.Notification.notify(tag, 'right bottom', message)
+		}
+
+		function cs_confirm(title, text, type, button_text, on_confirm){
+			switch(type) {
+				case 'warning':
+					var confirm_button = 'warning'
+					break;
+				case 'error':
+					var confirm_button = 'danger'
+					break;
+				default:
+					var confirm_button = 'success'
 			}
-			$("#cs_confirm_modal").modal()
+
+			swal({
+				title: title,
+				text: text,
+				type: type,
+				showCancelButton: true,
+				confirmButtonClass: 'btn-sm btn-' + confirm_button,
+				confirmButtonText: button_text,
+				closeOnConfirm: true
+			}, function () {
+				on_confirm()
+			});
 		}
 	</script>
 
 	<!-- MINTON -->
     <script>
-    var resizefunc = [];
+    	var resizefunc = [];
     </script>
 
     <!-- Plugins  -->
@@ -110,9 +139,15 @@
     <script src="{% static "ComSemApp/Minton/js/jquery.core.js" %}"></script>
     <script src="{% static "ComSemApp/Minton/js/jquery.app.js" %}"></script>
 
+	<!-- Notification js -->
+	<script src="{% static "ComSemApp/Minton-plugins/notifyjs/dist/notify.min.js" %}"></script>
+	<script src="{% static "ComSemApp/Minton-plugins/notifications/notify-metro.js" %}"></script>
+
+	<!-- Sweet Alert js -->
+	<link href="{% static "ComSemApp/Minton-plugins/bootstrap-sweetalert/sweet-alert.css"%}" rel="stylesheet" type="text/css" />
+	<script src="{% static "ComSemApp/Minton-plugins/bootstrap-sweetalert/sweet-alert.min.js" %}"></script>
+
     <!-- recordmp3 needed by ComSemRecording -->
     <script src="{% static "ComSemApp/js/Recordmp3js/recordmp3.js" %}"></script>
-
-
 
 </html>

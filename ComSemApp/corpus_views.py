@@ -5,6 +5,7 @@ from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
+from django.db import connection
 
 import json
 from .models import *
@@ -49,21 +50,32 @@ def populate_word_tag(request):
 
 @login_required
 def search_results(request):
-    sequential_search = request.POST.get('searchType')
+    sequential_search = request.POST.get('searchType') == '1'
     search_criteria = request.POST.get('searchCriteria', None)
 
     if not search_criteria:
         return HttpResponse('No search criteria provided', status=401)
 
     search_criteria = json.loads(search_criteria)
-    # print (search_criteria)
-    # print (sequential_search)
-
 
     query = build_query(len(search_criteria) - 1, search_criteria, sequential_search)
-    print(query)
+    with connection.cursor() as cursor:
+        # print (query)
+        expression_ids = []
+        cursor.execute(query)
+        for row in cursor.fetchall():
+            expression_ids.append(row[0])
+        print (expression_ids)
 
-    return HttpResponse(status=200)
+    # grab the information we want about the expressions
+    expressions = Expression.objects.filter(id__in=expression_ids)
+    context = {
+        'expressions': expressions,
+        'sequential_search': sequential_search,
+        'search_criteria': search_criteria,
+    }
+    template = loader.get_template('ComSemApp/corpus/search_results.html')
+    return HttpResponse(template.render(context, request))
 
 
 # work backwards through the search criteria - we make n - 1 joins (where n = number of search criteria) with n tables that
@@ -73,6 +85,9 @@ def build_query(i, search_criteria, sequential_search):
     criteria_type = current_criteria['type']
     val = current_criteria['val']
     id_list = current_criteria['id_list']
+
+    # if val isnt valid, id_list isn't a list of int ...
+
     print(i)
     if i < 0:
         return ""
@@ -81,9 +96,9 @@ def build_query(i, search_criteria, sequential_search):
             print ("to do")
 
         select_position = ", SW.Position" if sequential_search else ""
-        from_words = ", Dictionary as D " if criteria_type == "tag" else ""
+        from_words = ", ComSemApp_word as W " if criteria_type == "tag" else ""
 
-        query = "SELECT SW.ExpressionID" + select_position + " FROM SequentialWords AS SW" + from_words
+        query = "SELECT SW.expression_id" + select_position + " FROM ComSemApp_sequentialwords AS SW" + from_words
 
         if i > 0:
             query += ", (" + build_query(i - 1, search_criteria, sequential_search) + ") as Derived" + str(i)
@@ -91,9 +106,9 @@ def build_query(i, search_criteria, sequential_search):
         query += " WHERE "
 
         if criteria_type == "tag":
-            query += " SW.WordID = D.WordID AND D.PoS in (" + ','.join([str(id) for id in id_list]) + ") "
+            query += " SW.word_id = W.id AND W.PoS in (" + ','.join([str(id) for id in id_list]) + ") "
         else:
-            query += " SW.WordID in (" + ','.join([str(id) for id in id_list]) + ") "
+            query += " SW.word_id in (" + ','.join([str(id) for id in id_list]) + ") "
 
         if i > 0:
             if sequential_search:
@@ -103,7 +118,7 @@ def build_query(i, search_criteria, sequential_search):
                 if search_criteria[i-1]['type'] == 'offset':
                     next_position += search_criteria[i-1]['val']
 
-                query += "AND SW.Position = (Derived" + str(i) + ".Position + " + str(next_position) + ") "
+                query += "AND SW.position = (Derived" + str(i) + ".position + " + str(next_position) + ") "
 
-            query += "AND SW.ExpressionID = Derived" + str(i) + ".ExpressionID "
+            query += "AND SW.expression_id = Derived" + str(i) + ".expression_id "
         return query

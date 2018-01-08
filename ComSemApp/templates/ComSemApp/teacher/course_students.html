@@ -1,22 +1,22 @@
-{% if students %}
+{% if course.students.all %}
 <thead>
 	<tr>
 		<th>Name</th>
-		<th></th>
+		<!-- <th></th> -->
 	</tr>
 </thead>
 
 <tbody>
-	{% for student in students %}
+	{% for student in course.students.all %}
 	<tr>
-		<td>{{ student.student }}</td>
-		<td class='text-right'>
+		<td>{{ student }}</td>
+		<!-- <td class='text-right'>
 			<form method='GET' action='/Teacher/MyCourses/ViewCourse/ViewStudentProfile/' name='mystudentlink{$i}' id='mystudentlink{$i}'>
 				<input hidden type='text' name='enrollmentID' value='$enrollmentids[$i]'>
 				<input hidden type='text' name='courseID' value='$courseids[$i]'>
 				<button class='btn btn-sm btn-outline-primary'>Student Page</button>
 			</form>
-		</td>
+		</td> -->
 	</tr>
 	{% endfor %}
 </tbody>

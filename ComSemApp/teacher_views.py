@@ -9,72 +9,75 @@ from django.http import JsonResponse
 from django.db.models.query import QuerySet
 from django.utils.safestring import mark_safe
 from django.core.serializers import serialize
+from django.contrib import messages
+from django.shortcuts import redirect
 
 import json, math, datetime, os
 from .models import *
 
-# TESTS
+# DECORATORS
 def is_teacher(user):
     return Teacher.objects.filter(user=user).exists()
 
-# is user a teacher in the course?
-def teaches_course(teacher, course_id):
-    return TeachingInstance.objects.filter(teacher=teacher, course_id=course_id).exists()
+def teaches_course(func):
+    def wrapper(request, *args, **kwargs):
+        valid = Course.objects.filter(teachers=request.user.teacher, id=args[0]).exists()
+        if not valid:
+            messages.error(request, 'Invalid course ID.')
+            return redirect("/teacher/")
+        return func(request, *args, **kwargs)
+    return wrapper
+
+
+def teaches_course_ajax(func):
+    def wrapper(request, *args, **kwargs):
+        course_id = request.POST.get('course_id', None)
+        worksheet_id = request.POST.get('worksheet_id', None)
+
+        # might need to seach for courseid from worksheetid
+        if worksheet_id and int(worksheet_id) > 0:
+            course_id = get_object_or_404(Worksheet, id=worksheet_id).course.id
+
+        valid = Course.objects.filter(teachers=request.user.teacher, id=course_id).exists()
+        if not valid:
+            response = JsonResponse({"error": 'Invalid course ID.'})
+            response.status_code = 403
+            return response
+        return func(request, *args, **kwargs)
+    return wrapper
 
 
 
 
+# VIEWS
 @login_required
 @user_passes_test(is_teacher)
 def teacher(request):
-
-    teacher = request.user.teacher
-    teaching_instances = TeachingInstance.objects.filter(teacher=teacher).prefetch_related('course')
-
-    courses = []
-    for ti in teaching_instances:
-        courses.append(ti.course)
-
+    courses = Course.objects.filter(teachers=request.user.teacher)
+    show_active_button = any(course.is_active() for course in courses) # we'll show the course status button group only if there is a mix of active, inactive courses
     template = loader.get_template('ComSemApp/teacher/my_courses.html')
-    context = {
-        'teacher': teacher,
-        'courses': courses,
-    }
-    return HttpResponse(template.render(context, request))
+    return HttpResponse(template.render({'courses': courses, 'show_active_button': show_active_button, 'teacher_view': True}, request))
 
 
 @login_required
 @user_passes_test(is_teacher)
+@teaches_course_ajax
 def course_students(request):
     course_id = request.POST.get('course_id', None)
-
-    # is this course id valid?
-    teacher = request.user.teacher
-    if not teaches_course(teacher, course_id):
-        return HttpResponse("Invalid course ID")
-
-
     course = Course.objects.get(id=course_id)
-    students = Enrollment.objects.filter(course=course).select_related('student')
 
     template = loader.get_template('ComSemApp/teacher/course_students.html')
     context = {
-        'students': students,
+        'course': course,
     }
     return HttpResponse(template.render(context, request))
 
 
 @login_required
 @user_passes_test(is_teacher)
-def teacher_course(request, course_id):
-
-    # is this course id valid?
-    teacher = request.user.teacher
-    if not teaches_course(teacher, course_id):
-        return HttpResponse("Invalid course ID")
-
-
-    course = Course.objects.get(id=course_id)
+@teaches_course
+def course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
     worksheets = Worksheet.objects.filter(course=course)
 
     template = loader.get_template('ComSemApp/teacher/course.html')
@@ -84,56 +87,41 @@ def teacher_course(request, course_id):
     }
     return HttpResponse(template.render(context, request))
 
+
 @login_required
 @user_passes_test(is_teacher)
+@teaches_course_ajax
 def delete_worksheet(request):
     worksheet_id = request.POST.get('worksheet_id', None)
     worksheet = get_object_or_404(Worksheet, id=worksheet_id)
-
-    # is this course id valid?
-    teacher = request.user.teacher
-    if not teaches_course(teacher, worksheet.course.id):
-        return HttpResponse("Invalid course ID")
-
     worksheet.delete()
-
     return HttpResponse(status=204)
 
 
 
 @login_required
 @user_passes_test(is_teacher)
+@teaches_course_ajax
 def release_worksheet(request):
     worksheet_id = request.POST.get('worksheet_id', None)
     worksheet = get_object_or_404(Worksheet, id=worksheet_id)
-
-    # is this course id valid?
-    teacher = request.user.teacher
-    if not teaches_course(teacher, worksheet.course.id):
-        return HttpResponse("Invalid course ID")
-
     Worksheet.objects.filter(id=worksheet.id).update(released=True)
     return HttpResponse(status=204)
 
 
 @login_required
 @user_passes_test(is_teacher)
-def teacher_worksheet(request, course_id, worksheet_id):
-
-    # is this course id valid?
-    teacher = request.user.teacher
-    if not teaches_course(teacher, course_id):
-        return HttpResponse("Invalid course ID")
+@teaches_course
+def worksheet(request, course_id, worksheet_id):
+    # EITHER the worksheet is unreleased and we are editing it OR it is released and we are reviewing submissions
 
     course = get_object_or_404(Course, id=course_id)
-    students = Enrollment.objects.filter(course=course).select_related('student') # get students in course
 
     context = {
         'course': course,
-        'students': students,
     }
 
-    # if this is an edit
+    # if this is NOT a new worksheet
     if worksheet_id != '0':
 
         worksheet = get_object_or_404(Worksheet, id=worksheet_id)
@@ -141,20 +129,14 @@ def teacher_worksheet(request, course_id, worksheet_id):
         if not course.id != course_id:
             return HttpResponse("Invalid course ID")
 
+
+
         # get related expression information and serialize it
-        expression_obj = Expression.objects.filter(worksheet=worksheet).prefetch_related('student')
-        expressions = list(expression_obj.values())
-
-        print(expressions)
-
-        # need to get name of assigned student seperately
-        for i in range(len(expressions)):
-            student = expression_obj[i].student
-            expressions[i]['student_name'] = str(student) if student else None
-            expressions[i]['reformulation_audio'] = False if expressions[i]['reformulation_audio'] == '0' else True
+        expression_queryset = Expression.objects.filter(worksheet=worksheet).prefetch_related('student')
+        expressions_json = jsonify_expressions(expression_queryset)
 
         context['worksheet'] = worksheet
-        context['expressions'] = json.dumps(expressions)
+        context['expressions'] = expressions_json
 
     template = loader.get_template('ComSemApp/teacher/edit_worksheet.html')
     return HttpResponse(template.render(context, request))
@@ -163,6 +145,7 @@ def teacher_worksheet(request, course_id, worksheet_id):
 
 @login_required
 @user_passes_test(is_teacher)
+@teaches_course_ajax
 def save_worksheet(request):
 
     # get form data
@@ -176,11 +159,6 @@ def save_worksheet(request):
     expressions = json.loads(request.POST.get('expressions', None))
 
     course = Course.objects.get(id=course_id)
-
-    # is this course id valid?
-    teacher = request.user.teacher
-    if not teaches_course(teacher, course_id):
-        return HttpResponse("Invalid course ID")
 
     # topic could be in db already - get or create
     topic_obj, created = Topic.objects.get_or_create(topic=topic)
@@ -242,6 +220,7 @@ def save_worksheet(request):
         if expression_id == '0':
             expression_obj = Expression.objects.create(**values)
             expression_id = expression_obj.id
+
         # edit expression
         else:
             if 'to_delete' in expression:
@@ -251,18 +230,33 @@ def save_worksheet(request):
 
         # save the audio reformulation
         if uploading_ra:
-            handle_uploaded_file(uploading_ra, int(expression_id))
+            handle_uploaded_file(uploading_ra, "ExpressionReformulations", int(expression_id))
 
 
     return HttpResponse(status=204)
 
 
-def handle_uploaded_file(f, e):
+
+
+def jsonify_expressions(expression_queryset):
+    expressions = list(expression_queryset.values())
+
+    # need to get name of assigned student seperately
+    for i in range(len(expressions)):
+        student = expression_queryset[i].student
+        expressions[i]['student_name'] = str(student) if student else None
+        expressions[i]['reformulation_audio'] = False if expressions[i]['reformulation_audio'] == '0' else True
+
+    return json.dumps(expressions)
+
+
+def handle_uploaded_file(f, directory, e):
     id_floor = int(math.floor(e/1000))
-    url = 'efs/ExpressionReformulations/' + str(id_floor)
+    url = 'efs/' + directory + '/' + str(id_floor)
     if not os.path.exists(url):
         os.makedirs(url)
-    url += '/' + str(e) + ".mp3"
+    filename = e - (id_floor * 1000)
+    url += '/' + str(filename) + ".mp3"
     with open(url, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)

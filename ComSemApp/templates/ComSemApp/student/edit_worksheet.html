@@ -1,0 +1,512 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% block content %}
+
+
+
+<div class="row">
+	<div class="col-sm-12">
+		<div class="page-title-box">
+			<h4 class="page-title">
+				 "{{ worksheet.topic }}"
+
+				<small>
+					 -
+					{{ worksheet.date }}
+					<br />
+
+					{% if latest_submission.is_complete %}
+						Review Worksheet
+					{% else %}
+						{% if latest_submission.status == 'ungraded' %}
+							{% with submissions|length as this_submission_number %}
+								Edit Attempt #{{ this_submission_number }}
+							{% endwith %}
+						{% else %}
+							{% with submissions|length|add:"1" as this_submission_number %}
+								Attempt #{{ this_submission_number }}
+							{% endwith %}
+						{% endif %}
+
+					{% endif %}
+
+				</small>
+			</h4>
+
+			{% if not latest_submission.is_complete %}
+			<form id="pageForm" action="">
+				<input hidden id="worksheetID" name='worksheetID' value="{{ worksheet.id }}" />
+				<input hidden id="studentSubmissionID" name='studentSubmissionID' value="{% if latest_submission.status == 'ungraded' %}{{ latest_submission.id }}{% else %}0{% endif %}" />
+				<button class="btn btn-success float-right" type="submit">Submit Worksheet</button>
+			</form>
+			{% endif %}
+			<div class="clearfix"></div>
+		</div>
+	</div>
+</div>
+
+{% if not latest_submission.is_complete %}
+<div class="row">
+
+	<div class="col-9" id="expressionTableCol">
+		<div class="card-box" style="">
+			<h4 class="m-t-0 header-title"><b>Worksheet Overview</b></h4>
+
+			<table class="table table-hover " id="expressionsTable"></table>
+		</div>
+	</div>
+
+	<div class="col-3" id="expressionEditorCol">
+
+		<div class="card-box">
+
+			<h4 class="m-t-0 header-title"><b>Expression Details</b></h4>
+
+
+			<input hidden id="expressionID"/>
+			<input hidden id="expressionIndex"/>
+
+
+			<!-- original -->
+			{% if worksheet.display_original %}
+			<div class="row">
+				<div class="col-12">
+					<label>Original Expression:</label>
+					<p id="ExprToEdit"/>
+				</div>
+			</div>
+			{% endif %}
+
+			<div class="row">
+				<div class="col-12">
+					<label>Context / Vocabulary:</label>
+					<p id="contextVocabulary" />
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-12">
+					<label>Pronunciation:</label>
+					<p id="pronunciation" />
+				</div>
+			</div>
+
+			<!-- teacher reformulation -->
+			{% if worksheet.display_reformulation_text %}
+			<div class="row">
+				<div class="col-12">
+					<label>Reformulation:</label>
+					<p id="teacherReformulation" />
+				</div>
+			</div>
+			{% endif %}
+
+			<!-- reformulation audio -->
+			{% if worksheet.display_reformulation_audio %}
+			<div class="row">
+				<div class="col-12">
+					<div class="form-group">
+						<label for="teacherReformulationAudio">Audio Reformulation:</label><br />
+						<audio id="teacherReformulationAudio" src="" controls></audio>
+					</div>
+				</div>
+			</div>
+			{% endif %}
+
+
+
+			<form role="form" id="editExpressionForm">
+
+				<!-- correction -->
+				<div class="row">
+					<div class="col-12">
+						<div class="form-group">
+							<label for="CorrectedExpr">Correction:</label>
+							<input type="text" class="form-control" name="CorrectedExpr" id="CorrectedExpr" disabled placeholder="Enter the corrected expression here" autocomplete="off" />
+						</div>
+					</div>
+				</div>
+
+
+				<!-- AUDIO RECORDING -->
+				<div class="row" id="display_reformulation_audioRow" style="{% if not worksheet.display_reformulation_audio %}display: none{% endif %}">
+					{% include 'ComSemApp/audio_recording.html' %}
+				</div>
+
+
+				<div class="row" style="margin-top: 20px">
+					<div class="col-md-12">
+
+						<button id="SubmitExpr" disabled type="submit" class="btn btn-outline-success ">Save</button>
+
+						<button id="clearEditor" disabled type="button" name="Clear" class="btn btn-outline-danger pull-right">Clear</button>
+
+					</div>
+				</div>
+
+			</form>
+
+		</div>
+	</div>
+
+</div>
+{% endif %}
+
+<!-- PREVIOUS ATTEMPTS -->
+{% if submissions %}
+
+<div class="row">
+	<div class="col-12">
+
+		<div class="card-box">
+
+			<h4 class="m-t-0 header-title"><b>Previous Submissions</b></h4>
+
+			<div class="tabs-vertical-env">
+				<ul class="nav tabs-vertical">
+					{% for submission in submissions %}
+					<li class="nav-item">
+						<a href="#s-{{ forloop.counter }}" class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab" aria-expanded="{% if forloop.first %}true{% endif %}">
+							Submission {{ forloop.counter }}
+						</a>
+					</li>
+					{% endfor %}
+				</ul>
+
+				<div class="tab-content" style="width: 100%">
+					{% for submission in submissions %}
+					<div class="tab-pane {% if forloop.first %}active{% endif %}" id="s-{{ forloop.counter }}">
+
+						<table class="table table-hover">
+							<thead>
+								<th>#</th>
+								<th>Expression</th>
+								<th>Reformulation Text</th>
+								<th>Reformulation Audio</th>
+								<th>Correct</th>
+							</thead>
+							<tbody>
+								{% for attempt in submission.studentattempt_set.all %}
+								<tr>
+									<td>{{ forloop.counter }}</td>
+									<td>{{ attempt.expression }}</td>
+									<td>{{ attempt.reformulation_text }}</td>
+									<td>
+										{% if attempt.reformulation_audio %}
+										<div class="col-6">
+											<audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" attempt_id="{{ attempt.id }}" src="">
+											</audio>
+										</div>
+										{% else %}
+										-
+										{% endif %}
+									</td>
+									<td>
+										{% if attempt.correct == None %}
+											-
+										{% else %}
+											{% if attempt.correct %}
+												<i class="fa fa-check"></i>
+											{% else %}
+												<i class="fa fa-times"></i>
+											{% endif %}
+										{% endif %}
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+</div>
+
+{% endif %}
+
+
+<script>
+var DEBUG = false;
+
+// ARRAY OF EXPRESSIONS
+expressions = {{ expressions|safe|default:'[]' }};
+save_url = "{% url 'save_submission' %}";
+redirect_url = "{% url 'student_course' course.id %}"
+
+var showNavigationWarning = false;
+
+// because of audio, we must send a formdata object
+var worksheetFormData = new FormData();
+var expressionsJSON;
+
+// draw table of current expressions using expressions array AND update the hidden input with jsonified version
+function drawExpressionsTable(){
+	var tableString = ""
+	if (expressions.length > 0) {
+		 tableString = "<thead><tr><th class='expressionNumberCol'>#</th><th>Expression</th><th class='hidable'>Correction</th><th class='hidable'>Assigned To</th><th class=''><span class='glyphicon glyphicon-arrow-right' style='font-size:20px;left:10px;'></span></th></tr></thead>"
+	} else {
+		tableString = "<h5 class='text center'>This worksheet has no expressions.</h5>"
+	}
+
+	var expressionCounter = 1;
+
+	for (var i = 0; i < expressions.length; i++) {
+
+		currentExpression = expressions[i];
+
+		if( currentExpression['isDeleted'] != 1 ) {
+
+			tableString += "<tr expressionID='" + currentExpression['expressionID'] + "' index='" + i + "'><td>" + expressionCounter + "</td><td>" + currentExpression['expression'] + "</td><td class='hidable'>" + (currentExpression['correctedExpr'] ? currentExpression['correctedExpr'] : "-")  + "</td><td class='hidable'>";
+
+			if (currentExpression['student_name']){
+				tableString += currentExpression['student_name'];
+			} else {
+				tableString += "<b>All Do</b>";
+			}
+
+			if (currentExpression['isAltered'] == 1){
+				tableString +="</td><td class=''><button class='btn btn-outline-primary btn-sm editExpression'>Edit Again</button></td></tr>";
+			} else {
+				tableString +="</td><td class=''><button class='btn btn-outline-primary btn-sm editExpression'>Edit</button></td></tr>";
+			}
+
+
+			expressionCounter++;
+
+		}
+
+	}
+
+	tableString += "</tbody>";
+
+	$('#expressionsTable').html(tableString)
+
+	// bind edit button to it's function - (index doesn't necessarily line up with array because of deleted expressions)
+	$('.editExpression').on('click', function(e){
+		var index = $(this).parents('tr').attr('index')
+		populateEditor(index);
+	});
+
+	// UPDATE HIDDEN INPUT WITH JSONIFIED EXPRESSIONS
+	expressionsJSON = JSON.stringify(expressions);
+
+}
+drawExpressionsTable() // initial call
+
+function populateEditor(index){
+
+	var currentExpression = expressions[index];
+	var currentExpressionID = currentExpression['id'];
+
+	// student's reformulation - what should the src of the audio element be?
+	var audioURL = "";
+
+	if (currentExpression['studentReformulationAudioBlobSrc']){
+		// editing an expression that was saved THIS TIME, not yet in db and file system
+		audioURL = currentExpression['studentReformulationAudioBlobSrc'];
+
+	} else {
+		// editing an expression that was saved and in db and file system
+		audioURL = calculateAudioURL( {'attemptID': currentExpression['StudentAttemptID'] } )
+	}
+
+	if( ! currentExpression['reformulation_audio'] ){
+
+		$('#recordingslist').html("");
+		$('#deleteRecordingButton').hide();
+
+	} else {
+
+		// it's important that the audio element has id=audioElement
+		$('#recordingslist').html("<audio controls id='audioElement' src='" + audioURL + "' type='audio/mpeg'></audio>");
+		$('#deleteRecordingButton').show();
+
+	}
+
+	// prepare editor
+	$('#ExprToEdit').html(currentExpression['expression']);
+	$('#teacherReformulation').html(currentExpression['reformulation_text']);
+	$('#pronunciation').html(currentExpression['pronunciation']);
+	$('#contextVocabulary').html(currentExpression['context_vocabulary']);
+
+	$('#expressionID').val(currentExpressionID);
+	$('#expressionIndex').val(index);
+	$('#CorrectedExpr').prop('disabled', false).focus();
+	if(currentExpression['correctedExpr']){
+		$('#CorrectedExpr').val(currentExpression['correctedExpr']);
+	} else {
+		$('#CorrectedExpr').val("");
+	}
+	$('#expressionEditorCol .btn:not(#recorderStop)').prop('disabled', false); // enable all buttons in editor
+
+	// highlight the row
+	$('#expressionsTable tbody tr').removeClass('cs-active')
+	$('#expressionsTable tbody tr:eq(' + index + ')').addClass('cs-active')
+
+	$('#expressionsTable tr .hidable').hide()
+	$('#expressionTableCol').addClass('shortened');
+	$('#expressionEditorCol').addClass('lengthened');
+
+
+	// teacher's reformulation
+	if(currentExpression['reformulation_audio']){
+		$('#teacherReformulationAudio').attr('src', calculateAudioURL( {'expressionID': currentExpressionID} ));
+	} else {
+		$('#teacherReformulationAudio').attr('src', "");
+	}
+
+}
+
+function clearEditor(){
+	$('#ExprToEdit').val(""); // clear all input fileds
+	$('#teacherReformulation').html("");
+	$('#pronunciation').html("");
+	$('#contextVocabulary').html("");
+	$('#expressionID').val("");
+	$('#expressionIndex').val("");
+	$('#recordingslist').html("");
+	$('#CorrectedExpr').val("").prop('disabled', true);
+	$('#teacherReformulationAudio').attr('src', "")
+
+	$('#expressionEditorCol .btn').prop('disabled', true); // disable all buttons in editor
+
+	$('#expressionsTable tbody tr').removeClass('cs-active');
+
+	$('#expressionsTable tr .hidable').show()
+	$('#expressionTableCol').removeClass('shortened');
+	$('#expressionEditorCol').removeClass('lengthened');
+
+
+}
+
+$(function(){
+	// handle previous attempt audio using url function
+	$('.previous_attempt_audio').each(function(){
+
+		attempt_id = $(this).attr('attempt_id');
+		$(this).attr('src', calculateAudioURL( {'attemptID': attempt_id } ))
+	});
+	$('#clearEditor').click(clearEditor);
+
+	// submission of edit worksheet.
+	$('#editExpressionForm').submit(function(e){
+		e.preventDefault()
+
+		var expressionIndex = $('#expressionIndex').val();
+		var currentExpression = expressions[expressionIndex];
+
+		var reformulationAudioIsThere = $("#recordingslist #audioElement").length > 0 ? 1 : 0
+
+		// always save blob src so that they can edit again
+		currentExpression['studentReformulationAudioBlobSrc'] = $("#recordingslist #audioElement").attr('src');
+
+		// handle audio reformulation seperately
+		if(reformulationAudioIsThere){
+			audioReformulationKey = 'audio_ref_' + expressionIndex;
+			worksheetFormData.append(audioReformulationKey, audioReformulationBlob); // audioReformulationBlob from ComSemRecording.js
+		}
+
+		// insert values into expression
+		currentExpression['correctedExpr'] = $('#CorrectedExpr').val();
+		currentExpression['isAltered'] = 1; // mark as altered
+		currentExpression['studentReformulationAudio'] = reformulationAudioIsThere;
+
+
+
+		drawExpressionsTable();
+		clearEditor();
+
+		showNavigationWarning = true; // change to worksheet, show warning if they redirect
+	});
+
+	// call SaveWorksheet.php then redirect to myCourses page.
+	$('#pageForm').submit(function(e){
+		e.preventDefault();
+
+		// populate formdata obj
+		worksheetFormData.append( 'worksheetID', $("#worksheetID").val() );
+		worksheetFormData.append( 'studentSubmissionID', $("#studentSubmissionID").val() );
+		worksheetFormData.append( 'expressions', expressionsJSON);
+		worksheetFormData.append( 'MAX_FILE_SIZE', 100000000);
+
+		// don't show the warning
+		// showNavigationWarning = false;
+
+		$('#uploadingMessage').slideDown(); // show the message - uploading can take a little while on live site
+
+		$.ajax({
+			type: "POST",
+			url: save_url,
+			data: worksheetFormData,
+			processData: false,
+			contentType: false,
+			success: function(response){
+				try {
+					response = JSON.parse(response);
+					cs_notification('error', response.error)
+				} catch(e) {
+					location.href=redirect_url;
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown){
+				cs_ajax_error(jqXHR, textStatus, errorThrown)
+			},
+		});
+	})
+
+});
+
+// if they have made changes without saving, warn them
+window.addEventListener("beforeunload", function (e) {
+	if (showNavigationWarning) {
+		var confirmationMessage = 'It looks like you have been editing this worksheet. If you leave before saving, your changes will be lost.';
+
+		(e || window.event).returnValue = confirmationMessage; //Gecko + IE
+		return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+	}
+});
+
+
+function inspectFormData(){
+    for (var pair of worksheetFormData.entries()) {
+        console.log(pair[0]+ ', ' + pair[1]);
+    }
+}
+
+</script>
+
+
+
+
+<style>
+.expressionNumberCol{
+	width: 25px;
+}
+#expressionTableCol.shortened {
+	width: 40%;
+	max-width: 40%;
+	flex: none;
+	-webkit-transition: all 0.5s ease;
+	-moz-transition: all 0.5s ease;
+	-o-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+
+#expressionEditorCol.lengthened {
+	width: 60%;
+	max-width: 60%;
+	flex: none;
+	-webkit-transition: all 0.5s ease;
+	-moz-transition: all 0.5s ease;
+	-o-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+</style>
+
+
+{% endblock %}

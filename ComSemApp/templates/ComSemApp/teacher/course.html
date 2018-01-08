@@ -96,10 +96,7 @@
 								<td>
 									{% if worksheet.released %}
 										<div class="row">
-											<form method='GET' action='ViewWorksheet/' name='ViewWorksheet'>
-												<input hidden type='text' name='worksheetID' value='<?=$worksheetIDs[$i]?>'>
-												<button class='btn btn-sm btn-outline-primary'>Review</button>
-											</form>
+											<a href="{% url 'teacher_worksheet' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Review</a>
 										</div>
 									{% else %}
 										<div class="row">
@@ -131,6 +128,7 @@
 	<script>
 
 		var delete_worksheet_id;
+
 		function delete_worksheet(){
 			$worksheet_row = $('tr[worksheet_id=' + delete_worksheet_id + ']');
 			$.ajax({
@@ -141,13 +139,17 @@
 					"course_id": {{ course.id }},
 				},
 				success: function(data) {
-					$worksheet_row.slideUp()
+					try {
+						response = JSON.parse(response);
+						cs_notification('error', response.error)
+					} catch(e) {
+						cs_notification('success', "worksheet deleted")
+						$worksheet_row.slideUp()
+					}
 				},
-				error: function(XMLHttpRequest, textStatus, errorThrown) {
-
-					// MAKE A COM SEM ERRORS FUNCTION
-					alert("Status: " + textStatus); alert("Error: " + errorThrown);
-				}
+				error: function(jqXHR, textStatus, errorThrown){
+					cs_ajax_error(jqXHR, textStatus, errorThrown)
+				},
 			});
 		}
 
@@ -161,8 +163,16 @@
 					"worksheet_id": release_worksheet_id
 				},
 				success: function(data){
-					location.reload();
-				}
+					try {
+						response = JSON.parse(response);
+						cs_notification('error', response.error)
+					} catch(e) {
+						location.reload();
+					}
+				},
+				error: function(jqXHR, textStatus, errorThrown){
+					cs_ajax_error(jqXHR, textStatus, errorThrown)
+				},
 			});
 		}
 
@@ -170,12 +180,12 @@
 
 			$(".delete_worksheet_button").on("click", function(e){
 				delete_worksheet_id = $(this).parents('tr').attr('worksheet_id')
-				cs_confirm("Delete Worksheet", "Are you sure you'd like to delete this worksheet?", delete_worksheet, true);
+				cs_confirm("Delete Worksheet", "Are you sure you'd like to delete this worksheet?", 'error', 'Yes, delete it', delete_worksheet);
 			});
 
 			$(".release_worksheet_button").on("click", function(e){
 				release_worksheet_id = $(this).parents('tr').attr('worksheet_id')
-				cs_confirm("Release Worksheet", "Are you sure you'd like to release this worksheet? You will no longer be able to edit it.", release_worksheet, false);
+				cs_confirm("Release Worksheet", "Are you sure you'd like to release this worksheet?\nIf so, you will no longer be able to edit or delete it.", 'warning', "Yes, release it", release_worksheet);
 			});
 
 		});

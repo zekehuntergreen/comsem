@@ -23,7 +23,10 @@ class Student(models.Model):
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
-        return " ".join([self.user.first_name, str(self.user.last_name)])
+        return ", ".join([str(self.user.last_name), self.user.first_name])
+
+    class Meta:
+        ordering = ('user__last_name','user__first_name')
 
 
 class Language(models.Model):
@@ -74,6 +77,7 @@ class Course(models.Model):
     session = models.ForeignKey('Session', on_delete=models.CASCADE)
     course_type = models.ForeignKey('CourseType', on_delete=models.CASCADE)
     teachers = models.ManyToManyField('Teacher')
+    students = models.ManyToManyField('Student')
     section = models.IntegerField()
 
     def __str__(self):
@@ -82,6 +86,13 @@ class Course(models.Model):
     def is_active(self):
         today = datetime.date.today()
         return self.session.start_date <= today <= self.session.end_date
+
+    def status(self):
+        active = self.is_active()
+        return "active" if active else "inactive"
+
+    class Meta:
+        ordering = ('-session__start_date',)
 
 
 class CourseType(models.Model):
@@ -104,6 +115,8 @@ class Session(models.Model):
     def __str__(self):
         return " - ".join([str(self.session_type), str(self.start_date.year)])
 
+    class Meta:
+        ordering = ['-start_date']
 
 class SessionType(models.Model):
     institution = models.ForeignKey('Institution', on_delete=models.CASCADE)
@@ -117,16 +130,6 @@ class SessionType(models.Model):
     class Meta:
         verbose_name = "Session Type"
         # order_with_respect_to = 'order'
-
-
-class Enrollment(models.Model):
-    student = models.ForeignKey('Student', on_delete=models.CASCADE)
-    course = models.ForeignKey('Course', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return " - ".join([str(self.student), str(self.course)])
-
-
 
 
 
@@ -144,13 +147,15 @@ class Worksheet(models.Model):
     display_all_expressions = models.BooleanField(default=False)
 
     def __str__(self):
-        return " - ".join([str(self.course), str(self.topic)])
+        return str(self.id)
 
+    class Meta:
+        ordering = ['-date']
 
 class Expression(models.Model):
     worksheet = models.ForeignKey('Worksheet', on_delete=models.CASCADE)
     expression = models.TextField()
-    student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True) # the student that the expression is assigned to (null means all_do)
+    student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True) # (null means all_do)
     pronunciation = models.CharField(max_length=255, blank=True, null=True)
     context_vocabulary = models.CharField(max_length=255, blank=True, null=True)
     reformulation_text = models.TextField(blank=True, null=True)
@@ -185,16 +190,21 @@ class Topic(models.Model):
 # ATTEMPTS AND SUBMISSIONS
 
 class StudentSubmission(models.Model):
-    enrollment = models.ForeignKey('Enrollment', on_delete=models.SET_NULL, null=True) # the student who made the attempt
+    # enrollment = models.ForeignKey('Enrollment', on_delete=models.SET_NULL, null=True) # the student who made the attempt
+    student = models.ForeignKey('Student', on_delete=models.PROTECT)
     worksheet = models.ForeignKey('Worksheet', on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=255, choices=STUDENT_SUBMISSION_STATUSES, default='ungraded')
 
     def __str__(self):
-        return " - ".join([str(self.enrollment.user), str(self.worksheet)])
+        return str(self.id)
+
+    def is_complete(self):
+        return self.status == 'complete'
 
     class Meta:
         verbose_name = "Student Submission"
+        get_latest_by = "date"
 
 
 class StudentAttempt(models.Model):
@@ -202,7 +212,7 @@ class StudentAttempt(models.Model):
     student_submission = models.ForeignKey('StudentSubmission', on_delete=models.CASCADE)
     reformulation_text = models.TextField(blank=True, null=True)
     reformulation_audio = models.BooleanField(default=False)
-    correct = models.BooleanField()
+    correct = models.NullBooleanField(blank=True, null=True, default=None)
 
     def __str__(self):
         return " - ".join([str(self.student_submission), str(self.expression)])
@@ -219,16 +229,32 @@ class StudentAttempt(models.Model):
 class Word(models.Model):
     form = models.CharField(max_length=255)
     tag = models.ForeignKey('Tag', on_delete=models.PROTECT)
-    frequency = models.IntegerField()
+    # claw7_tag = models.ForeignKey('CLAWS7', on_delete=models.PROTECT)
+    frequency = models.IntegerField(default=1)
 
     def __str__(self):
         return self.form
 
+    class Meta:
+        unique_together = ("form", "tag")
 
+
+# upenn tagset
 class Tag(models.Model):
     tag = models.CharField(max_length=255)
-    type = models.CharField(max_length=255)
-    frequency = models.IntegerField()
+    type = models.CharField(max_length=255, blank=True, null=True)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    frequency = models.IntegerField(default=1)
 
     def __str__(self):
         return self.tag
+
+
+# class CLAWS7(models.Model):
+#     tag = models.CharField(max_length=255)
+#     type = models.CharField(max_length=255, blank=True, null=True)
+#     description = models.CharField(max_length=255, blank=True, null=True)
+#     frequency = models.IntegerField(default=1)
+#
+#     def __str__(self):
+#         return self.tag

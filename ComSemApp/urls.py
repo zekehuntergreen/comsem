@@ -11,8 +11,8 @@ urlpatterns = [
 
     # TEACHER
     url(r'^teacher/$', teacher_views.teacher, name='teacher'),
-    url(r'^teacher/course/([0-9]+)/$', teacher_views.teacher_course, name='teacher_course'),
-    url(r'^teacher/course/([0-9]+)/worksheet/([0-9]+)/$', teacher_views.teacher_worksheet, name='teacher_worksheet'),
+    url(r'^teacher/course/([0-9]+)/$', teacher_views.course, name='teacher_course'),
+    url(r'^teacher/course/([0-9]+)/worksheet/([0-9]+)/$', teacher_views.worksheet, name='teacher_worksheet'),
 
     url(r'^ajax/course_students/$', teacher_views.course_students, name='course_students'),
     url(r'^ajax/save_worksheet/$', teacher_views.save_worksheet, name='save_worksheet'),
@@ -21,9 +21,15 @@ urlpatterns = [
 
     # STUDENT
     url(r'^student/$', student_views.student, name='student'),
+    url(r'^student/course/([0-9]+)/$', student_views.course, name='student_course'),
+    url(r'^student/worksheet/([0-9]+)/$', student_views.worksheet, name='student_worksheet'),
+
+    url(r'^ajax/save_submission/$', student_views.save_submission, name='save_submission'),
 
     # CORPUS
-    url(r'^corpus/$', corpus_views.corpus_search, name='corpus_search'),
+    url(r'^corpus/search$', corpus_views.corpus_search, name='corpus_search'),
     url(r'^ajax/populate_word_tag/$', corpus_views.populate_word_tag, name='populate_word_tag'),
     url(r'^ajax/search_results/$', corpus_views.search_results, name='search_results'),
+
+    # url(r'^corpus/stats$', corpus_views.corpus_stats, name='corpus_stats'),
 ]

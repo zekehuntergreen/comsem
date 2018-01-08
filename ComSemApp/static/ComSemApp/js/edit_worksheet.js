@@ -250,16 +250,16 @@ $(function(){
 			processData: false,
 			contentType: false,
 			success: function(response){
-				if(DEBUG){
-					console.log(response)
-				} else {
-					console.log(response)
-					location.href=redirect_url
+				try {
+					response = JSON.parse(response);
+					cs_notification('error', response.error)
+				} catch(e) {
+					location.href=redirect_url;
 				}
 			},
-			failure: function(response){
-				showErrorMessage(response)
-			}
+			error: function(jqXHR, textStatus, errorThrown){
+				cs_ajax_error(jqXHR, textStatus, errorThrown)
+			},
 		});
 	})
 
