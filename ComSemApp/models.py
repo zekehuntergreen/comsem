@@ -149,8 +149,16 @@ class Worksheet(models.Model):
     def __str__(self):
         return str(self.id)
 
+    # what is the number of this worksheet
+    def get_number(self):
+        worksheets = Worksheet.objects.filter(course=self.course)
+        for index, worksheet in enumerate(worksheets):
+            if worksheet == self:
+                return index + 1
+
     class Meta:
         ordering = ['-date']
+
 
 class Expression(models.Model):
     worksheet = models.ForeignKey('Worksheet', on_delete=models.CASCADE)
@@ -201,6 +209,14 @@ class StudentSubmission(models.Model):
 
     def is_complete(self):
         return self.status == 'complete'
+
+    # what is this submission number? how many times has the student made a submission for this worksheet
+    def get_number(self):
+        submissions = StudentSubmission.objects.filter(worksheet=self.worksheet)
+        for index, submission in enumerate(submissions):
+            if submission == self:
+                return index + 1
+
 
     class Meta:
         verbose_name = "Student Submission"

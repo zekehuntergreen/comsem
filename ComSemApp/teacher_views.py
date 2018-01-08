@@ -15,6 +15,7 @@ from django.shortcuts import redirect
 import json, math, datetime, os
 from .models import *
 
+
 # DECORATORS
 def is_teacher(user):
     return Teacher.objects.filter(user=user).exists()
@@ -125,20 +126,27 @@ def worksheet(request, course_id, worksheet_id):
     if worksheet_id != '0':
 
         worksheet = get_object_or_404(Worksheet, id=worksheet_id)
+        context['worksheet'] = worksheet
+
+        # get related expression information and serialize it
+        expression_queryset = Expression.objects.filter(worksheet=worksheet).prefetch_related('student')
+
 
         if not course.id != course_id:
             return HttpResponse("Invalid course ID")
 
+        if worksheet.released == True:
+            context['expressions'] = expression_queryset
+            context['submissions'] = StudentSubmission.objects.filter(worksheet=worksheet)
+            template = loader.get_template('ComSemApp/teacher/view_worksheet.html')
+
+        else:
+            expressions_json = jsonify_expressions(expression_queryset)
+            context['expressions'] = expressions_json
+
+            template = loader.get_template('ComSemApp/teacher/edit_worksheet.html')
 
 
-        # get related expression information and serialize it
-        expression_queryset = Expression.objects.filter(worksheet=worksheet).prefetch_related('student')
-        expressions_json = jsonify_expressions(expression_queryset)
-
-        context['worksheet'] = worksheet
-        context['expressions'] = expressions_json
-
-    template = loader.get_template('ComSemApp/teacher/edit_worksheet.html')
     return HttpResponse(template.render(context, request))
 
 
@@ -236,6 +244,52 @@ def save_worksheet(request):
     return HttpResponse(status=204)
 
 
+@login_required
+@user_passes_test(is_teacher)
+@teaches_course
+def submission(request, course_id, worksheet_id, submission_id):
+
+    course = get_object_or_404(Course, id=course_id)
+    worksheet = get_object_or_404(Worksheet, id=worksheet_id)
+    submission = get_object_or_404(StudentSubmission, id=submission_id)
+
+    # user completed assessment form
+    if request.method == 'POST':
+        attempts = submission.studentattempt_set.all()
+
+        all_correct = True
+        # status of each attempt
+        for attempt in attempts:
+            correct = request.POST.get(str(attempt.id), None) == '1'
+            attempt.correct = correct
+            attempt.save()
+
+            if not correct:
+                all_correct = False
+
+        # handle status of the submission
+        if all_correct:
+            submission.status = 'complete'
+        else:
+            submission.status = 'incomplete'
+
+        submission.save()
+
+        messages.error(request, 'Assessment saved ', 'success')
+        return redirect('teacher_worksheet', course_id, worksheet_id)
+
+    # displaying submission
+    else:
+
+
+        context = {
+            'course': course,
+            'worksheet': worksheet,
+            'submission': submission,
+        }
+
+        template = loader.get_template('ComSemApp/teacher/view_submission.html')
+        return HttpResponse(template.render(context, request))
 
 
 def jsonify_expressions(expression_queryset):

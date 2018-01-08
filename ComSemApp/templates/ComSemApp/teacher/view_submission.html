@@ -1,0 +1,224 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% block content %}
+
+<form action="{% url 'teacher_submission' course.id worksheet.id submission.id %}" method="POST">
+	{% csrf_token %}
+
+	<input hidden name='studentSubmissionID' value="<?=$studentSubmissionID?>" />
+	<input hidden name='worksheetID' value="<?=$worksheetID?>" />
+
+	<!-- Page-Title -->
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="page-title-box">
+				<h4 class="page-title">Assess Submission</h4>
+				<button class="btn btn-success float-right" type="submit">Submit Assessment</button>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="row">
+		<div class="col-12">
+
+			<div class="portlet">
+				<div class="portlet-heading portlet-default">
+
+					<h4 class="portlet-title m-t-0 header-title"><b>Submission Details</b></h4>
+
+					<div class="portlet-widgets">
+
+						<a data-toggle="collapse" data-parent="#accordion1" href="#submissionInfoPortlet"><i class="ion-minus-round"></i></a>
+
+					</div>
+
+					<div class="clearfix"></div>
+				</div>
+
+				<div id="submissionInfoPortlet" class="panel-collapse collapse show">
+					<div class="portlet-body">
+						<div class="row">
+							<div class="col-sm-12 col-md-5">
+								<p>
+									Course: <span class='float-right'>{{ course }}</span>
+								</p>
+								<p>
+									Worksheet Number: <span class='float-right'>{{ worksheet.get_number }}</span>
+								</p>
+								<p>
+									Topic: <span class='float-right'>{{ worksheet.topic }}</span>
+								</p>
+							</div>
+							<div class="col-sm-12 col-md-5 ml-auto">
+								<p>
+									Student name: <span class='float-right'>{{ submission.student }}</span>
+								</p>
+								<p>
+									Attempt Number: <span class='float-right'>{{ submission.get_number }}</span>
+								</p>
+								<p>
+									Submission Date: <span class='float-right'>{{ submission.date }}</span>
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="row">
+		<div class="col-md-12">
+
+			<div class="card-box">
+
+				<h4 class="header-title m-t-0 m-b-30">Submitted Expressions</h4>
+
+
+
+				<!-- EXPRESSIONS -->
+				<div class="tabs-vertical-env">
+					<ul class="nav tabs-vertical">
+						{% for attempt in submission.studentattempt_set.all %}
+						<li class="nav-item">
+							<a href="#s-{{ forloop.counter }}" class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab" aria-expanded="{% if forloop.first %}true{% endif %}">
+								Expression {{ forloop.counter }}
+							</a>
+						</li>
+						{% endfor %}
+					</ul>
+
+					<div class="tab-content" style="width: 100%">
+						{% for attempt in submission.studentattempt_set.all %}
+						<div class="tab-pane {% if forloop.first %}active{% endif %}" id="s-{{ forloop.counter }}">
+
+							<!-- original expression  -->
+							<div class="row submissionRow" style="margin-top: 0px;">
+								<div class="col-12">
+									<strong>Original Expression: </strong>
+									{{ attempt.expression }}
+								</div>
+							</div>
+
+							<!-- teacher reformulation -->
+							<div class="row submissionRow">
+								<div class="col-12">
+									<strong>Reformulation: </strong>
+									{{ attempt.expression.reformulation_text }}
+								</div>
+							</div>
+
+							<!-- context/vocabulary -->
+							<div class="row submissionRow">
+								<div class="col-12">
+									<strong>Context / Vocabulary: </strong>
+									{{  attempt.expression.context_vocabulary }}
+								</div>
+							</div>
+
+							<!-- pronunciation -->
+							<div class="row submissionRow">
+								<div class="col-12">
+									<strong>Pronunciation: </strong>
+									{{  attempt.expression.pronunciation }}
+								</div>
+							</div>
+
+							<!-- reformulation -->
+							<div class="row submissionRow">
+
+								<div class="col-6">
+									<strong>Student Reformulation: </strong>
+									{{  attempt.reformulation_text }}
+								</div>
+
+								{% if attempt.reformulation_audio %}
+								<div class="col-6">
+									<audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" attempt_id="{{ attempt.id }}" src="">
+									</audio>
+								</div>
+								{% else %}
+									<i>No Audio Reformulation</i>
+								{% endif %}
+
+							</div>
+
+
+
+							<!-- Assessment -->
+							<div class="row submissionRow">
+								<div class="col-12">
+									<strong>Assessment:</strong><br />
+
+									<div class="radio radio-primary form-check-inline">
+
+										<input type="radio" name="{{ attempt.id }}" value="1" {% if attempt.correct %} checked{% endif %} id="radioCorrect{{ forloop.counter }}">
+
+										<label for="radioCorrect{{ forloop.counter }}">
+											Correct
+										</label>
+
+									</div>
+
+									<div class="radio radio-primary form-check-inline">
+										<input type="radio" name="{{ attempt.id }}"  value="0" {% if attempt.correct is False %} checked{% endif %} id="radioIncorrect{{ forloop.counter }}">
+										<label for="radioIncorrect{{ forloop.counter }}">
+											Incorrect
+										</label>
+									</div>
+
+								</div>
+
+							</div>
+
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+</form>
+
+<script>
+$(function(){
+	// handle previous attempt audio using url function
+	$('.previous_attempt_audio').each(function(){
+
+		attempt_id = $(this).attr('attempt_id');
+		$(this).attr('src', calculateAudioURL( {'attemptID': attempt_id } ))
+	});
+})
+</script>
+
+<style>
+/* .divider {
+    width:100%;
+    text-align:center;
+    height:inherit;
+}
+
+.divider hr {
+    margin-left:auto;
+    margin-right:auto;
+    width:45%;
+}
+
+.left {
+    float:left;
+}
+
+.right {
+    float:right;
+} */
+.submissionRow{
+	margin: 20px auto;
+}
+</style>
+
+{% endblock %}
