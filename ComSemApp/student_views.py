@@ -82,11 +82,16 @@ def worksheet(request, worksheet_id):
     # not correct
     submissions = StudentSubmission.objects.filter(Q(worksheet=worksheet), Q(student=request.user.student) | Q(student=None) ).prefetch_related('studentattempt_set')
 
-    latest_submission = submissions[0]
+    if submissions:
+        latest_submission = submissions[0]
+        attempts = latest_submission.studentattempt_set.all()
+    else:
+        latest_submission = None
+        attempts = []
 
     # add check for assigned to me, everyone, etc
     expression_queryset = Expression.objects.filter(worksheet=worksheet)
-    attempts = latest_submission.studentattempt_set.all()
+
 
     expressions = list(expression_queryset.values())
 

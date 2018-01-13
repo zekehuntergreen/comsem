@@ -1,0 +1,68 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% block content %}
+
+	<div class="card-box cs-table-container">
+
+		<div class="row">
+			<div class="col-md-6">
+				<h4 class="m-t-0 header-title"><b>All Course Types</b></h4>
+			</div>
+
+			<div class="col-md-6">
+				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin_edit_obj' 'course_type' 0 %}">
+					<i class="fa fa-plus"></i>
+				</a>
+			</div>
+		</div>
+
+		{% if course_types %}
+		<table class="table table-hover tablesorter">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Verbose Name</th>
+					<th></th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{% for course_type in course_types %}
+					<tr>
+						<td>
+							{{ course_type.name }}
+						</td>
+						<td>
+							{{ course_type.verbose_name|default:'-' }}
+						</td>
+						<td class="text-right">
+							<a href="{% url 'admin_edit_obj' 'course_type' course_type.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
+
+							<button delete_url="{% url 'admin_delete_obj' 'course_type' course_type.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+			{% include 'ComSemApp/tablesorter_footer.html'%}
+		</table>
+		{% else %}
+			<h4>No course types have been created yet.</h4>
+		{% endif %}
+	</div>
+
+	<script>
+	var delete_url;
+	$(function(){
+		var delete_obj = function(){
+			window.location.href = delete_url;
+		}
+
+		$('.delete_button').click(function(e){
+			e.preventDefault();
+			delete_url = $(this).attr('delete_url');
+			cs_confirm("Delete Course Type", "Are you sure you'd like to delete this course type? This action will automatically delete all courses with the course type!", "error", "Delete", delete_obj)
+		})
+	})
+	</script>
+
+{% endblock %}

@@ -18,12 +18,24 @@
 		<link href="{% static minton_style_css %}" rel="stylesheet" type="text/css" v="2">
 		{% endwith %}
 
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
+
+		<!-- TABLESORTER http://tablesorter.com/docs/ -->
+		<script type="text/javascript" src="{% static "ComSemApp/tablesorter/js/jquery.tablesorter.js" %}"></script>
+
+		<!-- tablesorter widget file - loaded after the plugin -->
+		<script type="text/javascript" src="{% static "ComSemApp/tablesorter/js/jquery.tablesorter.widgets.js" %}"></script>
+
+		<!-- bootstrap widget theme -->
+		<link rel="stylesheet" type="text/css" href="{% static 'ComSemApp/tablesorter/css/theme.bootstrap_4.css' %}" />
+
+		<!-- pager plugin -->
+		<link rel="stylesheet" href="{% static 'ComSemApp/tablesorter/addons/pager/jquery.tablesorter.pager.css' %}" >
+		<script src="{% static "ComSemApp/tablesorter/addons/pager/jquery.tablesorter.pager.js" %}"></script>
 
 
 		<script src="{% static "ComSemApp/Minton/js/modernizr.min.js"  %}"></script>
-
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
 		<script src="{% static "ComSemApp/js/ComSemRecording.js" %}"></script>
 
@@ -42,7 +54,7 @@
 			});
 		</script>
 
-		<link href="{% static "ComSemApp/css/com_sem_styles.css" %}" rel="stylesheet" v="1" />
+		<link href="{% static "ComSemApp/css/com_sem_styles.css" %}" rel="stylesheet" v="2" />
 
 	</head>
 
@@ -64,6 +76,7 @@
 		</script>
 		{% endfor %}
 	{% endif %}
+
 
 
 
@@ -100,6 +113,67 @@
 				on_confirm()
 			});
 		}
+
+		$(function(){
+
+			// make tablesorter footer the right size
+			$('.tablesorter').each(function(){
+				debugger;
+				num_cols = $(this).find('thead tr').children().length;
+				$(this).find('.cs-tablesorter-footer').attr('colspan', num_cols)
+			})
+
+
+			// appelez le plugin tablesorter et appliquez le widget uitheme
+			$(".tablesorter").tablesorter({
+				theme : "bootstrap",
+
+				sortList: [[2,1]], // start by sorting by date
+				headers: {
+					2: {
+						sorter:'date_time'
+					}
+				},
+
+				widthFixed: true,
+
+				headerTemplate : '{content} {icon}',
+
+				widgets : [ "uitheme", "filter", "columns", "zebra" ],
+
+				widgetOptions : {
+
+					zebra : ["even", "odd"],
+
+					columns: [ "primary", "secondary", "tertiary" ],
+
+					// bouton pour réinitialiser les filtres
+					filter_reset : ".reset",
+
+					filter_cssFilter: "form-control",
+
+				}
+			})
+			// initialiser le pager
+			.tablesorterPager({
+
+				container: $(".ts-pager"),
+
+				cssGoto  : ".pagenum",
+
+				removeRows: false,
+
+				output: '{startRow} - {endRow} / {filteredRows} ({totalRows})'
+
+			})
+
+
+
+			// ajouter des icônes de filtre
+			// $('input.tablesorter-filter').wrap('<div class="input-group filter-addon">')
+			// $('.filter-addon').append('<span class="input-group-addon"><span class="oi oi-magnifying-glass"></span>')
+		})
+
 	</script>
 
 	<!-- MINTON -->

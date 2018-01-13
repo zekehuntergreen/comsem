@@ -28,3 +28,10 @@ select.input-sm{
 .cs-table-container {
 	overflow-x: scroll;
 }
+
+i.ion {
+	font-size: 24px !important
+}
+i.ion-sm {
+	font-size: 18px !important
+}

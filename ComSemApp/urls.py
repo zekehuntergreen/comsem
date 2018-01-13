@@ -8,6 +8,18 @@ urlpatterns = [
 
     # ADMIN
     url(r'^admin/$', admin_views.admin, name='admin'),
+    url(r'^admin/teachers/$', admin_views.teachers, name='admin_teachers'),
+    url(r'^admin/students/$', admin_views.students, name='admin_students'),
+    url(r'^admin/courses/$', admin_views.courses, name='admin_courses'),
+    url(r'^admin/course_types/$', admin_views.course_types, name='admin_course_types'),
+    url(r'^admin/sessions/$', admin_views.sessions, name='admin_sessions'),
+    url(r'^admin/session_types/$', admin_views.session_types, name='admin_session_types'),
+
+    url(r'^admin/edit/([\w_]+)/([0-9]+)/$', admin_views.edit_obj, name='admin_edit_obj'), # all edit views
+
+    url(r'^admin/delete_obj/([\w_]+)/([0-9]+)/$', admin_views.delete_obj, name='admin_delete_obj'),
+
+
 
     # TEACHER
     url(r'^teacher/$', teacher_views.teacher, name='teacher'),
@@ -20,6 +32,7 @@ urlpatterns = [
     url(r'^ajax/delete_worksheet/$', teacher_views.delete_worksheet, name='delete_worksheet'),
     url(r'^ajax/release_worksheet/$', teacher_views.release_worksheet, name='release_worksheet'),
 
+
     # STUDENT
     url(r'^student/$', student_views.student, name='student'),
     url(r'^student/course/([0-9]+)/$', student_views.course, name='student_course'),
@@ -27,8 +40,10 @@ urlpatterns = [
 
     url(r'^ajax/save_submission/$', student_views.save_submission, name='save_submission'),
 
+
     # CORPUS
-    url(r'^corpus/search$', corpus_views.corpus_search, name='corpus_search'),
+    url(r'^teacher/corpus/search$', corpus_views.corpus_search, name='teacher_corpus_search'),
+    url(r'^admin/corpus/search$', corpus_views.corpus_search, name='admin_corpus_search'),
     url(r'^ajax/populate_word_tag/$', corpus_views.populate_word_tag, name='populate_word_tag'),
     url(r'^ajax/search_results/$', corpus_views.search_results, name='search_results'),
 

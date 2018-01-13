@@ -1,0 +1,76 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% block content %}
+
+	<div class="card-box cs-table-container">
+
+		<div class="row">
+			<div class="col-md-6">
+				<h4 class="m-t-0 header-title"><b>All Students</b></h4>
+			</div>
+
+			<div class="col-md-6">
+				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin_edit_obj' 'student' 0 %}">
+					<i class="fa fa-plus"></i>
+				</a>
+			</div>
+		</div>
+
+		{% if students %}
+		<table class="table table-hover tablesorter">
+			<thead>
+				<tr>
+					<th>First Name</th>
+					<th>Last Name</th>
+					<th>Email</th>
+					<th>Active</th>
+					<th></th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{% for student in students %}
+					<tr>
+						<td>
+							{{ student.user.first_name }}
+						</td>
+						<td>
+							{{ student.user.last_name }}
+						</td>
+						<td>
+							{{ student.user.email }}
+						</td>
+						<td>
+							<i class='fa fa-lg {% if student.user.is_active %}fa-check{% else %}fa-times{% endif %}'></i>
+						</td>
+						<td class="text-right">
+							<a href="{% url 'admin_edit_obj' 'student' student.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
+
+							<button delete_url="{% url 'admin_delete_obj' 'student' student.id %}" class='btn btn-sm btn-outline-danger delete_button {% if not student.user.is_active %}disabled{% endif %}' style="margin-left: 10px;">Disactivate</button>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+			{% include 'ComSemApp/tablesorter_footer.html'%}
+		</table>
+		{% else %}
+			<h4>No students have been created yet.</h4>
+		{% endif %}
+	</div>
+
+	<script>
+	var delete_url;
+	$(function(){
+		var delete_obj = function(){
+			window.location.href = delete_url;
+		}
+
+		$('.delete_button:not(.disabled)').click(function(e){
+			e.preventDefault();
+			delete_url = $(this).attr('delete_url');
+			cs_confirm("Delete Student", "Are you sure you'd like to delete this student?", "error", "Delete", delete_obj)
+		})
+	})
+	</script>
+
+{% endblock %}

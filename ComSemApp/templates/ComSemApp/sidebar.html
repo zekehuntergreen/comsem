@@ -136,7 +136,58 @@
 				<!--- Divider -->
 				<div id="sidebar-menu">
 
-					{% if user_info.teacher.current %}
+					{% if user_info.admin.current %}
+					<ul>
+						<li>
+							<a href="{% url 'admin_students' %}">
+								<i class="ion-person ion"></i>
+								<span>Students</span>
+							</a>
+						</li>
+						<li>
+							<a href="{% url 'admin_teachers' %}">
+								<i class="ion-person-add ion"></i>
+								<span>Teachers</span>
+							</a>
+						</li>
+						<li>
+							<a href="{% url 'admin_courses' %}">
+								<i class="ion-android-book ion-sm"></i>
+								<span>Courses</span>
+							</a>
+						</li>
+						<li>
+							<a href="{% url 'admin_course_types' %}">
+								<i class="ion-ios7-cog ion"></i>
+								<span>Course Types</span>
+							</a>
+						</li>
+						<li>
+							<a href="{% url 'admin_sessions' %}">
+								<i class="ion-calendar ion-sm"></i>
+								<span>Sessions</span>
+							</a>
+						</li>
+						<li>
+							<a href="{% url 'admin_session_types' %}">
+								<i class="ion-ios7-cog-outline ion"></i>
+								<span>Session Types</span>
+							</a>
+						</li>
+
+						<li class="has_sub">
+							<a href="javascript:void(0);" class="waves-effect waves-primary">
+								<i class="ti-pie-chart"></i>
+								<span>Corpus</span>
+								<span class="menu-arrow"></span>
+							</a>
+							<ul class="list-unstyled">
+								<li><a href="{% url 'admin_corpus_search' %}">Search</a></li>
+								<!-- <li><a href="url 'corpus_stats' ">Statistics</a></li> -->
+							</ul>
+						</li>
+					</ul>
+					{% elif user_info.teacher.current %}
 					<ul>
 						<li>
 							<a href="{% url 'teacher' %}">
@@ -151,7 +202,7 @@
 								<span class="menu-arrow"></span>
 							</a>
 							<ul class="list-unstyled">
-								<li><a href="{% url 'corpus_search' %}">Search</a></li>
+								<li><a href="{% url 'teacher_corpus_search' %}">Search</a></li>
 								<!-- <li><a href="url 'corpus_stats' ">Statistics</a></li> -->
 							</ul>
 						</li>
@@ -184,6 +235,7 @@
 			</div>
 		</div>
 	</div>
+
 
 </body>
 

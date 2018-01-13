@@ -62,7 +62,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                "ComSemApp.context_processors.user_info", 
+                "ComSemApp.context_processors.user_info",
             ],
         },
     },
@@ -128,3 +128,6 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'efs')
 MEDIA_URL = '/efs/'
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = 'app-messages' # change this to a proper location

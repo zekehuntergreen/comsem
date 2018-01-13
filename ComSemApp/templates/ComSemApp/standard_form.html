@@ -1,0 +1,38 @@
+<!-- used both to post a question and a response -->
+
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% block content %}
+
+<div class="card-box cs-table-container">
+
+	<div class="row">
+		<h4 class="m-t-0 header-title"><b>{{ page_title }}</b></h4>
+	</div>
+
+	<form method="post">
+		<div class="row mt-4">
+			<div class="col-12 mx-auto">
+				{% include 'ComSemApp/form_contents.html' %}
+			</div>
+		</div>
+
+		<br />
+
+		<div class="row mt-4">
+			<div class="col-6 mx-auto">
+				<button class="btn btn-primary btn-block" type="submit">Save</button>
+			</div>
+		</div>
+	</form>
+
+</div>
+
+<!-- clean up all django forms -->
+<script>
+	$(function(){
+		$('input,select,textarea').addClass('form-control')
+	});
+</script>
+
+{% endblock %}

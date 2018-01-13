@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.template import loader
 from django.shortcuts import get_object_or_404
@@ -10,7 +10,7 @@ from django.db.models.query import QuerySet
 from django.utils.safestring import mark_safe
 from django.core.serializers import serialize
 from django.contrib import messages
-from django.shortcuts import redirect
+
 
 import json, math, datetime, os
 from .models import *
@@ -123,6 +123,8 @@ def worksheet(request, course_id, worksheet_id):
     }
 
     # if this is NOT a new worksheet
+    template = loader.get_template('ComSemApp/teacher/edit_worksheet.html')
+    
     if worksheet_id != '0':
 
         worksheet = get_object_or_404(Worksheet, id=worksheet_id)

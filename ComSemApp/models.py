@@ -157,7 +157,7 @@ class Worksheet(models.Model):
                 return index + 1
 
     class Meta:
-        ordering = ['-date']
+        ordering = ['date']
 
 
 class Expression(models.Model):
