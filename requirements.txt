@@ -1,0 +1,6 @@
+Django==2.0
+mysqlclient==1.3.12
+nltk==3.2.5
+numpy==1.13.3
+pytz==2017.3
+six==1.11.0

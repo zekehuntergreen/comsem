@@ -199,7 +199,7 @@ class Topic(models.Model):
 
 class StudentSubmission(models.Model):
     # enrollment = models.ForeignKey('Enrollment', on_delete=models.SET_NULL, null=True) # the student who made the attempt
-    student = models.ForeignKey('Student', on_delete=models.PROTECT)
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
     worksheet = models.ForeignKey('Worksheet', on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=255, choices=STUDENT_SUBMISSION_STATUSES, default='ungraded')

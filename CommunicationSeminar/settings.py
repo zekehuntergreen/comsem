@@ -75,15 +75,32 @@ WSGI_APPLICATION = 'CommunicationSeminar.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-		'HOST': 'localhost',
-		'PORT': '3306',
-        'NAME': 'CommunicationSeminarDjango',
-		'USER': 'root',
-		'PASSWORD': '1965%Bridjam',
-    }
+
 }
+
+if 'RDS_DB_NAME' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'HOST': 'localhost',
+            'PORT': '3306',
+            'NAME': 'CommunicationSeminarDjango',
+            'USER': 'root',
+            'PASSWORD': '1965%Bridjam',
+        }
+    }
+
 
 
 # Password validation
@@ -124,6 +141,7 @@ LOGIN_REDIRECT_URL = '/initiate_roles/'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, "www", "static")
 STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'efs')
