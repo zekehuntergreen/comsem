@@ -17,42 +17,44 @@
 		</div>
 
 		{% if students %}
-		<table class="table table-hover tablesorter">
-			<thead>
-				<tr>
-					<th>First Name</th>
-					<th>Last Name</th>
-					<th>Email</th>
-					<th>Active</th>
-					<th></th>
-				</tr>
-			</thead>
-
-			<tbody>
-				{% for student in students %}
+		<div class="row mt-3 cs-admin-table">
+			<table class="table table-hover tablesorter">
+				<thead>
 					<tr>
-						<td>
-							{{ student.user.first_name }}
-						</td>
-						<td>
-							{{ student.user.last_name }}
-						</td>
-						<td>
-							{{ student.user.email }}
-						</td>
-						<td>
-							<i class='fa fa-lg {% if student.user.is_active %}fa-check{% else %}fa-times{% endif %}'></i>
-						</td>
-						<td class="text-right">
-							<a href="{% url 'admin_edit_obj' 'student' student.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
-
-							<button delete_url="{% url 'admin_delete_obj' 'student' student.id %}" class='btn btn-sm btn-outline-danger delete_button {% if not student.user.is_active %}disabled{% endif %}' style="margin-left: 10px;">Disactivate</button>
-						</td>
+						<th>First Name</th>
+						<th>Last Name</th>
+						<th>Email</th>
+						<th>Active</th>
+						<th data-filter="false" data-sorter="false"></th>
 					</tr>
-				{% endfor %}
-			</tbody>
-			{% include 'ComSemApp/tablesorter_footer.html'%}
-		</table>
+				</thead>
+
+				<tbody>
+					{% for student in students %}
+						<tr>
+							<td>
+								{{ student.user.first_name }}
+							</td>
+							<td>
+								{{ student.user.last_name }}
+							</td>
+							<td>
+								{{ student.user.email }}
+							</td>
+							<td>
+								<i class='fa fa-lg {% if student.user.is_active %}fa-check{% else %}fa-times{% endif %}'></i>
+							</td>
+							<td class="text-right">
+								<a href="{% url 'admin_edit_obj' 'student' student.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
+
+								<button delete_url="{% url 'admin_delete_obj' 'student' student.id %}" class='btn btn-sm btn-outline-danger delete_button {% if not student.user.is_active %}disabled{% endif %}' style="margin-left: 10px;">Disactivate</button>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+				{% include 'ComSemApp/tablesorter_footer.html'%}
+			</table>
+		</div>
 		{% else %}
 			<h4>No students have been created yet.</h4>
 		{% endif %}

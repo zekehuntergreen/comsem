@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.views.generic.edit import UpdateView
@@ -27,9 +28,7 @@ def get_institution(user):
 @login_required
 @user_passes_test(is_admin)
 def admin(request):
-    context = {}
-    template = loader.get_template('ComSemApp/admin/home.html')
-    return HttpResponse(template.render(context, request))
+    return HttpResponseRedirect('/admin/students/')
 
 
 # LIST VIEWS
@@ -98,33 +97,37 @@ def get_page_title(obj_type):
 
 def get_model_instance(obj_type, obj_id):
     if obj_type == 'course':
-        return Course.objects.get(id=obj_id)
-    if obj_type == 'course_type':
-        return CourseType.objects.get(id=obj_id)
-    if obj_type == 'session':
-        return Session.objects.get(id=obj_id)
-    if obj_type == 'session_type':
-        return SessionType.objects.get(id=obj_id)
-    if obj_type == 'teacher':
-        teacher = Teacher.objects.get(id=obj_id)
+        return get_object_or_404(Course, id=obj_id)
+    elif obj_type == 'course_type':
+        return get_object_or_404(CourseType, id=obj_id)
+    elif obj_type == 'session':
+        return get_object_or_404(Session, id=obj_id)
+    elif obj_type == 'session_type':
+        return get_object_or_404(SessionType, id=obj_id)
+    elif obj_type == 'teacher':
+        teacher = get_object_or_404(Teacher, id=obj_id)
         return teacher.user
-    if obj_type == 'student':
-        student = Student.objects.get(id=obj_id)
+    elif obj_type == 'student':
+        student = get_object_or_404(Student, id=obj_id)
         return student.user
+    else:
+        raise Http404('Object does not exist')
 
 def get_model_form(obj_type, content, instance, institution):
     if obj_type == 'course':
         return CourseForm(content, institution, instance=instance)
-    if obj_type == 'course_type':
+    elif obj_type == 'course_type':
         return CourseTypeForm(content, instance=instance)
-    if obj_type == 'session':
+    elif obj_type == 'session':
         return SessionForm(content, institution, instance=instance)
-    if obj_type == 'session_type':
+    elif obj_type == 'session_type':
         return SessionTypeForm(content, instance=instance)
-    if obj_type == 'teacher':
+    elif obj_type == 'teacher':
         return UserForm(content, instance=instance)
-    if obj_type == 'student':
+    elif obj_type == 'student':
         return UserForm(content, instance=instance)
+    else:
+        raise Http404('Object does not exist')
 
 
 # UPDATE / NEW

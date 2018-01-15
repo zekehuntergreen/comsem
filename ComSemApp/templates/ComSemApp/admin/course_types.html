@@ -17,34 +17,36 @@
 		</div>
 
 		{% if course_types %}
-		<table class="table table-hover tablesorter">
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Verbose Name</th>
-					<th></th>
-				</tr>
-			</thead>
-
-			<tbody>
-				{% for course_type in course_types %}
+		<div class="row mt-3 cs-admin-table">
+			<table class="table table-hover tablesorter">
+				<thead>
 					<tr>
-						<td>
-							{{ course_type.name }}
-						</td>
-						<td>
-							{{ course_type.verbose_name|default:'-' }}
-						</td>
-						<td class="text-right">
-							<a href="{% url 'admin_edit_obj' 'course_type' course_type.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
-
-							<button delete_url="{% url 'admin_delete_obj' 'course_type' course_type.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
-						</td>
+						<th>Name</th>
+						<th>Verbose Name</th>
+						<th data-filter="false" data-sorter="false"></th>
 					</tr>
-				{% endfor %}
-			</tbody>
-			{% include 'ComSemApp/tablesorter_footer.html'%}
-		</table>
+				</thead>
+
+				<tbody>
+					{% for course_type in course_types %}
+						<tr>
+							<td>
+								{{ course_type.name }}
+							</td>
+							<td>
+								{{ course_type.verbose_name|default:'-' }}
+							</td>
+							<td class="text-right">
+								<a href="{% url 'admin_edit_obj' 'course_type' course_type.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
+
+								<button delete_url="{% url 'admin_delete_obj' 'course_type' course_type.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+				{% include 'ComSemApp/tablesorter_footer.html'%}
+			</table>
+		</div>
 		{% else %}
 			<h4>No course types have been created yet.</h4>
 		{% endif %}

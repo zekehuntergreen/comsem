@@ -113,7 +113,7 @@ class Session(models.Model):
     end_date = models.DateField()
 
     def __str__(self):
-        return " - ".join([str(self.session_type), str(self.start_date.year)])
+        return " - ".join([str(self.session_type), str(self.start_date)])
 
     class Meta:
         ordering = ['-start_date']

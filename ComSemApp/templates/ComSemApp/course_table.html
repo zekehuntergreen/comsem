@@ -55,10 +55,10 @@
 				<th>Course</th>
 				<th>Section</th>
 				{% if teacher_view %}
-					<th class="d-xs-none" data-filter="false"></th>
+					<th class="d-xs-none" data-filter="false" data-sorter="false"></th>
 				{% else %}
 					<th>Teacher</th>
-					<th></th>
+					<th data-filter="false" data-sorter="false"></th>
 				{% endif %}
 			</tr>
 		</thead>
