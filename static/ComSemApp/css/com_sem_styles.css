@@ -1,0 +1,42 @@
+body {
+	padding: 0 !important;
+}
+
+/* copy table-hover's highlighting for programmatic highlighting*/
+.table-hover > tbody > tr.cs-active > td {
+	background-color: rgba(26, 188, 156, 0.15);
+}
+
+textarea {
+	resize: vertical;
+	min-height: 50px;
+ }
+
+.csRecorderButton{
+	margin-bottom: 25px;
+}
+
+select.input-sm{
+	/* restore bs style */
+	height: 30px !important;
+}
+
+.table th {
+	border-top: none !important;
+}
+
+.cs-table-container {
+	overflow-x: scroll;
+}
+
+i.ion {
+	font-size: 24px !important
+}
+i.ion-sm {
+	font-size: 18px !important
+}
+
+/* override bootrap theme for tablesorter tables in admin pages */ 
+.cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) thead:not(.thead-inverse) .tablesorter-header, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.odd > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.tablesorter-hasChildRow.odd:hover ~ tr.tablesorter-hasChildRow.odd ~ .tablesorter-childRow.odd > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.even > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.tablesorter-hasChildRow.even:hover ~ tr.tablesorter-hasChildRow.even ~ .tablesorter-childRow.even > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) .tablesorter-filter-row, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.hover > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.odd:hover > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.even:hover > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.tablesorter-hasChildRow.odd:hover ~ .tablesorter-childRow.odd > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.tablesorter-hasChildRow.even:hover ~ .tablesorter-childRow.even > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) thead:not(.thead-inverse) .tablesorter-header, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) tfoot th, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) tfoot td {
+	background-color: inherit;
+}
