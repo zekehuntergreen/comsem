@@ -141,8 +141,11 @@ LOGIN_REDIRECT_URL = '/initiate_roles/'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, "www", "static")
+# STATIC_ROOT = os.path.join(BASE_DIR, "www", "static")
+# STATIC_URL = '/static/'
+
 STATIC_URL = '/static/'
+STATIC_ROOT = 'static'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'efs')
 MEDIA_URL = '/efs/'
