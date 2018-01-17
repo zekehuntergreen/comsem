@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'c7so+hqfe+a_9i9*##vgl!k-xb^)nin&o-ev*^t@ipq6y!wt!-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-LIVE = True
+LIVE = 'RDS_DB_NAME' in os.environ
 DEBUG = False if LIVE else True
 
 ALLOWED_HOSTS = ['comsempython.us-east-2.elasticbeanstalk.com', 'localhost']
@@ -81,11 +81,11 @@ if LIVE:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': "ebdb",
-            'USER': "master",
-            'PASSWORD': "1965%Bridjam",
-            'HOST': "aacmwldenagy8k.cb3am12bhza3.us-east-2.rds.amazonaws.com",
-            'PORT': "3306",
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
         }
     }
 else:
