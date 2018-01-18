@@ -76,9 +76,12 @@
 							<!-- <img src="assets/images/users/avatar-1.jpg" alt="user" class="rounded-circle"> -->
 						</a>
 						<div class="dropdown-menu dropdown-menu-right profile-dropdown " aria-labelledby="Preview">
+							
 							<div class="dropdown-item noti-title">
-								<h5 class="text-overflow"><small>{{ user.username }}</small> </h5>
+								<h5 class="text-overflow">Welcome, <b>{{ user.username }}</b> </h5>
 							</div>
+
+							<div class="dropdown-divider"></div>
 
 							{% for role in user_info %}
 								<a href="{% url role %}" class="dropdown-item notify-item" >
@@ -96,8 +99,8 @@
 							</style>
 
 
-							<a href="javascript:void(0);" class="dropdown-item notify-item">
-								<i class="mdi mdi-settings"></i> <span>Settings</span>
+							<a href="{% url 'change_password' %}" class="dropdown-item notify-item">
+								<i class="mdi mdi-settings"></i> <span>Change Password</span>
 							</a>
 
 							<a href="{% url 'logout' %}" class="dropdown-item notify-item">
@@ -108,6 +111,7 @@
 					</li>
 
 				</ul>
+
 
 				<ul class="list-inline menu-left mb-0">
 					<li class="float-left">
@@ -130,12 +134,12 @@
 
 
 		<!-- ========== Left Sidebar Start ========== -->
-
+		<!-- only show if they have a current role (not on password reset page for example) -->
+		{% if current_role %}
 		<div class="left side-menu">
 			<div class="sidebar-inner slimscrollleft">
 				<!--- Divider -->
 				<div id="sidebar-menu">
-
 					{% if user_info.admin.current %}
 					<ul>
 						<li>
@@ -221,10 +225,12 @@
 				<div class="clearfix"></div>
 			</div>
 		</div>
+		{% endif %}
+
 		<!-- Left Sidebar End -->
 
 
-		<div class="content-page">
+		<div class="content-page" style="{% if not current_role %}margin-left: 0px{% endif %}">
 
 			<!-- Start content -->
 			<div class="content">

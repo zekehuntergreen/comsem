@@ -19,7 +19,7 @@ def user_info(request):
         if Teacher.objects.filter(user=request.user).exists():
             current = request.path.startswith('/teacher/')
             if current:
-                current_role = 'admin'
+                current_role = 'teacher'
                 minton_style = 'blue-vertical'
             user_info['teacher'] = {
                 'current': current,
@@ -27,7 +27,7 @@ def user_info(request):
         if Student.objects.filter(user=request.user).exists():
             current = request.path.startswith('/student/')
             if current:
-                current_role = 'admin'
+                current_role = 'student'
                 minton_style = 'green-vertical'
             user_info['student'] = {
                 'current': current,

@@ -16,7 +16,6 @@ urlpatterns = [
     url(r'^admin/session_types/$', admin_views.session_types, name='admin_session_types'),
 
     url(r'^admin/edit/([\w_]+)/([0-9]+)/$', admin_views.edit_obj, name='admin_edit_obj'), # all edit views
-
     url(r'^admin/delete_obj/([\w_]+)/([0-9]+)/$', admin_views.delete_obj, name='admin_delete_obj'),
 
 
