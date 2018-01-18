@@ -59,11 +59,14 @@
 				</div>
 				<div class="clearfix"></div>
 			</div>
-		</div>
+		</div> -->
 
 		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 			<div class="container">
-				<a class="navbar-brand logo" href="#">Minton</a>
+				<p class="navbar-brand logo" style="margin: 0px">
+					<i class="ion-chatboxes"></i>
+					ComSem
+				</p>
 				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
@@ -71,55 +74,20 @@
 				<div class="collapse navbar-collapse" id="navbarsExample07">
 					<ul class="navbar-nav ml-auto">
 						<li class="nav-item active">
-							<a class="nav-link" href="#how-it-work">How it work</a>
+							<a class="nav-link" href="#how-it-work">About</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="#features">Features</a>
+							<a class="nav-link" href="#features">Signup</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="#pricing">Pricing</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="#faq">FAQ</a>
+							<a class="nav-link" href="{% url 'login' %}">Login</a>
 						</li>
 					</ul>
+
 				</div>
 			</div>
 		</nav>
-		<div class="clearfix"></div> -->
-
-		<div class="topbar">
-
-			<!-- LOGO -->
-			<div class="topbar-left">
-				<div class="text-center">
-					<a href="javascript:void(0);" class="logo">
-						<i class="ion-chatboxes"></i>
-						<span>ComSem</span>
-					</a>
-				</div>
-			</div>
-
-			<!-- Button mobile view to collapse sidebar menu -->
-			<nav class="navbar-custom">
-
-				<ul class="list-inline float-right mb-0">
-					<li class="float-left">
-						<button class="button-menu-mobile open-left waves-light waves-effect">
-							<i class="mdi mdi-menu"></i> Signup
-						</button>
-					</li>
-
-					<li class="float-left">
-						<button class="button-menu-mobile open-left waves-light waves-effect">
-							<i class="mdi mdi-menu"></i> Login
-						</button>
-					</li>
-				</ul>
-
-			</nav>
-
-		</div>
+		<div class="clearfix"></div>
 
 		<!-- HOME -->
 		<section class="home bg-pic-gonzaga parallax" data-stellar-background-ratio="0.5">
@@ -132,7 +100,6 @@
 							<p class="animated fadeInDown wow" data-wow-delay=".2s"></p>
 							<a href="" class="btn btn-primary btn-rounded w-lg animated fadeInDown wow" data-wow-delay=".4s">Sign up</a>
 							<div class="clearfix"></div>
-
 						</div>
 					</div>
 				</div>
@@ -146,7 +113,7 @@
 
 				<div class="row">
 					<div class="col-sm-12 text-center">
-						<h2 class="title zoomIn animated wow" data-wow-delay=".1s">How It Works ?</h2>
+						<h2 class="title zoomIn animated wow" data-wow-delay=".1s">What is ComSem?</h2>
 						<p class="sub-title zoomIn animated wow" data-wow-delay=".2s">
 							ComSem stands for Communications Seminar, a resource for students learning English and their teachers to improve your spoken English.
 						</p>
@@ -171,7 +138,7 @@
 
 					<div class="col-md-4">
 						<div class="service-item animated fadeInDown wow" data-wow-delay=".3s">
-							<i class=" ti-comments"></i>
+							<i class="ti-comments"></i>
 							<div class="service-detail">
 								<h4>For Students</h4>
 								<p>
