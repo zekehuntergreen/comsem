@@ -1,8 +1,28 @@
-from django.forms import ModelForm, Form
+from django import forms
+from django.forms import ModelForm
 from .models import Course, CourseType, Session, SessionType, Teacher, Student
 from django.contrib.auth.models import User
 
+from .models import Institution
 
+
+
+class SignupForm(ModelForm):
+    first_name = forms.CharField(label="First Name", max_length=100)
+    last_name = forms.CharField(label="Last Name", max_length=100)
+    email = forms.EmailField()
+
+    class Meta:
+        model = Institution
+        fields = ['name', 'city', 'state_province', 'country']
+        labels = {
+            "name": "Organization / Institution",
+            "state_province": "State or Province"
+        }
+
+
+
+# MODEL FORMS FOR ADMIN SIDE
 class CourseForm(ModelForm):
     class Meta:
         model = Course
@@ -16,7 +36,6 @@ class CourseForm(ModelForm):
         self.fields['course_type'].queryset = CourseType.objects.filter(institution=institution)
         self.fields['teachers'].queryset = Teacher.objects.filter(institution=institution)
         self.fields['students'].queryset = Student.objects.filter(institution=institution)
-
 
 
 class CourseTypeForm(ModelForm):
@@ -43,15 +62,7 @@ class SessionTypeForm(ModelForm):
         model = SessionType
         fields = ['name', 'order']
 
-
-
 class UserForm(ModelForm):
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email', 'is_active']
-
-    # def __init__(self, *args, **kwargs):
-    #     institution = args[1]
-    #     new_args = [args[0]]
-    #     super(TeacherForm, self).__init__(*new_args, **kwargs)
-    #     self.fields['user'].queryset = User.objects.filter(institution=institution)

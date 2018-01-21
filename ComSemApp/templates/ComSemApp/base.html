@@ -63,32 +63,13 @@
 	{% endblock %}
 
 	<!-- messages -->
-	{% if messages %}
-		{% for message in messages %}
-		<script>
-			$(function(){
-				var tag = 'info'
-				{% if message.tags %}
-					tag = "{{ message.tags }}";
-				{% endif %}
-				cs_notification(tag, "{{ message }}")
-			})
-		</script>
-		{% endfor %}
-	{% endif %}
+	{% include 'ComSemApp/messages.html' %}
+
 
 
 
 
 	<script>
-		var cs_ajax_error = function(jqXHR, textStatus, errorThrown){
-			cs_notification('error', errorThrown)
-		}
-
-		function cs_notification(tag, message){
-			$.Notification.notify(tag, 'right bottom', message)
-		}
-
 		function cs_confirm(title, text, type, button_text, on_confirm){
 			switch(type) {
 				case 'warning':
@@ -157,11 +138,6 @@
 
 			})
 
-
-
-			// ajouter des icônes de filtre
-			// $('input.tablesorter-filter').wrap('<div class="input-group filter-addon">')
-			// $('.filter-addon').append('<span class="input-group-addon"><span class="oi oi-magnifying-glass"></span>')
 		})
 
 	</script>
@@ -201,10 +177,6 @@
     <!-- Custom main Js -->
     <script src="{% static "ComSemApp/Minton/js/jquery.core.js" %}"></script>
     <script src="{% static "ComSemApp/Minton/js/jquery.app.js" %}"></script>
-
-	<!-- Notification js -->
-	<script src="{% static "ComSemApp/Minton-plugins/notifyjs/dist/notify.min.js" %}"></script>
-	<script src="{% static "ComSemApp/Minton-plugins/notifications/notify-metro.js" %}"></script>
 
 	<!-- Sweet Alert js -->
 	<link href="{% static "ComSemApp/Minton-plugins/bootstrap-sweetalert/sweet-alert.css"%}" rel="stylesheet" type="text/css" />

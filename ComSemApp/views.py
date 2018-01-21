@@ -6,14 +6,44 @@ from django.template import loader
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
+from django.core.mail import send_mail
+
 
 
 from .models import Admin, Teacher, Student
+from .forms import SignupForm
 
 # home page
 def index(request):
-    template = loader.get_template('ComSemApp/home.html')
-    return HttpResponse(template.render({}, request))
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            # send a message to us
+            email = form.cleaned_data['email']
+
+            message = "Somebody has requested to join Communications Seminar!\nHere is their info:\n\n"
+
+            for key in form.cleaned_data.keys():
+                message += "\t" + key + ": " + form.cleaned_data[key] + "\n"
+
+            recipients = ['hunter@gonzaga.edu']
+
+            send_mail("Request to join ComSem", message, email, recipients)
+
+            # send them a confirmation message ?
+
+
+            form = SignupForm() # clear the form
+
+            messages.success(request, 'Your form has been sent successfully!')
+        else:
+            messages.error(request, 'Please correct the above error.')
+    else:
+        form = SignupForm()
+
+    return render(request, 'ComSemApp/home.html', {
+        'form': form,
+    })
 
 
 def change_password(request):

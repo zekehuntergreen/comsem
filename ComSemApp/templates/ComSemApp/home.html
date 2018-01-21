@@ -74,10 +74,10 @@
 				<div class="collapse navbar-collapse" id="navbarsExample07">
 					<ul class="navbar-nav ml-auto">
 						<li class="nav-item active">
-							<a class="nav-link" href="#how-it-work">About</a>
+							<a class="nav-link" href="#how-it-works">About</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="#features">Signup</a>
+							<a class="nav-link" href="#signup">Sign Up</a>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" href="{% url 'login' %}">Login</a>
@@ -98,7 +98,7 @@
 						<div class="home-wrapper text-center">
 							<h1 class="animated fadeInDown wow" data-wow-delay=".1s">Welcome to ComSem! </h1>
 							<p class="animated fadeInDown wow" data-wow-delay=".2s"></p>
-							<a href="" class="btn btn-primary btn-rounded w-lg animated fadeInDown wow" data-wow-delay=".4s">Sign up</a>
+							<a href="#signup" class="btn btn-primary btn-rounded w-lg animated fadeInDown wow" data-wow-delay=".4s">Sign up</a>
 							<div class="clearfix"></div>
 						</div>
 					</div>
@@ -107,8 +107,8 @@
 		</section>
 		<!-- END HOME -->
 
-		<!-- SERVICES -->
-		<section class="section" id="how-it-work">
+		<!-- ABOUT -->
+		<section class="section" id="how-it-works">
 			<div class="container">
 
 				<div class="row">
@@ -170,7 +170,43 @@
 
 			</div>
 		</section>
-		<!-- END SERVICES -->
+		<!-- END ABOUT -->
+
+		<!-- SIGNUP -->
+		<section class="section bg-gray" id="signup">
+			<div class="container">
+
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="feature-detail">
+							<h2 class="title fadeIn animated wow" data-wow-delay=".1s">Sign Up</h2>
+							<p class="sub fadeIn animated wow" data-wow-delay=".2s">
+								If you are a teacher or administrator and would like to use Communication Seminar, please fill out the form below and send us a message. <br />
+								Someone will contact you to set up an account.
+							</p>
+
+							<form method="post">
+								<div class="row mt-4">
+									<div class="col-6 mx-auto">
+										{% include 'ComSemApp/form_contents.html' %}
+									</div>
+								</div>
+
+								<br />
+
+								<div class="row mt-4">
+									<div class="col-6 mx-auto">
+										<button class="btn btn-primary btn-rounded w-lg animated fadeInDown wow" data-wow-delay=".4s" type="submit">Submit</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</section>
+		<!-- END SIGNUP -->
 
 
 		<!-- js placed at the end of the document so the pages load faster -->
@@ -188,11 +224,10 @@
 		<script src="{% static "ComSemApp/Minton-homepage/js/jquery.app.js" %}"></script>
 
 		<script type="text/javascript">
-			jQuery(document).ready(function($) {
-				$('.counter').counterUp({
-					delay: 100,
-					time: 1200
-				});
+
+			// make the signup form look nicer
+			$(function(){
+				$('input,select,textarea').addClass('form-control')
 			});
 		</script>
 
