@@ -26,16 +26,15 @@ def index(request):
             for key in form.cleaned_data.keys():
                 message += "\t" + key + ": " + form.cleaned_data[key] + "\n"
 
-            recipients = ['hunter@gonzaga.edu']
+            recipients = ['hunter@gonzaga.edu', 'zekehuntergreen@gmail.com']
 
             send_mail("Request to join ComSem", message, email, recipients)
 
             # send them a confirmation message ?
 
+            # form = SignupForm() # clear the form
 
-            form = SignupForm() # clear the form
-
-            messages.success(request, 'Your form has been sent successfully!')
+            messages.success(request, 'Your request has been sent successfully! We will contact you shortly to set up an account.')
         else:
             messages.error(request, 'Please correct the above error.')
     else:

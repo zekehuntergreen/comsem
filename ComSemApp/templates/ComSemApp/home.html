@@ -25,9 +25,6 @@
 		<!-- Custom styles for this template -->
 		<link href="{% static "ComSemApp/Minton-homepage/css/style.css" %}" rel="stylesheet" type="text/css">
 
-		<!-- used just for top nav -->
-		<link href="{% static "ComSemApp/Minton/css-blue-vertical/style.css" %}" rel="stylesheet" type="text/css" v="2">
-
 		<link href="{% static "ComSemApp/Minton/css/icons.css" %}" rel="stylesheet" type="text/css">
 	</head>
 
@@ -177,7 +174,7 @@
 			<div class="container">
 
 				<div class="row">
-					<div class="col-sm-12">
+					<div class="col-sm-10 mx-auto">
 						<div class="feature-detail">
 							<h2 class="title fadeIn animated wow" data-wow-delay=".1s">Sign Up</h2>
 							<p class="sub fadeIn animated wow" data-wow-delay=".2s">
@@ -186,8 +183,8 @@
 							</p>
 
 							<form method="post">
-								<div class="row mt-4">
-									<div class="col-6 mx-auto">
+								<div class="row" style="margin-top: 5em">
+									<div class="col-8 mx-auto">
 										{% include 'ComSemApp/form_contents.html' %}
 									</div>
 								</div>
@@ -195,7 +192,7 @@
 								<br />
 
 								<div class="row mt-4">
-									<div class="col-6 mx-auto">
+									<div class="col-8 mx-auto">
 										<button class="btn btn-primary btn-rounded w-lg animated fadeInDown wow" data-wow-delay=".4s" type="submit">Submit</button>
 									</div>
 								</div>
@@ -223,13 +220,42 @@
 		<!--common script for all pages-->
 		<script src="{% static "ComSemApp/Minton-homepage/js/jquery.app.js" %}"></script>
 
+		<!-- Sweet Alert js -->
+		<link href="{% static "ComSemApp/Minton-plugins/bootstrap-sweetalert/sweet-alert.css"%}" rel="stylesheet" type="text/css" />
+		<script src="{% static "ComSemApp/Minton-plugins/bootstrap-sweetalert/sweet-alert.min.js" %}"></script>
+
 		<script type="text/javascript">
 
 			// make the signup form look nicer
 			$(function(){
-				$('input,select,textarea').addClass('form-control')
+				$('input,select,textarea').addClass('form-control form-control-sm')
 			});
 		</script>
+
+		{% if messages %}
+			{% for message in messages %}
+			<script>
+				$(function(){
+					var tag = 'info'
+					{% if message.tags %}
+					tag = "{{ message.tags }}";
+					{% endif %}
+					swal({
+						title: "Success",
+						text: "{{ message}}",
+						type: tag,
+						showCancelButton: false,
+						confirmButtonClass: 'btn-sm btn-success',
+						confirmButtonText: 'Ok',
+						closeOnConfirm: true
+					});
+
+
+				})
+			</script>
+			{% endfor %}
+		{% endif %}
+
 
 
 		<style>

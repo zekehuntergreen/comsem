@@ -8,16 +8,16 @@ from .models import Institution
 
 
 class SignupForm(ModelForm):
-    first_name = forms.CharField(label="First Name", max_length=100)
-    last_name = forms.CharField(label="Last Name", max_length=100)
-    email = forms.EmailField()
+    first_name = forms.CharField(label="Administrator First Name", max_length=100)
+    last_name = forms.CharField(label="Administrator Last Name", max_length=100)
+    email = forms.EmailField(label="Administrator Email")
 
     class Meta:
         model = Institution
         fields = ['name', 'city', 'state_province', 'country']
         labels = {
-            "name": "Organization / Institution",
-            "state_province": "State or Province"
+            "name": "Organization / Institution Name",
+            "state_province": "State or Province",
         }
 
 

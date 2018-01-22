@@ -6,3 +6,6 @@
 
 # ignore efs directory
 efs/*
+
+# ignore sent email dir for tests
+app-messages/*

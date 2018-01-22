@@ -1,12 +1,13 @@
 {% load static %}
 
+
 {% if messages %}
 	{% for message in messages %}
 	<script>
 		$(function(){
 			var tag = 'info'
 			{% if message.tags %}
-				tag = "{{ message.tags }}";
+			tag = "{{ message.tags }}";
 			{% endif %}
 			cs_notification(tag, "{{ message }}")
 		})
@@ -23,6 +24,7 @@ function cs_notification(tag, message){
 	$.Notification.notify(tag, 'right bottom', message)
 }
 </script>
+
 
 <!-- Notification js -->
 <script src="{% static "ComSemApp/Minton-plugins/notifyjs/dist/notify.min.js" %}"></script>
