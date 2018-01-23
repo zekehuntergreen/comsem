@@ -32,7 +32,7 @@ def index(request):
 
             # send them a confirmation message ?
 
-            # form = SignupForm() # clear the form
+            form = SignupForm() # clear the form
 
             messages.success(request, 'Your request has been sent successfully! We will contact you shortly to set up an account.')
         else:
@@ -61,6 +61,7 @@ def change_password(request):
         'form': form,
         'page_title': 'Change Password'
     })
+    
 
 # called when user logs in, puts current role in session
 @login_required

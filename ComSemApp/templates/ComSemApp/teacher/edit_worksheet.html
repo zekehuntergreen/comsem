@@ -22,7 +22,6 @@
 
 				<button type="submit" class="btn btn-sm btn-success float-right" id="SaveWorksheet">Save Worksheet</button>
 
-
 				<div class="clearfix"></div>
 			</div>
 		</div>
@@ -238,6 +237,11 @@
 	save_url = "{% url 'save_worksheet' %}";
 	redirect_url = "{% url 'teacher_course' course.id %}"
 </script>
+
 <script src="{% static "ComSemApp/js/edit_worksheet.js" %}" v="2"></script>
+
+<!-- recordmp3 needed by ComSemRecording -->
+<script src="{% static "ComSemApp/js/Recordmp3js/recordmp3.js" %}"></script>
+<script src="{% static "ComSemApp/js/ComSemRecording.js" %}"></script>
 
 {% endblock %}

@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.core.mail import send_mail
+from django.contrib import messages
 
 
 
@@ -157,6 +158,8 @@ def edit_obj(request, obj_type, obj_id):
                 new_obj.institution = institution
                 new_obj.save()
 
+            messages.success(request, 'The ' + obj_type + ' was saved successfully!')
+
             return HttpResponseRedirect('/admin/' + obj_type + 's/')
 
         else:
@@ -188,7 +191,7 @@ def save_user(request, obj_type, obj_id, form, institution):
 
         link = "https://www.comsem.net"
         message = "You have been invited to join Communication Seminar by an administrator for " + institution.name + ".\nIn order to log in, go to " + link + " and use \n\tusername: " + user_obj.username + "\n\tpassword: " + my_password + "\nfrom there you can change your password."
-        print (message)
+        # print (message)
 
 
         # send the new user an email

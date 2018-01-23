@@ -124,7 +124,7 @@ def worksheet(request, course_id, worksheet_id):
 
     # if this is NOT a new worksheet
     template = loader.get_template('ComSemApp/teacher/edit_worksheet.html')
-    
+
     if worksheet_id != '0':
 
         worksheet = get_object_or_404(Worksheet, id=worksheet_id)
@@ -308,7 +308,7 @@ def jsonify_expressions(expression_queryset):
 
 def handle_uploaded_file(f, directory, e):
     id_floor = int(math.floor(e/1000))
-    url = 'efs/' + directory + '/' + str(id_floor)
+    url = '/efs/' + directory + '/' + str(id_floor)
     if not os.path.exists(url):
         os.makedirs(url)
     filename = e - (id_floor * 1000)
