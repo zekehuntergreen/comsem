@@ -146,11 +146,13 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'efs')
 MEDIA_URL = '/efs/'
 
-if Live:
+
+# EMAIL
+if LIVE:
     EMAIL_HOST = 'smtp.sendgrid.net'
     EMAIL_PORT = 587
-    EMAIL_HOST_USER = get_env_variable('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = get_env_variable('EMAIL_HOST_PASSWORD')
+    EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+    EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
     EMAIL_USE_TLS = True
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
