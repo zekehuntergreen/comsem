@@ -26,7 +26,11 @@ SECRET_KEY = 'c7so+hqfe+a_9i9*##vgl!k-xb^)nin&o-ev*^t@ipq6y!wt!-'
 LIVE = 'RDS_DB_NAME' in os.environ
 DEBUG = False if LIVE else True
 
-ALLOWED_HOSTS = ['comsempython.us-east-2.elasticbeanstalk.com', 'localhost', 'www.comsem.net']
+ALLOWED_HOSTS = [
+    'comsempython.us-east-2.elasticbeanstalk.com',
+    'localhost',
+    '.comsem.net', 
+]
 
 # Application definition
 
