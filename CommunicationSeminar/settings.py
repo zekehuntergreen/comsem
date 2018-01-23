@@ -26,7 +26,7 @@ SECRET_KEY = 'c7so+hqfe+a_9i9*##vgl!k-xb^)nin&o-ev*^t@ipq6y!wt!-'
 LIVE = 'RDS_DB_NAME' in os.environ
 DEBUG = False if LIVE else True
 
-ALLOWED_HOSTS = ['comsempython.us-east-2.elasticbeanstalk.com', 'localhost']
+ALLOWED_HOSTS = ['comsempython.us-east-2.elasticbeanstalk.com', 'localhost', 'comsem.net']
 
 # Application definition
 
@@ -154,6 +154,7 @@ if LIVE:
     EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
     EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
     EMAIL_USE_TLS = True
+    DEFAULT_FROM_EMAIL = 'ComSem <noreply@comsem.net>'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
     EMAIL_FILE_PATH = 'app-messages' # change this to a proper location
