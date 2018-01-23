@@ -29,7 +29,7 @@ DEBUG = False if LIVE else True
 ALLOWED_HOSTS = [
     'comsempython.us-east-2.elasticbeanstalk.com',
     'localhost',
-    '.comsem.net', 
+    '.comsem.net',
 ]
 
 # Application definition
@@ -161,4 +161,8 @@ if LIVE:
     DEFAULT_FROM_EMAIL = 'ComSem <noreply@comsem.net>'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-    EMAIL_FILE_PATH = 'app-messages' # change this to a proper location
+    EMAIL_FILE_PATH = 'app-messages'
+
+# HTTPS
+if LIVE:
+    SECURE_SSL_REDIRECT = True
