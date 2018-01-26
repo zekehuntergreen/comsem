@@ -24,7 +24,8 @@ def index(request):
             message = "Somebody has requested to join Communications Seminar!\nHere is their info:\n\n"
 
             for key in form.cleaned_data.keys():
-                message += "\t" + key + ": " + form.cleaned_data[key] + "\n"
+                if form.cleaned_data[key]:
+                    message += "\t" + key + ": " + form.cleaned_data[key] + "\n"
 
             recipients = ['hunter@gonzaga.edu', 'zekehuntergreen@gmail.com']
 
@@ -61,7 +62,7 @@ def change_password(request):
         'form': form,
         'page_title': 'Change Password'
     })
-    
+
 
 # called when user logs in, puts current role in session
 @login_required

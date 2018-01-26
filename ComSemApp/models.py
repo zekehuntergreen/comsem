@@ -66,7 +66,7 @@ class Admin(models.Model):
 class Institution(models.Model):
     name = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
-    state_province = models.CharField(max_length=2, choices=STATE_CHOICES)
+    state_province = models.CharField(max_length=2, choices=STATE_CHOICES, blank=True, null=True)
     country = models.CharField(max_length=255)
 
     def __str__(self):

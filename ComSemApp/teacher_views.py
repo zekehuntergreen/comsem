@@ -10,6 +10,7 @@ from django.db.models.query import QuerySet
 from django.utils.safestring import mark_safe
 from django.core.serializers import serialize
 from django.contrib import messages
+from django.conf import settings
 
 
 import json, math, datetime, os
@@ -308,7 +309,8 @@ def jsonify_expressions(expression_queryset):
 
 def handle_uploaded_file(f, directory, e):
     id_floor = int(math.floor(e/1000))
-    url = '/efs/' + directory + '/' + str(id_floor)
+    url = settings.EFS_DIR
+    url += directory + '/' + str(id_floor)
     if not os.path.exists(url):
         os.makedirs(url)
     filename = e - (id_floor * 1000)

@@ -150,6 +150,10 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'efs')
 MEDIA_URL = '/efs/'
 
+if LIVE:
+    EFS_DIR = '/efs/'
+else:
+    EFS_DIR = 'efs/'
 
 # EMAIL
 if LIVE:

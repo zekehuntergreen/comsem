@@ -17,7 +17,11 @@ function startUserMedia(stream) {
 	// input.connect(audio_context.destination);
 	__log('Input connected to audio context destination.');
 
-	recorder = new Recorder(input);
+	config = {
+		'bufferLen': 256,
+		'numChannels': 1,
+	}
+	recorder = new Recorder(input, config);
 
 	__log('Recorder initialised.');
 }
