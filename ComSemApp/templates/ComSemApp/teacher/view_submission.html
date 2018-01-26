@@ -1,5 +1,7 @@
 {% extends 'ComSemApp/sidebar.html' %}
 
+{% load static %}
+
 {% block content %}
 
 <form action="{% url 'teacher_submission' course.id worksheet.id submission.id %}" method="POST">
@@ -196,26 +198,9 @@ $(function(){
 })
 </script>
 
+<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}"></script>
+
 <style>
-/* .divider {
-    width:100%;
-    text-align:center;
-    height:inherit;
-}
-
-.divider hr {
-    margin-left:auto;
-    margin-right:auto;
-    width:45%;
-}
-
-.left {
-    float:left;
-}
-
-.right {
-    float:right;
-} */
 .submissionRow{
 	margin: 20px auto;
 }

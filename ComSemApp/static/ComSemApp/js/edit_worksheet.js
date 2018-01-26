@@ -81,6 +81,8 @@ drawExpressionsTable() // initial call
 
 function populateEditor(index){
 
+	initializeRecorder(); // initialize the recorder. function found in ComSemRecording-opus.js
+
 	$('#expressionsTableContainer tr').removeClass('cs-active');
 	$('#expressionsTableContainer [index=' + index  + ']').addClass('cs-active');
 

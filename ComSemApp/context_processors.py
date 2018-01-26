@@ -1,4 +1,5 @@
 from .models import Admin, Teacher, Student
+from django.conf import settings
 
 # info to be displayed in dropdown menu - user's roles.
 def user_info(request):
@@ -33,4 +34,10 @@ def user_info(request):
                 'current': current,
             }
 
-    return {'user_info': user_info, "current_role": current_role, "minton_style": minton_style}
+    return {
+        "user_info": user_info,
+        "current_role": current_role,
+        "minton_style": minton_style,
+
+        "live": settings.LIVE,
+    }

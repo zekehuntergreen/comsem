@@ -1,4 +1,4 @@
-// include in pages that need to record / save audio files
+// no longer in use after switch to opus format
 
 var audioReformulationBlob;
 

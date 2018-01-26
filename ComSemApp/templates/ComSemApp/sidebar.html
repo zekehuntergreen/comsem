@@ -24,11 +24,18 @@
 
 				<ul class="list-inline float-right mb-0">
 
+					{% if not live %}
+					<li class="list-inline-item notification-list hide-phone">
+						<span style="font-size: 20px;" class="badge badge-warning">TEST</span>
+					</li>
+					{% endif %}
+
 					<li class="list-inline-item notification-list hide-phone">
 						<a class="nav-link waves-light waves-effect" href="#" id="btn-fullscreen">
 							<i class="mdi mdi-crop-free noti-icon"></i>
 						</a>
 					</li>
+
 
 
 					<!-- <li class="list-inline-item notification-list">
@@ -76,7 +83,7 @@
 							<!-- <img src="assets/images/users/avatar-1.jpg" alt="user" class="rounded-circle"> -->
 						</a>
 						<div class="dropdown-menu dropdown-menu-right profile-dropdown " aria-labelledby="Preview">
-							
+
 							<div class="dropdown-item noti-title">
 								<h5 class="text-overflow">Welcome, <b>{{ user.username }}</b> </h5>
 							</div>
@@ -98,6 +105,7 @@
 							}
 							</style>
 
+							<div class="dropdown-divider"></div>
 
 							<a href="{% url 'change_password' %}" class="dropdown-item notify-item">
 								<i class="mdi mdi-settings"></i> <span>Change Password</span>

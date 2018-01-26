@@ -314,7 +314,7 @@ def handle_uploaded_file(f, directory, e):
     if not os.path.exists(url):
         os.makedirs(url)
     filename = e - (id_floor * 1000)
-    url += '/' + str(filename) + ".mp3"
+    url += '/' + str(filename) + ".ogg"
     with open(url, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)

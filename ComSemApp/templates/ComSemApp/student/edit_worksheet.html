@@ -1,8 +1,8 @@
 {% extends 'ComSemApp/sidebar.html' %}
 
+{% load static %}
+
 {% block content %}
-
-
 
 <div class="row">
 	<div class="col-sm-12">
@@ -300,6 +300,8 @@ drawExpressionsTable() // initial call
 
 function populateEditor(index){
 
+	initializeRecorder(); // initialize the recorder. function found in ComSemRecording-opus.js
+
 	var currentExpression = expressions[index];
 	var currentExpressionID = currentExpression['id'];
 
@@ -481,8 +483,12 @@ function inspectFormData(){
 </script>
 
 <!-- recordmp3 needed by ComSemRecording -->
-<script src="{% static "ComSemApp/js/Recordmp3js/recordmp3.js" %}"></script>
-<script src="{% static "ComSemApp/js/ComSemRecording.js" %}"></script>
+<script>
+	encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
+</script>
+
+<script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
+<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}"></script>
 
 
 <style>
