@@ -1,0 +1,73 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% block content %}
+
+<div class="card-box cs-table-container">
+
+	<div class="row">
+		<h4 class="m-t-0 header-title"><b>Edit Course</b></h4>
+	</div>
+
+	<form method="post">
+		<div class="row mt-4">
+			<div class="col-12 mx-auto">
+
+				{% include 'ComSemApp/form_contents.html' %}
+
+
+				<!-- <div class="col-12 mx-auto">
+
+					{% csrf_token %}
+
+					<p>
+						<label for="id_session">Session:</label><br>
+						<select class="form-control" name="session" required="" id="id_session">
+
+						</select>
+					</p>
+
+					<p>
+						<label for="id_course_type">Course type:</label><br>
+						<select class="form-control" name="course_type" required="" id="id_course_type">
+						</select>
+					</p>
+
+					<p>
+						<label for="id_teachers">Teachers:</label><br>
+						<select class="form-control" name="teachers" required="" id="id_teachers" multiple="multiple">
+
+						</select>
+					</p>
+
+					<p>
+						<label for="id_students">Students:</label><br>
+						<select class="form-control" name="students" required="" id="id_students" multiple="multiple">
+						</select>
+
+
+					</p>
+
+					<p>
+						<label for="id_section">Section:</label><br>
+						<input class="form-control" type="number" name="section" value="18" required="" id="id_section">
+					</p>
+
+
+				</div> -->
+
+			</div>
+		</div>
+
+		<br />
+
+		<div class="row mt-4">
+			<div class="col-6 mx-auto">
+				<button class="btn btn-primary btn-block" type="submit">Save</button>
+			</div>
+		</div>
+	</form>
+
+</div>
+
+
+{% endblock %}

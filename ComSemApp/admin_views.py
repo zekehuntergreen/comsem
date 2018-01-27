@@ -179,6 +179,7 @@ def edit_obj(request, obj_type, obj_id):
     return render(request, 'ComSemApp/standard_form.html', {'form': form, 'page_title': page_title})
 
 
+
 def save_user(request, obj_type, obj_id, form, institution):
     # create the user
     user_obj = form.save(commit=False)
