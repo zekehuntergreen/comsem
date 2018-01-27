@@ -100,7 +100,7 @@ else:
             'PORT': '3306',
             'NAME': 'CommunicationSeminarDjango',
             'USER': 'root',
-            'PASSWORD': '1965%Bridjam',
+            'PASSWORD': '2017%ComSem',
         }
     }
 
