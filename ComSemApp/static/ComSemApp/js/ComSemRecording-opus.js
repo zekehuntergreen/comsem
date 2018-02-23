@@ -1,5 +1,7 @@
 // include in pages that need to record / save / access audio files
 
+var audioReformulationBlob;
+
 var recorder;
 
 start.addEventListener( "click", function(){ recorder.start(); });
