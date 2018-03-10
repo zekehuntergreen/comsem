@@ -24,6 +24,7 @@
 						<th>Session</th>
 						<th>Course Type</th>
 						<th>Section</th>
+						<th>Students</th>
 						<th>Active</th>
 						<th data-filter="false" data-sorter="false"></th>
 					</tr>
@@ -41,6 +42,9 @@
 								</td>
 								<td>
 									{{ course.section }}
+								</td>
+								<td>
+									{{ course.students.count }}
 								</td>
 								<td>
 									<i class='fa fa-lg {% if course.is_active %}fa-check{% else %}fa-times{% endif %}'></i>
