@@ -1,9 +1,10 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Course, CourseType, Session, SessionType, Teacher, Student
+
 from django.contrib.auth.models import User
 
-from .models import Institution
+from django_select2.forms import Select2MultipleWidget
+from .models import Course, CourseType, Session, SessionType, Teacher, Student, Institution
 
 
 
@@ -27,6 +28,10 @@ class CourseForm(ModelForm):
     class Meta:
         model = Course
         fields = ['session', 'course_type', 'teachers', 'students', 'section']
+        widgets = {
+            'teachers': Select2MultipleWidget,
+            'students': Select2MultipleWidget,
+        }
 
     def __init__(self, *args, **kwargs):
         institution = args[1]
