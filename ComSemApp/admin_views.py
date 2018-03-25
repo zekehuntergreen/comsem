@@ -156,7 +156,7 @@ def edit_obj(request, obj_type, obj_id):
             else:
                 new_obj = form.save(commit=False)
                 new_obj.institution = institution
-                new_obj.save()
+                form.save_m2m()
 
             messages.success(request, 'The ' + obj_type + ' was saved successfully!')
 
