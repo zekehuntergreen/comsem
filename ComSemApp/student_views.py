@@ -118,8 +118,6 @@ def worksheet(request, worksheet_id):
 
     expressions_json = json.dumps(expressions)
 
-    print(expressions_json)
-
     context = {
         'course': worksheet.course,
         'worksheet': worksheet,
