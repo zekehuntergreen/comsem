@@ -87,6 +87,9 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Deleting %s tags records' % len(tags)))
         tags.delete()
 
+        nltk.download('punkt')
+        nltk.download('averaged_perceptron_tagger')
+
 
 
         # load the tagset
