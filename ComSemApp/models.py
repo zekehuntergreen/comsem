@@ -278,9 +278,6 @@ class Tag(models.Model):
     def __str__(self):
         return self.tag
 
-    class Meta:
-        db_table = 'ComSemApp_upenntagset'
-
     def frequency(self):
         words = Word.objects.filter(tag=self).all()
         return SequentialWords.objects.filter(word__in=words).count()

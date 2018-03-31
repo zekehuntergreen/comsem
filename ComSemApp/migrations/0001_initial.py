@@ -162,9 +162,6 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(blank=True, max_length=255, null=True)),
                 ('frequency', models.IntegerField(default=1)),
             ],
-            options={
-                'db_table': 'ComSemApp_upenntagset',
-            },
         ),
         migrations.CreateModel(
             name='Teacher',
