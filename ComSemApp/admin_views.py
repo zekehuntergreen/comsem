@@ -172,7 +172,6 @@ def edit_obj(request, obj_type, obj_id):
             page_title = 'New ' + get_page_title(obj_type)
         else:
             instance = get_model_instance(obj_type, obj_id)
-            print(obj_type, obj_id)
             form = get_model_form(obj_type, None, instance, institution)
             page_title = 'Edit ' + get_page_title(obj_type)
 
@@ -188,11 +187,9 @@ def save_user(request, obj_type, obj_id, form, institution):
     if int(obj_id) == 0:
         my_password = User.objects.make_random_password()
         user_obj.set_password(my_password)
-        print (my_password)
 
         link = "https://www.comsem.net"
         message = "You have been invited to join Communication Seminar by an administrator for " + institution.name + ".\nIn order to log in, go to " + link + " and use \n\tusername: " + user_obj.username + "\n\tpassword: " + my_password + "\nfrom there you can change your password."
-        # print (message)
 
 
         # send the new user an email
@@ -228,7 +225,6 @@ def delete_obj(request, obj_type, obj_id):
         user = get_model_instance(obj_type, obj_id)
         user.is_active = False
         user.save()
-        print('here')
 
     # else we can delete it
     else:

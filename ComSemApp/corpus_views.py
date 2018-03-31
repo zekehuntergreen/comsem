@@ -7,15 +7,19 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db import connection
 
+import nltk
+from nltk.data import load
+
 import json
 from .models import *
 
-#TEST: is the user a teacher or Admin
+#TODO: is the user a teacher or Admin
 
 @login_required
 def corpus_search(request):
+    tags = Tag.objects.all()
     template = loader.get_template('ComSemApp/corpus/corpus_search.html')
-    return HttpResponse(template.render({}, request))
+    return HttpResponse(template.render({'tags': tags}, request))
 
 @login_required
 def populate_word_tag(request):
@@ -27,7 +31,7 @@ def populate_word_tag(request):
     id_list = []
     if(search_type == 'word'):
         template = loader.get_template('ComSemApp/corpus/word_table.html')
-        words = Word.objects.filter(form=val).order_by('-frequency')
+        words = Word.objects.filter(form=val)
         context = {'val': val, 'words': words} # for html
         id_list = []
         for word in words:
@@ -36,7 +40,10 @@ def populate_word_tag(request):
 
     else:
         template = loader.get_template('ComSemApp/corpus/tag_table.html')
-        tags = Tag.objects.filter(type=val).order_by('-frequency')
+        if val == "ALL":
+            tags = Tag.objects.all()
+        else:
+            tags = Tag.objects.filter(tag=val)
         context = {'val': val, 'tags': tags} # for html
         for tag in tags:
             id_list.append(tag.id)
@@ -59,16 +66,30 @@ def search_results(request):
     search_criteria = json.loads(search_criteria)
 
     query = build_query(len(search_criteria) - 1, search_criteria, sequential_search)
+    print(query)
     with connection.cursor() as cursor:
-        # print (query)
         expression_ids = []
         cursor.execute(query)
         for row in cursor.fetchall():
             expression_ids.append(row[0])
-        print (expression_ids)
 
     # grab the information we want about the expressions
     expressions = Expression.objects.filter(id__in=expression_ids)
+
+    # for each expression, retag in order to show where the matching word / tag is.
+    # TODO
+    # for expression in expressions:
+    #     tokens = nltk.word_tokenize(expression.expression)
+    #     tagged = nltk.pos_tag(tokens)
+    #     print (tagged)
+    #     for criterion in search_criteria:
+    #         print (criterion)
+    #         if criterion['type'] == 'tag':
+    #             tag = criterion['val']
+    #             for word in tagged:
+    #                 if word[1] == tag:
+    #                     print ("match")
+
     context = {
         'expressions': expressions,
         'sequential_search': sequential_search,
@@ -88,7 +109,6 @@ def build_query(i, search_criteria, sequential_search):
 
     # if val isnt valid, id_list isn't a list of int ...
 
-    print(i)
     if i < 0:
         return ""
     else:
@@ -106,7 +126,7 @@ def build_query(i, search_criteria, sequential_search):
         query += " WHERE "
 
         if criteria_type == "tag":
-            query += " SW.word_id = W.id AND W.PoS in (" + ','.join([str(id) for id in id_list]) + ") "
+            query += " SW.word_id = W.id AND W.tag_id in (" + ','.join([str(id) for id in id_list]) + ") "
         else:
             query += " SW.word_id in (" + ','.join([str(id) for id in id_list]) + ") "
 

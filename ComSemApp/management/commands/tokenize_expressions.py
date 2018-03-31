@@ -1,12 +1,14 @@
 from django.core.management.base import BaseCommand, CommandError
 from ComSemApp.models import Expression, SequentialWords, Word, Tag
-import nltk
-from nltk.data import load
+
 import sys
+
+from utils import pos_tag as comsem_pos_tag
 
 
 class Command(BaseCommand):
-    help = 'Drops all data from SequentialWords, Word, and Tag tables, then takes each expression, tokenizes it using nltk and the CLAW5 tagset, and inserts the relevant information into those three tables'
+    help = ('Drops all data from SequentialWords, Word, and Tag tables, then takes each expression, '
+            'tokenizes it using nltk and the CLAW5 tagset, and inserts the relevant information into those three tables')
 
     def handle(self, *args, **options):
         # delete contents of SequentialWords, Word, Tag
@@ -87,10 +89,6 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Deleting %s tags records' % len(tags)))
         tags.delete()
 
-        nltk.download('punkt')
-        nltk.download('averaged_perceptron_tagger')
-
-
 
         # load the tagset
         # self.stdout.write(self.style.SUCCESS('creating %s tag records' % len(claws5_tagset)))
@@ -98,40 +96,12 @@ class Command(BaseCommand):
             # Tag.objects.create(tag=tag, description=claws5_tagset[tag], frequency=0)
 
         # expressions
-        expressions = Expression.objects.all()
+        expressions = Expression.objects.filter(worksheet__released=False) # only do this for released worksheets
         self.stdout.write(self.style.SUCCESS('processing %s expressions' % len(expressions)))
 
         expression_count = 1
         for expression in expressions:
-            expression_text = expression.expression.lower()
-
-            tokens = nltk.word_tokenize(expression_text)
-            tagged = nltk.pos_tag(tokens)
-
-            word_position = 0
-            for word, tag in tagged:
-                # tags
-                dictionary_tag, created = Tag.objects.get_or_create(tag=tag)
-                if not created:
-                    dictionary_tag.frequency = dictionary_tag.frequency+1
-                    dictionary_tag.save()
-
-                #words
-                dictionary_word, created = Word.objects.get_or_create(form=word, tag=dictionary_tag)
-                if not created:
-                    dictionary_word.frequency = dictionary_word.frequency+1
-                    dictionary_word.save()
-
-                #sequential words
-                SequentialWords.objects.create(
-                    expression = expression,
-                    word = dictionary_word,
-                    position = word_position,
-                )
-
-                word_position += 1
-
-
+            comsem_pos_tag(expression)
             expression_count += 1
             if expression_count % 100 == 0:
                 print('.', end='', flush=True)

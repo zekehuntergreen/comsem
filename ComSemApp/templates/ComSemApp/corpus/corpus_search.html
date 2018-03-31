@@ -48,17 +48,10 @@
 									<div class="form-group">
 										<label for="new_tag">Load part-of-speech tag</label>
 										<select class="form-control input-sm" id="new_tag" name="new_tag">
-											<option selected="selected" value="ALL">Full Tagset (20 Most Frequent)</option>
-											<option value="Noun">Noun</option>
-											<option value="Pronoun">Pronoun</option>
-											<option value="Verb">Verb</option>
-											<option value="Adjective">Adjective</option>
-											<option value="Adverb">Adverb</option>
-											<option value="Preposition">Preposition</option>
-											<option value="Conjunction">Conjunction</option>
-											<option value="Determiner">Determiner</option>
-											<option value="Interjection">Interjection</option>
-											<option value="Other">Other</option>
+											<option selected="selected" value="ALL">Full Tagset</option>
+											{% for tag in tags %}
+											<option value="{{ tag }}">{{ tag }}</option>
+											{% endfor %}
 										</select>
 									</div>
 								</div>

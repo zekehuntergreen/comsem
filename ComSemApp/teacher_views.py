@@ -12,7 +12,6 @@ from django.core.serializers import serialize
 from django.contrib import messages
 from django.conf import settings
 
-
 import json, math, datetime, os
 from .models import *
 
@@ -107,7 +106,7 @@ def delete_worksheet(request):
 def release_worksheet(request):
     worksheet_id = request.POST.get('worksheet_id', None)
     worksheet = get_object_or_404(Worksheet, id=worksheet_id)
-    Worksheet.objects.filter(id=worksheet.id).update(released=True)
+    worksheet.release()
     return HttpResponse(status=204)
 
 
@@ -191,12 +190,10 @@ def save_worksheet(request):
     else:
         worksheet = Worksheet.objects.create(**values)
 
-    print (worksheet, type(worksheet))
 
     # deal with expressions
     for i in range(len(expressions)):
         expression = expressions[i]
-        # print (expression, type(expression))
 
         student = None
         if expression['student_id']:
@@ -210,9 +207,6 @@ def save_worksheet(request):
         # either there is an old audio reformulation already saved, or we are saving a new one.
         uploading_ra = request.FILES.get(ra_key, None)
         ra_is_there = True if expression['reformulation_audio'] else True if uploading_ra else False
-        print(expression['reformulation_audio'])
-        print(uploading_ra)
-        print (ra_is_there)
         values = {
             'worksheet': worksheet,
             'expression': expression['expression'],

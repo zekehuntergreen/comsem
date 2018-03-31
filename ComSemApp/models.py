@@ -1,11 +1,16 @@
+import datetime
+
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
-import datetime
 
-states = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY']
+from .utils import pos_tag
+
+states = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 
+            'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 
+            'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY']
 STATE_CHOICES = []
 for s in states:
     STATE_CHOICES.append((s,s))
@@ -156,12 +161,19 @@ class Worksheet(models.Model):
             if worksheet == self:
                 return index + 1
 
+    def release(self):
+        self.released = True
+        self.save()
+        for expression in self.expressions.all():
+            pos_tag(expression)
+            
+
     class Meta:
         ordering = ['date']
 
 
 class Expression(models.Model):
-    worksheet = models.ForeignKey('Worksheet', on_delete=models.CASCADE)
+    worksheet = models.ForeignKey('Worksheet', related_name="expressions", on_delete=models.CASCADE)
     expression = models.TextField()
     student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True) # (null means all_do)
     pronunciation = models.CharField(max_length=255, blank=True, null=True)
@@ -172,7 +184,8 @@ class Expression(models.Model):
     def __str__(self):
         return self.expression
 
-
+    
+        
 class SequentialWords(models.Model):
     expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
     word = models.ForeignKey('Word', on_delete=models.PROTECT)
@@ -245,8 +258,7 @@ class StudentAttempt(models.Model):
 class Word(models.Model):
     form = models.CharField(max_length=255)
     tag = models.ForeignKey('Tag', on_delete=models.PROTECT)
-    # claw7_tag = models.ForeignKey('CLAWS7', on_delete=models.PROTECT)
-    frequency = models.IntegerField(default=1)
+    # frequency = models.IntegerField(default=1)
 
     def __str__(self):
         return self.form
@@ -254,23 +266,21 @@ class Word(models.Model):
     class Meta:
         unique_together = ("form", "tag")
 
+    def frequency(self):
+        return SequentialWords.objects.filter(word=self).count()
 
 # upenn tagset
 class Tag(models.Model):
     tag = models.CharField(max_length=255)
     type = models.CharField(max_length=255, blank=True, null=True)
     description = models.CharField(max_length=255, blank=True, null=True)
-    frequency = models.IntegerField(default=1)
 
     def __str__(self):
         return self.tag
 
+    class Meta:
+        db_table = 'ComSemApp_upenntagset'
 
-# class CLAWS7(models.Model):
-#     tag = models.CharField(max_length=255)
-#     type = models.CharField(max_length=255, blank=True, null=True)
-#     description = models.CharField(max_length=255, blank=True, null=True)
-#     frequency = models.IntegerField(default=1)
-#
-#     def __str__(self):
-#         return self.tag
+    def frequency(self):
+        words = Word.objects.filter(tag=self).all()
+        return SequentialWords.objects.filter(word__in=words).count()
