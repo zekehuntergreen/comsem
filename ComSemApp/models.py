@@ -175,7 +175,8 @@ class Worksheet(models.Model):
 class Expression(models.Model):
     worksheet = models.ForeignKey('Worksheet', related_name="expressions", on_delete=models.CASCADE)
     expression = models.TextField()
-    student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True) # (null means all_do)
+    student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True)
+    all_do = models.BooleanField(default=False)
     pronunciation = models.CharField(max_length=255, blank=True, null=True)
     context_vocabulary = models.CharField(max_length=255, blank=True, null=True)
     reformulation_text = models.TextField(blank=True, null=True)

@@ -16,7 +16,7 @@ function drawExpressionsTable(){
 	var tableString = ""
 	if (expressions.length > 0) {
 
-		 tableString = "<table class='table table-hover'><thead><tr><th>#</th><th>Student</th><th>Expression</th><th></th></tr></thead><tbody name='expressionTable'>"
+		 tableString = "<table class='table table-hover'><thead><tr><th>#</th><th>All-Do</th><th>Student</th><th>Expression</th><th></th></tr></thead><tbody name='expressionTable'>"
 
 		 var expressionCounter = 1;
 
@@ -25,12 +25,18 @@ function drawExpressionsTable(){
 	 		currentExpression = expressions[i];
 
 			if(!currentExpression['to_delete']){
-				tableString += "<tr expressionID='" + currentExpression['id'] + "' index='" + i + "'><td>" + expressionCounter + "</td><td>"
+				tableString += "<tr expressionID='" + currentExpression['id'] + "' index='" + i + "'><td>" + expressionCounter + "</td>"
+
+				if (currentExpression['all_do']){
+					tableString += "<td><i class='fa fa-check'></i></td>";
+				} else {
+					tableString +="<td></td>";
+				}
 
 				if (currentExpression['student_name']){
-					tableString += currentExpression['student_name'];
+					tableString += "<td>" + currentExpression['student_name'] + "</td>";
 				} else {
-					tableString +="<b>All-Do</b>";
+					tableString +="<td><b>anon.</b></td>";
 				}
 
 				tableString += "<td>" + currentExpression['expression'] + "</td>";
@@ -114,7 +120,7 @@ function populateEditor(index){
 			$('#studentID').val(0);
 		}
 
-		// $('[name=allDo][value=' + currentExpression['allDo'] + ']').prop('checked', true);
+		$('#all_do').prop('checked', currentExpression['all_do']);
 		$('#expression').val(currentExpression['expression']);
 		$('#reformulation').val(currentExpression['reformulation']);
 		$('#contextVocabulary').val(currentExpression['context_vocabulary']);
@@ -141,7 +147,7 @@ function populateEditor(index){
 		$('#expressionIndex').val(-1);
 		$('#expressionID').val(0);
 		$('#studentID').val(0);
-		// $('[name=allDo][value=0]').prop('checked', true);
+		$('#all_do').prop('checked', false);
 		$('#expression').val("");
 		$('#reformulation').val("");
 		$('#contextVocabulary').val("");
@@ -183,6 +189,7 @@ $("#saveExpression").click(function(e){
 		expression: $("#expression").val(),
 		id: expressionID,
 		student_id: student_id,
+		all_do: $("#all_do").prop("checked"),
 		student_name: student_id ? $("#studentID option:selected").html() : "", // only for display purposes
 		context_vocabulary: $("#contextVocabulary").val(),
 		reformulation_text: $("#reformulation").val(),

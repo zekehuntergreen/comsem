@@ -114,7 +114,7 @@ def release_worksheet(request):
 @user_passes_test(is_teacher)
 @teaches_course
 def worksheet(request, course_id, worksheet_id):
-    # EITHER the worksheet is unreleased and we are editing it OR it is released and we are reviewing submissions
+    # the worksheet is unreleased and we are editing it or it is released and we are reviewing submissions
 
     course = get_object_or_404(Course, id=course_id)
 
@@ -211,6 +211,7 @@ def save_worksheet(request):
             'worksheet': worksheet,
             'expression': expression['expression'],
             'student': student,
+            'all_do': expression['all_do'],
             'context_vocabulary': expression['context_vocabulary'],
             'pronunciation': expression['pronunciation'],
             'reformulation_text': expression['reformulation_text'],
