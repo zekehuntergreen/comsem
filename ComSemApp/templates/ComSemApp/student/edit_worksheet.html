@@ -60,12 +60,21 @@
 
 		<div class="card-box">
 
-			<h4 class="m-t-0 header-title"><b>Expression Details</b></h4>
-
+			<div class="row">
+				<div class="col-8">
+					<h4 class="m-t-0 header-title"><b>Expression Details</b></h4>
+				</div>
+				<div class="col-4">
+					<h4 class="pull-right">
+						<small id="all-do" style="display: none">
+							<i class="fa fa-check"></i>&nbsp;All-Do
+						</small>
+					</h4>
+				</div>
+			</div>
 
 			<input hidden id="expressionID"/>
 			<input hidden id="expressionIndex"/>
-
 
 			<!-- original -->
 			{% if worksheet.display_original %}
@@ -248,7 +257,7 @@ var expressionsJSON;
 function drawExpressionsTable(){
 	var tableString = ""
 	if (expressions.length > 0) {
-		 tableString = "<thead><tr><th class='expressionNumberCol'>#</th><th>Expression</th><th class='hidable'>Correction</th><th class='hidable'>Assigned To</th><th class=''><span class='glyphicon glyphicon-arrow-right' style='font-size:20px;left:10px;'></span></th></tr></thead>"
+		 tableString = "<thead><tr><th class='expressionNumberCol'>#</th><th>All-Do</th><th>Expression</th><th class='hidable'>Correction</th><th class='hidable'>Assigned To</th><th class=''><span class='glyphicon glyphicon-arrow-right' style='font-size:20px;left:10px;'></span></th></tr></thead>"
 	} else {
 		tableString = "<h5 class='text center'>This worksheet has no expressions.</h5>"
 	}
@@ -261,12 +270,20 @@ function drawExpressionsTable(){
 
 		if( currentExpression['isDeleted'] != 1 ) {
 
-			tableString += "<tr expressionID='" + currentExpression['expressionID'] + "' index='" + i + "'><td>" + expressionCounter + "</td><td>" + currentExpression['expression'] + "</td><td class='hidable'>" + (currentExpression['correctedExpr'] ? currentExpression['correctedExpr'] : "-")  + "</td><td class='hidable'>";
+			tableString += "<tr expressionID='" + currentExpression['expressionID'] + "' index='" + i + "'><td>" + expressionCounter + "</td>"
+
+			if (currentExpression['all_do']){
+				tableString += "<td><i class='fa fa-check'></i></td>";
+			} else {
+				tableString +="<td></td>";
+			}
+
+			tableString += "<td>" + currentExpression['expression'] + "</td><td class='hidable'>" + (currentExpression['correctedExpr'] ? currentExpression['correctedExpr'] : "-")  + "</td><td class='hidable'>";
 
 			if (currentExpression['student_name']){
 				tableString += currentExpression['student_name'];
 			} else {
-				tableString += "<b>All Do</b>";
+				tableString += "<b>anon.</b>";
 			}
 
 			if (currentExpression['isAltered'] == 1){
@@ -331,6 +348,12 @@ function populateEditor(index){
 	}
 
 	// prepare editor
+	if(currentExpression['all_do']){
+		$('#all-do').show()
+	} else {
+		$('#all-do').hide()
+	}
+	
 	$('#ExprToEdit').html(currentExpression['expression']);
 	$('#teacherReformulation').html(currentExpression['reformulation_text']);
 	$('#pronunciation').html(currentExpression['pronunciation']);
@@ -365,6 +388,7 @@ function populateEditor(index){
 }
 
 function clearEditor(){
+	$("#all-do").hide()
 	$('#ExprToEdit').val(""); // clear all input fileds
 	$('#teacherReformulation').html("");
 	$('#pronunciation').html("");
