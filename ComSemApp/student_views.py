@@ -89,10 +89,12 @@ def worksheet(request, worksheet_id):
         latest_submission = None
         attempts = []
 
-    # add check for assigned to me, everyone, etc
-    expression_queryset = Expression.objects.filter(worksheet=worksheet)
 
+    expression_filters = Q(worksheet=worksheet)
+    if not worksheet.display_all_expressions:
+        expression_filters &= (Q(student=request.user.student) | Q(all_do=True))
 
+    expression_queryset = Expression.objects.filter(expression_filters)
     expressions = list(expression_queryset.values())
 
     # need to get name of assigned student seperately
