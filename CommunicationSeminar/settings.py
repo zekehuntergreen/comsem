@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import logging
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -175,3 +176,24 @@ if LIVE:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'loggers': {
+        # Silence SuspiciousOperation.DisallowedHost exception ('Invalid
+        # HTTP_HOST' header messages). Set the handler to 'null' so we don't
+        # get those annoying emails.
+        'django.security.DisallowedHost': {
+            'handlers': ['null'],
+            'level': 'CRITICAL',
+            'propagate': False,
+        },
+    },
+    'handlers': {
+    'null': {
+        'level': 'DEBUG',
+        'class': 'logging.NullHandler',
+    },
+}
+}
