@@ -1,4 +1,4 @@
-// include in pages that need to record / save / access audio files
+// include in pages that need to record / save / access audio files!
 
 var audioReformulationBlob;
 
