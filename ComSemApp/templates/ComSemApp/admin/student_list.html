@@ -10,13 +10,13 @@
 			</div>
 
 			<div class="col-md-6">
-				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin_edit_obj' 'student' 0 %}">
+				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin_create_student' %}">
 					<i class="fa fa-plus"></i>
 				</a>
 			</div>
 		</div>
 
-		{% if students %}
+		{% if student_list %}
 		<div class="row mt-3 cs-admin-table">
 			<table class="table table-hover tablesorter">
 				<thead>
@@ -30,7 +30,7 @@
 				</thead>
 
 				<tbody>
-					{% for student in students %}
+					{% for student in student_list %}
 						<tr>
 							<td>
 								{{ student.user.first_name }}

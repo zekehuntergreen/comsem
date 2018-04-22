@@ -8,14 +8,23 @@ urlpatterns = [
 
     # ADMIN
     url(r'^admin/$', admin_views.admin, name='admin'),
-    url(r'^admin/teachers/$', admin_views.teachers, name='admin_teachers'),
-    url(r'^admin/students/$', admin_views.students, name='admin_students'),
-    url(r'^admin/courses/$', admin_views.courses, name='admin_courses'),
-    url(r'^admin/course_types/$', admin_views.course_types, name='admin_course_types'),
-    url(r'^admin/sessions/$', admin_views.sessions, name='admin_sessions'),
-    url(r'^admin/session_types/$', admin_views.session_types, name='admin_session_types'),
 
-    url(r'^admin/edit/([\w_]+)/([0-9]+)/$', admin_views.edit_obj, name='admin_edit_obj'), # all edit views
+    url(r'^admin/teachers/$', admin_views.TeacherList.as_view(), name='admin_teachers'),
+    url(r'^admin/students/$', admin_views.StudentList.as_view(), name='admin_students'),
+    url(r'^admin/courses/$', admin_views.CourseList.as_view(), name='admin_courses'),
+    url(r'^admin/course_types/$', admin_views.CourseTypeList.as_view(), name='admin_course_types'),
+    url(r'^admin/sessions/$', admin_views.SessionList.as_view(), name='admin_sessions'),
+    url(r'^admin/session_types/$', admin_views.SessionTypeList.as_view(), name='admin_session_types'),
+
+    url(r'^admin/teacher/create/$', admin_views.TeacherCreate.as_view(), name='admin_create_teacher'),
+    url(r'^admin/student/create/$', admin_views.StudentCreate.as_view(), name='admin_create_student'),
+    url(r'^admin/course/create/$', admin_views.CourseCreate.as_view(), name='admin_create_course'),
+    url(r'^admin/course_type/create/$', admin_views.CourseTypeCreate.as_view(), name='admin_create_course_type'),
+    url(r'^admin/session/create/$', admin_views.SessionCreate.as_view(), name='admin_create_session'),
+    url(r'^admin/session_type/create/$', admin_views.SessionTypeCreate.as_view(), name='admin_create_session_type'),
+
+
+    url(r'^admin/edit/([\w_]+)/([0-9]+)/$', admin_views.edit_obj, name='admin_edit_obj'),
     url(r'^admin/delete_obj/([\w_]+)/([0-9]+)/$', admin_views.delete_obj, name='admin_delete_obj'),
 
 

@@ -32,6 +32,9 @@
 <script>
 	$(function(){
 		$('input,select,textarea').addClass('form-control');
+		$('.datepicker').datepicker({
+			'autoclose': true,
+		})
 	});
 </script>
 {{ form.media.js }}

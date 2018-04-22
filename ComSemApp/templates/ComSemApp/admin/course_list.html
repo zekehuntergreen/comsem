@@ -10,13 +10,13 @@
 			</div>
 
 			<div class="col-md-6">
-				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin_edit_obj' 'course' 0 %}">
+				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin_create_course' %}">
 					<i class="fa fa-plus"></i>
 				</a>
 			</div>
 		</div>
 
-		{% if course_types %}
+		{% if course_list %}
 		<div class="row mt-3 cs-admin-table">
 			<table class="table table-hover tablesorter">
 				<thead>
@@ -31,31 +31,29 @@
 				</thead>
 
 				<tbody>
-					{% for course_type in course_types %}
-						{% for course in course_type.course_set.all %}
-							<tr>
-								<td>
-									{{ course.session }}
-								</td>
-								<td>
-									{{ course.course_type }}
-								</td>
-								<td>
-									{{ course.section }}
-								</td>
-								<td>
-									{{ course.students.count }}
-								</td>
-								<td>
-									<i class='fa fa-lg {% if course.is_active %}fa-check{% else %}fa-times{% endif %}'></i>
-								</td>
-								<td class="text-right">
-									<a href="{% url 'admin_edit_obj' 'course' course.id %}" class='btn btn-sm btn-outline-primary edit_teacher_button'>Edit</a>
+					{% for course in course_list %}
+						<tr>
+							<td>
+								{{ course.session }}
+							</td>
+							<td>
+								{{ course.course_type }}
+							</td>
+							<td>
+								{{ course.section }}
+							</td>
+							<td>
+								{{ course.students.count }}
+							</td>
+							<td>
+								<i class='fa fa-lg {% if course.is_active %}fa-check{% else %}fa-times{% endif %}'></i>
+							</td>
+							<td class="text-right">
+								<a href="{% url 'admin_edit_obj' 'course' course.id %}" class='btn btn-sm btn-outline-primary edit_teacher_button'>Edit</a>
 
-									<button delete_url="{% url 'admin_delete_obj' 'course' course.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
-								</td>
-							</tr>
-						{% endfor %}
+								<button delete_url="{% url 'admin_delete_obj' 'course' course.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
+							</td>
+						</tr>
 					{% endfor %}
 				</tbody>
 				{% include 'ComSemApp/tablesorter_footer.html'%}

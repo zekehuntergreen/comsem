@@ -1,15 +1,22 @@
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from django.template import loader
-from django.shortcuts import get_object_or_404
-from django.http import Http404
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
-from django.views.generic.edit import UpdateView
+
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect
+from django.http import Http404
+from django.urls import reverse_lazy
+
+from django.template import loader
+from django.shortcuts import get_object_or_404
+
+
 from django.views.generic.list import ListView
+from django.views.generic.edit import CreateView, FormView
+
 from django.core.mail import send_mail
 from django.contrib import messages
-
 
 
 from .models import *
@@ -32,54 +39,132 @@ def admin(request):
     return HttpResponseRedirect('/admin/students/')
 
 
-# LIST VIEWS
-@login_required
-@user_passes_test(is_admin)
-def teachers(request):
-    institution = get_institution(request.user)
-    teachers = Teacher.objects.filter(institution=institution)
-    template = loader.get_template('ComSemApp/admin/teachers.html')
-    return HttpResponse(template.render({'teachers': teachers}, request))
 
-@login_required
-@user_passes_test(is_admin)
-def students(request):
-    institution = get_institution(request.user)
-    students = Student.objects.filter(institution=institution)
-    template = loader.get_template('ComSemApp/admin/students.html')
-    return HttpResponse(template.render({'students': students}, request))
+class AdminViewMixin(LoginRequiredMixin, UserPassesTestMixin):
 
-@login_required
-@user_passes_test(is_admin)
-def courses(request):
-    institution = get_institution(request.user)
-    course_types = CourseType.objects.filter(institution=institution)
-    template = loader.get_template('ComSemApp/admin/courses.html')
-    return HttpResponse(template.render({'course_types': course_types}, request))
+    def test_func(self):
+        self.institution = get_institution(self.request.user)
+        return Admin.objects.filter(user=self.request.user).exists()
 
-@login_required
-@user_passes_test(is_admin)
-def course_types(request):
-    institution = get_institution(request.user)
-    course_types = CourseType.objects.filter(institution=institution)
-    template = loader.get_template('ComSemApp/admin/course_types.html')
-    return HttpResponse(template.render({'course_types': course_types}, request))
+### LIST
 
-@login_required
-@user_passes_test(is_admin)
-def sessions(request):
-    institution = get_institution(request.user)
-    session_types = SessionType.objects.filter(institution=institution)
-    template = loader.get_template('ComSemApp/admin/sessions.html')
-    return HttpResponse(template.render({'session_types': session_types}, request))
+class TeacherList(AdminViewMixin, ListView):
+    model = Teacher
+    template_name = 'ComSemApp/admin/teacher_list.html'
 
-@login_required
-@user_passes_test(is_admin)
-def session_types(request):
-    institution = get_institution(request.user)
-    session_types = SessionType.objects.filter(institution=institution)
-    template = loader.get_template('ComSemApp/admin/session_types.html')
-    return HttpResponse(template.render({'session_types': session_types}, request))
+    def get_queryset(self):
+        return Teacher.objects.filter(institution=self.institution)
+
+
+class StudentList(AdminViewMixin, ListView):
+    model = Student
+    template_name = 'ComSemApp/admin/student_list.html'
+
+    def get_queryset(self):
+        return Student.objects.filter(institution=self.institution)
+
+
+class CourseList(AdminViewMixin, ListView):
+    model = Course
+    template_name = 'ComSemApp/admin/course_list.html'
+
+    def get_queryset(self):
+        course_types = CourseType.objects.filter(institution=self.institution)
+        return Course.objects.filter(course_type__in=course_types)
+
+
+class CourseTypeList(AdminViewMixin, ListView):
+    model = CourseType
+    template_name = 'ComSemApp/admin/course_type_list.html'
+
+    def get_queryset(self):
+        return CourseType.objects.filter(institution=self.institution)
+
+
+class SessionList(AdminViewMixin, ListView):
+    model = Session
+    template_name = 'ComSemApp/admin/session_list.html'
+
+    def get_queryset(self):
+        session_types = SessionType.objects.filter(institution=self.institution)
+        return Session.objects.filter(session_type__in=session_types)
+
+
+class SessionTypeList(AdminViewMixin, ListView):
+    model = SessionType
+    template_name = 'ComSemApp/admin/session_type_list.html'
+
+    def get_queryset(self):
+        return SessionType.objects.filter(institution=self.institution)
+
+
+### CREATE
+
+# class AdminCreateViewMixin(AdminViewMixin, CreateView)
+
+
+class TypeCreateMixin(AdminViewMixin, CreateView):
+
+    def form_valid(self, form):
+        form.instance.institution = self.institution
+        return super(TypeCreateMixin,self).form_valid(form)
+
+
+class InstanceCreateMixin(AdminViewMixin, CreateView):
+
+    def get_form_kwargs(self):
+        kwargs = super(InstanceCreateMixin, self).get_form_kwargs()
+        kwargs['institution'] = self.institution
+        return kwargs
+
+
+class TeacherCreate(AdminViewMixin, CreateView):
+    pass
+
+
+class StudentCreate(AdminViewMixin, CreateView):
+    pass
+
+
+
+
+
+
+class CourseTypeCreate(TypeCreateMixin):
+    success_url = reverse_lazy("admin_course_types")
+    template_name = 'ComSemApp/standard_form.html'
+    form_class = CourseTypeForm
+
+
+class CourseCreate(InstanceCreateMixin):
+    success_url = reverse_lazy("admin_courses")
+    template_name = 'ComSemApp/standard_form.html'
+    form_class = CourseForm
+
+
+class SessionTypeCreate(TypeCreateMixin):
+    success_url = reverse_lazy("admin_session_types")
+    template_name = 'ComSemApp/standard_form.html'
+    form_class = SessionTypeForm
+
+
+class SessionCreate(InstanceCreateMixin):
+    success_url = reverse_lazy("admin_sessions")
+    template_name = 'ComSemApp/standard_form.html'
+    form_class = SessionForm
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def get_page_title(obj_type):
