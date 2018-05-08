@@ -1,0 +1,117 @@
+{% extends 'ComSemApp/about/base.html' %}
+
+{% block content %}
+
+	<!-- HOME -->
+	<section class="home bg-pic-gonzaga parallax" data-stellar-background-ratio="0.5">
+		<div class="bg-overlay"></div>
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="home-wrapper text-center">
+						<h1 class="animated fadeInDown wow" data-wow-delay=".1s">Welcome to ComSem! </h1>
+						<p class="animated fadeInDown wow" data-wow-delay=".2s"></p>
+						<a href="#signup" class="btn btn-primary btn-rounded w-lg animated fadeInDown wow" data-wow-delay=".4s">Sign up</a>
+						<div class="clearfix"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- END HOME -->
+
+	<!-- ABOUT -->
+	<section class="section" id="how-it-works">
+		<div class="container">
+
+			<div class="row">
+				<div class="col-sm-12 text-center">
+					<h2 class="title zoomIn animated wow" data-wow-delay=".1s">What is ComSem?</h2>
+					<p class="sub-title zoomIn animated wow" data-wow-delay=".2s">
+						ComSem stands for Communications Seminar, a resource for students learning English and their teachers to improve your spoken English.
+					</p>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-4">
+					<div class="service-item animated fadeInLeft wow" data-wow-delay=".1s">
+						<i class=" ti-blackboard"></i>
+						<a class="pretty-link" style="display: block" href="{% url 'about_teacher' %}">
+  							<div class="service-detail">
+								<h4>For Teachers</h4>
+								<p>
+									ComSem is a place for you to provide written and audio feedback for your students, after they have completed a fluency activity (such as Small Talk) or an oral presentation. The goal is to use corrective feedback to help your students develop accuracy, fluency, and complexity.
+									<a href="{% url 'about_teacher' %}">Learn More</a>
+								</p>
+							</div>
+						</a>
+					</div>
+				</div>
+
+				<div class="col-md-4">
+					<div class="service-item animated fadeInDown wow" data-wow-delay=".3s">
+						<i class="ti-comments"></i>
+						<div class="service-detail">
+							<h4>For Students</h4>
+							<p>
+								After your teacher provides feedback on things you have said that are not clear (or use the wrong grammar/vocabulary), you can test yourself on your sentences and see how much you have learned.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-4">
+					<div class="service-item animated fadeInRight wow" data-wow-delay=".5s">
+						<i class=" ti-server"></i>
+						<div class="service-detail">
+							<h4>For Researchers</h4>
+							<p>
+								The Archive provides a database of authentic language samples, all of which have been part-of- speech tagged and many of which have been manually error tagged. You can search and filter by grammatical feature, lexis, L1, proficiency level, and topic.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</section>
+	<!-- END ABOUT -->
+
+	<!-- SIGNUP -->
+	<section class="section bg-gray" id="signup">
+		<div class="container">
+
+			<div class="row">
+				<div class="col-sm-10 mx-auto">
+					<div class="feature-detail">
+						<h2 class="title fadeIn animated wow" data-wow-delay=".1s">Sign Up</h2>
+						<p class="sub fadeIn animated wow" data-wow-delay=".2s">
+							If you are a teacher or administrator and would like to use Communication Seminar, please fill out the form below and send us a message. <br />
+							Someone will contact you to set up an account.
+						</p>
+
+						<form method="post">
+							<div class="row" style="margin-top: 5em">
+								<div class="col-8 mx-auto">
+									{% include 'ComSemApp/form_contents.html' %}
+								</div>
+							</div>
+
+							<br />
+
+							<div class="row mt-4">
+								<div class="col-8 mx-auto">
+									<button class="btn btn-primary btn-rounded w-lg animated fadeInDown wow" data-wow-delay=".4s" type="submit">Submit</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</section>
+	<!-- END SIGNUP -->
+
+{% endblock %}

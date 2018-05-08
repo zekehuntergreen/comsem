@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Communication Seminar</title>
+
+		<link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500' rel='stylesheet' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+
+		<!-- Bootstrap core CSS -->
+		<link href="{% static "ComSemApp/Minton/css/bootstrap.min.css" %}" rel="stylesheet" type="text/css">
+
+		<!-- Animate -->
+		<link href="{% static "ComSemApp/Minton-homepage/css/animate.css" %}" rel="stylesheet">
+
+		<!-- Icon-font -->
+		<link rel="stylesheet" type="text/css" href="{% static "ComSemApp/Minton-homepage/css/themify-icons.css" %}">
+
+		<!-- Custom styles for this template -->
+		<link href="{% static "ComSemApp/Minton-homepage/css/style.css" %}" rel="stylesheet" type="text/css">
+
+		<link href="{% static "ComSemApp/Minton/css/icons.css" %}" rel="stylesheet" type="text/css">
+	</head>
+
+	<body>
+		<!-- Pre-loader -->
+		<div class="preloader">
+			<div class="status">&nbsp;</div>
+		</div>
+
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+			<div class="container">
+				<p class="navbar-brand logo" style="margin: 0px">
+					<a class="pretty-link" href="{% url 'about' %}">
+						<i class="ion-chatboxes"></i>
+						ComSem
+					</a>
+				</p>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+
+				<div class="collapse navbar-collapse" id="navbarsExample">
+					<ul class="navbar-nav ml-auto">
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'about' %}#how-it-works">About</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'about' %}#signup">Sign Up</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'login' %}">Login</a>
+						</li>
+					</ul>
+
+				</div>
+			</div>
+		</nav>
+		<div class="clearfix"></div>
+
+		{% block content %}
+
+		{% endblock %}
+
+		<!-- js placed at the end of the document so the pages load faster -->
+		<script src="{% static "ComSemApp/Minton-homepage/js/jquery.min.js" %}"></script>
+		<script src="{% static "ComSemApp/Minton-homepage/js/popper.min.js" %}"></script>
+		<script src="{% static "ComSemApp/Minton-homepage/js/bootstrap.min.js" %}"></script>
+		<!-- Jquery easing -->
+		<script type="text/javascript" src="{% static "ComSemApp/Minton-homepage/js/jquery.easing.1.3.min.js" %}"></script>
+		<script src="{% static "ComSemApp/Minton-homepage/js/SmoothScroll.js" %}"></script>
+		<script src="{% static "ComSemApp/Minton-homepage/js/wow.min.js" %}"></script>
+		<script src="{% static "ComSemApp/Minton-homepage/js/jquery.waypoints.min.js" %}" type="text/javascript"></script>
+		<script src="{% static "ComSemApp/Minton-homepage/js/jquery.counterup.min.js" %}" type="text/javascript"></script>
+
+		<!--common script for all pages-->
+		<script src="{% static "ComSemApp/Minton-homepage/js/jquery.app.js" %}"></script>
+
+		<!-- Sweet Alert js -->
+		<link href="{% static "ComSemApp/Minton-plugins/bootstrap-sweetalert/sweet-alert.css"%}" rel="stylesheet" type="text/css" />
+		<script src="{% static "ComSemApp/Minton-plugins/bootstrap-sweetalert/sweet-alert.min.js" %}"></script>
+
+		<script type="text/javascript">
+
+			// make the signup form look nicer
+			$(function(){
+				$('input,select,textarea').addClass('form-control form-control-sm')
+			});
+		</script>
+
+		{% if messages %}
+			{% for message in messages %}
+			<script>
+				$(function(){
+					var tag = 'info'
+					{% if message.tags %}
+					tag = "{{ message.tags }}";
+					{% endif %}
+					swal({
+						title: "Success",
+						text: "{{ message}}",
+						type: tag,
+						showCancelButton: false,
+						confirmButtonClass: 'btn-sm btn-success',
+						confirmButtonText: 'Ok',
+						closeOnConfirm: true
+					});
+				})
+			</script>
+			{% endfor %}
+		{% endif %}
+
+		<style>
+		.bg-pic-gonzaga {
+			background: url("{% static "ComSemApp/images/home_img.jpg" %}");
+			background-size: cover;
+		}
+		.pretty-link,  .pretty-link:hover{
+			text-decoration: none;
+			color: inherit;
+		}
+		</style>
+
+	</body>
+
+</html>

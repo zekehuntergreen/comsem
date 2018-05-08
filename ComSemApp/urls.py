@@ -3,7 +3,9 @@ from django.conf.urls import url
 from . import views, admin_views, teacher_views, student_views, corpus_views
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
+    url(r'^$', views.about, name='about'),
+    url(r'^about/teacher$', views.AboutTeacher.as_view(), name='about_teacher'),
+
     url(r'^initiate_roles/$', views.initiate_roles, name='initiate_roles'),
 
     # ADMIN

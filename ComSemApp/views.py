@@ -7,14 +7,13 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.mail import send_mail
-
-
+from django.views.generic.base import TemplateView
 
 from .models import Admin, Teacher, Student
 from .forms import SignupForm
 
 # home page
-def index(request):
+def about(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
         if form.is_valid():
@@ -41,9 +40,14 @@ def index(request):
     else:
         form = SignupForm()
 
-    return render(request, 'ComSemApp/home.html', {
+    return render(request, 'ComSemApp/about/home.html', {
         'form': form,
     })
+
+
+class AboutTeacher(TemplateView):
+    template_name = "ComSemApp/about/teacher.html"
+
 
 
 def change_password(request):
