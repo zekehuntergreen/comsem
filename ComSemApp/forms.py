@@ -55,10 +55,6 @@ class SessionForm(ModelForm):
     class Meta:
         model = Session
         fields = ['session_type', 'start_date', 'end_date']
-        widgets = {
-            # 'start_date': DateTimePicker,
-            # 'end_date': DateTimePicker,
-        }
 
     def __init__(self, *args, **kwargs):
         institution = kwargs.pop('institution')
@@ -74,7 +70,23 @@ class SessionTypeForm(ModelForm):
         model = SessionType
         fields = ['name', 'order']
 
+
 class UserForm(ModelForm):
+    send_email = forms.BooleanField()
+
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email', 'is_active']
+
+
+class TeacherForm(ModelForm):
+    class Meta:
+        model = Teacher
+        exclude = ['user', 'institution'] # does nothing for now
+
+class StudentForm(ModelForm):
+    class Meta:
+        model = Student
+        fields = ['country', 'language']
+
+

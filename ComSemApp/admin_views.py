@@ -21,7 +21,7 @@ from django.contrib import messages
 
 from .models import *
 from django.contrib.auth.models import User
-from .forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, UserForm
+from .forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, TeacherForm, StudentForm, UserForm
 
 # DECORATORS
 def is_admin(user):
@@ -100,7 +100,90 @@ class SessionTypeList(AdminViewMixin, ListView):
 
 ### CREATE
 
-# class AdminCreateViewMixin(AdminViewMixin, CreateView)
+
+class UserCreateMixin(AdminViewMixin, FormView):
+    template_name = 'ComSemApp/standard_form.html'
+
+    def get(self, request, *args, **kwargs):
+        user_form = UserForm()
+        user_form.prefix = 'user_form'
+        obj_form = self.get_obj_form()
+        obj_form.prefix = 'obj_form'
+        return self.render_to_response(self.get_context_data(form=user_form, obj_form=obj_form))
+
+    def form_invalid(self, user_form, obj_form, **kwargs):
+        user_form.prefix='user_form'
+        obj_form.prefix='obj_form'
+        return self.render_to_response(self.get_context_data(form=user_form, obj_form=obj_form))
+
+    def _send_mail(self, user, password):
+        link = "https://www.comsem.net"
+        message = ("You have been invited to join Communication Seminar by an administrator for " + self.institution.name + ".\n"
+                    "In order to log in, go to " + link + " and use \n"
+                    "\tusername: " + user.username + "\n\tpassword: " + password + "\n"
+                    "from there you can change your password.")
+
+        send_mail(
+            'Invitation to Communication Seminar',
+            message,
+            'signup@comsem.net',
+            [user.email],
+            fail_silently=False,
+        )
+
+
+class TeacherCreate(UserCreateMixin):
+    success_url = reverse_lazy("admin_teachers")
+
+    def get_obj_form(self):
+        return TeacherForm()
+
+    def post(self, request, *args, **kwargs):
+        user_form = UserForm(self.request.POST, prefix='user_form')
+        obj_form = TeacherForm(self.request.POST, prefix='obj_form')
+
+        if user_form.is_valid() and obj_form.is_valid():
+            user = user_form.save()
+            password = User.objects.make_random_password()
+            user.set_password(password)
+            user.save()
+
+            teacher = obj_form.save(commit=False)
+            teacher.user = user
+            obj_form.save()
+            teacher.institution.add(self.institution)
+
+            super(TeacherCreate, self)._send_mail(user, password)
+            return HttpResponseRedirect(self.success_url)
+        else:
+            return self.form_invalid(user_form, obj_form, **kwargs)
+
+
+class StudentCreate(UserCreateMixin):
+    success_url = reverse_lazy("admin_students")
+
+    def get_obj_form(self):
+        return StudentForm()
+
+    def post(self, request, *args, **kwargs):
+        user_form = UserForm(self.request.POST, prefix='user_form')
+        obj_form = StudentForm(self.request.POST, prefix='obj_form')
+
+        if user_form.is_valid() and obj_form.is_valid():
+            user = user_form.save()
+            password = User.objects.make_random_password()
+            user.set_password(password)
+            user.save()
+
+            student = obj_form.save(commit=False)
+            student.user = user
+            student.institution = self.institution
+            obj_form.save()
+
+            super(StudentCreate, self)._send_mail(user, password)
+            return HttpResponseRedirect(self.success_url)
+        else:
+            return self.form_invalid(user_form, obj_form, **kwargs)
 
 
 class TypeCreateMixin(AdminViewMixin, CreateView):
@@ -108,6 +191,18 @@ class TypeCreateMixin(AdminViewMixin, CreateView):
     def form_valid(self, form):
         form.instance.institution = self.institution
         return super(TypeCreateMixin,self).form_valid(form)
+
+
+class CourseTypeCreate(TypeCreateMixin):
+    success_url = reverse_lazy("admin_course_types")
+    template_name = 'ComSemApp/standard_form.html'
+    form_class = CourseTypeForm
+
+
+class SessionTypeCreate(TypeCreateMixin):
+    success_url = reverse_lazy("admin_session_types")
+    template_name = 'ComSemApp/standard_form.html'
+    form_class = SessionTypeForm
 
 
 class InstanceCreateMixin(AdminViewMixin, CreateView):
@@ -118,34 +213,10 @@ class InstanceCreateMixin(AdminViewMixin, CreateView):
         return kwargs
 
 
-class TeacherCreate(AdminViewMixin, CreateView):
-    pass
-
-
-class StudentCreate(AdminViewMixin, CreateView):
-    pass
-
-
-
-
-
-
-class CourseTypeCreate(TypeCreateMixin):
-    success_url = reverse_lazy("admin_course_types")
-    template_name = 'ComSemApp/standard_form.html'
-    form_class = CourseTypeForm
-
-
 class CourseCreate(InstanceCreateMixin):
     success_url = reverse_lazy("admin_courses")
     template_name = 'ComSemApp/standard_form.html'
     form_class = CourseForm
-
-
-class SessionTypeCreate(TypeCreateMixin):
-    success_url = reverse_lazy("admin_session_types")
-    template_name = 'ComSemApp/standard_form.html'
-    form_class = SessionTypeForm
 
 
 class SessionCreate(InstanceCreateMixin):
@@ -274,7 +345,10 @@ def save_user(request, obj_type, obj_id, form, institution):
         user_obj.set_password(my_password)
 
         link = "https://www.comsem.net"
-        message = "You have been invited to join Communication Seminar by an administrator for " + institution.name + ".\nIn order to log in, go to " + link + " and use \n\tusername: " + user_obj.username + "\n\tpassword: " + my_password + "\nfrom there you can change your password."
+        message = ("You have been invited to join Communication Seminar by an administrator for " + institution.name + ".\n"
+                    "In order to log in, go to " + link + " and use \n"
+                    "\tusername: " + user_obj.username + "\n\tpassword: " + my_password + "\n"
+                    "from there you can change your password.")
 
 
         # send the new user an email
