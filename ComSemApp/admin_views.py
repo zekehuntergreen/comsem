@@ -3,17 +3,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import Http404
 from django.urls import reverse_lazy
 
-from django.template import loader
-from django.shortcuts import get_object_or_404
-
-
 from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView, FormView
+from django.views.generic.edit import CreateView, UpdateView, FormView
 
 from django.core.mail import send_mail
 from django.contrib import messages
@@ -45,6 +41,16 @@ class AdminViewMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         self.institution = get_institution(self.request.user)
         return Admin.objects.filter(user=self.request.user).exists()
+
+
+class InstanceCreateUpdateMixin(AdminViewMixin):
+    # initializes the necessary form, passing the current institution
+    # necessary in situations like the Course form which offers course type options specific to an institution
+    def get_form_kwargs(self):
+        kwargs = super(InstanceCreateUpdateMixin, self).get_form_kwargs()
+        kwargs['institution'] = self.institution
+        return kwargs
+
 
 ### LIST
 
@@ -101,22 +107,18 @@ class SessionTypeList(AdminViewMixin, ListView):
 ### CREATE
 
 
-class UserCreateMixin(AdminViewMixin, FormView):
+class UserMixin(AdminViewMixin, FormView):
+    # This mixin is used to create and update teachers and students.
+    # A mixin is needed because the teacher and student views combine two forms, the django user form and the form
+    # for a student / teacher object.
     template_name = 'ComSemApp/standard_form.html'
 
-    def get(self, request, *args, **kwargs):
-        user_form = UserForm()
+    def form_invalid(self, user_form, obj_form, **kwargs):
         user_form.prefix = 'user_form'
-        obj_form = self.get_obj_form()
         obj_form.prefix = 'obj_form'
         return self.render_to_response(self.get_context_data(form=user_form, obj_form=obj_form))
 
-    def form_invalid(self, user_form, obj_form, **kwargs):
-        user_form.prefix='user_form'
-        obj_form.prefix='obj_form'
-        return self.render_to_response(self.get_context_data(form=user_form, obj_form=obj_form))
-
-    def _send_mail(self, user, password):
+    def _send_email(self, user, password):
         link = "https://www.comsem.net"
         message = ("You have been invited to join Communication Seminar by an administrator for " + self.institution.name + ".\n"
                     "In order to log in, go to " + link + " and use \n"
@@ -132,58 +134,59 @@ class UserCreateMixin(AdminViewMixin, FormView):
         )
 
 
-class TeacherCreate(UserCreateMixin):
-    success_url = reverse_lazy("admin_teachers")
+class UserCreateMixin(UserMixin):
 
-    def get_obj_form(self):
-        return TeacherForm()
+    def get(self, request, *args, **kwargs):
+        user_form = UserForm()
+        user_form.prefix = 'user_form'
+        obj_form = self.get_obj_form()
+        obj_form.prefix = 'obj_form'
+        return self.render_to_response(self.get_context_data(form=user_form, obj_form=obj_form))
 
     def post(self, request, *args, **kwargs):
         user_form = UserForm(self.request.POST, prefix='user_form')
-        obj_form = TeacherForm(self.request.POST, prefix='obj_form')
+        obj_form = self.get_obj_form()
 
         if user_form.is_valid() and obj_form.is_valid():
+            # create the user object with random password
             user = user_form.save()
             password = User.objects.make_random_password()
             user.set_password(password)
             user.save()
 
-            teacher = obj_form.save(commit=False)
-            teacher.user = user
-            obj_form.save()
-            teacher.institution.add(self.institution)
+            # create the student / teacher
+            self.save_obj(obj_form, user)
 
-            super(TeacherCreate, self)._send_mail(user, password)
+            super(UserCreateMixin, self)._send_email(user, password)
             return HttpResponseRedirect(self.success_url)
         else:
             return self.form_invalid(user_form, obj_form, **kwargs)
+
+
+class TeacherCreate(UserCreateMixin):
+    success_url = reverse_lazy("admin_teachers")
+
+    def get_obj_form(self):
+        return TeacherForm(self.request.POST, prefix='obj_form')
+
+    def save_obj(self, obj_form, user):
+        obj = obj_form.save(commit=False)
+        obj.user = user
+        obj_form.save()
+        obj.institution.add(self.institution)
 
 
 class StudentCreate(UserCreateMixin):
     success_url = reverse_lazy("admin_students")
 
     def get_obj_form(self):
-        return StudentForm()
+        return StudentForm(self.request.POST, prefix='obj_form')
 
-    def post(self, request, *args, **kwargs):
-        user_form = UserForm(self.request.POST, prefix='user_form')
-        obj_form = StudentForm(self.request.POST, prefix='obj_form')
-
-        if user_form.is_valid() and obj_form.is_valid():
-            user = user_form.save()
-            password = User.objects.make_random_password()
-            user.set_password(password)
-            user.save()
-
-            student = obj_form.save(commit=False)
-            student.user = user
-            student.institution = self.institution
-            obj_form.save()
-
-            super(StudentCreate, self)._send_mail(user, password)
-            return HttpResponseRedirect(self.success_url)
-        else:
-            return self.form_invalid(user_form, obj_form, **kwargs)
+    def save_obj(self, obj_form, user):
+        obj = obj_form.save(commit=False)
+        obj.user = user
+        obj.institution = self.institution
+        obj_form.save()
 
 
 class TypeCreateMixin(AdminViewMixin, CreateView):
@@ -205,25 +208,93 @@ class SessionTypeCreate(TypeCreateMixin):
     form_class = SessionTypeForm
 
 
-class InstanceCreateMixin(AdminViewMixin, CreateView):
-
-    def get_form_kwargs(self):
-        kwargs = super(InstanceCreateMixin, self).get_form_kwargs()
-        kwargs['institution'] = self.institution
-        return kwargs
-
-
-class CourseCreate(InstanceCreateMixin):
+class CourseCreate(InstanceCreateUpdateMixin, CreateView):
     success_url = reverse_lazy("admin_courses")
     template_name = 'ComSemApp/standard_form.html'
     form_class = CourseForm
 
 
-class SessionCreate(InstanceCreateMixin):
+class SessionCreate(InstanceCreateUpdateMixin, CreateView):
     success_url = reverse_lazy("admin_sessions")
     template_name = 'ComSemApp/standard_form.html'
     form_class = SessionForm
 
+
+### UPDATE
+
+
+class UserUpdateMixin(UserMixin):
+
+    def get(self, request, *args, **kwargs):
+        obj_form = self.get_obj_form()
+        obj_form.prefix = 'obj_form'
+        user_form = UserForm(instance=self.instance.user)
+        user_form.prefix = 'user_form'
+        return self.render_to_response(self.get_context_data(form=user_form, obj_form=obj_form))
+
+    def post(self, request, *args, **kwargs):
+        user_form = UserForm(self.request.POST, instance=self.instance.user, prefix='user_form')
+        obj_form = self.get_obj_form(initial=self.request.POST)
+
+        if user_form.is_valid() and obj_form.is_valid():
+            user = user_form.save()
+            obj_form.save()
+
+            # to do ! what should we send in an email ?
+            # super(UserUpdateMixin, self)._send_email(user, password)
+            return HttpResponseRedirect(self.success_url)
+        else:
+            return self.form_invalid(user_form, obj_form, **kwargs)
+
+
+class TeacherUpdate(UserUpdateMixin):
+    success_url = reverse_lazy("admin_teachers")
+
+    def dispatch(self, request, *args, **kwargs):
+        self.instance = get_object_or_404(Teacher, pk=kwargs['pk'])
+        return super(TeacherUpdate, self).dispatch(request, args, kwargs)
+
+    def get_obj_form(self, initial=None):
+        return TeacherForm(initial, instance=self.instance, prefix='obj_form')
+
+
+class StudentUpdate(UserUpdateMixin):
+    success_url = reverse_lazy("admin_students")
+
+    def dispatch(self, request, *args, **kwargs):
+        self.instance = get_object_or_404(Student, pk=kwargs['pk'])
+        return super(StudentUpdate, self).dispatch(request, args, kwargs)
+
+    def get_obj_form(self, initial=None):
+        return StudentForm(initial, instance=self.instance, prefix='obj_form')
+
+
+class CourseTypeUpdate(AdminViewMixin, UpdateView):
+    success_url = reverse_lazy("admin_course_types")
+    model = CourseType
+    form_class = CourseTypeForm
+    template_name = 'ComSemApp/standard_form.html'
+
+
+class SessionTypeUpdate(AdminViewMixin, UpdateView):
+    success_url = reverse_lazy("admin_session_types")
+    model = SessionType
+    form_class = SessionTypeForm
+    template_name = 'ComSemApp/standard_form.html'
+
+
+class CourseUpdate(InstanceCreateUpdateMixin, UpdateView):
+    success_url = reverse_lazy("admin_courses")
+    model = Course
+    form_class = CourseForm
+    template_name = 'ComSemApp/standard_form.html'
+
+
+class SessionUpdate(InstanceCreateUpdateMixin, UpdateView):
+    success_url = reverse_lazy("admin_sessions")
+    model = Session
+    form_class = SessionForm
+    template_name = 'ComSemApp/standard_form.html'
 
 
 

@@ -72,7 +72,7 @@ class SessionTypeForm(ModelForm):
 
 
 class UserForm(ModelForm):
-    send_email = forms.BooleanField()
+    send_email = forms.BooleanField(initial=True, required=False)
 
     class Meta:
         model = User

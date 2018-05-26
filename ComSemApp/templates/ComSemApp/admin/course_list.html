@@ -49,7 +49,7 @@
 								<i class='fa fa-lg {% if course.is_active %}fa-check{% else %}fa-times{% endif %}'></i>
 							</td>
 							<td class="text-right">
-								<a href="{% url 'admin_edit_obj' 'course' course.id %}" class='btn btn-sm btn-outline-primary edit_teacher_button'>Edit</a>
+								<a href="{% url 'admin_edit_course' course.id %}" class='btn btn-sm btn-outline-primary edit_teacher_button'>Edit</a>
 
 								<button delete_url="{% url 'admin_delete_obj' 'course' course.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
 							</td>
