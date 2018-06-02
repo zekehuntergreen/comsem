@@ -353,7 +353,7 @@ function populateEditor(index){
 	} else {
 		$('#all-do').hide()
 	}
-	
+
 	$('#ExprToEdit').html(currentExpression['expression']);
 	$('#teacherReformulation').html(currentExpression['reformulation_text']);
 	$('#pronunciation').html(currentExpression['pronunciation']);
@@ -447,7 +447,8 @@ $(function(){
 		drawExpressionsTable();
 		clearEditor();
 
-		showNavigationWarning = true; // change to worksheet, show warning if they redirect
+		// there has been a change to the worksheet, show warning if they redirect
+		// showNavigationWarning = true; // commenting out to try to solve multiple submission issue
 	});
 
 	// call SaveWorksheet.php then redirect to myCourses page.
