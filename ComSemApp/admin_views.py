@@ -55,7 +55,7 @@ class InstanceCreateUpdateMixin(AdminViewMixin):
 
 ### LIST
 
-class TeacherList(AdminViewMixin, ListView):
+class TeacherListView(AdminViewMixin, ListView):
     model = Teacher
     template_name = 'ComSemApp/admin/teacher_list.html'
 
@@ -63,7 +63,7 @@ class TeacherList(AdminViewMixin, ListView):
         return Teacher.objects.filter(institution=self.institution)
 
 
-class StudentList(AdminViewMixin, ListView):
+class StudentListView(AdminViewMixin, ListView):
     model = Student
     template_name = 'ComSemApp/admin/student_list.html'
 
@@ -71,7 +71,7 @@ class StudentList(AdminViewMixin, ListView):
         return Student.objects.filter(institution=self.institution)
 
 
-class CourseList(AdminViewMixin, ListView):
+class CourseListView(AdminViewMixin, ListView):
     model = Course
     template_name = 'ComSemApp/admin/course_list.html'
 
@@ -80,7 +80,7 @@ class CourseList(AdminViewMixin, ListView):
         return Course.objects.filter(course_type__in=course_types)
 
 
-class CourseTypeList(AdminViewMixin, ListView):
+class CourseTypeListView(AdminViewMixin, ListView):
     model = CourseType
     template_name = 'ComSemApp/admin/course_type_list.html'
 
@@ -88,7 +88,7 @@ class CourseTypeList(AdminViewMixin, ListView):
         return CourseType.objects.filter(institution=self.institution)
 
 
-class SessionList(AdminViewMixin, ListView):
+class SessionListView(AdminViewMixin, ListView):
     model = Session
     template_name = 'ComSemApp/admin/session_list.html'
 
@@ -97,7 +97,7 @@ class SessionList(AdminViewMixin, ListView):
         return Session.objects.filter(session_type__in=session_types)
 
 
-class SessionTypeList(AdminViewMixin, ListView):
+class SessionTypeListView(AdminViewMixin, ListView):
     model = SessionType
     template_name = 'ComSemApp/admin/session_type_list.html'
 
@@ -163,7 +163,7 @@ class UserCreateMixin(UserMixin):
             return self.form_invalid(user_form, obj_form, **kwargs)
 
 
-class TeacherCreate(UserCreateMixin):
+class TeacherCreateView(UserCreateMixin):
     success_url = reverse_lazy("admin_teachers")
 
     def get_obj_form(self):
@@ -176,7 +176,7 @@ class TeacherCreate(UserCreateMixin):
         obj.institution.add(self.institution)
 
 
-class StudentCreate(UserCreateMixin):
+class StudentCreateView(UserCreateMixin):
     success_url = reverse_lazy("admin_students")
 
     def get_obj_form(self):
@@ -196,25 +196,25 @@ class TypeCreateMixin(AdminViewMixin, CreateView):
         return super(TypeCreateMixin,self).form_valid(form)
 
 
-class CourseTypeCreate(TypeCreateMixin):
+class CourseTypeCreateView(TypeCreateMixin):
     success_url = reverse_lazy("admin_course_types")
     template_name = 'ComSemApp/standard_form.html'
     form_class = CourseTypeForm
 
 
-class SessionTypeCreate(TypeCreateMixin):
+class SessionTypeCreateView(TypeCreateMixin):
     success_url = reverse_lazy("admin_session_types")
     template_name = 'ComSemApp/standard_form.html'
     form_class = SessionTypeForm
 
 
-class CourseCreate(InstanceCreateUpdateMixin, CreateView):
+class CourseCreateView(InstanceCreateUpdateMixin, CreateView):
     success_url = reverse_lazy("admin_courses")
     template_name = 'ComSemApp/standard_form.html'
     form_class = CourseForm
 
 
-class SessionCreate(InstanceCreateUpdateMixin, CreateView):
+class SessionCreateView(InstanceCreateUpdateMixin, CreateView):
     success_url = reverse_lazy("admin_sessions")
     template_name = 'ComSemApp/standard_form.html'
     form_class = SessionForm
@@ -247,7 +247,7 @@ class UserUpdateMixin(UserMixin):
             return self.form_invalid(user_form, obj_form, **kwargs)
 
 
-class TeacherUpdate(UserUpdateMixin):
+class TeacherUpdateView(UserUpdateMixin):
     success_url = reverse_lazy("admin_teachers")
 
     def dispatch(self, request, *args, **kwargs):
@@ -258,7 +258,7 @@ class TeacherUpdate(UserUpdateMixin):
         return TeacherForm(initial, instance=self.instance, prefix='obj_form')
 
 
-class StudentUpdate(UserUpdateMixin):
+class StudentUpdateView(UserUpdateMixin):
     success_url = reverse_lazy("admin_students")
 
     def dispatch(self, request, *args, **kwargs):
@@ -269,28 +269,28 @@ class StudentUpdate(UserUpdateMixin):
         return StudentForm(initial, instance=self.instance, prefix='obj_form')
 
 
-class CourseTypeUpdate(AdminViewMixin, UpdateView):
+class CourseTypeUpdateView(AdminViewMixin, UpdateView):
     success_url = reverse_lazy("admin_course_types")
     model = CourseType
     form_class = CourseTypeForm
     template_name = 'ComSemApp/standard_form.html'
 
 
-class SessionTypeUpdate(AdminViewMixin, UpdateView):
+class SessionTypeUpdateView(AdminViewMixin, UpdateView):
     success_url = reverse_lazy("admin_session_types")
     model = SessionType
     form_class = SessionTypeForm
     template_name = 'ComSemApp/standard_form.html'
 
 
-class CourseUpdate(InstanceCreateUpdateMixin, UpdateView):
+class CourseUpdateView(InstanceCreateUpdateMixin, UpdateView):
     success_url = reverse_lazy("admin_courses")
     model = Course
     form_class = CourseForm
     template_name = 'ComSemApp/standard_form.html'
 
 
-class SessionUpdate(InstanceCreateUpdateMixin, UpdateView):
+class SessionUpdateView(InstanceCreateUpdateMixin, UpdateView):
     success_url = reverse_lazy("admin_sessions")
     model = Session
     form_class = SessionForm
@@ -299,13 +299,13 @@ class SessionUpdate(InstanceCreateUpdateMixin, UpdateView):
 
 ### DELETE
 
-class NoConfirmDeleteView(DeleteView):
+class NoConfirmDeleteMixin(DeleteView):
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
 
 
-class DisactivateUserView(NoConfirmDeleteView):
+class DisactivateUserMixin(NoConfirmDeleteMixin):
 
     def post(self, request, *args, **kwargs):
         user = self.get_object().user
@@ -314,32 +314,32 @@ class DisactivateUserView(NoConfirmDeleteView):
         return  HttpResponseRedirect(self.success_url)
 
 
-class TeacherDisactivate(DisactivateUserView):
+class TeacherDisactivateView(DisactivateUserMixin):
     success_url = reverse_lazy("admin_teachers")
     model = Teacher
 
 
-class StudentDisactivate(DisactivateUserView):
+class StudentDisactivateView(DisactivateUserMixin):
     success_url = reverse_lazy("admin_students")
     model = Student
 
 
-class CourseTypeDelete(NoConfirmDeleteView):
+class CourseTypeDeleteView(NoConfirmDeleteMixin):
     success_url = reverse_lazy("admin_course_types")
     model = CourseType
 
 
-class SessionTypeDelete(NoConfirmDeleteView):
+class SessionTypeDeleteView(NoConfirmDeleteMixin):
     success_url = reverse_lazy("admin_session_types")
     model = SessionType
 
 
-class CourseDelete(NoConfirmDeleteView):
+class CourseDeleteView(NoConfirmDeleteMixin):
     success_url = reverse_lazy("admin_courses")
     model = Course
 
 
-class SessionDelete(NoConfirmDeleteView):
+class SessionDeleteView(NoConfirmDeleteMixin):
     success_url = reverse_lazy("admin_sessions")
     model = Session
 
