@@ -39,7 +39,7 @@
 							<td class="text-right">
 								<a href="{% url 'admin_edit_session_type' session_type.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
 
-								<button delete_url="{% url 'admin_delete_obj' 'session_type' session_type.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
+								<button delete_url="{% url 'admin_delete_session_type' pk=session_type.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
 							</td>
 						</tr>
 					{% endfor %}

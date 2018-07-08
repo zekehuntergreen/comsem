@@ -47,7 +47,7 @@
 							<td class="text-right">
 								<a href="{% url 'admin_edit_teacher' teacher.id %}" class='btn btn-sm btn-outline-primary edit_teacher_button'>Edit</a>
 
-								<button delete_url="{% url 'admin_delete_obj' 'teacher' teacher.id %}" class='btn btn-sm btn-outline-danger delete_button {% if not teacher.user.is_active %}disabled{% endif %}' style="margin-left: 10px;">Disactivate</button>
+								<button delete_url="{% url 'admin_disactivate_teacher' pk=teacher.id %}" class='btn btn-sm btn-outline-danger delete_button {% if not teacher.user.is_active %}disabled{% endif %}' style="margin-left: 10px;">Disactivate</button>
 							</td>
 						</tr>
 					{% endfor %}
