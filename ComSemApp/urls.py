@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^initiate_roles/$', views.initiate_roles, name='initiate_roles'),
 
     # ADMIN
-    url(r'^admin/$', admin_views.admin, name='admin'),
+    url(r'^admin/$', admin_views.StudentListView.as_view(), name='admin'),
 
     url(r'^admin/teachers/$', admin_views.TeacherListView.as_view(), name='admin_teachers'),
     url(r'^admin/teacher/create/$', admin_views.TeacherCreateView.as_view(), name='admin_create_teacher'),

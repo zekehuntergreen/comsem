@@ -20,28 +20,16 @@ from .models import *
 from django.contrib.auth.models import User
 from .forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, TeacherForm, StudentForm, UserForm
 
-# DECORATORS
-def is_admin(user):
-    return Admin.objects.filter(user=user).exists()
-
-def get_institution(user):
-    admin = Admin.objects.get(user=user)
-    return admin.institution
-
-
-
-@login_required
-@user_passes_test(is_admin)
-def admin(request):
-    return HttpResponseRedirect('/admin/students/')
-
-
 
 class AdminViewMixin(LoginRequiredMixin, UserPassesTestMixin):
 
     def test_func(self):
-        self.institution = get_institution(self.request.user)
-        return Admin.objects.filter(user=self.request.user).exists()
+        admin = Admin.objects.filter(user=self.request.user)
+        if not admin.exists():
+            return False
+        else:
+            self.institution = admin.first().institution
+            return True
 
 
 class InstanceCreateUpdateMixin(AdminViewMixin):

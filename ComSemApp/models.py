@@ -230,7 +230,6 @@ class StudentSubmission(models.Model):
             if submission == self:
                 return index + 1
 
-
     class Meta:
         verbose_name = "Student Submission"
         get_latest_by = "date"
