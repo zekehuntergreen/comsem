@@ -13,7 +13,13 @@
 	<form method="post">
 		<div class="row mt-4">
 			<div class="col-12 mx-auto">
+				{% csrf_token %}
+
 				{% include 'ComSemApp/form_contents.html' %}
+
+				{% if obj_form %}
+					{% include 'ComSemApp/form_contents.html' with form=obj_form %}
+				{% endif %}
 			</div>
 		</div>
 
@@ -32,6 +38,10 @@
 <script>
 	$(function(){
 		$('input,select,textarea').addClass('form-control');
+		$('.datepicker').datepicker({
+			'autoclose': true,
+			'format': 'yyyy-mm-dd',
+		})
 	});
 </script>
 {{ form.media.js }}

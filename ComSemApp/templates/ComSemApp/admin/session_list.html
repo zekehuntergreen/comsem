@@ -10,13 +10,13 @@
 			</div>
 
 			<div class="col-md-6">
-				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin_edit_obj' 'session' 0 %}">
+				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin_create_session' %}">
 					<i class="fa fa-plus"></i>
 				</a>
 			</div>
 		</div>
 
-		{% if session_types %}
+		{% if session_list %}
 		<div class="row mt-3 cs-admin-table">
 			<table class="table table-hover tablesorter">
 				<thead>
@@ -29,25 +29,23 @@
 				</thead>
 
 				<tbody>
-					{% for session_type in session_types %}
-						{% for session in session_type.session_set.all %}
-							<tr>
-								<td>
-									{{ session.session_type }}
-								</td>
-								<td>
-									{{ session.start_date }}
-								</td>
-								<td>
-									{{ session.end_date }}
-								</td>
-								<td class="text-right">
-									<a href="{% url 'admin_edit_obj' 'session' session.id %}" class='btn btn-sm btn-outline-primary edit_teacher_button'>Edit</a>
+					{% for session in session_list %}
+						<tr>
+							<td>
+								{{ session.session_type }}
+							</td>
+							<td>
+								{{ session.start_date }}
+							</td>
+							<td>
+								{{ session.end_date }}
+							</td>
+							<td class="text-right">
+								<a href="{% url 'admin_edit_session' session.id %}" class='btn btn-sm btn-outline-primary edit_teacher_button'>Edit</a>
 
-									<button delete_url="{% url 'admin_delete_obj' 'session' session.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
-								</td>
-							</tr>
-						{% endfor %}
+								<button delete_url="{% url 'admin_delete_session' pk=session.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
+							</td>
+						</tr>
 					{% endfor %}
 				</tbody>
 				{% include 'ComSemApp/tablesorter_footer.html'%}

@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 
 from .utils import pos_tag
 
-states = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 
-            'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 
+states = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY',
+            'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH',
             'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY']
 STATE_CHOICES = []
 for s in states:
@@ -67,7 +67,6 @@ class Admin(models.Model):
         return " ".join([self.user.first_name, str(self.user.last_name)])
 
 
-
 class Institution(models.Model):
     name = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
@@ -123,6 +122,7 @@ class Session(models.Model):
     class Meta:
         ordering = ['-start_date']
 
+
 class SessionType(models.Model):
     institution = models.ForeignKey('Institution', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
@@ -166,7 +166,7 @@ class Worksheet(models.Model):
         self.save()
         for expression in self.expressions.all():
             pos_tag(expression)
-            
+
 
     class Meta:
         ordering = ['date']
@@ -185,8 +185,7 @@ class Expression(models.Model):
     def __str__(self):
         return self.expression
 
-    
-        
+
 class SequentialWords(models.Model):
     expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
     word = models.ForeignKey('Word', on_delete=models.PROTECT)

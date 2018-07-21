@@ -10,13 +10,13 @@
 			</div>
 
 			<div class="col-md-6">
-				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin_edit_obj' 'teacher' 0 %}">
+				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin_create_teacher' %}">
 					<i class="fa fa-plus"></i>
 				</a>
 			</div>
 		</div>
 
-		{% if teachers %}
+		{% if teacher_list %}
 		<div class="row mt-3 cs-admin-table">
 			<table class="table tablesorter">
 				<thead>
@@ -30,7 +30,7 @@
 				</thead>
 
 				<tbody>
-					{% for teacher in teachers %}
+					{% for teacher in teacher_list %}
 						<tr>
 							<td>
 								{{ teacher.user.first_name }}
@@ -45,9 +45,9 @@
 								<i class='fa fa-lg {% if teacher.user.is_active %}fa-check{% else %}fa-times{% endif %}'></i>
 							</td>
 							<td class="text-right">
-								<a href="{% url 'admin_edit_obj' 'teacher' teacher.id %}" class='btn btn-sm btn-outline-primary edit_teacher_button'>Edit</a>
+								<a href="{% url 'admin_edit_teacher' teacher.id %}" class='btn btn-sm btn-outline-primary edit_teacher_button'>Edit</a>
 
-								<button delete_url="{% url 'admin_delete_obj' 'teacher' teacher.id %}" class='btn btn-sm btn-outline-danger delete_button {% if not teacher.user.is_active %}disabled{% endif %}' style="margin-left: 10px;">Disactivate</button>
+								<button delete_url="{% url 'admin_disactivate_teacher' pk=teacher.id %}" class='btn btn-sm btn-outline-danger delete_button {% if not teacher.user.is_active %}disabled{% endif %}' style="margin-left: 10px;">Disactivate</button>
 							</td>
 						</tr>
 					{% endfor %}
@@ -70,7 +70,7 @@
 		$('.delete_button:not(.disabled)').click(function(e){
 			e.preventDefault();
 			delete_url = $(this).attr('delete_url');
-			cs_confirm("Delete Teacher", "Are you sure you'd like to delete this teacher?", "error", "Delete", delete_obj)
+			cs_confirm("Delete Teacher", "Are you sure you'd like to disactivate this teacher?", "error", "Delete", delete_obj)
 		})
 	})
 	</script>

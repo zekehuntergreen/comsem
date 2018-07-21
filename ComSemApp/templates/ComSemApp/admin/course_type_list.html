@@ -10,13 +10,13 @@
 			</div>
 
 			<div class="col-md-6">
-				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin_edit_obj' 'course_type' 0 %}">
+				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin_create_course_type' %}">
 					<i class="fa fa-plus"></i>
 				</a>
 			</div>
 		</div>
 
-		{% if course_types %}
+		{% if coursetype_list %}
 		<div class="row mt-3 cs-admin-table">
 			<table class="table table-hover tablesorter">
 				<thead>
@@ -28,7 +28,7 @@
 				</thead>
 
 				<tbody>
-					{% for course_type in course_types %}
+					{% for course_type in coursetype_list %}
 						<tr>
 							<td>
 								{{ course_type.name }}
@@ -37,9 +37,9 @@
 								{{ course_type.verbose_name|default:'-' }}
 							</td>
 							<td class="text-right">
-								<a href="{% url 'admin_edit_obj' 'course_type' course_type.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
+								<a href="{% url 'admin_edit_course_type' course_type.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
 
-								<button delete_url="{% url 'admin_delete_obj' 'course_type' course_type.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
+								<button delete_url="{% url 'admin_delete_course_type' pk=course_type.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
 							</td>
 						</tr>
 					{% endfor %}
