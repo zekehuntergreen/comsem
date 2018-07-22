@@ -25,7 +25,7 @@ class Factory:
         defaults = {
             "first_name": "firstname",
             "last_name": "lastname",
-            "username": kwargs.get("username", uuid.uuid4()),
+            "username": kwargs.get("username", str(uuid.uuid4())),
         }
         user = User.objects.create(**defaults)
         password = kwargs.get("password", "password123")
@@ -77,9 +77,25 @@ class Factory:
         return SessionType.objects.create(**defaults)
 
     def db_create_session(self, **kwargs):
+        session_type = kwargs.get("session_type")
+        if not session_type:
+            session_type = self.db_create_session_type()
         defaults = {
-            "session_type": kwargs.get("session_type"),
+            "session_type": session_type,
             "start_date": timezone.now(),
             "end_date": timezone.now(),
         }
         return Session.objects.create(**defaults)
+
+    def db_create_country(self, **kwargs):
+        defaults = {
+            "country": kwargs.get("country", "U.S.A"),
+        }
+        return Country.objects.create(**defaults)
+
+    def db_create_language(self, **kwargs):
+        defaults = {
+            "language": kwargs.get("language", "klingon"),
+        }
+        return Language.objects.create(**defaults)
+
