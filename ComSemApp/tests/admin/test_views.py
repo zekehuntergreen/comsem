@@ -33,86 +33,63 @@ class TestCredentials(BaseTestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class AdminTestCase(BaseTestCase):
-    student_list_url = reverse("admin_students")
-    teacher_list_url = reverse("admin_teachers")
-    course_list_url = reverse("admin_courses")
-    course_type_list_url = reverse("admin_course_types")
-    session_list_url = reverse("admin_sessions")
-    session_type_list_url = reverse("admin_session_types")
-
-    create_student_url = reverse("admin_create_student")
-    create_teacher_url = reverse("admin_create_teacher")
-    create_course_url = reverse("admin_create_course")
-    create_course_type_url = reverse("admin_create_course_type")
-    create_session_url = reverse("admin_create_session")
-    create_session_type_url = reverse("admin_create_session_type")
+class AdminTestCase(object):
+    # base test case mixin for all admin views. tests list, create, update, delete
 
     def setUp(self):
-        super(AdminTestCase, self).setUp()
         # create an admin user and log them in
         self.password = "password123"
         self.admin = self.db_create_admin(password=self.password)
         self.client.login(username=self.admin.user.username, password=self.password)
 
+    def test_list_view(self):
+        self.create_object()
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context[self.list_prefix + '_list'].count(), 1)
 
-class TestListViews(AdminTestCase):
+    def test_create_view(self):
+        # get
+        response = self.client.get(self.create_url)
+        self.assertEqual(response.status_code, 200)
 
+        # post
+        self.assertEqual(self.obj.objects.count(), 0)
+        response = self.client.post(self.create_url, self.get_data())
+        self.assertRedirects(response, self.list_url)
+        self.assertEqual(self.obj.objects.count(), 1)
+
+    def test_update_view(self):
+        # get
+        obj = self.create_object()
+        update_url = reverse(self.update_url_string, kwargs={"pk": obj.pk})
+        response = self.client.get(update_url)
+        self.assertEqual(response.status_code, 200)
+
+        # post
+        response = self.client.post(update_url, self.get_data())
+        self.assertRedirects(response, self.list_url)
+
+
+class TestStudentViews(AdminTestCase, BaseTestCase):
+    obj = Student
+    list_url = reverse("admin_students")
+    create_url = reverse("admin_create_student")
+    update_url_string = "admin_edit_student"
+    list_prefix = "student"
 
     def setUp(self):
-        super(TestListViews, self).setUp()
-        # create one of every type of object
-        self.db_create_teacher()
-        self.db_create_student()
+        super(TestStudentViews, self).setUp()
+        self.create_object = self.db_create_student
 
-        self.session_type = self.db_create_session_type()
-        self.session = self.db_create_session(session_type=self.session_type)
+    def test_create_view(self):
+        # override in order to do extra checks
+        super(TestStudentViews, self).test_create_view()
+        self.assertEqual(User.objects.count(), 2)
+        self.assertEqual(len(mail.outbox), 1)
 
-        self.course_type = self.db_create_course_type()
-        self.db_create_course(course_type=self.course_type, session=self.session)
-
-    def test_student_list(self):
-        response = self.client.get(self.student_list_url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['student_list'].count(), 1)
-
-    def test_teacher_list(self):
-        response = self.client.get(self.teacher_list_url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['teacher_list'].count(), 1)
-
-    def test_course_list(self):
-        response = self.client.get(self.course_list_url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['course_list'].count(), 1)
-
-    def test_course_type_list(self):
-        response = self.client.get(self.course_type_list_url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['coursetype_list'].count(), 1)
-
-    def test_session_list(self):
-        response = self.client.get(self.session_list_url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['session_list'].count(), 1)
-
-    def test_session_type_list(self):
-        response = self.client.get(self.session_type_list_url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['sessiontype_list'].count(), 1)
-
-
-class TestCreateViews(AdminTestCase):
-
-
-    def setUp(self):
-        super(TestCreateViews, self).setUp()
-
-    def test_create_student(self):
-        self.assertEqual(Student.objects.count(), 0)
-        self.assertEqual(User.objects.count(), 1)
-
-        data = {
+    def get_data(self):
+        return {
             "user_form-username": "username",
             "user_form-first_name": "first name",
             "user_form-last_name": "last name",
@@ -121,84 +98,109 @@ class TestCreateViews(AdminTestCase):
             "obj_form-langauge": self.db_create_language().pk,
         }
 
-        response = self.client.post(self.create_student_url, data)
-        self.assertRedirects(response, self.student_list_url)
-        self.assertEqual(Student.objects.count(), 1)
+
+class TestTeacherViews(AdminTestCase, BaseTestCase):
+    obj = Teacher
+    list_url = reverse("admin_teachers")
+    create_url = reverse("admin_create_teacher")
+    update_url_string = "admin_edit_teacher"
+    list_prefix = "teacher"
+
+    def setUp(self):
+        super(TestTeacherViews, self).setUp()
+        self.create_object = self.db_create_teacher
+
+    def test_create_view(self):
+        # override in order to do extra checks
+        super(TestTeacherViews, self).test_create_view()
         self.assertEqual(User.objects.count(), 2)
         self.assertEqual(len(mail.outbox), 1)
 
-    def test_create_teacher(self):
-        self.assertEqual(Teacher.objects.count(), 0)
-        self.assertEqual(User.objects.count(), 1)
-
-        data = {
+    def get_data(self):
+        return {
             "user_form-username": "username",
             "user_form-first_name": "first name",
             "user_form-last_name": "last name",
             "user_form-email": "email@email.com",
         }
 
-        response = self.client.post(self.create_teacher_url, data)
-        self.assertRedirects(response, self.teacher_list_url)
-        self.assertEqual(Teacher.objects.count(), 1)
-        self.assertEqual(User.objects.count(), 2)
-        self.assertEqual(len(mail.outbox), 1)
 
-    def test_create_course(self):
-        self.assertEqual(Course.objects.count(), 0)
-        data = {
+class TestCourseViews(AdminTestCase, BaseTestCase):
+    obj = Course
+    list_url = reverse("admin_courses")
+    create_url = reverse("admin_create_course")
+    update_url_string = "admin_edit_course"
+    list_prefix = "course"
+
+    def setUp(self):
+        super(TestCourseViews, self).setUp()
+        self.create_object = self.db_create_course
+
+    def get_data(self):
+        return {
             "session": self.db_create_session().pk,
             "course_type": self.db_create_course_type().pk,
             "teachers": self.db_create_teacher().pk,
             "students": self.db_create_student().pk,
             "section": 1,
         }
-        response = self.client.post(self.create_course_url, data)
-        self.assertRedirects(response, self.course_list_url)
-        self.assertEqual(Course.objects.count(), 1)
 
-        course = Course.objects.first()
-        self.assertEqual(course.teachers.count(), 1)
-        self.assertEqual(course.students.count(), 1)
 
-    def test_create_course_type(self):
-        self.assertEqual(CourseType.objects.count(), 0)
-        data = {
+class TestCourseTypeViews(AdminTestCase, BaseTestCase):
+    obj = CourseType
+    list_url = reverse("admin_course_types")
+    create_url = reverse("admin_create_course_type")
+    update_url_string = "admin_edit_course_type"
+    list_prefix = "coursetype"
+
+    def setUp(self):
+        super(TestCourseTypeViews, self).setUp()
+        self.create_object = self.db_create_course_type
+
+    def get_data(self):
+        return {
             "institution": self.db_get_or_create_institution().pk,
             "name": "Course Type",
             "verbose_name": "This is the verbose name.",
         }
-        response = self.client.post(self.create_course_type_url, data)
-        self.assertRedirects(response, self.course_type_list_url)
-        self.assertEqual(CourseType.objects.count(), 1)
 
-    def test_create_session(self):
-        self.assertEqual(Session.objects.count(), 0)
-        data = {
+
+class TestSessionViews(AdminTestCase, BaseTestCase):
+    obj = Session
+    list_url = reverse("admin_sessions")
+    create_url = reverse("admin_create_session")
+    update_url_string = "admin_edit_session"
+    list_prefix = "session"
+
+    def setUp(self):
+        super(TestSessionViews, self).setUp()
+        self.create_object = self.db_create_session
+
+    def get_data(self):
+        return {
             "session_type": self.db_create_session_type().pk,
             "start_date": "2018-01-01",
             "end_date": "2018-01-01",
         }
-        response = self.client.post(self.create_session_url, data)
-        self.assertRedirects(response, self.session_list_url)
-        self.assertEqual(Session.objects.count(), 1)
 
-    def test_create_session_type(self):
-        self.assertEqual(SessionType.objects.count(), 0)
-        institution = self.db_get_or_create_institution()
-        data = {
-            "institution": institution.pk,
+
+class TestSessionTypeViews(AdminTestCase, BaseTestCase):
+    obj = SessionType
+    list_url = reverse("admin_session_types")
+    create_url = reverse("admin_create_session_type")
+    update_url_string = "admin_edit_session_type"
+    list_prefix = "sessiontype"
+
+    def setUp(self):
+        super(TestSessionTypeViews, self).setUp()
+        self.create_object = self.db_create_session_type
+
+    def get_data(self):
+        return {
+            "institution": self.db_get_or_create_institution().pk,
             "name": "Session Type",
             "order": "1",
         }
-        response = self.client.post(self.create_session_type_url, data)
-        self.assertRedirects(response, self.session_type_list_url)
-        self.assertEqual(SessionType.objects.count(), 1)
-
-
-
-
-
 
 
 

@@ -60,9 +60,17 @@ class Factory:
         return CourseType.objects.create(**defaults)
 
     def db_create_course(self, **kwargs):
+        session = kwargs.get("session")
+        if not session:
+            session = self.db_create_session()
+
+        course_type = kwargs.get("course_type")
+        if not course_type:
+            course_type = self.db_create_course_type()
+
         defaults = {
-            "session": kwargs.get("session"),
-            "course_type": kwargs.get("course_type"),
+            "session": session,
+            "course_type": course_type,
             # "teachers" and "students" are ManyToMany
             "section": 1,
         }
