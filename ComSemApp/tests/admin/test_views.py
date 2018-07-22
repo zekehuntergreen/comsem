@@ -70,12 +70,33 @@ class AdminTestCase(object):
         response = self.client.post(update_url, self.get_data())
         self.assertRedirects(response, self.list_url)
 
+    def test_delete_view(self):
+        obj = self.create_object()
+        self.assertEqual(self.obj.objects.count(), 1)
+        delete_url = reverse(self.delete_url_string, kwargs={"pk": obj.pk})
+        response = self.client.get(delete_url)
+        self.assertRedirects(response, self.list_url)
+        self.assertEqual(self.obj.objects.count(), 0)
+
+    def _test_delete_view_user_obj(self):
+        # for teacher and student objects - we disactivate rather than delete
+        obj = self.create_object()
+        self.assertEqual(self.obj.objects.count(), 1)
+        self.assertEqual(self.obj.objects.first().user.is_active, True)
+        delete_url = reverse(self.delete_url_string, kwargs={"pk": obj.pk})
+        response = self.client.get(delete_url)
+        self.assertRedirects(response, self.list_url)
+        self.assertEqual(self.obj.objects.count(), 1)
+        self.assertEqual(self.obj.objects.first().user.is_active, False)
+
+
 
 class TestStudentViews(AdminTestCase, BaseTestCase):
     obj = Student
     list_url = reverse("admin_students")
     create_url = reverse("admin_create_student")
     update_url_string = "admin_edit_student"
+    delete_url_string = "admin_disactivate_student"
     list_prefix = "student"
 
     def setUp(self):
@@ -87,6 +108,10 @@ class TestStudentViews(AdminTestCase, BaseTestCase):
         super(TestStudentViews, self).test_create_view()
         self.assertEqual(User.objects.count(), 2)
         self.assertEqual(len(mail.outbox), 1)
+
+    def test_delete_view(self):
+        # override delete tests - we are disactivating instead
+        self._test_delete_view_user_obj()
 
     def get_data(self):
         return {
@@ -104,6 +129,7 @@ class TestTeacherViews(AdminTestCase, BaseTestCase):
     list_url = reverse("admin_teachers")
     create_url = reverse("admin_create_teacher")
     update_url_string = "admin_edit_teacher"
+    delete_url_string = "admin_disactivate_teacher"
     list_prefix = "teacher"
 
     def setUp(self):
@@ -115,6 +141,10 @@ class TestTeacherViews(AdminTestCase, BaseTestCase):
         super(TestTeacherViews, self).test_create_view()
         self.assertEqual(User.objects.count(), 2)
         self.assertEqual(len(mail.outbox), 1)
+
+    def test_delete_view(self):
+        # override delete tests - we are disactivating instead
+        self._test_delete_view_user_obj()
 
     def get_data(self):
         return {
@@ -130,6 +160,7 @@ class TestCourseViews(AdminTestCase, BaseTestCase):
     list_url = reverse("admin_courses")
     create_url = reverse("admin_create_course")
     update_url_string = "admin_edit_course"
+    delete_url_string = "admin_delete_course"
     list_prefix = "course"
 
     def setUp(self):
@@ -151,6 +182,7 @@ class TestCourseTypeViews(AdminTestCase, BaseTestCase):
     list_url = reverse("admin_course_types")
     create_url = reverse("admin_create_course_type")
     update_url_string = "admin_edit_course_type"
+    delete_url_string = "admin_delete_course_type"
     list_prefix = "coursetype"
 
     def setUp(self):
@@ -170,6 +202,7 @@ class TestSessionViews(AdminTestCase, BaseTestCase):
     list_url = reverse("admin_sessions")
     create_url = reverse("admin_create_session")
     update_url_string = "admin_edit_session"
+    delete_url_string = "admin_delete_session"
     list_prefix = "session"
 
     def setUp(self):
@@ -189,6 +222,7 @@ class TestSessionTypeViews(AdminTestCase, BaseTestCase):
     list_url = reverse("admin_session_types")
     create_url = reverse("admin_create_session_type")
     update_url_string = "admin_edit_session_type"
+    delete_url_string = "admin_delete_session_type"
     list_prefix = "sessiontype"
 
     def setUp(self):
