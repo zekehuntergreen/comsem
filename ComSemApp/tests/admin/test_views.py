@@ -90,7 +90,6 @@ class AdminTestCase(object):
         self.assertEqual(self.obj.objects.first().user.is_active, False)
 
 
-
 class TestStudentViews(AdminTestCase, BaseTestCase):
     obj = Student
     list_url = reverse("admin_students")
@@ -235,7 +234,3 @@ class TestSessionTypeViews(AdminTestCase, BaseTestCase):
             "name": "Session Type",
             "order": "1",
         }
-
-
-
-
