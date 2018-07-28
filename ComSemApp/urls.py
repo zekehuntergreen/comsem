@@ -48,7 +48,6 @@ urlpatterns = [
     url(r'^teacher/course/([0-9]+)/worksheet/([0-9]+)/$', teacher_views.worksheet, name='teacher_worksheet'),
     url(r'^teacher/course/([0-9]+)/worksheet/([0-9]+)/submission/([0-9]+)/$', teacher_views.submission, name='teacher_submission'),
 
-    url(r'^ajax/course_students/$', teacher_views.course_students, name='course_students'),
     url(r'^ajax/save_worksheet/$', teacher_views.save_worksheet, name='save_worksheet'),
     url(r'^ajax/delete_worksheet/$', teacher_views.delete_worksheet, name='delete_worksheet'),
     url(r'^ajax/release_worksheet/$', teacher_views.release_worksheet, name='release_worksheet'),

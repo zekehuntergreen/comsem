@@ -1,0 +1,43 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% block content %}
+	<div class="row">
+
+		<div class="col-lg-8 col-md-8 col-sm-12">
+			<div class="card-box cs-table-container" style="min-height:600px;">
+
+				{% include 'ComSemApp/course_table.html' %}
+
+				<script>
+				$(function(){
+					$(".show-students").click(function(){
+						course_id = $(this).parents(".courseRow").attr("course_id")
+						$(".courseStudentsTable").hide()
+						$(".courseStudentsTable[course_id=" + course_id + "]").show()
+					})
+				})
+				</script>
+			</div>
+		</div>
+
+		<div class="col-lg-4 col-md-4 hidden-sm-down">
+			<div class="card-box" style="min-height:600px;">
+
+				<div class="row">
+					<div class="col-12">
+						<h4 class="m-t-0 header-title"><b>Students in Course</b></h4>
+					</div>
+				</div>
+
+				{% for course in courses %}
+				<table course_id="{{ course.id }}" class="courseStudentsTable table table-hover" style="margin-top: 23px; display: none;">
+					{% include 'ComSemApp/teacher/course_students.html' %}
+				</table>
+				{% endfor %}
+
+			</div>
+		</div>
+
+	</div>
+
+{% endblock %}

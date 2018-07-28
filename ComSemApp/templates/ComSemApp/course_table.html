@@ -1,47 +1,11 @@
 <!-- USED IN TEACHER AND STUDENT HOME PAGES -->
 
-
 <div class="row">
 	<div class="col-6">
 		<h4 class="m-t-0 header-title">
 			<b>My Courses</b>
 		</h4>
 	</div>
-
-	{% if show_active_button %}
-	<!-- course status button group -->
-	<!-- <div class="col-6">
-
-		<div class="btn-group float-right" data-toggle="buttons">
-			<label class="btn btn-sm btn-outline-primary active" id="showActiveCourses">
-				<input type="radio" autocomplete="off" checked> Active
-			</label>
-			<label class="btn btn-sm btn-outline-primary" id="showAllCourses">
-				<input type="radio"  autocomplete="off"> All
-			</label>
-		</div>
-	</div>
-
-	<script>
-	$(document).ready(function(){
-		$("#showActiveCourses").on("click", function(){
-			$(".course-inactive").hide();
-		});
-
-		$("#showAllCourses").on("click", function(){
-			$(".courseRow").show();
-		});
-	});
-	</script>
-
-	<style>
-	.course-inactive{
-		display: none;
-	}
-	</style>
-	-->
-	{% endif %}
-
 </div>
 
 <div class="row mt-2">
@@ -75,7 +39,7 @@
 					{% if teacher_view %}
 					<td>
 						<a href="{% url 'teacher_course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</a>
-						<button type='button' class='btn btn-sm btn-outline-primary showStudents'>Students</button>
+						<button type='button' class='btn btn-sm btn-outline-primary show-students'>Students</button>
 					</td>
 					{% else %}
 					<td>

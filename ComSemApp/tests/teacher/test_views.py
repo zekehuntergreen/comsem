@@ -6,7 +6,7 @@ from ComSemApp.models import *
 
 
 class TestCredentials(BaseTestCase):
-    # only admin users should be able to access admin views.
+    # only teachers should be able to access teacher views.
 
     teacher_home_url = reverse("teacher")
     loggin_url = reverse("login")

@@ -65,7 +65,7 @@ class TeacherViewMixin(LoginRequiredMixin, UserPassesTestMixin):
 class CourseListView(TeacherViewMixin, ListView):
     # teacher home page
     model = Course
-    template_name = 'ComSemApp/teacher/my_courses.html'
+    template_name = 'ComSemApp/teacher/course_list.html'
     context_object_name = 'courses'
 
     def get_queryset(self):
@@ -77,18 +77,20 @@ class CourseListView(TeacherViewMixin, ListView):
         return context
 
 
-@login_required
-@user_passes_test(is_teacher)
-@teaches_course_ajax
-def course_students(request):
-    course_id = request.POST.get('course_id', None)
-    course = Course.objects.get(id=course_id)
+class TeachesCourseMixin(TeacherViewMixin):
 
-    template = loader.get_template('ComSemApp/teacher/course_students.html')
-    context = {
-        'course': course,
-    }
-    return HttpResponse(template.render(context, request))
+    def dispatch(self, request, *args, **kwargs):
+        self.course_id = kwargs.get('course_id', None)
+        if not Course.objects.filter(teachers=self.request.user.teacher, id=self.course_id).exists():
+            if request.is_ajax():
+                response = JsonResponse({"error": 'Invalid Course ID.'})
+                response.status_code = 403
+                return response
+            else:
+                messages.error(request, 'Invalid Course ID.')
+                return redirect("/teacher/")
+        return super(TeachesCourseMixin, self).dispatch(request, args, kwargs)
+
 
 
 @login_required
