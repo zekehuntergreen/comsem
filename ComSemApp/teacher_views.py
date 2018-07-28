@@ -1,9 +1,11 @@
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic.list import ListView
+
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.template import loader
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.db.models.query import QuerySet
@@ -48,16 +50,31 @@ def teaches_course_ajax(func):
     return wrapper
 
 
+class TeacherViewMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        # is the user a teacher?
+        teacher = Teacher.objects.filter(user=self.request.user)
+        if not teacher.exists():
+            return False
+        else:
+            self.institution = teacher.first().institution
+            return True
 
 
-# VIEWS
-@login_required
-@user_passes_test(is_teacher)
-def teacher(request):
-    courses = Course.objects.filter(teachers=request.user.teacher)
-    show_active_button = any(course.is_active() for course in courses) # we'll show the course status button group only if there is a mix of active, inactive courses
-    template = loader.get_template('ComSemApp/teacher/my_courses.html')
-    return HttpResponse(template.render({'courses': courses, 'show_active_button': show_active_button, 'teacher_view': True}, request))
+class CourseListView(TeacherViewMixin, ListView):
+    # teacher home page
+    model = Course
+    template_name = 'ComSemApp/teacher/my_courses.html'
+    context_object_name = 'courses'
+
+    def get_queryset(self):
+        return Course.objects.filter(teachers=self.request.user.teacher)
+
+    def get_context_data(self, **kwargs):
+        context = super(CourseListView, self).get_context_data(**kwargs)
+        context['teacher_view'] = True
+        return context
 
 
 @login_required
@@ -313,3 +330,5 @@ def handle_uploaded_file(f, directory, e):
     with open(url, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
+
+

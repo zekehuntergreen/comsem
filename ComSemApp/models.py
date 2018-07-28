@@ -142,6 +142,7 @@ class SessionType(models.Model):
 # WORKSHEETS, EXPRESSIONS, WORDS, SEQUENTIAL WORDS
 
 class Worksheet(models.Model):
+    # TODO realeased -> status [pending, created, released]
     date = models.DateTimeField(auto_now_add=True)
     course = models.ForeignKey('Course', on_delete=models.CASCADE)
     topic = models.ForeignKey('Topic', on_delete=models.PROTECT)

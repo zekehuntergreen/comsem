@@ -43,7 +43,7 @@ urlpatterns = [
 
 
     # TEACHER
-    url(r'^teacher/$', teacher_views.teacher, name='teacher'),
+    url(r'^teacher/$', teacher_views.CourseListView.as_view(), name='teacher'),
     url(r'^teacher/course/([0-9]+)/$', teacher_views.course, name='teacher_course'),
     url(r'^teacher/course/([0-9]+)/worksheet/([0-9]+)/$', teacher_views.worksheet, name='teacher_worksheet'),
     url(r'^teacher/course/([0-9]+)/worksheet/([0-9]+)/submission/([0-9]+)/$', teacher_views.submission, name='teacher_submission'),
