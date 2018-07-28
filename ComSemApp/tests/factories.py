@@ -107,3 +107,27 @@ class Factory:
         }
         return Language.objects.create(**defaults)
 
+    def db_create_worksheet(self, **kwargs):
+        course = kwargs.get("course")
+        if not course:
+            course = self.db_create_course()
+
+        topic = kwargs.get("topic")
+        if not topic:
+            topic = self.db_create_topic()
+
+        defaults = {
+            "course": course,
+            "topic": topic,
+            "released": True,
+            "display_original": True,
+            "display_reformulation_text": True,
+            "display_reformulation_audio": True,
+            "display_all_expressions": True,
+        }
+        return Worksheet.objects.create(**defaults)
+
+    def db_create_topic(self, **kwargs):
+        topic = kwargs.get("topic", "TOPIC")
+        return Topic.objects.create(topic=topic)
+

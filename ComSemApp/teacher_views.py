@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
@@ -92,41 +93,16 @@ class TeachesCourseMixin(TeacherViewMixin):
         return super(TeachesCourseMixin, self).dispatch(request, args, kwargs)
 
 
+class CourseDetailView(TeachesCourseMixin, DetailView):
+    context_object_name = 'course'
+    template_name = "ComSemApp/teacher/course.html"
 
-@login_required
-@user_passes_test(is_teacher)
-@teaches_course
-def course(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
-    worksheets = Worksheet.objects.filter(course=course)
-
-    template = loader.get_template('ComSemApp/teacher/course.html')
-    context = {
-        'course': course,
-        'worksheets': worksheets,
-    }
-    return HttpResponse(template.render(context, request))
-
-
-@login_required
-@user_passes_test(is_teacher)
-@teaches_course_ajax
-def delete_worksheet(request):
-    worksheet_id = request.POST.get('worksheet_id', None)
-    worksheet = get_object_or_404(Worksheet, id=worksheet_id)
-    worksheet.delete()
-    return HttpResponse(status=204)
+    def get_object(self):
+        return get_object_or_404(Course, id=self.course_id)
 
 
 
-@login_required
-@user_passes_test(is_teacher)
-@teaches_course_ajax
-def release_worksheet(request):
-    worksheet_id = request.POST.get('worksheet_id', None)
-    worksheet = get_object_or_404(Worksheet, id=worksheet_id)
-    worksheet.release()
-    return HttpResponse(status=204)
+
 
 
 @login_required
@@ -169,6 +145,28 @@ def worksheet(request, course_id, worksheet_id):
 
 
     return HttpResponse(template.render(context, request))
+
+
+
+@login_required
+@user_passes_test(is_teacher)
+@teaches_course_ajax
+def delete_worksheet(request):
+    worksheet_id = request.POST.get('worksheet_id', None)
+    worksheet = get_object_or_404(Worksheet, id=worksheet_id)
+    worksheet.delete()
+    return HttpResponse(status=204)
+
+
+
+@login_required
+@user_passes_test(is_teacher)
+@teaches_course_ajax
+def release_worksheet(request):
+    worksheet_id = request.POST.get('worksheet_id', None)
+    worksheet = get_object_or_404(Worksheet, id=worksheet_id)
+    worksheet.release()
+    return HttpResponse(status=204)
 
 
 

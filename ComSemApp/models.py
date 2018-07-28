@@ -144,9 +144,10 @@ class SessionType(models.Model):
 class Worksheet(models.Model):
     # TODO realeased -> status [pending, created, released]
     date = models.DateTimeField(auto_now_add=True)
-    course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='worksheets')
     topic = models.ForeignKey('Topic', on_delete=models.PROTECT)
     released = models.BooleanField(default=False)
+    # status = models.CharField()
     display_original = models.BooleanField(default=True)
     display_reformulation_text = models.BooleanField(default=True)
     display_reformulation_audio = models.BooleanField(default=True)

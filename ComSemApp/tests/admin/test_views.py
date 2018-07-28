@@ -13,6 +13,7 @@ class TestCredentials(BaseTestCase):
     loggin_url = reverse("login")
 
     def setUp(self):
+        super(TestCredentials, self).setUp()
         self.password = "password123"
         self.admin = self.db_create_admin(password=self.password)
         self.teacher = self.db_create_teacher(password=self.password)

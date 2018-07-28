@@ -12,6 +12,7 @@ class TestCredentials(BaseTestCase):
     loggin_url = reverse("login")
 
     def setUp(self):
+        super(TestCredentials, self).setUp()
         self.password = "password123"
         self.teacher = self.db_create_teacher(password=self.password)
         self.student = self.db_create_student(password=self.password)
@@ -30,3 +31,32 @@ class TestCredentials(BaseTestCase):
         self.client.login(username=self.teacher.user.username, password=self.password)
         response = self.client.get(self.teacher_home_url)
         self.assertEqual(response.status_code, 200)
+
+
+class TestTeacherMixin(BaseTestCase):
+
+    def setUp(self):
+        super(TestTeacherMixin, self).setUp()
+        self.password = "password123"
+        self.teacher = self.db_create_teacher(password=self.password)
+        self.client.login(username=self.teacher.user.username, password=self.password)
+
+        self.course = self.db_create_course()
+        self.course.teachers.add(self.teacher)
+
+
+class TestCourseListView(TestTeacherMixin):
+
+    def test_success(self):
+        response = self.client.get(reverse("teacher"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['courses'].first(), self.course)
+
+
+class TestCourseDetailView(TestTeacherMixin):
+
+    def test_success(self):
+        response = self.client.get(reverse("teacher"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['course'], self.course)
+

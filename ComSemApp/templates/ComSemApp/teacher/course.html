@@ -68,7 +68,7 @@
 
 				<div class="panel-body mt-3">
 
-					{% if worksheets %}
+					{% if course.worksheets %}
 					<table class="table table-hover tablesorter">
 						<thead>
 							<tr>
@@ -80,7 +80,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							{% for worksheet in worksheets %}
+							{% for worksheet in course.worksheets.all %}
 							<tr worksheet_id="{{ worksheet.id }}">
 								<td>{{ forloop.counter }}</td>
 								<td>{{ worksheet.date }}</td>
