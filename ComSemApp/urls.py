@@ -45,6 +45,16 @@ urlpatterns = [
     # TEACHER
     url(r'^teacher/$', teacher_views.CourseListView.as_view(), name='teacher'),
     url(r'^teacher/course/(?P<course_id>[0-9]+)/$', teacher_views.CourseDetailView.as_view(), name='teacher_course'),
+    url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/create/$', teacher_views.WorksheetCreateView.as_view(), name='teacher_worksheet_create'),
+    url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/update/$', teacher_views.WorksheetUpdateView.as_view(), name='teacher_worksheet_update'),
+    url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/expressions/$', teacher_views.ExpressionListView.as_view(), name='teacher_expressions'),
+    url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/expression/create/$', teacher_views.ExpressionCreateView.as_view(), name='teacher_expression_create'),
+    url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/expression/(?P<expression_id>[0-9]+)/update/$', teacher_views.ExpressionUpdateView.as_view(), name='teacher_expression_update'),
+    url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/expression/(?P<expression_id>[0-9]+)/delete/$', teacher_views.ExpressionDeleteView.as_view(), name='teacher_expression_delete'),
+
+
+
+
     url(r'^teacher/course/([0-9]+)/worksheet/([0-9]+)/$', teacher_views.worksheet, name='teacher_worksheet'),
     url(r'^teacher/course/([0-9]+)/worksheet/([0-9]+)/submission/([0-9]+)/$', teacher_views.submission, name='teacher_submission'),
 

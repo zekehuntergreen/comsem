@@ -1,0 +1,64 @@
+<table class='table table-hover'>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>All-Do</th>
+            <th>Student</th>
+            <th>Expression</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody name='expressionTable'>
+        {% for expression in expressions %}
+        <tr expressionID='{{ expression.id }}'>
+            <td>{{ forloop.counter }}</td>
+            <td>
+                {% if expression.all_do %}
+                <i class='fa fa-check'></i>
+                {% endif %}
+            </td>
+            <td>
+                {% if expression.student %}
+                {{ expression.student }}
+                {% else %}
+                anon.
+                {% endif %}
+            </td>
+            <td>
+                {{ expression.expression }}
+            </td>
+            <td>
+                <button class='btn btn-sm btn-outline-primary editExpression' url="{% url 'teacher_expression_update' course_id=course.id worksheet_id=worksheet.id expression_id=expression.id %}">
+                    <i class='fa fa-pencil-square-o'></i>
+                </button>
+                <button class='btn btn-sm btn-outline-danger deleteExpression' url="{% url 'teacher_expression_delete' course_id=course.id worksheet_id=worksheet.id expression_id=expression.id %}">
+                    <i class='fa fa-trash-o'></i>
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    $(function(){
+        // bind edit and delete buttons to their functions
+        $('.editExpression').on('click', function(e){
+            $('#expressionsTableContainer tr').removeClass('cs-active');
+            $(this).parents('tr').addClass('cs-active');
+            populateEditor($(this).attr('url'));
+        });
+
+        $('.deleteExpression').on('click', function(e){
+            var delete_url = $(this).attr('url')
+            delete_expression = function(){
+                $.post(delete_url, function(){
+                    cs_notification('success', "Expression Deleted")
+                    drawExpressionsTable();
+                })
+            }
+            cs_confirm("Delete Course Type", "Are you sure you'd like to delete this expression?", "error", "Delete", delete_expression)
+        });
+    })
+
+</script>

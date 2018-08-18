@@ -60,7 +60,7 @@
 						<h4 class="m-t-0 header-title"><b>Worksheets</b></h4>
 					</div>
 					<div class="col-6">
-						{% url 'teacher_worksheet' course.id 0 as new_worksheet %}
+						{% url 'teacher_worksheet_create' course_id=course.id as new_worksheet %}
 						<a href="{{ new_worksheet }}" class="btn btn-sm btn-outline-info float-right"><i class="fa fa-plus"></i></a>
 					</div>
 
@@ -68,7 +68,7 @@
 
 				<div class="panel-body mt-3">
 
-					{% if course.worksheets %}
+					{% if worksheets %}
 					<table class="table table-hover tablesorter">
 						<thead>
 							<tr>
@@ -80,7 +80,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							{% for worksheet in course.worksheets.all %}
+							{% for worksheet in worksheets %}
 							<tr worksheet_id="{{ worksheet.id }}">
 								<td>{{ forloop.counter }}</td>
 								<td>{{ worksheet.date }}</td>
@@ -95,7 +95,7 @@
 										</div>
 									{% else %}
 										<div class="row">
-											<a href="{% url 'teacher_worksheet' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
+											<a href="{% url 'teacher_worksheet_update' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
 
 											<button type='button' name='' class='btn btn-sm btn-outline-success release_worksheet_button' style="margin-left: 10px;">Release</button>
 

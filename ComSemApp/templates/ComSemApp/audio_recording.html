@@ -44,9 +44,19 @@
 		<div class="float-right">
 			<div id="recordingslist" style="display: inline-block"></div>
 
-			<button type="button" id="deleteRecordingButton" class="btn btn-sm btn-outline-danger csRecorderButton" disabled>
+			<button type="button" id="deleteRecordingButton" class="btn btn-sm btn-outline-danger csRecorderButton" style="display:none">
 				<i class="ti-trash"></i>
 			</button>
+
+			{% if object.reformulation_audio %}
+			<script>
+				$(function(){
+					audioURL = calculateAudioURL( {'expressionID': "{{ object.id }}"} )
+					$('#recordingslist').html("<audio controls id='audioElement' src='" + audioURL + "' type='audio/mpeg'></audio>");
+					$('#deleteRecordingButton').show();
+				})
+			</script>
+			{% endif %}
 		</div>
 
 	</div>

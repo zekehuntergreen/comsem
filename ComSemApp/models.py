@@ -6,6 +6,8 @@ from django.utils import timezone
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 
+from ComSemApp import teacher_constants
+
 from .utils import pos_tag
 
 states = ['AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY',
@@ -95,6 +97,9 @@ class Course(models.Model):
         active = self.is_active()
         return "active" if active else "inactive"
 
+    def get_visible_worksheets(self):
+        return self.worksheets.exclude(status=teacher_constants.WORKSHEET_STATUS_PENDING)
+
     class Meta:
         ordering = ('-session__start_date',)
 
@@ -141,17 +146,25 @@ class SessionType(models.Model):
 
 # WORKSHEETS, EXPRESSIONS, WORDS, SEQUENTIAL WORDS
 
+class WorksheetManager(models.Manager):
+
+    def get_or_create_pending(self, teacher, course):
+        return Worksheet.objects.get_or_create(created_by=teacher,
+                course=course, status=teacher_constants.WORKSHEET_STATUS_PENDING)
+
 class Worksheet(models.Model):
-    # TODO realeased -> status [pending, created, released]
     date = models.DateTimeField(auto_now_add=True)
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='worksheets')
-    topic = models.ForeignKey('Topic', on_delete=models.PROTECT)
-    released = models.BooleanField(default=False)
-    # status = models.CharField()
+    created_by = models.ForeignKey('Teacher', null=True, on_delete=models.SET_NULL)
+    topic = models.CharField(max_length=255, blank=True, null=True)
+    status = models.CharField(max_length=10,
+        choices=teacher_constants.WORKSHEET_STATUS_CHOICES, default=teacher_constants.WORKSHEET_STATUS_PENDING)
     display_original = models.BooleanField(default=True)
     display_reformulation_text = models.BooleanField(default=True)
     display_reformulation_audio = models.BooleanField(default=True)
     display_all_expressions = models.BooleanField(default=False)
+
+    objects = WorksheetManager()
 
     def __str__(self):
         return str(self.id)
@@ -164,7 +177,7 @@ class Worksheet(models.Model):
                 return index + 1
 
     def release(self):
-        self.released = True
+        self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
         self.save()
         for expression in self.expressions.all():
             pos_tag(expression)
@@ -198,13 +211,6 @@ class SequentialWords(models.Model):
 
     class Meta:
         verbose_name_plural = "Sequential Words"
-
-
-class Topic(models.Model):
-    topic = models.CharField(max_length=255, unique=True)
-
-    def __str__(self):
-        return self.topic
 
 
 

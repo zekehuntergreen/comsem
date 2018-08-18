@@ -1,0 +1,156 @@
+{% load static %}
+
+<!-- recordmp3 needed by ComSemRecording -->
+<script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
+<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
+
+<div class="control-group controls" id="ExpressionEditor" style="display: none">
+
+    <input hidden type="text" id="create_or_update_url">
+
+    <div class="form-group row">
+        <div class="col-8">
+
+            <h4 class="text-muted m-b-10 font-14">
+                {% if object %}
+                    Edit Expression
+                {% else %}
+                    New Expression
+                {% endif %}
+            </h4>
+
+        </div>
+        <div class="col-4">
+            <div class="checkbox checkbox-primary">
+                <input type="checkbox" id="all_do" name="all_do" {% if object.all_do %}checked{% endif %}>
+                <label for="all_do">
+                    All Do
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="form-group">
+                <label for="selectstudent">Student: </label>
+                <select class="form-control" name="studentID" id="studentID">
+                    <option selected="selected" value="0">Anonymous</option>
+                    {% for student in course.students.all %}
+                    <option value='{{ student.id }}' {% if student == object.student %}selected{% endif %}>{{ student }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="form-group">
+                <label for="expression">Expression:</label>
+                <input autocomplete="off" type="text" value="{{ object.expression }}" class="form-control" id="expression" name="expression">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="form-group">
+                <label for="contextVocabulary">Context/Vocab: </label>
+                <input autocomplete="off" id="contextVocabulary" name="contextVocabulary" value="{{ object.context_vocabulary|default_if_none:'' }}" type="text" class="form-control">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="form-group">
+                <label for="pronunciation">Pronunciation:</label>
+                <input autocomplete="off" type="text" value="{{ object.pronunciation|default_if_none:'' }}" class="form-control" id="pronunciation" name="pronunciation">
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="display_reformulation_textRow">
+        <div class="col-12">
+            <div class="form-group">
+                <label for="expression">Reformulation:</label>
+                <input autocomplete="off" type="text" value="{{ object.reformulation_text|default_if_none:'' }}" class="form-control" id="reformulation" name="reformulation">
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="display_reformulation_audioRow">
+        {% include 'ComSemApp/audio_recording.html' %}
+    </div>
+
+    <br />
+    <div class="row">
+        <div class="col-12 text-center">
+            <div class="btn-group" role="group">
+                <button type="button" id="saveExpression"  name="SaveExpression" class="btn btn-outline-success">Save Expression</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+$("#saveExpression").click(function(e){
+    e.preventDefault()
+
+    if( $("#expression").val().trim() == "" ){
+        // must have a valid expression
+        alert("Please enter an expression")
+        return;
+    }
+
+    var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? 1 : 0
+
+    // because of audio, we must send a formdata object
+    var worksheetFormData = new FormData();
+    student_id = $("#studentID").val()
+    if (student_id != "0"){
+        worksheetFormData.append( 'student', student_id );
+    }
+    worksheetFormData.append( 'expression', $("#expression").val() );
+    worksheetFormData.append( 'all_do', $("#all_do").prop("checked") );
+    worksheetFormData.append( 'context_vocabulary', $("#contextVocabulary").val() );
+    worksheetFormData.append( 'reformulation_text', $("#reformulation").val() );
+    worksheetFormData.append( 'pronunciation', $("#pronunciation").val() );
+
+    var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? true : false
+    worksheetFormData.append( 'reformulation_audio',  reformulation_audio)
+    if (reformulation_audio){
+        worksheetFormData.append( 'audio_file', audioReformulationBlob )
+    }
+
+    inspectFormData(worksheetFormData)
+
+    $.ajax({
+        type: "POST",
+        url: $("#create_or_update_url").val(),
+        data: worksheetFormData,
+        processData: false,
+        contentType: false,
+        success: function(response){
+            cs_notification('success', "Expression Saved")
+            // update expressions table
+            drawExpressionsTable();
+        },
+        error: function(jqXHR, textStatus, errorThrown){
+            cs_ajax_error(jqXHR, textStatus, errorThrown)
+        },
+    });
+
+
+
+    // clear editor
+    $("#ExpressionEditor").slideUp();
+
+});
+
+</script>

@@ -2,6 +2,7 @@ import uuid
 
 from django.utils import timezone
 from django.contrib.auth.models import User
+from ComSemApp.teacher_constants import WORKSHEET_STATUS_UNRELEASED
 
 from ComSemApp.models import *
 
@@ -112,14 +113,10 @@ class Factory:
         if not course:
             course = self.db_create_course()
 
-        topic = kwargs.get("topic")
-        if not topic:
-            topic = self.db_create_topic()
-
         defaults = {
             "course": course,
-            "topic": topic,
-            "released": True,
+            "topic": "TOPIC",
+            "status": WORKSHEET_STATUS_UNRELEASED,
             "display_original": True,
             "display_reformulation_text": True,
             "display_reformulation_audio": True,
@@ -127,7 +124,25 @@ class Factory:
         }
         return Worksheet.objects.create(**defaults)
 
-    def db_create_topic(self, **kwargs):
-        topic = kwargs.get("topic", "TOPIC")
-        return Topic.objects.create(topic=topic)
+    def db_create_expression(self, **kwargs):
+        worksheet = kwargs.get("worksheet")
+        if not worksheet:
+            worksheet = self.db_create_worksheet()
+
+        student = kwargs.get("student")
+        if not student:
+            student = self.db_create_student()
+
+        defaults = {
+            "worksheet": worksheet,
+            "expression": "Le silence vertébral indispose la voile licite.",
+            "student": student,
+            "all_do": True,
+            "pronunciation": "P",
+            "context_vocabulary": "C",
+            "reformulation_text": "R",
+            "reformulation_audio": False,
+        }
+        return Expression.objects.create(**defaults)
+
 
