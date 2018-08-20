@@ -176,6 +176,11 @@ class Worksheet(models.Model):
             if worksheet == self:
                 return index + 1
 
+    @property
+    def released(self):
+        return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
+
+
     def release(self):
         self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
         self.save()
@@ -221,7 +226,7 @@ class SequentialWords(models.Model):
 class StudentSubmission(models.Model):
     # enrollment = models.ForeignKey('Enrollment', on_delete=models.SET_NULL, null=True) # the student who made the attempt
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
-    worksheet = models.ForeignKey('Worksheet', on_delete=models.CASCADE)
+    worksheet = models.ForeignKey('Worksheet', related_name="submissions", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=255, choices=STUDENT_SUBMISSION_STATUSES, default='ungraded')
 

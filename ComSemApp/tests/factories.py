@@ -145,4 +145,38 @@ class Factory:
         }
         return Expression.objects.create(**defaults)
 
+    def db_create_submission(self, **kwargs):
+        worksheet = kwargs.get("worksheet")
+        if not worksheet:
+            worksheet = self.db_create_worksheet()
+
+        student = kwargs.get("student")
+        if not student:
+            student = self.db_create_student()
+
+        defaults = {
+            "worksheet": worksheet,
+            "student": student,
+        }
+        return StudentSubmission.objects.create(**defaults)
+
+
+    def db_create_attempt(self, **kwargs):
+        expression = kwargs.get("expression")
+        if not expression:
+            expression = self.db_create_expression()
+
+        submission = kwargs.get("submission")
+        if not submission:
+            submission = self.db_create_submission()
+
+        defaults = {
+            "expression": expression,
+            "student_submission": submission,
+            "reformulation_text": "reformulation_text",
+            "reformulation_audio": False,
+            "correct": None,
+        }
+        return StudentAttempt.objects.create(**defaults)
+
 

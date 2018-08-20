@@ -1,0 +1,45 @@
+{% if worksheets %}
+<table class="table table-hover tablesorter">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Topic</th>
+            <th>Status</th>
+            <th data-filter="false" data-sorter="false"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for worksheet in worksheets %}
+        <tr worksheet_id="{{ worksheet.id }}"
+            release_url="{% url 'teacher_worksheet_release' course_id=course.id worksheet_id=worksheet.id %}"
+            delete_url="{% url 'teacher_worksheet_delete' course_id=course.id worksheet_id=worksheet.id %}">
+            <td>{{ forloop.counter }}</td>
+            <td>{{ worksheet.date }}</td>
+            <td>{{ worksheet.topic }}</td>
+            <td>
+                <span class='badge badge-{% if worksheet.released %}success{% else %}warning{% endif %}'>{% if worksheet.released %}Released{% else %}Unreleased{% endif %}</span>
+            </td>
+            <td>
+                {% if worksheet.released %}
+                    <div class="row">
+                        <a href="{% url 'teacher_worksheet_detail' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Review</a>
+                    </div>
+                {% else %}
+                    <div class="row">
+                        <a href="{% url 'teacher_worksheet_update' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
+
+                        <button type='button' name='' class='btn btn-sm btn-outline-success release_worksheet_button' style="margin-left: 10px;">Release</button>
+
+                        <button type="button" class='btn btn-sm btn-outline-danger delete_worksheet_button' style="margin-left: 10px;">Delete</button>
+                    </div>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    {% include 'ComSemApp/tablesorter_footer.html'%}
+</table>
+{% else %}
+    <p>No worksheets have been created yet. <a href="{{ new_worksheet }}">Click here</a> to create one.</p>
+{% endif %}

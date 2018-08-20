@@ -80,6 +80,20 @@ class TestCourseDetailView(TestTeacherMixin):
         self.assertEqual(response.context['course'], course)
 
 
+class TestWorksheetListView(TestTeacherMixin):
+
+    def setUp(self):
+        super(TestWorksheetListView, self).setUp()
+        self.course = self.db_create_course()
+        self.course.teachers.add(self.teacher)
+        self.worksheet = self.db_create_worksheet(course=self.course)
+
+    def test_get_success(self):
+        response = self.client.get(reverse("teacher_worksheet_list", kwargs={'course_id': self.course.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['worksheets'].first(), self.worksheet)
+
+
 class TestWorksheetCreateView(TestTeacherMixin):
 
     def setUp(self):
@@ -158,7 +172,7 @@ class TestWorksheetViewMixin(TestTeacherMixin):
 class TestWorksheetUpdateView(TestTeacherMixin):
 
     def setUp(self):
-        super(WorksheetUpdateView, self).setUp()
+        super(TestWorksheetUpdateView, self).setUp()
         self.course = self.db_create_course()
         self.course.teachers.add(self.teacher)
         self.worksheet = self.db_create_worksheet(course=self.course)
@@ -190,10 +204,42 @@ class TestWorksheetUpdateView(TestTeacherMixin):
         self.assertEqual(worksheet.display_all_expressions, False)
 
 
+class TestWorksheetReleaseView(TestTeacherMixin):
+
+    def setUp(self):
+        super(TestWorksheetReleaseView, self).setUp()
+        self.course = self.db_create_course()
+        self.course.teachers.add(self.teacher)
+        self.worksheet = self.db_create_worksheet(course=self.course)
+
+    def test_post_success(self):
+        self.assertEqual(self.worksheet.status, WORKSHEET_STATUS_UNRELEASED)
+        response = self.client.post(reverse("teacher_worksheet_release",
+                kwargs={'course_id': self.course.id, 'worksheet_id': self.worksheet.id}))
+        self.assertEqual(response.status_code, 204)
+        self.worksheet.refresh_from_db()
+        self.assertEqual(self.worksheet.status, WORKSHEET_STATUS_RELEASED)
+
+
+class TestWorksheetDeleteView(TestTeacherMixin):
+
+    def setUp(self):
+        super(TestWorksheetDeleteView, self).setUp()
+        self.course = self.db_create_course()
+        self.course.teachers.add(self.teacher)
+        self.worksheet = self.db_create_worksheet(course=self.course)
+
+    def test_post_success(self):
+        response = self.client.post(reverse("teacher_worksheet_delete",
+                kwargs={'course_id': self.course.id, 'worksheet_id': self.worksheet.id}))
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(Worksheet.objects.count(), 0)
+
+
 class TestExpressionListView(TestTeacherMixin):
 
     def setUp(self):
-        super(ExpressionListView, self).setUp()
+        super(TestExpressionListView, self).setUp()
         self.course = self.db_create_course()
         self.course.teachers.add(self.teacher)
         self.worksheet = self.db_create_worksheet(course=self.course)
@@ -283,6 +329,7 @@ class TestExpressionUpdateView(TestTeacherMixin):
         self.assertEqual(expression.reformulation_text, "R")
         self.assertEqual(expression.reformulation_audio, False)
 
+
 class TestExpressionDeleteView(TestTeacherMixin):
 
     def setUp(self):
@@ -299,5 +346,50 @@ class TestExpressionDeleteView(TestTeacherMixin):
         self.assertEqual(response.status_code, 204)
         self.assertEqual(Expression.objects.all().count(), 0)
 
+
+class TestSubmissionView(TestTeacherMixin):
+
+    def setUp(self):
+        super(TestSubmissionView, self).setUp()
+        self.course = self.db_create_course()
+        self.course.teachers.add(self.teacher)
+        self.worksheet = self.db_create_worksheet(course=self.course)
+        self.expression_1 = self.db_create_expression(worksheet=self.worksheet)
+        self.expression_2 = self.db_create_expression(worksheet=self.worksheet)
+        self.submission = self.db_create_submission(worksheet=self.worksheet)
+        self.attempt_1 = self.db_create_attempt(submission=self.submission, expression=self.expression_1)
+        self.attempt_2 = self.db_create_attempt(submission=self.submission, expression=self.expression_2)
+
+    def test_get_success(self):
+        response = self.client.get(reverse("teacher_submission",
+            kwargs={'course_id': self.course.id, 'worksheet_id': self.worksheet.id, 'submission_id': self.submission.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['submission'], self.submission)
+
+    def test_post_success(self):
+        self.assertEqual(self.submission.status, "ungraded")
+        # mark incomplete
+        post_data = {
+            self.attempt_1.id: "1",
+            self.attempt_2.id: "0",
+        }
+        response = self.client.post(reverse("teacher_submission",
+                kwargs={'course_id': self.course.id, 'worksheet_id': self.worksheet.id, 'submission_id': self.submission.id}), data=post_data)
+        self.assertRedirects(response, reverse("teacher_worksheet_detail",
+                kwargs={'course_id': self.course.id, 'worksheet_id': self.worksheet.id}))
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, "incomplete")
+
+        # mark complete
+        post_data = {
+            self.attempt_1.id: "1",
+            self.attempt_2.id: "1",
+        }
+        response = self.client.post(reverse("teacher_submission",
+                kwargs={'course_id': self.course.id, 'worksheet_id': self.worksheet.id, 'submission_id': self.submission.id}), data=post_data)
+        self.assertRedirects(response, reverse("teacher_worksheet_detail",
+                kwargs={'course_id': self.course.id, 'worksheet_id': self.worksheet.id}))
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, "complete")
 
 

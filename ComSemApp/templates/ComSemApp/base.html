@@ -95,8 +95,7 @@
 		}
 
 		// TABLESORTER
-		$(function(){
-
+		function initialize_tablesorter(){
 			// make tablesorter footer the right size
 			$('.tablesorter').each(function(){
 				num_cols = $(this).find('thead tr').children().length;
@@ -137,7 +136,10 @@
 				output: '{startRow} - {endRow} / {filteredRows} ({totalRows})'
 
 			})
+		}
 
+		$(function(){
+			initialize_tablesorter()
 		})
 
 	</script>

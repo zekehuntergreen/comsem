@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import View
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
@@ -156,13 +157,25 @@ class CourseDetailView(CourseViewMixin, DetailView):
     context_object_name = 'course'
     template_name = "ComSemApp/teacher/course.html"
 
-    def get_context_data(self, **kwargs):
-        context = super(CourseDetailView, self).get_context_data(**kwargs)
-        context['worksheets'] = self.course.get_visible_worksheets
-        return context
-
     def get_object(self):
         return self.course
+
+
+class WorksheetListView(CourseViewMixin, ListView):
+    model = Worksheet
+    template_name = 'ComSemApp/teacher/worksheet_list.html'
+    context_object_name = 'worksheets'
+
+    def get_queryset(self):
+        return self.course.get_visible_worksheets()
+
+
+class WorksheetDetailView(WorksheetViewMixin, DetailView):
+    template_name = 'ComSemApp/teacher/view_worksheet.html'
+    context_object_name = 'worksheet'
+
+    def get_object(self):
+        return self.worksheet
 
 
 class WorksheetCreateView(CourseViewMixin, UpdateView):
@@ -196,6 +209,30 @@ class WorksheetUpdateView(WorksheetViewMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("teacher_course", kwargs={'course_id': self.course.id })
+
+
+class WorksheetReleaseView(WorksheetViewMixin, View):
+    model = Worksheet
+
+    def get_object(self):
+        return get_object_or_404(Worksheet, id=self.worksheet.id)
+
+    def post(self, *args, **kwargs):
+        worksheet = self.get_object()
+        worksheet.release()
+        return HttpResponse(status=204)
+
+
+class WorksheetDeleteView(WorksheetViewMixin, DeleteView):
+    model = Worksheet
+
+    def get_object(self):
+        return get_object_or_404(Worksheet, id=self.worksheet.id, status=teacher_constants.WORKSHEET_STATUS_UNRELEASED)
+
+    def post(self, *args, **kwargs):
+        worksheet = self.get_object()
+        worksheet.delete()
+        return HttpResponse(status=204)
 
 
 class ExpressionListView(WorksheetViewMixin, ListView):
@@ -291,177 +328,22 @@ class ExpressionDeleteView(WorksheetViewMixin, DeleteView):
         return HttpResponse(status=204)
 
 
-@login_required
-@user_passes_test(is_teacher)
-@teaches_course
-def worksheet(request, course_id, worksheet_id):
-    # the worksheet is unreleased and we are editing it or it is released and we are reviewing submissions
+class SubmissionView(WorksheetViewMixin, DetailView):
+    template_name = "ComSemApp/teacher/view_submission.html"
+    context_object_name = "submission"
 
-    course = get_object_or_404(Course, id=course_id)
+    def get_object(self):
+        submission_id = self.kwargs.get('submission_id', None)
+        return get_object_or_404(StudentSubmission, id=submission_id, worksheet=self.worksheet)
 
-    context = {
-        'course': course,
-    }
-
-    # if this is NOT a new worksheet
-    template = loader.get_template('ComSemApp/teacher/edit_worksheet.html')
-
-    if worksheet_id != '0':
-
-        worksheet = get_object_or_404(Worksheet, id=worksheet_id)
-        context['worksheet'] = worksheet
-
-        # get related expression information and serialize it
-        expression_queryset = Expression.objects.filter(worksheet=worksheet).prefetch_related('student')
-
-
-        if not course.id != course_id:
-            return HttpResponse("Invalid course ID")
-
-        if worksheet.released == True:
-            context['expressions'] = expression_queryset
-            context['submissions'] = StudentSubmission.objects.filter(worksheet=worksheet)
-            template = loader.get_template('ComSemApp/teacher/view_worksheet.html')
-
-        else:
-            expressions_json = jsonify_expressions(expression_queryset)
-            context['expressions'] = expressions_json
-
-            template = loader.get_template('ComSemApp/teacher/edit_worksheet.html')
-
-
-    return HttpResponse(template.render(context, request))
-
-
-
-@login_required
-@user_passes_test(is_teacher)
-@teaches_course_ajax
-def delete_worksheet(request):
-    worksheet_id = request.POST.get('worksheet_id', None)
-    worksheet = get_object_or_404(Worksheet, id=worksheet_id)
-    worksheet.delete()
-    return HttpResponse(status=204)
-
-
-
-@login_required
-@user_passes_test(is_teacher)
-@teaches_course_ajax
-def release_worksheet(request):
-    worksheet_id = request.POST.get('worksheet_id', None)
-    worksheet = get_object_or_404(Worksheet, id=worksheet_id)
-    worksheet.release()
-    return HttpResponse(status=204)
-
-
-
-@login_required
-@user_passes_test(is_teacher)
-@teaches_course_ajax
-def save_worksheet(request):
-
-    # get form data
-    course_id = request.POST.get('course_id', None)
-    worksheet_id = request.POST.get('worksheet_id', None)
-    topic = request.POST.get('topic', None)
-    display_original = request.POST.get('display_original', None) == 'true'
-    display_reformulation_text = request.POST.get('display_reformulation_text', None) == 'true'
-    display_reformulation_audio = request.POST.get('display_reformulation_audio', None) == 'true'
-    display_all_expressions = request.POST.get('display_all_expressions', None) == 'true'
-    expressions = json.loads(request.POST.get('expressions', None))
-
-    course = Course.objects.get(id=course_id)
-
-    # topic could be in db already - get or create
-    topic_obj, created = Topic.objects.get_or_create(topic=topic)
-
-    values = {
-        'course': course,
-        'topic': topic_obj,
-        'released': False,
-        'display_original': display_original,
-        'display_reformulation_text': display_reformulation_text,
-        'display_reformulation_audio': display_reformulation_audio,
-        'display_all_expressions': display_all_expressions,
-    }
-
-    worksheet = {}
-    if worksheet_id > '0':
-        Worksheet.objects.filter(id=worksheet_id).update(**values)
-        worksheet = Worksheet.objects.get(id=worksheet_id)
-    else:
-        worksheet = Worksheet.objects.create(**values)
-
-
-    # deal with expressions
-    for i in range(len(expressions)):
-        expression = expressions[i]
-
-        student = None
-        if expression['student_id']:
-            student = get_object_or_404(Student,id=expression['student_id']) # if they passed a student id, then it must be valid
-
-            ## is student in course???
-
-
-        # deal with audio reformulation - has the audio been uploaded?
-        ra_key = 'audio_ref_' + str(i);
-        # either there is an old audio reformulation already saved, or we are saving a new one.
-        uploading_ra = request.FILES.get(ra_key, None)
-        ra_is_there = True if expression['reformulation_audio'] else True if uploading_ra else False
-        values = {
-            'worksheet': worksheet,
-            'expression': expression['expression'],
-            'student': student,
-            'all_do': expression['all_do'],
-            'context_vocabulary': expression['context_vocabulary'],
-            'pronunciation': expression['pronunciation'],
-            'reformulation_text': expression['reformulation_text'],
-            'reformulation_audio': ra_is_there,
-        }
-
-
-        expression_id = expression['id']
-        expression_obj = {}
-
-        # new expression
-        if expression_id == '0':
-            expression_obj = Expression.objects.create(**values)
-            expression_id = expression_obj.id
-
-        # edit expression
-        else:
-            if 'to_delete' in expression:
-                Expression.objects.get(id=expression_id).delete()
-            else:
-                Expression.objects.filter(id=expression_id).update(**values)
-
-        # save the audio reformulation
-        if uploading_ra:
-            handle_uploaded_file(uploading_ra, "ExpressionReformulations", int(expression_id))
-
-
-    return HttpResponse(status=204)
-
-
-@login_required
-@user_passes_test(is_teacher)
-@teaches_course
-def submission(request, course_id, worksheet_id, submission_id):
-
-    course = get_object_or_404(Course, id=course_id)
-    worksheet = get_object_or_404(Worksheet, id=worksheet_id)
-    submission = get_object_or_404(StudentSubmission, id=submission_id)
-
-    # user completed assessment form
-    if request.method == 'POST':
+    def post(self, *args, **kwargs):
+        submission = self.get_object()
         attempts = submission.studentattempt_set.all()
 
         all_correct = True
         # status of each attempt
         for attempt in attempts:
-            correct = request.POST.get(str(attempt.id), None) == '1'
+            correct = self.request.POST.get(str(attempt.id), None) == '1'
             attempt.correct = correct
             attempt.save()
 
@@ -469,6 +351,7 @@ def submission(request, course_id, worksheet_id, submission_id):
                 all_correct = False
 
         # handle status of the submission
+        # TODO - use constants
         if all_correct:
             submission.status = 'complete'
         else:
@@ -476,23 +359,11 @@ def submission(request, course_id, worksheet_id, submission_id):
 
         submission.save()
 
-        messages.error(request, 'Assessment saved ', 'success')
-        return redirect('teacher_worksheet', course_id, worksheet_id)
-
-    # displaying submission
-    else:
+        messages.success(self.request, 'Assessment saved ', 'success')
+        return redirect('teacher_worksheet_detail', self.course.id, self.worksheet.id)
 
 
-        context = {
-            'course': course,
-            'worksheet': worksheet,
-            'submission': submission,
-        }
-
-        template = loader.get_template('ComSemApp/teacher/view_submission.html')
-        return HttpResponse(template.render(context, request))
-
-
+# TODO - delete
 def jsonify_expressions(expression_queryset):
     expressions = list(expression_queryset.values())
 

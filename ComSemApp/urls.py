@@ -46,28 +46,23 @@ urlpatterns = [
     url(r'^teacher/$', teacher_views.CourseListView.as_view(), name='teacher'),
     url(r'^teacher/course/(?P<course_id>[0-9]+)/$', teacher_views.CourseDetailView.as_view(), name='teacher_course'),
     url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/create/$', teacher_views.WorksheetCreateView.as_view(), name='teacher_worksheet_create'),
+    url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/list/$', teacher_views.WorksheetListView.as_view(), name='teacher_worksheet_list'),
+    url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/$', teacher_views.WorksheetDetailView.as_view(), name='teacher_worksheet_detail'),
     url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/update/$', teacher_views.WorksheetUpdateView.as_view(), name='teacher_worksheet_update'),
+    url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/release/$', teacher_views.WorksheetReleaseView.as_view(), name='teacher_worksheet_release'),
+    url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/delete/$', teacher_views.WorksheetDeleteView.as_view(), name='teacher_worksheet_delete'),
     url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/expressions/$', teacher_views.ExpressionListView.as_view(), name='teacher_expressions'),
     url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/expression/create/$', teacher_views.ExpressionCreateView.as_view(), name='teacher_expression_create'),
     url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/expression/(?P<expression_id>[0-9]+)/update/$', teacher_views.ExpressionUpdateView.as_view(), name='teacher_expression_update'),
     url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/expression/(?P<expression_id>[0-9]+)/delete/$', teacher_views.ExpressionDeleteView.as_view(), name='teacher_expression_delete'),
+    url(r'^teacher/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/submission/(?P<submission_id>[0-9]+)/$', teacher_views.SubmissionView.as_view(), name='teacher_submission'),
 
-
-
-
-    url(r'^teacher/course/([0-9]+)/worksheet/([0-9]+)/$', teacher_views.worksheet, name='teacher_worksheet'),
-    url(r'^teacher/course/([0-9]+)/worksheet/([0-9]+)/submission/([0-9]+)/$', teacher_views.submission, name='teacher_submission'),
-
-    url(r'^ajax/save_worksheet/$', teacher_views.save_worksheet, name='save_worksheet'),
-    url(r'^ajax/delete_worksheet/$', teacher_views.delete_worksheet, name='delete_worksheet'),
-    url(r'^ajax/release_worksheet/$', teacher_views.release_worksheet, name='release_worksheet'),
 
 
     # STUDENT
     url(r'^student/$', student_views.student, name='student'),
     url(r'^student/course/([0-9]+)/$', student_views.course, name='student_course'),
     url(r'^student/worksheet/([0-9]+)/$', student_views.worksheet, name='student_worksheet'),
-
     url(r'^ajax/save_submission/$', student_views.save_submission, name='save_submission'),
 
 
