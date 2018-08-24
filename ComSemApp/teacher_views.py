@@ -5,7 +5,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -19,54 +19,18 @@ from django.contrib import messages
 from django.conf import settings
 
 from ComSemApp import teacher_constants
+from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin
 
 import json, math, datetime, os
 from .models import *
 
 
-# DECORATORS
-def is_teacher(user):
-    return Teacher.objects.filter(user=user).exists()
+class TeacherViewMixin(RoleViewMixin):
+    role_class = Teacher
 
-def teaches_course(func):
-    def wrapper(request, *args, **kwargs):
-        valid = Course.objects.filter(teachers=request.user.teacher, id=args[0]).exists()
-        if not valid:
-            messages.error(request, 'Invalid course ID.')
-            return redirect("/teacher/")
-        return func(request, *args, **kwargs)
-    return wrapper
-
-
-def teaches_course_ajax(func):
-    def wrapper(request, *args, **kwargs):
-        course_id = request.POST.get('course_id', None)
-        worksheet_id = request.POST.get('worksheet_id', None)
-
-        # might need to seach for courseid from worksheetid
-        if worksheet_id and int(worksheet_id) > 0:
-            course_id = get_object_or_404(Worksheet, id=worksheet_id).course.id
-
-        valid = Course.objects.filter(teachers=request.user.teacher, id=course_id).exists()
-        if not valid:
-            response = JsonResponse({"error": 'Invalid course ID.'})
-            response.status_code = 403
-            return response
-        return func(request, *args, **kwargs)
-    return wrapper
-
-
-class TeacherViewMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        # is the user a teacher?
-        teacher = Teacher.objects.filter(user=self.request.user)
-        if not teacher.exists():
-            return False
-        else:
-            self.teacher = teacher.first()
-            self.institution = self.teacher.institution
-            return True
+    def _set_role_obj(self):
+        # role_obj self in RoleViewMixin
+        self.teacher = self.role_obj
 
     def _check_valid_course(self, course_id):
         courses = Course.objects.filter(teachers=self.request.user.teacher, id=course_id)
@@ -74,68 +38,17 @@ class TeacherViewMixin(LoginRequiredMixin, UserPassesTestMixin):
             return False
         return courses.first()
 
-    def _handle_invalid_course(self):
-        if self.request.is_ajax():
-            response = JsonResponse({"error": 'Invalid Course ID'})
-            response.status_code = 403
-            return response
-        else:
-            messages.error(self.request, 'Invalid Course ID')
-            return redirect("teacher")
 
-    def _check_valid_worksheet(self, worksheet_id):
-        worksheets = Worksheet.objects.filter(id=worksheet_id, course=self.course)
-        if not worksheets.exists():
-            return False
-        return worksheets.first()
+class TeacherCourseViewMixin(TeacherViewMixin, CourseViewMixin):
 
-    def _handle_invalid_worksheet(self):
-        if self.request.is_ajax():
-            response = JsonResponse({"error": 'Invalid Worksheet ID'})
-            response.status_code = 403
-            return response
-        else:
-            messages.error(self.request, 'Invalid Worksheet ID')
-            return redirect("teacher_course", course_id=self.course.id)
+    def _get_invalid_course_redirect(self):
+        return HttpResponseRedirect(reverse("teacher"))
 
 
-class CourseViewMixin(TeacherViewMixin):
+class TeacherWorksheetViewMixin(TeacherViewMixin, WorksheetViewMixin):
 
-    def dispatch(self, request, *args, **kwargs):
-        # is the user a teacher for this course ?
-        course_id = kwargs.get('course_id', None)
-        self.course = self._check_valid_course(course_id)
-        if not self.course:
-            return self._handle_invalid_course()
-        return super(CourseViewMixin, self).dispatch(request, args, kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(CourseViewMixin, self).get_context_data(**kwargs)
-        context['course'] = self.course
-        return context
-
-
-class WorksheetViewMixin(TeacherViewMixin):
-
-    def dispatch(self, request, *args, **kwargs):
-        # is the user a teacher for this course ?
-        course_id = kwargs.get('course_id', None)
-        self.course = self._check_valid_course(course_id)
-        if not self.course:
-            return self._handle_invalid_course()
-
-        # is the worksheet valid for this course ?
-        worksheet_id = kwargs.get('worksheet_id', None)
-        self.worksheet = self._check_valid_worksheet(worksheet_id)
-        if not self.worksheet:
-            return self._handle_invalid_worksheet()
-        return super(WorksheetViewMixin, self).dispatch(request, args, kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(WorksheetViewMixin, self).get_context_data(**kwargs)
-        context['course'] = self.course
-        context['worksheet'] = self.worksheet
-        return context
+    def _get_invalid_worksheet_redirect(self):
+        return HttpResponseRedirect(reverse("teacher_course", kwargs={"course_id": self.course.id}))
 
 
 class CourseListView(TeacherViewMixin, ListView):
@@ -153,7 +66,7 @@ class CourseListView(TeacherViewMixin, ListView):
         return context
 
 
-class CourseDetailView(CourseViewMixin, DetailView):
+class CourseDetailView(TeacherCourseViewMixin, DetailView):
     context_object_name = 'course'
     template_name = "ComSemApp/teacher/course.html"
 
@@ -161,7 +74,7 @@ class CourseDetailView(CourseViewMixin, DetailView):
         return self.course
 
 
-class WorksheetListView(CourseViewMixin, ListView):
+class WorksheetListView(TeacherCourseViewMixin, ListView):
     model = Worksheet
     template_name = 'ComSemApp/teacher/worksheet_list.html'
     context_object_name = 'worksheets'
@@ -170,7 +83,7 @@ class WorksheetListView(CourseViewMixin, ListView):
         return self.course.get_visible_worksheets()
 
 
-class WorksheetDetailView(WorksheetViewMixin, DetailView):
+class WorksheetDetailView(TeacherWorksheetViewMixin, DetailView):
     template_name = 'ComSemApp/teacher/view_worksheet.html'
     context_object_name = 'worksheet'
 
@@ -178,7 +91,7 @@ class WorksheetDetailView(WorksheetViewMixin, DetailView):
         return self.worksheet
 
 
-class WorksheetCreateView(CourseViewMixin, UpdateView):
+class WorksheetCreateView(TeacherCourseViewMixin, UpdateView):
     model = Worksheet
     fields = ["topic", "display_original", "display_reformulation_text",
                 "display_reformulation_audio", "display_all_expressions"]
@@ -197,7 +110,7 @@ class WorksheetCreateView(CourseViewMixin, UpdateView):
         return reverse("teacher_course", kwargs={'course_id': self.course.id })
 
 
-class WorksheetUpdateView(WorksheetViewMixin, UpdateView):
+class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
     model = Worksheet
     fields = ["topic", "display_original", "display_reformulation_text",
                 "display_reformulation_audio", "display_all_expressions"]
@@ -205,13 +118,13 @@ class WorksheetUpdateView(WorksheetViewMixin, UpdateView):
     context_object_name = 'worksheet'
 
     def get_object(self):
-        return get_object_or_404(Worksheet, course=self.course, id=self.worksheet.id)
+        return self.worksheet
 
     def get_success_url(self):
         return reverse("teacher_course", kwargs={'course_id': self.course.id })
 
 
-class WorksheetReleaseView(WorksheetViewMixin, View):
+class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
     model = Worksheet
 
     def get_object(self):
@@ -223,7 +136,7 @@ class WorksheetReleaseView(WorksheetViewMixin, View):
         return HttpResponse(status=204)
 
 
-class WorksheetDeleteView(WorksheetViewMixin, DeleteView):
+class WorksheetDeleteView(TeacherWorksheetViewMixin, DeleteView):
     model = Worksheet
 
     def get_object(self):
@@ -235,7 +148,7 @@ class WorksheetDeleteView(WorksheetViewMixin, DeleteView):
         return HttpResponse(status=204)
 
 
-class ExpressionListView(WorksheetViewMixin, ListView):
+class ExpressionListView(TeacherWorksheetViewMixin, ListView):
     model = Expression
     template_name = "ComSemApp/teacher/expressions.html"
     context_object_name = 'expressions'
@@ -250,7 +163,7 @@ class ExpressionListView(WorksheetViewMixin, ListView):
         return context
 
 
-class ExpressionCreateView(WorksheetViewMixin, CreateView):
+class ExpressionCreateView(TeacherWorksheetViewMixin, CreateView):
     model = Expression
     template_name = "ComSemApp/teacher/expression_form.html"
     fields = ["expression", "student", "all_do", "pronunciation", "context_vocabulary",
@@ -273,7 +186,7 @@ class ExpressionCreateView(WorksheetViewMixin, CreateView):
         return JsonResponse({}, status=200)
 
 
-class ExpressionUpdateView(WorksheetViewMixin, UpdateView):
+class ExpressionUpdateView(TeacherWorksheetViewMixin, UpdateView):
     model = Expression
     template_name = "ComSemApp/teacher/expression_form.html"
     fields = ["expression", "student", "all_do", "pronunciation", "context_vocabulary",
@@ -304,7 +217,7 @@ class ExpressionUpdateView(WorksheetViewMixin, UpdateView):
         return JsonResponse({}, status=200)
 
 
-class ExpressionDeleteView(WorksheetViewMixin, DeleteView):
+class ExpressionDeleteView(TeacherWorksheetViewMixin, DeleteView):
     model = Expression
 
     def get_object(self):
@@ -328,7 +241,7 @@ class ExpressionDeleteView(WorksheetViewMixin, DeleteView):
         return HttpResponse(status=204)
 
 
-class SubmissionView(WorksheetViewMixin, DetailView):
+class SubmissionView(TeacherWorksheetViewMixin, DetailView):
     template_name = "ComSemApp/teacher/view_submission.html"
     context_object_name = "submission"
 

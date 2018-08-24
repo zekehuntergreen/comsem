@@ -11,6 +11,7 @@ import json
 
 from .models import *
 
+
 # DECORATORS
 def is_student(user):
     return Student.objects.filter(user=user).exists()
