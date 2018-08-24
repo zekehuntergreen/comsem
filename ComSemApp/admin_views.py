@@ -19,17 +19,16 @@ from django.contrib import messages
 from .models import *
 from django.contrib.auth.models import User
 from .forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, TeacherForm, StudentForm, UserForm
+from ComSemApp.libs.mixins import RoleViewMixin
 
 
-class AdminViewMixin(LoginRequiredMixin, UserPassesTestMixin):
+class AdminViewMixin(RoleViewMixin):
 
-    def test_func(self):
-        admin = Admin.objects.filter(user=self.request.user)
-        if not admin.exists():
-            return False
-        else:
-            self.institution = admin.first().institution
-            return True
+    role_class = Admin
+
+    def _set_role_obj(self):
+        # role_obj self in RoleViewMixin
+        self.admin = self.role_obj
 
 
 class InstanceCreateUpdateMixin(AdminViewMixin):

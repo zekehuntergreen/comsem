@@ -26,6 +26,7 @@ from .models import *
 
 
 class TeacherViewMixin(RoleViewMixin):
+
     role_class = Teacher
 
     def _set_role_obj(self):
