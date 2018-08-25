@@ -33,10 +33,10 @@
 						<td>{{ worksheet.date }}</td>
 						<td>{{ worksheet.topic }}</td>
 						<td>
-							<span class='badge badge-{{ worksheet.status_color }}'>{{ worksheet.status }}</span>
+							<span class='badge badge-{{ worksheet.status_color }}'>{{ worksheet.last_submission_status }}</span>
 						</td>
 						<td>
-							<a href="{% url 'student_worksheet' worksheet.id %}" class='btn btn-sm btn-outline-primary'>{{ worksheet.button_text }}</a>
+							<a href="{{ worksheet.link_url }}" class='btn btn-sm btn-outline-primary'>{{ worksheet.button_text }}</a>
 						</td>
 					</tr>
 					{% endfor %}

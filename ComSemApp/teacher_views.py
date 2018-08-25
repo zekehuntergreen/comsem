@@ -91,6 +91,11 @@ class WorksheetDetailView(TeacherWorksheetViewMixin, DetailView):
     def get_object(self):
         return self.worksheet
 
+    def get_context_data(self, **kwargs):
+        context = super(WorksheetDetailView, self).get_context_data(**kwargs)
+        context['submissions'] = self.worksheet.submissions.exclude(status="pending")
+        return context
+
 
 class WorksheetCreateView(TeacherCourseViewMixin, UpdateView):
     model = Worksheet
@@ -156,12 +161,6 @@ class ExpressionListView(TeacherWorksheetViewMixin, ListView):
 
     def get_queryset(self):
         return Expression.objects.filter(worksheet=self.worksheet)
-
-    def get_context_data(self, **kwargs):
-        context = super(ExpressionListView, self).get_context_data(**kwargs)
-        context['course'] = self.course
-        context['worksheet'] = self.worksheet
-        return context
 
 
 class ExpressionCreateView(TeacherWorksheetViewMixin, CreateView):

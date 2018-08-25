@@ -1,0 +1,124 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="page-title-box">
+            <h4 class="page-title">
+                 "{{ worksheet.topic }}"
+                <small>
+                    Create Submission
+                </small>
+            </h4>
+
+            <form id="pageForm" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-success float-right" type="submit">Submit</button>
+            </form>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-9" id="expressionTableCol">
+        <div class="card-box" style="">
+            <h4 class="m-t-0 header-title"><b>Worksheet Overview</b></h4>
+            <div id="expressionsTableContainer"></div>
+        </div>
+    </div>
+
+    <div class="col-3" id="expressionEditorCol">
+
+        <div class="card-box">
+
+            <div class="row">
+                <div class="col-8">
+                    <h4 class="m-t-0 header-title"><b>Expression Details</b></h4>
+                </div>
+                <div class="col-4">
+                    <h4 class="pull-right">
+                        <small id="all-do" style="display: none">
+                            <i class="fa fa-check"></i>&nbsp;All-Do
+                        </small>
+                    </h4>
+                </div>
+            </div>
+
+            <div id="attempt_form"></div>
+
+        </div>
+    </div>
+
+</div>
+
+{% include 'ComSemApp/student/submissions_table.html' with submissions=previous_submissions %}
+
+<script>
+var encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
+var expression_list_url = "{% url 'student_worksheet_expression_list' course_id=course.id worksheet_id=worksheet.id submission_id=submission.id %}"
+// load the list of expressions for the worksheet
+function drawExpressionsTable(){
+    console.log("drawing expressions table")
+    $('#expressionsTableContainer').load(expression_list_url)
+}
+drawExpressionsTable() // initial call
+
+function populateEditor(url){
+    // url is either expression create or update url
+
+    $("#attempt_form").load(url, function(){
+        $("#create_or_update_url").val(url)
+
+        initializeRecorder(); // initialize the recorder. function found in ComSemRecording-opus.js
+
+        $('#expressionTableCol').addClass('shortened');
+        $('#expressionEditorCol').addClass('lengthened');
+        $(this).slideDown();
+    })
+
+}
+
+function clearEditor(){
+    $('#expressionsTable tbody tr').removeClass('cs-active');
+    $("#attempt_form").slideUp();
+    $('#expressionTableCol').removeClass('shortened');
+    $('#expressionEditorCol').removeClass('lengthened');
+}
+
+</script>
+
+
+
+
+<style>
+.expressionNumberCol{
+    width: 25px;
+}
+#expressionTableCol.shortened {
+    width: 40%;
+    max-width: 40%;
+    flex: none;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#expressionEditorCol.lengthened {
+    width: 60%;
+    max-width: 60%;
+    flex: none;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+</style>
+
+
+{% endblock %}

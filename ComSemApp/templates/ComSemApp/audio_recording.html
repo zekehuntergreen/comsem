@@ -48,15 +48,6 @@
 				<i class="ti-trash"></i>
 			</button>
 
-			{% if object.reformulation_audio %}
-			<script>
-				$(function(){
-					audioURL = calculateAudioURL( {'expressionID': "{{ object.id }}"} )
-					$('#recordingslist').html("<audio controls id='audioElement' src='" + audioURL + "' type='audio/mpeg'></audio>");
-					$('#deleteRecordingButton').show();
-				})
-			</script>
-			{% endif %}
 		</div>
 
 	</div>

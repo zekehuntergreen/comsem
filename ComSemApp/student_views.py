@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
@@ -5,176 +7,240 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.http import JsonResponse, HttpResponseRedirect
+from django.urls import reverse
+from django.contrib import messages
 
-from .teacher_views import jsonify_expressions, handle_uploaded_file # helpers from theacher views - could be put in seperate module
-import json
+from ComSemApp import teacher_constants
+
+from .teacher_views import create_file_url, handle_uploaded_file # helpers from theacher views - could be put in seperate module
 
 from .models import *
+from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin, SubmissionViewMixin
 
 
-# DECORATORS
-def is_student(user):
-    return Student.objects.filter(user=user).exists()
+class StudentViewMixin(RoleViewMixin):
 
-def enrolled_in_course(func):
-    def wrapper(request, *args, **kwargs):
-        valid = Course.objects.filter(students=request.user.student, id=args[0]).exists()
-        if not valid:
-            messages.error(request, 'Invalid course ID.')
-            return redirect("/student/")
-        return func(request, *args, **kwargs)
-    return wrapper
+    role_class = Student
 
+    def _set_role_obj(self):
+        # role_obj self in RoleViewMixin
+        self.student = self.role_obj
 
-# VIEWS
-@login_required
-@user_passes_test(is_student)
-def student(request):
-    courses = Course.objects.filter(students=request.user.student)
-    template = loader.get_template('ComSemApp/student/my_courses.html')
-    return HttpResponse(template.render({'courses': courses}, request))
+    def _check_valid_course(self, course_id):
+        courses = Course.objects.filter(students=self.request.user.student, id=course_id)
+        if not courses.exists():
+            return False
+        return courses.first()
 
 
-@login_required
-@user_passes_test(is_student)
-@enrolled_in_course
-def course(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
-    worksheets = Worksheet.objects.filter(course=course, released=True)
+class StudentCourseViewMixin(StudentViewMixin, CourseViewMixin):
 
-    status_colors = {
-        "complete": "success",
-        "incomplete": "danger",
-        "ungraded": "warning",
-        "none": "info",
-    }
-    button_texts = {
-        "complete": 'Review Worksheet',
-        "incomplete": "Create Submission",
-        "ungraded": "Edit Submission",
-        "none": "Create Submission",
-    }
-
-    # need to get the status of the most recent submission of each worksheet by the student
-    for worksheet in worksheets:
-        status = "none"
-        if StudentSubmission.objects.filter(worksheet_id=worksheet.id).exists():
-            latest_submission = StudentSubmission.objects.filter(worksheet_id=worksheet.id).latest()
-            status = latest_submission.status
-
-        worksheet.status = status
-        worksheet.status_color = status_colors[status]
-        worksheet.button_text = button_texts[status]
+    def _get_invalid_course_redirect(self):
+        return HttpResponseRedirect(reverse("student"))
 
 
-    template = loader.get_template('ComSemApp/student/course.html')
-    context = {
-        'course': course,
-        'worksheets': worksheets,
-    }
-    return HttpResponse(template.render(context, request))
+class StudentWorksheetViewMixin(StudentViewMixin, WorksheetViewMixin):
+
+    def _get_invalid_worksheet_redirect(self):
+        return HttpResponseRedirect(reverse("student_course", kwargs={"course_id": self.course.id}))
 
 
-@login_required
-@user_passes_test(is_student)
-def worksheet(request, worksheet_id):
-    worksheet = get_object_or_404(Worksheet, id=worksheet_id)
+class StudentSubmissionViewMixin(StudentViewMixin, SubmissionViewMixin):
 
-    # not correct
-    submissions = StudentSubmission.objects.filter(Q(worksheet=worksheet), Q(student=request.user.student) | Q(student=None) ).prefetch_related('studentattempt_set')
-
-    if submissions:
-        latest_submission = submissions[0]
-        attempts = latest_submission.studentattempt_set.all()
-    else:
-        latest_submission = None
-        attempts = []
+    def _get_invalid_submission_redirect(self):
+        return HttpResponseRedirect(reverse("student_course", kwargs={"course_id": self.course.id}))
 
 
-    expression_filters = Q(worksheet=worksheet)
-    if not worksheet.display_all_expressions:
-        expression_filters &= (Q(student=request.user.student) | Q(all_do=True))
+class CourseListView(StudentViewMixin, ListView):
+    # student home page
+    model = Course
+    template_name = 'ComSemApp/student/course_list.html'
+    context_object_name = 'courses'
 
-    expression_queryset = Expression.objects.filter(expression_filters)
-    expressions = list(expression_queryset.values())
-
-    # need to get name of assigned student seperately
-    for i in range(len(expressions)):
-        student = expression_queryset[i].student
-
-        if student:
-            if student == request.user.student:
-                expressions[i]['student_name'] = "Me"
-            else:
-                expressions[i]['student_name'] = str(student)
-        else:
-            expressions[i]['student_name'] = None
-
-        expressions[i]['reformulation_audio'] = False if expressions[i]['reformulation_audio'] == '0' else True
-
-        # need to insert some info into expressions array if this is an edit
-        for attempt in attempts:
-            if attempt.expression == expression_queryset[i]:
-                expressions[i]['correctedExpr'] = attempt.reformulation_text
-                expressions[i]['StudentAttemptID'] = attempt.id
+    def get_queryset(self):
+        return Course.objects.filter(students=self.student)
 
 
-    expressions_json = json.dumps(expressions)
+class CourseDetailView(StudentCourseViewMixin, DetailView):
+    context_object_name = 'course'
+    template_name = "ComSemApp/student/course.html"
 
-    context = {
-        'course': worksheet.course,
-        'worksheet': worksheet,
-        'submissions': submissions,
-        'latest_submission': latest_submission,
-        'expressions': expressions_json
-    }
+    def get_object(self):
+        return self.course
 
-    template = loader.get_template('ComSemApp/student/edit_worksheet.html')
-    return HttpResponse(template.render(context, request))
+    def get_context_data(self, **kwargs):
+        context = super(CourseDetailView, self).get_context_data(**kwargs)
+        worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
 
+        # TODO should this logic be in the worksheet model ?
+        for worksheet in worksheets:
+            last_submission = worksheet.last_submission(self.student)
+            last_submission_status = last_submission.status if last_submission else "none"
+            last_submission_id = last_submission.id if last_submission else 0
+            status_colors = {
+                "complete": "success",
+                "incomplete": "danger",
+                "ungraded": "warning",
+                "pending": "light",
+                "none": "info",
+            }
+            button_texts = {
+                "complete": 'Review Worksheet',
+                "incomplete": "Create Submission",
+                "ungraded": "Edit Submission",
+                "pending": "Complete Submission",
+                "none": "Create Submission",
+            }
+            link_urls = {
+                "complete": reverse("student_submission_list",
+                            kwargs={'course_id': self.course.id, 'worksheet_id': worksheet.id}),
+                "incomplete": reverse("student_create_submission",
+                            kwargs={'course_id': self.course.id, 'worksheet_id': worksheet.id}),
+                "ungraded": reverse("student_update_submission",
+                            kwargs={'course_id': self.course.id, 'worksheet_id': worksheet.id, 'submission_id': last_submission_id}),
+                "pending": reverse("student_create_submission",
+                            kwargs={'course_id': self.course.id, 'worksheet_id': worksheet.id}),
+                "none": reverse("student_create_submission",
+                            kwargs={'course_id': self.course.id, 'worksheet_id': worksheet.id}),
+            }
 
-def save_submission(request):
+            worksheet.last_submission_status = last_submission_status
+            worksheet.status_color = status_colors[last_submission_status]
+            worksheet.button_text = button_texts[last_submission_status]
+            worksheet.link_url = link_urls[last_submission_status]
 
-    student_submission_id = request.POST.get('studentSubmissionID', 0) # 0 = new submission
-    worksheet_id = request.POST.get('worksheetID', None)
-    expressions = json.loads(request.POST.get('expressions', None))
-
-    worksheet = get_object_or_404(Worksheet, id=worksheet_id)
-
-
-    if student_submission_id == '0':
-        # new submission - Write to student submissions IF we are not editing an existing one - all submissions start as ungraded
-        student_submission = StudentSubmission.objects.create(student=request.user.student, worksheet=worksheet)
-    else:
-        student_submission = StudentSubmission.objects.get(id=student_submission_id)
-
-
-    # Write to StudentAttempts whether or not this is a new submission
-    for i in range(len(expressions)):
-        expression = expressions[i]
-        expression_id = expression['id']
-
-        if 'isAltered' in expression:
-
-            # deal with audio reformulation - has the audio been uploaded?
-            ra_key = 'audio_ref_' + str(i);
-            # either there is an old audio reformulation already saved, or we are saving a new one.
-            uploading_ra = request.FILES.get(ra_key, None)
-            ra_is_there = True if expression['studentReformulationAudio'] else True if uploading_ra else False
-
-            # this could be an update to an attempt from a previous, ungraded submission. use get_or_create, then update
-            attempt, created = StudentAttempt.objects.get_or_create(
-                expression=Expression.objects.get(id=expression_id),
-                student_submission=student_submission,
-            )
-
-            attempt.reformulation_text = expression['correctedExpr']
-            attempt.reformulation_audio = ra_is_there
-            attempt.save()
-
-            # save the audio reformulation
-            if uploading_ra:
-                handle_uploaded_file(uploading_ra, "AttemptReformulations", int(attempt.id))
+        context['worksheets'] = worksheets
+        return context
 
 
-    return HttpResponse(status=204)
+class SubmissionListView(StudentWorksheetViewMixin, ListView):
+    template_name = 'ComSemApp/student/submission_list.html'
+    context_object_name = 'submissions'
+
+    def get_queryset(self):
+        return StudentSubmission.objects.filter(student=self.student, worksheet=self.worksheet)
+
+
+class SubmissionUpdateCreateMixin(UpdateView):
+    context_object_name = 'submission'
+    template_name = "ComSemApp/student/create_submission.html"
+    fields = []
+
+    def get_context_data(self, **kwargs):
+        context = super(SubmissionUpdateCreateMixin, self).get_context_data(**kwargs)
+        context['previous_submissions'] = StudentSubmission.objects.filter(worksheet=self.worksheet, student=self.student).exclude(status__in=['pending', 'ungraded'])
+        return context
+
+    def get_success_url(self):
+        return reverse("student_course", kwargs={'course_id': self.course.id })
+
+
+class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixin):
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super(SubmissionCreateView, self).dispatch(request, *args, **kwargs)
+        # user can't create if there is an updatable submission
+        if StudentSubmission.objects.filter(student=self.student, worksheet=self.worksheet, status__in=['ungraded', 'complete']).exists():
+            messages.error(self.request, "You may not create a submission for this worksheet")
+            return HttpResponseRedirect(reverse("student_course", kwargs={'course_id': self.course.id }))
+        return response
+
+    def get_object(self):
+        submission, created = StudentSubmission.objects.get_or_create_pending(self.student, self.worksheet)
+        return submission
+
+    def form_valid(self, form):
+        self.object.status = 'ungraded'
+        return super(SubmissionCreateView, self).form_valid(form)
+
+
+class SubmissionUpdateView(StudentSubmissionViewMixin, SubmissionUpdateCreateMixin):
+    # update view that doesn't actually change the object. only used for success_url
+
+    def get_object(self):
+        return get_object_or_404(StudentSubmission, id=self.submission.id, status="ungraded")
+
+
+class ExpressionListView(StudentSubmissionViewMixin, ListView):
+    context_object_name = 'expressions'
+    template_name = "ComSemApp/student/expression_list.html"
+
+    def get_queryset(self):
+        expression_filters = Q(worksheet=self.worksheet)
+        if not self.worksheet.display_all_expressions:
+            expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
+        expressions = Expression.objects.filter(expression_filters)
+        for expression in expressions:
+            attempt = None
+            attempts = StudentAttempt.objects.filter(student_submission=self.submission, expression=expression)
+            if attempts:
+                attempt = attempts.first()
+            expression.attempt = attempt
+        return expressions
+
+
+class AttemptCreateView(StudentSubmissionViewMixin, CreateView):
+    model = StudentAttempt
+    template_name = "ComSemApp/student/attempt_form.html"
+    fields = ["reformulation_text", "reformulation_audio"]
+
+    def get_context_data(self, **kwargs):
+        context = super(AttemptCreateView, self).get_context_data(**kwargs)
+        # TODO - expression mixin rather than grabbing expression twice ?
+        expression_id = self.kwargs.get('expression_id')
+        expression = get_object_or_404(Expression, id=expression_id, worksheet=self.worksheet)
+        context['expression'] = expression
+        return context
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form):
+        expression_id = self.kwargs.get('expression_id')
+        expression = get_object_or_404(Expression, id=expression_id, worksheet=self.worksheet)
+
+        attempt = form.save(commit=False)
+        attempt.student_submission = self.submission
+        attempt.expression = expression
+        attempt.save()
+        if attempt.reformulation_audio:
+            # TODO - audio_file should really be part of the form and can be merged with reformulation_audio
+            audio_file = self.request.FILES.get('audio_file', None)
+            if audio_file:
+                url = create_file_url("AttemptReformulations", attempt.id)
+                handle_uploaded_file(audio_file, url)
+        return JsonResponse({}, status=200)
+
+
+class AttemptUpdateView(StudentSubmissionViewMixin, UpdateView):
+    context_object_name = 'attempt'
+    template_name = "ComSemApp/student/attempt_form.html"
+    fields = ["reformulation_text", "reformulation_audio"]
+
+    def get_context_data(self, **kwargs):
+        context = super(AttemptUpdateView, self).get_context_data(**kwargs)
+        context['expression'] = self.object.expression
+        return context
+
+    def get_object(self, **kwargs):
+        attempt_id = self.kwargs.get('attempt_id')
+        return get_object_or_404(StudentAttempt, student_submission=self.submission, id=attempt_id)
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form):
+        attempt = form.save(commit=False)
+        attempt.save()
+        if attempt.reformulation_audio:
+            # TODO - audio_file should really be part of the form and can be merged with reformulation_audio
+            audio_file = self.request.FILES.get('audio_file', None)
+            if audio_file:
+                url = create_file_url("AttemptReformulations", attempt.id)
+                handle_uploaded_file(audio_file, url)
+        return JsonResponse({}, status=200)
+

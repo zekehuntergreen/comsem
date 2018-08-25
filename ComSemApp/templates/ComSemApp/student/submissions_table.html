@@ -1,0 +1,84 @@
+{% load static %}
+
+{% if submissions %}
+
+<!-- TODO this js can be deleted after use of FileField -->
+<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
+
+<div class="row">
+    <div class="col-12">
+
+        <div class="card-box">
+
+            <h4 class="m-t-0 header-title"><b>Previous Submissions</b></h4>
+
+            <div class="tabs-vertical-env">
+                <ul class="nav tabs-vertical">
+                    {% for submission in submissions %}
+                    <li class="nav-item">
+                        <a href="#s-{{ forloop.counter }}" class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab" aria-expanded="{% if forloop.first %}true{% endif %}">
+                            Submission {{ forloop.counter }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <div class="tab-content" style="width: 100%">
+                    {% for submission in submissions %}
+                    <div class="tab-pane {% if forloop.first %}active{% endif %}" id="s-{{ forloop.counter }}">
+
+                        <table class="table table-hover">
+                            <thead>
+                                <th>#</th>
+                                <th>Expression</th>
+                                <th>Reformulation Text</th>
+                                <th>Reformulation Audio</th>
+                                <th>Correct</th>
+                            </thead>
+                            <tbody>
+                                {% for attempt in submission.studentattempt_set.all %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ attempt.expression }}</td>
+                                    <td>{{ attempt.reformulation_text }}</td>
+                                    <td>
+                                        {% if attempt.reformulation_audio %}
+                                        <div class="col-6">
+                                            <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" attempt_id="{{ attempt.id }}" src="">
+                                            </audio>
+                                        </div>
+                                        <script>
+                                            $(function(){
+                                                $(".previous_attempt_audio[attempt_id=" + "{{ attempt.id }}" + "]").attr("src", calculateAudioURL( {'attemptID': "{{ attempt.id }}"} ))
+                                            })
+                                        </script>
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if attempt.correct == None %}
+                                            -
+                                        {% else %}
+                                            {% if attempt.correct %}
+                                                <i class="fa fa-check"></i>
+                                            {% else %}
+                                                <i class="fa fa-times"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+{% endif %}

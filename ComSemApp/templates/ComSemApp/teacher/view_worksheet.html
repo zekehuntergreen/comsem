@@ -112,7 +112,7 @@
 		<div class="card-box">
 			<h4 class="m-t-0 header-title"><b>Submissions</b></h4>
 
-			{% if worksheet.submissions %}
+			{% if submissions %}
 			<table class="table table-hover tablesorter">
 				<thead>
 					<tr>
@@ -124,7 +124,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% for submission in worksheet.submissions.all %}
+					{% for submission in submissions %}
 						<tr>
 							<td>{{ submission.student }}</td>
 							<td>{{ submission.get_number }}</td>

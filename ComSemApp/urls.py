@@ -60,11 +60,14 @@ urlpatterns = [
 
 
     # STUDENT
-    url(r'^student/$', student_views.student, name='student'),
-    url(r'^student/course/([0-9]+)/$', student_views.course, name='student_course'),
-    url(r'^student/worksheet/([0-9]+)/$', student_views.worksheet, name='student_worksheet'),
-    url(r'^ajax/save_submission/$', student_views.save_submission, name='save_submission'),
-
+    url(r'^student/$', student_views.CourseListView.as_view(), name='student'),
+    url(r'^student/course/(?P<course_id>[0-9]+)/$', student_views.CourseDetailView.as_view(), name='student_course'),
+    url(r'^student/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/submission/list/$', student_views.SubmissionListView.as_view(), name='student_submission_list'),
+    url(r'^student/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/submission/create/$', student_views.SubmissionCreateView.as_view(), name='student_create_submission'),
+    url(r'^student/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/submission/(?P<submission_id>[0-9]+)/update/$', student_views.SubmissionUpdateView.as_view(), name='student_update_submission'),
+    url(r'^student/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/submission/(?P<submission_id>[0-9]+)/expressions/$', student_views.ExpressionListView.as_view(), name='student_worksheet_expression_list'),
+    url(r'^student/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/submission/(?P<submission_id>[0-9]+)/expression/(?P<expression_id>[0-9]+)/create/$', student_views.AttemptCreateView.as_view(), name='student_create_attempt'),
+    url(r'^student/course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/submission/(?P<submission_id>[0-9]+)/attempt/(?P<attempt_id>[0-9]+)/update/$', student_views.AttemptUpdateView.as_view(), name='student_update_attempt'),
 
     # CORPUS
     url(r'^teacher/corpus/search$', corpus_views.corpus_search, name='teacher_corpus_search'),

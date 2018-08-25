@@ -86,6 +86,16 @@
         {% include 'ComSemApp/audio_recording.html' %}
     </div>
 
+    {% if object.reformulation_audio %}
+    <script>
+        $(function(){
+            audioURL = calculateAudioURL( {'expressionID': "{{ object.id }}"} )
+            $('#recordingslist').html("<audio controls id='audioElement' src='" + audioURL + "' type='audio/mpeg'></audio>");
+            $('#deleteRecordingButton').show();
+        })
+    </script>
+    {% endif %}
+
     <br />
     <div class="row">
         <div class="col-12 text-center">
@@ -146,11 +156,7 @@ $("#saveExpression").click(function(e){
         },
     });
 
-
-
     // clear editor
     $("#ExpressionEditor").slideUp();
-
 });
-
 </script>

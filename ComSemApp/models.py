@@ -5,6 +5,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 from ComSemApp import teacher_constants
 
@@ -17,7 +18,7 @@ STATE_CHOICES = []
 for s in states:
     STATE_CHOICES.append((s,s))
 
-STUDENT_SUBMISSION_STATUSES = [('ungraded', 'ungraded'), ('complete', 'complete'), ('incomplete', 'incomplete')]
+STUDENT_SUBMISSION_STATUSES = [('pending', 'pending'), ('ungraded', 'ungraded'), ('complete', 'complete'), ('incomplete', 'incomplete')]
 
 
 
@@ -152,6 +153,7 @@ class WorksheetManager(models.Manager):
         return Worksheet.objects.get_or_create(created_by=teacher,
                 course=course, status=teacher_constants.WORKSHEET_STATUS_PENDING)
 
+
 class Worksheet(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='worksheets')
@@ -180,13 +182,17 @@ class Worksheet(models.Model):
     def released(self):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
 
-
     def release(self):
         self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
         self.save()
         for expression in self.expressions.all():
             pos_tag(expression)
 
+    def last_submission(self, student):
+        last_submission = None
+        if StudentSubmission.objects.filter(worksheet_id=self.id, student=student).exists():
+            last_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student).latest()
+        return last_submission
 
     class Meta:
         ordering = ['date']
@@ -223,12 +229,19 @@ class SequentialWords(models.Model):
 
 # ATTEMPTS AND SUBMISSIONS
 
+class StudentSubmissionManager(models.Manager):
+
+    def get_or_create_pending(self, student, worksheet):
+        return StudentSubmission.objects.get_or_create(student=student,
+                worksheet=worksheet, status='pending')
+
 class StudentSubmission(models.Model):
-    # enrollment = models.ForeignKey('Enrollment', on_delete=models.SET_NULL, null=True) # the student who made the attempt
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
     worksheet = models.ForeignKey('Worksheet', related_name="submissions", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=255, choices=STUDENT_SUBMISSION_STATUSES, default='ungraded')
+    status = models.CharField(max_length=255, choices=STUDENT_SUBMISSION_STATUSES, default='pending')
+
+    objects = StudentSubmissionManager()
 
     def __str__(self):
         return str(self.id)
@@ -260,9 +273,7 @@ class StudentAttempt(models.Model):
 
     class Meta:
         verbose_name = "Student Attempt"
-
-
-
+        unique_together = ("student_submission", "expression")
 
 
 # DICTIONARY
