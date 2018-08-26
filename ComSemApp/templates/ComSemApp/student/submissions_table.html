@@ -36,7 +36,7 @@
                                 <th>Correct</th>
                             </thead>
                             <tbody>
-                                {% for attempt in submission.studentattempt_set.all %}
+                                {% for attempt in submission.attempts.all %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
                                     <td>{{ attempt.expression }}</td>

@@ -115,12 +115,12 @@ class Factory:
 
         defaults = {
             "course": course,
-            "topic": "TOPIC",
-            "status": WORKSHEET_STATUS_UNRELEASED,
-            "display_original": True,
-            "display_reformulation_text": True,
-            "display_reformulation_audio": True,
-            "display_all_expressions": True,
+            "topic": kwargs.get("topic", "TOPIC"),
+            "status": kwargs.get("status", WORKSHEET_STATUS_UNRELEASED),
+            "display_original": kwargs.get("display_original", True),
+            "display_reformulation_text": kwargs.get("display_reformulation_text", True),
+            "display_reformulation_audio": kwargs.get("display_reformulation_audio", True),
+            "display_all_expressions": kwargs.get("display_all_expressions", True),
         }
         return Worksheet.objects.create(**defaults)
 
@@ -157,6 +157,7 @@ class Factory:
         defaults = {
             "worksheet": worksheet,
             "student": student,
+            "status": kwargs.get("status", "pending"),
         }
         return StudentSubmission.objects.create(**defaults)
 

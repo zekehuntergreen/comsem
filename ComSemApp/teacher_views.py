@@ -251,11 +251,10 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
 
     def post(self, *args, **kwargs):
         submission = self.get_object()
-        attempts = submission.studentattempt_set.all()
 
         all_correct = True
         # status of each attempt
-        for attempt in attempts:
+        for attempt in submission.attempts.all():
             correct = self.request.POST.get(str(attempt.id), None) == '1'
             attempt.correct = correct
             attempt.save()

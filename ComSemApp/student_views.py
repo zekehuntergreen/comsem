@@ -139,13 +139,12 @@ class SubmissionUpdateCreateMixin(UpdateView):
 
 class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixin):
 
-    def dispatch(self, request, *args, **kwargs):
-        response = super(SubmissionCreateView, self).dispatch(request, *args, **kwargs)
-        # user can't create if there is an updatable submission
+    def get(self, request, *args, **kwargs):
+        # student can't create a submission if there is an updatable one.
         if StudentSubmission.objects.filter(student=self.student, worksheet=self.worksheet, status__in=['ungraded', 'complete']).exists():
-            messages.error(self.request, "You may not create a submission for this worksheet")
+            messages.error(self.request, "You may not create a submission for this worksheet.")
             return HttpResponseRedirect(reverse("student_course", kwargs={'course_id': self.course.id }))
-        return response
+        return super().get(request, *args, **kwargs)
 
     def get_object(self):
         submission, created = StudentSubmission.objects.get_or_create_pending(self.student, self.worksheet)
@@ -153,6 +152,8 @@ class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixi
 
     def form_valid(self, form):
         self.object.status = 'ungraded'
+        self.object.save()
+        messages.success(self.request, "Submission successful")
         return super(SubmissionCreateView, self).form_valid(form)
 
 
@@ -161,6 +162,10 @@ class SubmissionUpdateView(StudentSubmissionViewMixin, SubmissionUpdateCreateMix
 
     def get_object(self):
         return get_object_or_404(StudentSubmission, id=self.submission.id, status="ungraded")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Submission updated")
+        return super(SubmissionUpdateView, self).form_valid(form)
 
 
 class ExpressionListView(StudentSubmissionViewMixin, ListView):
@@ -234,8 +239,7 @@ class AttemptUpdateView(StudentSubmissionViewMixin, UpdateView):
         return JsonResponse(form.errors, status=400)
 
     def form_valid(self, form):
-        attempt = form.save(commit=False)
-        attempt.save()
+        attempt = form.save()
         if attempt.reformulation_audio:
             # TODO - audio_file should really be part of the form and can be merged with reformulation_audio
             audio_file = self.request.FILES.get('audio_file', None)

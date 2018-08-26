@@ -263,7 +263,7 @@ class StudentSubmission(models.Model):
 
 class StudentAttempt(models.Model):
     expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
-    student_submission = models.ForeignKey('StudentSubmission', on_delete=models.CASCADE)
+    student_submission = models.ForeignKey('StudentSubmission', related_name="attempts", on_delete=models.CASCADE)
     reformulation_text = models.TextField(blank=True, null=True)
     reformulation_audio = models.BooleanField(default=False)
     correct = models.NullBooleanField(blank=True, null=True, default=None)

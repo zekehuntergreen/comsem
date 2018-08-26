@@ -84,7 +84,7 @@
 				<!-- EXPRESSIONS -->
 				<div class="tabs-vertical-env">
 					<ul class="nav tabs-vertical">
-						{% for attempt in submission.studentattempt_set.all %}
+						{% for attempt in submission.attempts.all %}
 						<li class="nav-item">
 							<a href="#s-{{ forloop.counter }}" class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab" aria-expanded="{% if forloop.first %}true{% endif %}">
 								Expression {{ forloop.counter }}
@@ -94,7 +94,7 @@
 					</ul>
 
 					<div class="tab-content" style="width: 100%">
-						{% for attempt in submission.studentattempt_set.all %}
+						{% for attempt in submission.attempts.all %}
 						<div class="tab-pane {% if forloop.first %}active{% endif %}" id="s-{{ forloop.counter }}">
 
 							<!-- original expression  -->
