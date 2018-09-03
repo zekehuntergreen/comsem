@@ -7,7 +7,7 @@ from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-from ComSemApp import teacher_constants
+from ComSemApp.teacher import constants as teacher_constants
 
 from .utils import pos_tag
 
@@ -21,6 +21,8 @@ for s in states:
 STUDENT_SUBMISSION_STATUSES = [('pending', 'pending'), ('ungraded', 'ungraded'), ('complete', 'complete'), ('incomplete', 'incomplete')]
 
 
+
+# TODO : Split these models into admin, teacher, student, corpus apps
 
 # STUDENTS, TEACHERS, ADMINS
 
@@ -140,12 +142,11 @@ class SessionType(models.Model):
 
     class Meta:
         verbose_name = "Session Type"
-        # order_with_respect_to = 'order'
 
 
 
 
-# WORKSHEETS, EXPRESSIONS, WORDS, SEQUENTIAL WORDS
+# WORKSHEETS, EXPRESSIONS
 
 class WorksheetManager(models.Manager):
 
@@ -212,19 +213,6 @@ class Expression(models.Model):
         return self.expression
 
 
-class SequentialWords(models.Model):
-    expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
-    word = models.ForeignKey('Word', on_delete=models.PROTECT)
-    position = models.IntegerField(validators=[MinValueValidator(0)])
-
-    def __str__(self):
-        return " - ".join([str(self.expression), str(self.position)])
-
-    class Meta:
-        verbose_name_plural = "Sequential Words"
-
-
-
 
 
 # ATTEMPTS AND SUBMISSIONS
@@ -276,7 +264,7 @@ class StudentAttempt(models.Model):
         unique_together = ("student_submission", "expression")
 
 
-# DICTIONARY
+# WORDS, SEQUENTIAL WORDS, TAG
 
 class Word(models.Model):
     form = models.CharField(max_length=255)
@@ -292,6 +280,19 @@ class Word(models.Model):
     def frequency(self):
         return SequentialWords.objects.filter(word=self).count()
 
+
+class SequentialWords(models.Model):
+    expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
+    word = models.ForeignKey('Word', on_delete=models.PROTECT)
+    position = models.IntegerField(validators=[MinValueValidator(0)])
+
+    def __str__(self):
+        return " - ".join([str(self.expression), str(self.position)])
+
+    class Meta:
+        verbose_name_plural = "Sequential Words"
+
+
 # upenn tagset
 class Tag(models.Model):
     tag = models.CharField(max_length=255)
@@ -304,3 +305,4 @@ class Tag(models.Model):
     def frequency(self):
         words = Word.objects.filter(tag=self).all()
         return SequentialWords.objects.filter(word__in=words).count()
+

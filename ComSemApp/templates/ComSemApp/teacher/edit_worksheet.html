@@ -150,8 +150,8 @@
 </div>
 
 <script>
-	expression_create_url = "{% url 'teacher_expression_create' course_id=course.id worksheet_id=worksheet.id %}";
-	expression_list_url = "{% url 'teacher_expressions' course_id=course.id worksheet_id=worksheet.id %}";
+	expression_create_url = "{% url 'teacher:expression_create' course_id=course.id worksheet_id=worksheet.id %}";
+	expression_list_url = "{% url 'teacher:expressions' course_id=course.id worksheet_id=worksheet.id %}";
 	encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
 </script>
 

@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<form action="{% url 'teacher_submission' course.id worksheet.id submission.id %}" method="POST">
+<form action="{% url 'teacher:submission' course.id worksheet.id submission.id %}" method="POST">
 	{% csrf_token %}
 
 	<input hidden name='studentSubmissionID' value="<?=$studentSubmissionID?>" />

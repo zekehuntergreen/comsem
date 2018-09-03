@@ -2,9 +2,13 @@ import uuid
 
 from django.utils import timezone
 from django.contrib.auth.models import User
-from ComSemApp.teacher_constants import WORKSHEET_STATUS_UNRELEASED
+from ComSemApp.teacher.constants import WORKSHEET_STATUS_UNRELEASED
 
 from ComSemApp.models import *
+
+from django.test import TestCase
+from django.test import Client
+
 
 class Factory:
     _institution = None
@@ -181,3 +185,8 @@ class Factory:
         return StudentAttempt.objects.create(**defaults)
 
 
+class BaseTestCase(Factory, TestCase):
+
+    def setUp(self):
+        super(BaseTestCase, self).setUp()
+        self.client = Client()

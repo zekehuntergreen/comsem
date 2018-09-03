@@ -11,7 +11,7 @@ import nltk
 from nltk.data import load
 
 import json
-from .models import *
+from ComSemApp.models import *
 
 #TODO: is the user a teacher or Admin
 

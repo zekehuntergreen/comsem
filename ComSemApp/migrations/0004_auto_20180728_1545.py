@@ -3,7 +3,7 @@
 from django.db import migrations, models
 import django.db.models.deletion
 
-from ComSemApp.teacher_constants import WORKSHEET_STATUS_UNRELEASED, WORKSHEET_STATUS_RELEASED
+from ComSemApp.teacher.constants import WORKSHEET_STATUS_UNRELEASED, WORKSHEET_STATUS_RELEASED
 
 class Migration(migrations.Migration):
 

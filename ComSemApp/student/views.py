@@ -12,11 +12,11 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
 
-from ComSemApp import teacher_constants
+from ComSemApp.teacher import constants as teacher_constants
 
-from .teacher_views import create_file_url, handle_uploaded_file # helpers from theacher views - could be put in seperate module
+from ComSemApp.teacher.views import create_file_url, handle_uploaded_file # helpers from theacher views - could be put in seperate module
 
-from .models import *
+from ComSemApp.models import *
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin, SubmissionViewMixin
 
 
@@ -38,19 +38,19 @@ class StudentViewMixin(RoleViewMixin):
 class StudentCourseViewMixin(StudentViewMixin, CourseViewMixin):
 
     def _get_invalid_course_redirect(self):
-        return HttpResponseRedirect(reverse("student"))
+        return HttpResponseRedirect(reverse("student:courses"))
 
 
 class StudentWorksheetViewMixin(StudentViewMixin, WorksheetViewMixin):
 
     def _get_invalid_worksheet_redirect(self):
-        return HttpResponseRedirect(reverse("student_course", kwargs={"course_id": self.course.id}))
+        return HttpResponseRedirect(reverse("student:course", kwargs={"course_id": self.course.id}))
 
 
 class StudentSubmissionViewMixin(StudentViewMixin, SubmissionViewMixin):
 
     def _get_invalid_submission_redirect(self):
-        return HttpResponseRedirect(reverse("student_course", kwargs={"course_id": self.course.id}))
+        return HttpResponseRedirect(reverse("student:course", kwargs={"course_id": self.course.id}))
 
 
 class CourseListView(StudentViewMixin, ListView):
@@ -94,15 +94,15 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
                 "none": "Create Submission",
             }
             link_urls = {
-                "complete": reverse("student_submission_list",
+                "complete": reverse("student:submission_list",
                             kwargs={'course_id': self.course.id, 'worksheet_id': worksheet.id}),
-                "incomplete": reverse("student_create_submission",
+                "incomplete": reverse("student:create_submission",
                             kwargs={'course_id': self.course.id, 'worksheet_id': worksheet.id}),
-                "ungraded": reverse("student_update_submission",
+                "ungraded": reverse("student:update_submission",
                             kwargs={'course_id': self.course.id, 'worksheet_id': worksheet.id, 'submission_id': last_submission_id}),
-                "pending": reverse("student_create_submission",
+                "pending": reverse("student:create_submission",
                             kwargs={'course_id': self.course.id, 'worksheet_id': worksheet.id}),
-                "none": reverse("student_create_submission",
+                "none": reverse("student:create_submission",
                             kwargs={'course_id': self.course.id, 'worksheet_id': worksheet.id}),
             }
 
@@ -134,7 +134,7 @@ class SubmissionUpdateCreateMixin(UpdateView):
         return context
 
     def get_success_url(self):
-        return reverse("student_course", kwargs={'course_id': self.course.id })
+        return reverse("student:course", kwargs={'course_id': self.course.id })
 
 
 class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixin):
@@ -143,7 +143,7 @@ class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixi
         # student can't create a submission if there is an updatable one.
         if StudentSubmission.objects.filter(student=self.student, worksheet=self.worksheet, status__in=['ungraded', 'complete']).exists():
             messages.error(self.request, "You may not create a submission for this worksheet.")
-            return HttpResponseRedirect(reverse("student_course", kwargs={'course_id': self.course.id }))
+            return HttpResponseRedirect(reverse("student:course", kwargs={'course_id': self.course.id }))
         return super().get(request, *args, **kwargs)
 
     def get_object(self):

@@ -245,7 +245,7 @@ var DEBUG = false;
 // ARRAY OF EXPRESSIONS
 expressions = {{ expressions|safe|default:'[]' }};
 save_url = "{% url 'save_submission' %}";
-redirect_url = "{% url 'student_course' course.id %}"
+redirect_url = "{% url 'student:course' course.id %}"
 
 var showNavigationWarning = false;
 

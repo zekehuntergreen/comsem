@@ -18,11 +18,11 @@ from django.core.serializers import serialize
 from django.contrib import messages
 from django.conf import settings
 
-from ComSemApp import teacher_constants
+from ComSemApp.teacher import constants
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin
 
 import json, math, datetime, os
-from .models import *
+from ComSemApp.models import *
 
 
 class TeacherViewMixin(RoleViewMixin):
@@ -43,13 +43,13 @@ class TeacherViewMixin(RoleViewMixin):
 class TeacherCourseViewMixin(TeacherViewMixin, CourseViewMixin):
 
     def _get_invalid_course_redirect(self):
-        return HttpResponseRedirect(reverse("teacher"))
+        return HttpResponseRedirect(reverse("teacher:courses"))
 
 
 class TeacherWorksheetViewMixin(TeacherViewMixin, WorksheetViewMixin):
 
     def _get_invalid_worksheet_redirect(self):
-        return HttpResponseRedirect(reverse("teacher_course", kwargs={"course_id": self.course.id}))
+        return HttpResponseRedirect(reverse("teacher:course", kwargs={"course_id": self.course.id}))
 
 
 class CourseListView(TeacherViewMixin, ListView):
@@ -109,11 +109,11 @@ class WorksheetCreateView(TeacherCourseViewMixin, UpdateView):
         return worksheet
 
     def form_valid(self, form):
-        self.object.status = teacher_constants.WORKSHEET_STATUS_UNRELEASED
+        self.object.status = constants.WORKSHEET_STATUS_UNRELEASED
         return super(WorksheetCreateView,self).form_valid(form)
 
     def get_success_url(self):
-        return reverse("teacher_course", kwargs={'course_id': self.course.id })
+        return reverse("teacher:course", kwargs={'course_id': self.course.id })
 
 
 class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
@@ -127,7 +127,7 @@ class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
         return self.worksheet
 
     def get_success_url(self):
-        return reverse("teacher_course", kwargs={'course_id': self.course.id })
+        return reverse("teacher:course", kwargs={'course_id': self.course.id })
 
 
 class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
@@ -146,7 +146,7 @@ class WorksheetDeleteView(TeacherWorksheetViewMixin, DeleteView):
     model = Worksheet
 
     def get_object(self):
-        return get_object_or_404(Worksheet, id=self.worksheet.id, status=teacher_constants.WORKSHEET_STATUS_UNRELEASED)
+        return get_object_or_404(Worksheet, id=self.worksheet.id, status=constants.WORKSHEET_STATUS_UNRELEASED)
 
     def post(self, *args, **kwargs):
         worksheet = self.get_object()
@@ -272,7 +272,7 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
         submission.save()
 
         messages.success(self.request, 'Assessment saved ', 'success')
-        return redirect('teacher_worksheet_detail', self.course.id, self.worksheet.id)
+        return redirect('teacher:worksheet_detail', self.course.id, self.worksheet.id)
 
 
 # TODO - delete

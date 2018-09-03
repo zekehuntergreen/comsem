@@ -264,7 +264,7 @@
 				'searchCriteria': $('#searchCriteria').val(),
 				'searchType': $('[name=searchType]:checked').val(),
 			}
-			$('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load("{% url 'search_results' %}", data );
+			$('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load("{% url 'corpus:search_results' %}", data );
 		});
 
 
@@ -359,7 +359,7 @@
 
 		$.ajax({
 			type: "POST",
-			url: "{% url 'populate_word_tag' %}",
+			url: "{% url 'corpus:populate_word_tag' %}",
 			data: {
 				'type': type,
 				'val': val,

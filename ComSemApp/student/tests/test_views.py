@@ -1,16 +1,16 @@
 from django.urls import reverse
 from django.core import mail
 
-from ComSemApp.tests import BaseTestCase
+from ComSemApp.libs.factories import BaseTestCase
 from ComSemApp.models import *
 
-from ComSemApp.teacher_constants import WORKSHEET_STATUS_PENDING, WORKSHEET_STATUS_UNRELEASED, WORKSHEET_STATUS_RELEASED
+from ComSemApp.teacher.constants import WORKSHEET_STATUS_PENDING, WORKSHEET_STATUS_UNRELEASED, WORKSHEET_STATUS_RELEASED
 
 
 class TestCredentials(BaseTestCase):
     # only students should be able to access students views.
 
-    student_home_url = reverse("student")
+    student_home_url = reverse("student:courses")
     loggin_url = reverse("login")
 
     def setUp(self):
@@ -53,12 +53,12 @@ class TestStudentMixin(BaseTestCase):
 class TestCourseListView(TestStudentMixin):
 
     def test_success(self):
-        response = self.client.get(reverse("student"))
+        response = self.client.get(reverse("student:courses"))
         self.assertEqual(response.status_code, 200)
         self.assertIn(self.course, response.context['courses'])
 
     def test_unenrolled_not_in_list(self):
-        response = self.client.get(reverse("student"))
+        response = self.client.get(reverse("student:courses"))
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(self.unenrolled_course, response.context['courses'])
 
@@ -66,14 +66,14 @@ class TestCourseListView(TestStudentMixin):
 class TestCourseViewMixin(TestStudentMixin):
 
     def test_invalid_course_fail(self):
-        response = self.client.get(reverse("student_course", kwargs={'course_id': 100}), follow=True)
-        self.assertRedirects(response, reverse("student"))
+        response = self.client.get(reverse("student:course", kwargs={'course_id': 100}), follow=True)
+        self.assertRedirects(response, reverse("student:courses"))
         self.assertEqual(str(list(response.context.get('messages'))[0]), "Invalid Course ID")
 
     def test_invalid_teacher_fail(self):
         course = self.db_create_course()
-        response = self.client.get(reverse("student_course", kwargs={'course_id': course.id}), follow=True)
-        self.assertRedirects(response, reverse("student"))
+        response = self.client.get(reverse("student:course", kwargs={'course_id': course.id}), follow=True)
+        self.assertRedirects(response, reverse("student:courses"))
         self.assertEqual(str(list(response.context.get('messages'))[0]), "Invalid Course ID")
 
 
@@ -82,7 +82,7 @@ class TestCourseDetailView(TestStudentMixin):
     def test_success(self):
         worksheet_in_unenrolled_course = self.db_create_worksheet(course=self.unenrolled_course)
 
-        response = self.client.get(reverse("student_course", kwargs={'course_id': self.course.id}))
+        response = self.client.get(reverse("student:course", kwargs={'course_id': self.course.id}))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['course'], self.course)
 
@@ -98,7 +98,7 @@ class TestSubmissionListView(TestStudentMixin):
         my_submission = self.db_create_submission(student=self.student, worksheet=self.released_worksheet)
         another_student = self.db_create_student()
         another_students_submission = self.db_create_submission(student=another_student, worksheet=self.released_worksheet)
-        response = self.client.get(reverse("student_submission_list",
+        response = self.client.get(reverse("student:submission_list",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id}))
         self.assertEqual(response.status_code, 200)
         self.assertIn(my_submission, response.context['submissions'])
@@ -110,7 +110,7 @@ class TestCreateSubmissionView(TestStudentMixin):
     def test_get_success(self):
         # pending submission created
         self.assertEqual(self.released_worksheet.submissions.count(), 0)
-        response = self.client.get(reverse("student_create_submission",
+        response = self.client.get(reverse("student:create_submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id}))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.released_worksheet.submissions.count(), 1)
@@ -121,7 +121,7 @@ class TestCreateSubmissionView(TestStudentMixin):
         pending_submission = self.db_create_submission(student=self.student, worksheet=self.released_worksheet, status="pending")
         self.assertEqual(self.released_worksheet.submissions.count(), 1)
 
-        response = self.client.get(reverse("student_create_submission",
+        response = self.client.get(reverse("student:create_submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id}))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.released_worksheet.submissions.count(), 1)
@@ -130,7 +130,7 @@ class TestCreateSubmissionView(TestStudentMixin):
     def test_incomplete_exists_success(self):
         pending_submission = self.db_create_submission(student=self.student, worksheet=self.released_worksheet, status="incomplete")
         self.assertEqual(self.released_worksheet.submissions.count(), 1)
-        response = self.client.get(reverse("student_create_submission",
+        response = self.client.get(reverse("student:create_submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id}))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.released_worksheet.submissions.count(), 2)
@@ -138,27 +138,27 @@ class TestCreateSubmissionView(TestStudentMixin):
 
     def test_ungraded_exists_redirect(self):
         pending_submission = self.db_create_submission(student=self.student, worksheet=self.released_worksheet, status="ungraded")
-        response = self.client.get(reverse("student_create_submission",
+        response = self.client.get(reverse("student:create_submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id}), follow=True)
-        self.assertRedirects(response, reverse("student_course", kwargs={'course_id': self.course.id}))
+        self.assertRedirects(response, reverse("student:course", kwargs={'course_id': self.course.id}))
         self.assertEqual(str(list(response.context.get('messages'))[0]), "You may not create a submission for this worksheet.")
 
     def test_complete_exists_redirect(self):
         pending_submission = self.db_create_submission(student=self.student, worksheet=self.released_worksheet, status="complete")
-        response = self.client.get(reverse("student_create_submission",
+        response = self.client.get(reverse("student:create_submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id}), follow=True)
-        self.assertRedirects(response, reverse("student_course", kwargs={'course_id': self.course.id}))
+        self.assertRedirects(response, reverse("student:course", kwargs={'course_id': self.course.id}))
         self.assertEqual(str(list(response.context.get('messages'))[0]), "You may not create a submission for this worksheet.")
 
     def test_post_success(self):
-        response = self.client.get(reverse("student_create_submission",
+        response = self.client.get(reverse("student:create_submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id}))
         self.assertEqual(response.status_code, 200)
         submission = self.released_worksheet.submissions.first()
 
-        response = self.client.post(reverse("student_create_submission",
+        response = self.client.post(reverse("student:create_submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id}), follow=True)
-        self.assertRedirects(response, reverse("student_course", kwargs={'course_id': self.course.id}))
+        self.assertRedirects(response, reverse("student:course", kwargs={'course_id': self.course.id}))
         submission.refresh_from_db()
         self.assertEqual(submission.status, "ungraded")
         self.assertEqual(str(list(response.context.get('messages'))[0]), "Submission successful")
@@ -168,34 +168,34 @@ class TestCreateSubmissionView(TestStudentMixin):
 
     def test_last_submission_ungraded_get_success(self):
         ungraded_submission = self.db_create_submission(student=self.student, worksheet=self.released_worksheet, status="ungraded")
-        response = self.client.get(reverse("student_update_submission",
+        response = self.client.get(reverse("student:update_submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id, 'submission_id': ungraded_submission.id}))
         self.assertEqual(response.status_code, 200)
 
     def test_last_submission_not_ungraded_404(self):
         # pending
         pending_submission = self.db_create_submission(student=self.student, worksheet=self.released_worksheet, status="pending")
-        response = self.client.get(reverse("student_update_submission",
+        response = self.client.get(reverse("student:update_submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id, 'submission_id': pending_submission.id}))
         self.assertEqual(response.status_code, 404)
 
         # complete
         complete_submission = self.db_create_submission(student=self.student, worksheet=self.released_worksheet, status="complete")
-        response = self.client.get(reverse("student_update_submission",
+        response = self.client.get(reverse("student:update_submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id, 'submission_id': complete_submission.id}))
         self.assertEqual(response.status_code, 404)
 
         # complete
         incomplete_submission = self.db_create_submission(student=self.student, worksheet=self.released_worksheet, status="incomplete")
-        response = self.client.get(reverse("student_update_submission",
+        response = self.client.get(reverse("student:update_submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id, 'submission_id': incomplete_submission.id}))
         self.assertEqual(response.status_code, 404)
 
     def test_post_success(self):
         ungraded_submission = self.db_create_submission(student=self.student, worksheet=self.released_worksheet, status="ungraded")
-        response = self.client.post(reverse("student_update_submission",
+        response = self.client.post(reverse("student:update_submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id, 'submission_id': ungraded_submission.id}), follow=True)
-        self.assertRedirects(response, reverse("student_course", kwargs={'course_id': self.course.id}))
+        self.assertRedirects(response, reverse("student:course", kwargs={'course_id': self.course.id}))
         # no change to db
         self.assertEqual(str(list(response.context.get('messages'))[0]), "Submission updated")
 
@@ -211,7 +211,7 @@ class TestSubmissionsMixin(TestStudentMixin):
 class TestExpressionListView(TestSubmissionsMixin):
 
     def test_get_success(self):
-        response = self.client.get(reverse("student_worksheet_expression_list",
+        response = self.client.get(reverse("student:worksheet_expression_list",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id, 'submission_id': self.submission.id}))
         self.assertEqual(response.status_code, 200)
         self.assertIn(self.expression_1, response.context['expressions'])
@@ -221,7 +221,7 @@ class TestExpressionListView(TestSubmissionsMixin):
 class TestAttemptCreateView(TestSubmissionsMixin):
 
     def test_get_success(self):
-        response = self.client.get(reverse("student_create_attempt",
+        response = self.client.get(reverse("student:create_attempt",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id,
                         'submission_id': self.submission.id, 'expression_id': self.expression_1.id}))
         self.assertEqual(response.status_code, 200)
@@ -229,7 +229,7 @@ class TestAttemptCreateView(TestSubmissionsMixin):
 
     def test_get_bad_expression_fail(self):
         expression_3 = self.db_create_expression(worksheet=self.unreleased_worksheet)
-        response = self.client.get(reverse("student_create_attempt",
+        response = self.client.get(reverse("student:create_attempt",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id,
                         'submission_id': self.submission.id, 'expression_id': expression_3.id}))
         self.assertEqual(response.status_code, 404)
@@ -242,7 +242,7 @@ class TestAttemptCreateView(TestSubmissionsMixin):
             "reformulation_audio": False,
             # TODO: test this !
         }
-        response = self.client.post(reverse("student_create_attempt",
+        response = self.client.post(reverse("student:create_attempt",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id,
                         'submission_id': self.submission.id, 'expression_id': self.expression_1.id}), data=post_data)
         self.assertEqual(response.status_code, 200)
@@ -259,7 +259,7 @@ class TestAttemptUpdateView(TestSubmissionsMixin):
         self.attempt = self.db_create_attempt(expression=self.expression_1, submission=self.submission)
 
     def test_get_success(self):
-        response = self.client.get(reverse("student_update_attempt",
+        response = self.client.get(reverse("student:update_attempt",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id,
                         'submission_id': self.submission.id, 'attempt_id': self.attempt.id}))
         self.assertEqual(response.status_code, 200)
@@ -274,7 +274,7 @@ class TestAttemptUpdateView(TestSubmissionsMixin):
             "reformulation_audio": False,
             # TODO: test this !
         }
-        response = self.client.post(reverse("student_update_attempt",
+        response = self.client.post(reverse("student:update_attempt",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.released_worksheet.id,
                         'submission_id': self.submission.id, 'attempt_id': self.attempt.id}), data=post_data)
         self.assertEqual(response.status_code, 200)

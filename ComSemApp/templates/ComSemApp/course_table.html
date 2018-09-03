@@ -38,7 +38,7 @@
 
 					{% if teacher_view %}
 					<td>
-						<a href="{% url 'teacher_course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</a>
+						<a href="{% url 'teacher:course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</a>
 						<button type='button' class='btn btn-sm btn-outline-primary show-students'>Students</button>
 					</td>
 					{% else %}
@@ -46,7 +46,7 @@
 						{{ course.teachers.all|join:", " }}
 					</td>
 					<td>
-						<a href="{% url 'student_course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</button>
+						<a href="{% url 'student:course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</button>
 					</td>
 					{% endif %}
 				</tr>

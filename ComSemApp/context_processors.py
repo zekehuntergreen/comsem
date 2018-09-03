@@ -1,9 +1,10 @@
 from .models import Admin, Teacher, Student
 from django.conf import settings
+from django.urls import reverse
 
 # info to be displayed in dropdown menu - user's roles.
 def user_info(request):
-    user_info = {}
+    available_roles = {}
     current_role = ''
     minton_style = 'blue-vertical'
 
@@ -14,30 +15,23 @@ def user_info(request):
             if current:
                 current_role = 'admin'
                 minton_style = 'blue-vertical-dark'
-            user_info['admin'] = {
-                'current': current,
-            }
+            available_roles['admin'] = reverse("admin:home")
         if Teacher.objects.filter(user=request.user).exists():
             current = request.path.startswith('/teacher/')
             if current:
                 current_role = 'teacher'
                 minton_style = 'blue-vertical'
-            user_info['teacher'] = {
-                'current': current,
-            }
+            available_roles['teacher'] = reverse("teacher:courses")
         if Student.objects.filter(user=request.user).exists():
             current = request.path.startswith('/student/')
             if current:
                 current_role = 'student'
                 minton_style = 'green-vertical'
-            user_info['student'] = {
-                'current': current,
-            }
+            available_roles['student'] = reverse("student:courses")
 
     return {
-        "user_info": user_info,
+        "available_roles": available_roles,
         "current_role": current_role,
         "minton_style": minton_style,
-
         "live": settings.LIVE,
     }

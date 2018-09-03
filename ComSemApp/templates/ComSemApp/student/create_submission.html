@@ -60,7 +60,7 @@
 
 <script>
 var encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
-var expression_list_url = "{% url 'student_worksheet_expression_list' course_id=course.id worksheet_id=worksheet.id submission_id=submission.id %}"
+var expression_list_url = "{% url 'student:worksheet_expression_list' course_id=course.id worksheet_id=worksheet.id submission_id=submission.id %}"
 // load the list of expressions for the worksheet
 function drawExpressionsTable(){
     console.log("drawing expressions table")
