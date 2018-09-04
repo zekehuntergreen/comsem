@@ -10,7 +10,7 @@
 			</div>
 
 			<div class="col-md-6">
-				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin:create_session_type' %}">
+				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'administrator:create_session_type' %}">
 					<i class="fa fa-plus"></i>
 				</a>
 			</div>
@@ -37,9 +37,9 @@
 								{{ session_type.order }}
 							</td>
 							<td class="text-right">
-								<a href="{% url 'admin:edit_session_type' session_type.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
+								<a href="{% url 'administrator:edit_session_type' session_type.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
 
-								<button delete_url="{% url 'admin:delete_session_type' pk=session_type.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
+								<button delete_url="{% url 'administrator:delete_session_type' pk=session_type.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
 							</td>
 						</tr>
 					{% endfor %}

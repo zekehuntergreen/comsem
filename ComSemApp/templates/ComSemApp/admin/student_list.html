@@ -10,7 +10,7 @@
 			</div>
 
 			<div class="col-md-6">
-				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin:create_student' %}">
+				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'administrator:create_student' %}">
 					<i class="fa fa-plus"></i>
 				</a>
 			</div>
@@ -45,9 +45,9 @@
 								<i class='fa fa-lg {% if student.user.is_active %}fa-check{% else %}fa-times{% endif %}'></i>
 							</td>
 							<td class="text-right">
-								<a href="{% url 'admin:edit_student' student.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
+								<a href="{% url 'administrator:edit_student' student.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
 
-								<button delete_url="{% url 'admin:disactivate_student' pk=student.id %}" class='btn btn-sm btn-outline-danger delete_button {% if not student.user.is_active %}disabled{% endif %}' style="margin-left: 10px;">Disactivate</button>
+								<button delete_url="{% url 'administrator:disactivate_student' pk=student.id %}" class='btn btn-sm btn-outline-danger delete_button {% if not student.user.is_active %}disabled{% endif %}' style="margin-left: 10px;">Disactivate</button>
 							</td>
 						</tr>
 					{% endfor %}

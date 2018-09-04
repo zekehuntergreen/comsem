@@ -9,7 +9,7 @@ from ComSemApp.models import *
 class TestCredentials(BaseTestCase):
     # only admin users should be able to access admin views.
 
-    teacher_list_url = reverse("admin:teachers")
+    teacher_list_url = reverse("administrator:teachers")
     loggin_url = reverse("login")
 
     def setUp(self):
@@ -93,10 +93,10 @@ class AdminTestCase(object):
 
 class TestStudentViews(AdminTestCase, BaseTestCase):
     obj = Student
-    list_url = reverse("admin:students")
-    create_url = reverse("admin:create_student")
-    update_url_string = "admin:edit_student"
-    delete_url_string = "admin:disactivate_student"
+    list_url = reverse("administrator:students")
+    create_url = reverse("administrator:create_student")
+    update_url_string = "administrator:edit_student"
+    delete_url_string = "administrator:disactivate_student"
     list_prefix = "student"
 
     def setUp(self):
@@ -126,10 +126,10 @@ class TestStudentViews(AdminTestCase, BaseTestCase):
 
 class TestTeacherViews(AdminTestCase, BaseTestCase):
     obj = Teacher
-    list_url = reverse("admin:teachers")
-    create_url = reverse("admin:create_teacher")
-    update_url_string = "admin:edit_teacher"
-    delete_url_string = "admin:disactivate_teacher"
+    list_url = reverse("administrator:teachers")
+    create_url = reverse("administrator:create_teacher")
+    update_url_string = "administrator:edit_teacher"
+    delete_url_string = "administrator:disactivate_teacher"
     list_prefix = "teacher"
 
     def setUp(self):
@@ -157,10 +157,10 @@ class TestTeacherViews(AdminTestCase, BaseTestCase):
 
 class TestCourseViews(AdminTestCase, BaseTestCase):
     obj = Course
-    list_url = reverse("admin:courses")
-    create_url = reverse("admin:create_course")
-    update_url_string = "admin:edit_course"
-    delete_url_string = "admin:delete_course"
+    list_url = reverse("administrator:courses")
+    create_url = reverse("administrator:create_course")
+    update_url_string = "administrator:edit_course"
+    delete_url_string = "administrator:delete_course"
     list_prefix = "course"
 
     def setUp(self):
@@ -179,10 +179,10 @@ class TestCourseViews(AdminTestCase, BaseTestCase):
 
 class TestCourseTypeViews(AdminTestCase, BaseTestCase):
     obj = CourseType
-    list_url = reverse("admin:course_types")
-    create_url = reverse("admin:create_course_type")
-    update_url_string = "admin:edit_course_type"
-    delete_url_string = "admin:delete_course_type"
+    list_url = reverse("administrator:course_types")
+    create_url = reverse("administrator:create_course_type")
+    update_url_string = "administrator:edit_course_type"
+    delete_url_string = "administrator:delete_course_type"
     list_prefix = "coursetype"
 
     def setUp(self):
@@ -199,10 +199,10 @@ class TestCourseTypeViews(AdminTestCase, BaseTestCase):
 
 class TestSessionViews(AdminTestCase, BaseTestCase):
     obj = Session
-    list_url = reverse("admin:sessions")
-    create_url = reverse("admin:create_session")
-    update_url_string = "admin:edit_session"
-    delete_url_string = "admin:delete_session"
+    list_url = reverse("administrator:sessions")
+    create_url = reverse("administrator:create_session")
+    update_url_string = "administrator:edit_session"
+    delete_url_string = "administrator:delete_session"
     list_prefix = "session"
 
     def setUp(self):
@@ -219,10 +219,10 @@ class TestSessionViews(AdminTestCase, BaseTestCase):
 
 class TestSessionTypeViews(AdminTestCase, BaseTestCase):
     obj = SessionType
-    list_url = reverse("admin:session_types")
-    create_url = reverse("admin:create_session_type")
-    update_url_string = "admin:edit_session_type"
-    delete_url_string = "admin:delete_session_type"
+    list_url = reverse("administrator:session_types")
+    create_url = reverse("administrator:create_session_type")
+    update_url_string = "administrator:edit_session_type"
+    delete_url_string = "administrator:delete_session_type"
     list_prefix = "sessiontype"
 
     def setUp(self):

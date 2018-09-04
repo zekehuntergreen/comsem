@@ -15,7 +15,7 @@ def user_info(request):
             if current:
                 current_role = 'admin'
                 minton_style = 'blue-vertical-dark'
-            available_roles['admin'] = reverse("admin:home")
+            available_roles['admin'] = reverse("administrator:home")
         if Teacher.objects.filter(user=request.user).exists():
             current = request.path.startswith('/teacher/')
             if current:
