@@ -6,7 +6,7 @@ from bootstrap3_datetime.widgets import DateTimePicker
 from django_select2.forms import Select2MultipleWidget
 
 from django.contrib.auth.models import User
-from .models import Course, CourseType, Session, SessionType, Teacher, Student, Institution
+from ComSemApp.models import Course, CourseType, Session, SessionType, Teacher, Student, Institution
 
 
 
@@ -24,8 +24,6 @@ class SignupForm(ModelForm):
         }
 
 
-
-# MODEL FORMS FOR ADMIN SIDE
 class CourseForm(ModelForm):
 
     class Meta:
@@ -64,7 +62,6 @@ class SessionForm(ModelForm):
         self.fields['end_date'].widget.attrs['class'] = 'datepicker'
 
 
-
 class SessionTypeForm(ModelForm):
     class Meta:
         model = SessionType
@@ -84,9 +81,8 @@ class TeacherForm(ModelForm):
         model = Teacher
         exclude = ['user', 'institution'] # does nothing for now
 
+
 class StudentForm(ModelForm):
     class Meta:
         model = Student
         fields = ['country', 'language']
-
-

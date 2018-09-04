@@ -10,7 +10,10 @@ from django.core.mail import send_mail
 from django.views.generic.base import TemplateView
 
 from .models import Admin, Teacher, Student
-from .forms import SignupForm
+from ComSemApp.admin.forms import SignupForm
+
+# TODO - these are the sort of extra views that don't exactly fit into one of the existing "apps"
+# and should be reorganized
 
 # home page
 def about(request):
