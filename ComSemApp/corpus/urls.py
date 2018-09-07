@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from ComSemApp.admin import views
+from ComSemApp.administrator import views
 from ComSemApp.corpus import views
 
 app_name = 'admin'

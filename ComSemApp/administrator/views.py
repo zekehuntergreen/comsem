@@ -18,7 +18,7 @@ from django.contrib import messages
 
 from ComSemApp.models import *
 from django.contrib.auth.models import User
-from ComSemApp.admin.forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, TeacherForm, StudentForm, UserForm
+from ComSemApp.administrator.forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, TeacherForm, StudentForm, UserForm
 from ComSemApp.libs.mixins import RoleViewMixin
 
 

@@ -11,19 +11,19 @@ def user_info(request):
     if request.user.is_authenticated:
 
         if Admin.objects.filter(user=request.user).exists():
-            current = request.path.startswith('/admin/')
+            current = request.path == reverse("administrator:home")
             if current:
                 current_role = 'admin'
                 minton_style = 'blue-vertical-dark'
             available_roles['admin'] = reverse("administrator:home")
         if Teacher.objects.filter(user=request.user).exists():
-            current = request.path.startswith('/teacher/')
+            current = request.path == reverse("teacher:courses")
             if current:
                 current_role = 'teacher'
                 minton_style = 'blue-vertical'
             available_roles['teacher'] = reverse("teacher:courses")
         if Student.objects.filter(user=request.user).exists():
-            current = request.path.startswith('/student/')
+            current = request.path == reverse("student:courses")
             if current:
                 current_role = 'student'
                 minton_style = 'green-vertical'

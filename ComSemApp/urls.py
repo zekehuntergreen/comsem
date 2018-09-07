@@ -8,7 +8,7 @@ urlpatterns = [
 
     url(r'^initiate_roles/$', views.initiate_roles, name='initiate_roles'),
 
-    url(r'^admin/', include('ComSemApp.admin.urls', namespace='administrator')),
+    url(r'^administrator/', include('ComSemApp.administrator.urls', namespace='administrator')),
     url(r'^teacher/', include('ComSemApp.teacher.urls', namespace='teacher')),
     url(r'^student/', include('ComSemApp.student.urls', namespace='student')),
     url(r'^corpus/', include('ComSemApp.corpus.urls', namespace='corpus')),
