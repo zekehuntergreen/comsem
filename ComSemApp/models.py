@@ -1,4 +1,4 @@
-import datetime
+import datetime, uuid
 
 from django.db import models
 from django.conf import settings
@@ -20,6 +20,9 @@ for s in states:
 
 STUDENT_SUBMISSION_STATUSES = [('pending', 'pending'), ('ungraded', 'ungraded'), ('complete', 'complete'), ('incomplete', 'incomplete')]
 
+
+def audio_directory_path(directory, instance):
+    return "reformulations/" + str(uuid.uuid4())
 
 
 # TODO : Split these models into admin, teacher, student, corpus apps
@@ -207,7 +210,7 @@ class Expression(models.Model):
     pronunciation = models.CharField(max_length=255, blank=True, null=True)
     context_vocabulary = models.CharField(max_length=255, blank=True, null=True)
     reformulation_text = models.TextField(blank=True, null=True)
-    reformulation_audio = models.BooleanField(default=False)
+    audio = models.FileField(upload_to=audio_directory_path, null=True)
 
     def __str__(self):
         return self.expression
@@ -222,6 +225,7 @@ class StudentSubmissionManager(models.Manager):
     def get_or_create_pending(self, student, worksheet):
         return StudentSubmission.objects.get_or_create(student=student,
                 worksheet=worksheet, status='pending')
+
 
 class StudentSubmission(models.Model):
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
