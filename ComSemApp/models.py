@@ -22,7 +22,7 @@ STUDENT_SUBMISSION_STATUSES = [('pending', 'pending'), ('ungraded', 'ungraded'),
 
 
 def audio_directory_path(directory, instance):
-    return "reformulations/" + str(uuid.uuid4())
+    return "reformulations/" + str(uuid.uuid4()) + ".ogg"
 
 
 # TODO : Split these models into admin, teacher, student, corpus apps
@@ -309,4 +309,3 @@ class Tag(models.Model):
     def frequency(self):
         words = Word.objects.filter(tag=self).all()
         return SequentialWords.objects.filter(word__in=words).count()
-
