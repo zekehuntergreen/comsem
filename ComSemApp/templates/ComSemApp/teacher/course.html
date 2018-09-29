@@ -60,8 +60,7 @@
 						<h4 class="m-t-0 header-title"><b>Worksheets</b></h4>
 					</div>
 					<div class="col-6">
-						{% url 'teacher:worksheet_create' course_id=course.id as new_worksheet %}
-						<a href="{{ new_worksheet }}" class="btn btn-sm btn-outline-info float-right"><i class="fa fa-plus"></i></a>
+						<a href="{% url 'teacher:worksheet_create' course_id=course.id %}" class="btn btn-sm btn-outline-info float-right"><i class="fa fa-plus"></i></a>
 					</div>
 
 				</div>

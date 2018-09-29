@@ -41,5 +41,5 @@
     {% include 'ComSemApp/tablesorter_footer.html'%}
 </table>
 {% else %}
-    <p>No worksheets have been created yet. <a href="{{ new_worksheet }}">Click here</a> to create one.</p>
+    <p>No worksheets have been created yet. <a href="{% url 'teacher:worksheet_create' course_id=course.id %}">Click here</a> to create one.</p>
 {% endif %}
