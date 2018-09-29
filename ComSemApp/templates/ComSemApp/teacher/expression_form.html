@@ -86,11 +86,10 @@
         {% include 'ComSemApp/audio_recording.html' %}
     </div>
 
-    {% if object.reformulation_audio %}
+    {% if object.audio %}
     <script>
         $(function(){
-            audioURL = calculateAudioURL( {'expressionID': "{{ object.id }}"} )
-            $('#recordingslist').html("<audio controls id='audioElement' src='" + audioURL + "' type='audio/mpeg'></audio>");
+            $('#recordingslist').html("<audio controls id='audioElement' src='" + "{{ object.audio.url }}" + "' type='audio/mpeg'></audio>");
             $('#deleteRecordingButton').show();
         })
     </script>
@@ -118,24 +117,23 @@ $("#saveExpression").click(function(e){
         return;
     }
 
-    var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? 1 : 0
-
     // because of audio, we must send a formdata object
     var worksheetFormData = new FormData();
     student_id = $("#studentID").val()
     if (student_id != "0"){
         worksheetFormData.append( 'student', student_id );
     }
-    worksheetFormData.append( 'expression', $("#expression").val() );
-    worksheetFormData.append( 'all_do', $("#all_do").prop("checked") );
-    worksheetFormData.append( 'context_vocabulary', $("#contextVocabulary").val() );
-    worksheetFormData.append( 'reformulation_text', $("#reformulation").val() );
-    worksheetFormData.append( 'pronunciation', $("#pronunciation").val() );
+    worksheetFormData.append('expression', $("#expression").val() );
+    worksheetFormData.append('all_do', $("#all_do").prop("checked") );
+    worksheetFormData.append('context_vocabulary', $("#contextVocabulary").val() );
+    worksheetFormData.append('reformulation_text', $("#reformulation").val() );
+    worksheetFormData.append('pronunciation', $("#pronunciation").val() );
 
     var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? true : false
-    worksheetFormData.append( 'reformulation_audio',  reformulation_audio)
     if (reformulation_audio){
-        worksheetFormData.append( 'audio_file', audioReformulationBlob )
+        worksheetFormData.append('audio', audioReformulationBlob)
+    } else {
+        worksheetFormData.append('delete_audio', true)
     }
 
     inspectFormData(worksheetFormData)

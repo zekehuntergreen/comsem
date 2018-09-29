@@ -14,8 +14,6 @@ from django.contrib import messages
 
 from ComSemApp.teacher import constants as teacher_constants
 
-from ComSemApp.teacher.views import create_file_url, handle_uploaded_file # helpers from theacher views - could be put in seperate module
-
 from ComSemApp.models import *
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin, SubmissionViewMixin
 
@@ -189,7 +187,7 @@ class ExpressionListView(StudentSubmissionViewMixin, ListView):
 class AttemptCreateView(StudentSubmissionViewMixin, CreateView):
     model = StudentAttempt
     template_name = "ComSemApp/student/attempt_form.html"
-    fields = ["reformulation_text", "reformulation_audio"]
+    fields = ["reformulation_text", "audio"]
 
     def get_context_data(self, **kwargs):
         context = super(AttemptCreateView, self).get_context_data(**kwargs)
@@ -211,19 +209,13 @@ class AttemptCreateView(StudentSubmissionViewMixin, CreateView):
         attempt.student_submission = self.submission
         attempt.expression = expression
         attempt.save()
-        if attempt.reformulation_audio:
-            # TODO - audio_file should really be part of the form and can be merged with reformulation_audio
-            audio_file = self.request.FILES.get('audio_file', None)
-            if audio_file:
-                url = create_file_url("AttemptReformulations", attempt.id)
-                handle_uploaded_file(audio_file, url)
         return JsonResponse({}, status=200)
 
 
 class AttemptUpdateView(StudentSubmissionViewMixin, UpdateView):
     context_object_name = 'attempt'
     template_name = "ComSemApp/student/attempt_form.html"
-    fields = ["reformulation_text", "reformulation_audio"]
+    fields = ["reformulation_text", "audio"]
 
     def get_context_data(self, **kwargs):
         context = super(AttemptUpdateView, self).get_context_data(**kwargs)
@@ -240,11 +232,7 @@ class AttemptUpdateView(StudentSubmissionViewMixin, UpdateView):
 
     def form_valid(self, form):
         attempt = form.save()
-        if attempt.reformulation_audio:
-            # TODO - audio_file should really be part of the form and can be merged with reformulation_audio
-            audio_file = self.request.FILES.get('audio_file', None)
-            if audio_file:
-                url = create_file_url("AttemptReformulations", attempt.id)
-                handle_uploaded_file(audio_file, url)
+        if 'delete_audio' in form.data:
+            attempt.audio = None
+            attempt.save()
         return JsonResponse({}, status=200)
-

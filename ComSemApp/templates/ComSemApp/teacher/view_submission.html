@@ -137,9 +137,9 @@
 									{{  attempt.reformulation_text }}
 								</div>
 
-								{% if attempt.reformulation_audio %}
+								{% if attempt.audio %}
 								<div class="col-6">
-									<audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" attempt_id="{{ attempt.id }}" src="">
+									<audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio.url }}">
 									</audio>
 								</div>
 								{% else %}
@@ -187,16 +187,6 @@
 
 </form>
 
-<script>
-$(function(){
-	// handle previous attempt audio using url function
-	$('.previous_attempt_audio').each(function(){
-
-		attempt_id = $(this).attr('attempt_id');
-		$(this).attr('src', calculateAudioURL( {'attemptID': attempt_id } ))
-	});
-})
-</script>
 
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
 

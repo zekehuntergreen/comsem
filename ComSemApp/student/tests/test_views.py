@@ -239,7 +239,7 @@ class TestAttemptCreateView(TestSubmissionsMixin):
         reformulation_text = "this is the reformulation text!"
         post_data = {
             "reformulation_text": reformulation_text,
-            "reformulation_audio": False,
+            "audio": None,
             # TODO: test this !
         }
         response = self.client.post(reverse("student:create_attempt",
@@ -271,7 +271,7 @@ class TestAttemptUpdateView(TestSubmissionsMixin):
         reformulation_text = "this is the UPDATED reformulation text!"
         post_data = {
             "reformulation_text": reformulation_text,
-            "reformulation_audio": False,
+            "audio": None,
             # TODO: test this !
         }
         response = self.client.post(reverse("student:update_attempt",
@@ -281,4 +281,3 @@ class TestAttemptUpdateView(TestSubmissionsMixin):
         self.assertEqual(self.submission.attempts.count(), 1)
         self.attempt.refresh_from_db()
         self.assertEqual(self.attempt.reformulation_text, reformulation_text)
-

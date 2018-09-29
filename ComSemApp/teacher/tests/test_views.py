@@ -274,7 +274,7 @@ class TestExpressionCreateView(TestTeacherMixin):
             "pronunciation": "P",
             "context_vocabulary": "C",
             "reformulation_text": "R",
-            "reformulation_audio": False,
+            "audio": None,
             # TODO test audio upload
         }
         response = self.client.post(reverse("teacher:expression_create",
@@ -288,7 +288,7 @@ class TestExpressionCreateView(TestTeacherMixin):
         self.assertEqual(expression.pronunciation, "P")
         self.assertEqual(expression.context_vocabulary, "C")
         self.assertEqual(expression.reformulation_text, "R")
-        self.assertEqual(expression.reformulation_audio, False)
+        self.assertFalse(expression.audio)
 
 
 class TestExpressionUpdateView(TestTeacherMixin):
@@ -314,7 +314,7 @@ class TestExpressionUpdateView(TestTeacherMixin):
             "pronunciation": "P",
             "context_vocabulary": "C",
             "reformulation_text": "R",
-            "reformulation_audio": False,
+            "audio": None,
             # TODO test audio upload
         }
         response = self.client.post(reverse("teacher:expression_update",
@@ -327,7 +327,7 @@ class TestExpressionUpdateView(TestTeacherMixin):
         self.assertEqual(expression.pronunciation, "P")
         self.assertEqual(expression.context_vocabulary, "C")
         self.assertEqual(expression.reformulation_text, "R")
-        self.assertEqual(expression.reformulation_audio, False)
+        self.assertFalse(expression.audio)
 
 
 class TestExpressionDeleteView(TestTeacherMixin):
@@ -391,5 +391,3 @@ class TestSubmissionView(TestTeacherMixin):
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.worksheet.id}))
         self.submission.refresh_from_db()
         self.assertEqual(self.submission.status, "complete")
-
-

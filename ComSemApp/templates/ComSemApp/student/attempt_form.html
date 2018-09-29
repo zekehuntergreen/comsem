@@ -50,10 +50,10 @@
             </div>
         </div>
     </div>
-    {% if expression.reformulation_audio %}
+    {% if expression.audio %}
         <script>
             $(function(){
-                $("#teacherReformulationAudio").attr("src", calculateAudioURL( {'expressionID': "{{ expression.id }}"} ))
+                $("#teacherReformulationAudio").attr("src", "{{ expression.audio.url }}")
             })
         </script>
     {% endif %}
@@ -75,11 +75,10 @@
     {% include 'ComSemApp/audio_recording.html' %}
 </div>
 
-{% if attempt.reformulation_audio %}
+{% if attempt.audio %}
 <script>
     $(function(){
-        audioURL = calculateAudioURL( {'attemptID': "{{ attempt.id }}"} )
-        $('#recordingslist').html("<audio controls id='audioElement' src='" + audioURL + "' type='audio/mpeg'></audio>");
+        $('#recordingslist').html("<audio controls id='audioElement' src='" + "{{ attempt.audio.url }}" + "' type='audio/mpeg'></audio>");
         $('#deleteRecordingButton').show();
     })
 </script>
@@ -110,9 +109,10 @@ $("#saveAttempt").click(function(e){
     attemptFormData.append( 'reformulation_text', $("#CorrectedExpr").val() );
 
     var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? true : false
-    attemptFormData.append( 'reformulation_audio',  reformulation_audio)
     if (reformulation_audio){
-        attemptFormData.append( 'audio_file', audioReformulationBlob )
+        attemptFormData.append( 'audio', audioReformulationBlob )
+    } else {
+        attemptFormData.append('delete_audio', true)
     }
 
     $.ajax({

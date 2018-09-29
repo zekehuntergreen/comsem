@@ -167,7 +167,7 @@ class ExpressionCreateView(TeacherWorksheetViewMixin, CreateView):
     model = Expression
     template_name = "ComSemApp/teacher/expression_form.html"
     fields = ["expression", "student", "all_do", "pronunciation", "context_vocabulary",
-                "reformulation_text", "reformulation_audio"]
+                "reformulation_text", "audio"]
 
     def form_invalid(self, form):
         response = super().form_invalid(form)
@@ -177,12 +177,6 @@ class ExpressionCreateView(TeacherWorksheetViewMixin, CreateView):
         expression = form.save(commit=False)
         expression.worksheet = self.worksheet
         expression.save()
-        if expression.reformulation_audio:
-            # TODO - audio_file should really be part of the form and can be merged with reformulation_audio
-            audio_file = self.request.FILES.get('audio_file', None)
-            if audio_file:
-                url = create_file_url("ExpressionReformulations", expression.id)
-                handle_uploaded_file(audio_file, url)
         return JsonResponse({}, status=200)
 
 
@@ -190,7 +184,7 @@ class ExpressionUpdateView(TeacherWorksheetViewMixin, UpdateView):
     model = Expression
     template_name = "ComSemApp/teacher/expression_form.html"
     fields = ["expression", "student", "all_do", "pronunciation", "context_vocabulary",
-                "reformulation_text", "reformulation_audio"]
+                "reformulation_text", "audio"]
 
     def get_object(self):
         expression_id = self.kwargs.get('expression_id', None)
@@ -208,12 +202,11 @@ class ExpressionUpdateView(TeacherWorksheetViewMixin, UpdateView):
 
     def form_valid(self, form):
         expression = form.save()
-        if expression.reformulation_audio:
-            # TODO - audio_file should really be part of the form and can be merged with reformulation_audio
-            audio_file = self.request.FILES.get('audio_file', None)
-            if audio_file:
-                url = create_file_url("ExpressionReformulations", expression.id)
-                handle_uploaded_file(audio_file, url)
+        # delete audio field manually if it's not in the form data
+        # why should we have to do this ?
+        if 'delete_audio' in form.data:
+            expression.audio = None
+            expression.save()
         return JsonResponse({}, status=200)
 
 
@@ -232,11 +225,11 @@ class ExpressionDeleteView(TeacherWorksheetViewMixin, DeleteView):
 
     def post(self, *args, **kwargs):
         expression = self.get_object()
-        reformulation_audio = expression.reformulation_audio
+        audio = expression.audio
         # delete audio file if it exists
-        if reformulation_audio:
-            url = create_file_url("ExpressionReformulations", expression.id)
-            delete_file(url)
+        # TODO override model's delete method
+        if audio:
+            delete_file(audio.url)
         expression.delete()
         return HttpResponse(status=204)
 
@@ -275,37 +268,8 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
         return redirect('teacher:worksheet_detail', self.course.id, self.worksheet.id)
 
 
-# TODO - delete
-def jsonify_expressions(expression_queryset):
-    expressions = list(expression_queryset.values())
-
-    # need to get name of assigned student seperately
-    for i in range(len(expressions)):
-        student = expression_queryset[i].student
-        expressions[i]['student_name'] = str(student) if student else None
-        expressions[i]['reformulation_audio'] = False if expressions[i]['reformulation_audio'] == '0' else True
-
-    return json.dumps(expressions)
-
-
-def create_file_url(directory, e):
-    id_floor = int(math.floor(e/1000))
-    url = settings.EFS_DIR
-    url += directory + '/' + str(id_floor)
-    if not os.path.exists(url):
-        os.makedirs(url)
-    filename = e - (id_floor * 1000)
-    url += '/' + str(filename) + ".ogg"
-    return url
-
-
-def handle_uploaded_file(f, url):
-    with open(url, 'wb+') as destination:
-        for chunk in f.chunks():
-            destination.write(chunk)
-
-
 def delete_file(url):
-    os.remove(url)
-
-
+    try:
+        os.remove(url)
+    except FileNotFoundError:
+        pass
