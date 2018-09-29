@@ -145,7 +145,7 @@ class Factory:
             "pronunciation": "P",
             "context_vocabulary": "C",
             "reformulation_text": "R",
-            "reformulation_audio": False,
+            "audio": None,
         }
         return Expression.objects.create(**defaults)
 
@@ -179,7 +179,7 @@ class Factory:
             "expression": expression,
             "student_submission": submission,
             "reformulation_text": "reformulation_text",
-            "reformulation_audio": False,
+            "audio": None,
             "correct": None,
         }
         return StudentAttempt.objects.create(**defaults)

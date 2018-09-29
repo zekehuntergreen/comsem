@@ -210,7 +210,7 @@ class Expression(models.Model):
     pronunciation = models.CharField(max_length=255, blank=True, null=True)
     context_vocabulary = models.CharField(max_length=255, blank=True, null=True)
     reformulation_text = models.TextField(blank=True, null=True)
-    audio = models.FileField(upload_to=audio_directory_path, null=True)
+    audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
 
     def __str__(self):
         return self.expression
@@ -257,7 +257,7 @@ class StudentAttempt(models.Model):
     expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
     student_submission = models.ForeignKey('StudentSubmission', related_name="attempts", on_delete=models.CASCADE)
     reformulation_text = models.TextField(blank=True, null=True)
-    reformulation_audio = models.BooleanField(default=False)
+    audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
     correct = models.NullBooleanField(blank=True, null=True, default=None)
 
     def __str__(self):

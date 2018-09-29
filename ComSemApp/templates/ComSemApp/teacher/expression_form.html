@@ -132,6 +132,8 @@ $("#saveExpression").click(function(e){
     var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? true : false
     if (reformulation_audio){
         worksheetFormData.append('audio', audioReformulationBlob)
+    } else {
+        worksheetFormData.append('delete_audio', true)
     }
 
     inspectFormData(worksheetFormData)

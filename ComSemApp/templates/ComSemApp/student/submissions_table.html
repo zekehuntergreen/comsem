@@ -42,16 +42,11 @@
                                     <td>{{ attempt.expression }}</td>
                                     <td>{{ attempt.reformulation_text }}</td>
                                     <td>
-                                        {% if attempt.reformulation_audio %}
+                                        {% if attempt.audio %}
                                         <div class="col-6">
-                                            <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" attempt_id="{{ attempt.id }}" src="">
+                                            <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio.url }}">
                                             </audio>
                                         </div>
-                                        <script>
-                                            $(function(){
-                                                $(".previous_attempt_audio[attempt_id=" + "{{ attempt.id }}" + "]").attr("src", calculateAudioURL( {'attemptID': "{{ attempt.id }}"} ))
-                                            })
-                                        </script>
                                         {% else %}
                                         -
                                         {% endif %}

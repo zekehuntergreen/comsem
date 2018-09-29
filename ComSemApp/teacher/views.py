@@ -202,6 +202,11 @@ class ExpressionUpdateView(TeacherWorksheetViewMixin, UpdateView):
 
     def form_valid(self, form):
         expression = form.save()
+        # delete audio field manually if it's not in the form data
+        # why should we have to do this ?
+        if 'delete_audio' in form.data:
+            expression.audio = None
+            expression.save()
         return JsonResponse({}, status=200)
 
 
@@ -220,11 +225,11 @@ class ExpressionDeleteView(TeacherWorksheetViewMixin, DeleteView):
 
     def post(self, *args, **kwargs):
         expression = self.get_object()
-        reformulation_audio = expression.reformulation_audio
+        audio = expression.audio
         # delete audio file if it exists
-        if reformulation_audio:
-            url = create_file_url("ExpressionReformulations", expression.id)
-            delete_file(url)
+        # TODO override model's delete method
+        if audio:
+            delete_file(audio.url)
         expression.delete()
         return HttpResponse(status=204)
 
@@ -263,24 +268,8 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
         return redirect('teacher:worksheet_detail', self.course.id, self.worksheet.id)
 
 
-def create_file_url(directory, e):
-    id_floor = int(math.floor(e/1000))
-    url = settings.EFS_DIR
-    url += directory + '/' + str(id_floor)
-    if not os.path.exists(url):
-        os.makedirs(url)
-    filename = e - (id_floor * 1000)
-    url += '/' + str(filename) + ".ogg"
-    return url
-
-
-def handle_uploaded_file(f, url):
-    with open(url, 'wb+') as destination:
-        for chunk in f.chunks():
-            destination.write(chunk)
-
-
 def delete_file(url):
-    os.remove(url)
-
-
+    try:
+        os.remove(url)
+    except FileNotFoundError:
+        pass
