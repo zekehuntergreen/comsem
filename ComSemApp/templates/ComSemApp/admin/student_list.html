@@ -15,6 +15,12 @@
 				</a>
 			</div>
 
+			<form action="{% url 'myapp:upload_csv' %}" method="post" enctype="multipart/form-data">
+				{% csrf_token %}
+				<input type="file" name="csv_file1">
+				<input type="submit" value="Upload">
+			</form>
+
 			<div class="col-md-6">
 				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'administrator:create_student' %}">
 					<i class="fa fa-plus"></i>
