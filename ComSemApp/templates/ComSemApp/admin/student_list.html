@@ -15,7 +15,7 @@
 				</a>
 			</div>
 
-			<form action="{% url 'administrator:upload_csv' %}" method="post" enctype="multipart/form-data">
+			<form action="{% url 'administrator:create_student' %}" method="post" enctype="multipart/form-data">
 				{% csrf_token %}
 				<input type="file" name="csv_file1">
 				<input type="submit" value="Upload">
