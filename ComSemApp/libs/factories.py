@@ -54,8 +54,8 @@ class Factory:
     def db_create_student(self, **kwargs):
         institution = self.db_get_or_create_institution()
         user = self.db_create_user(**kwargs)
-        return Student.objects.create(user=user, institution=institution)
-        #return 1
+        #return Student.objects.create(user=user, institution=institution)
+        return 1
 
     def db_create_course_type(self, **kwargs):
         defaults = {
