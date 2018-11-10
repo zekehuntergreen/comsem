@@ -18,7 +18,7 @@ admin.site.register(Worksheet, WorksheetAdmin)
 
 
 class ExpressionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'link_to_worksheet', 'date_created', 'institution', 'student', 'audio')
+    list_display = ('id', 'link_to_worksheet', 'date_created', 'institution', 'student', 'expression', 'audio')
     list_display_links = ('id', 'link_to_worksheet')
     list_filter = ['worksheet__course__course_type__institution']
     def link_to_worksheet(self, obj):
