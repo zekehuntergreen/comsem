@@ -115,6 +115,7 @@ class UserMixin(AdminViewMixin, FormView):
         return self.render_to_response(self.get_context_data(form=user_form, obj_form=obj_form))
 
     def _send_email(self, user, password):
+        print("EMAIL SENT")
         link = "https://www.comsem.net"
         message = ("You have been invited to join Communication Seminar by an administrator for " + self.institution.name + ".\n"
                     "In order to log in, go to " + link + " and use \n"
@@ -133,6 +134,7 @@ class UserMixin(AdminViewMixin, FormView):
 class UserCreateMixin(UserMixin):
 
     def get(self, request, *args, **kwargs):
+        print("I AM HERE 2")
         user_form = UserForm()
         user_form.prefix = 'user_form'
         obj_form = self.get_obj_form()
@@ -142,8 +144,7 @@ class UserCreateMixin(UserMixin):
     def post(self, request, *args, **kwargs):
         user_form = UserForm(self.request.POST, prefix='user_form')
         obj_form = self.get_obj_form()
-        print(obj_form)
-
+        print("I AM HERE 1")
         if user_form.is_valid() and obj_form.is_valid():
             # create the user object with random password
             user = user_form.save()
@@ -231,11 +232,7 @@ class UserUpdateMixin(UserMixin):
 
     def post(self, request, *args, **kwargs):
         user_form = UserForm(self.request.POST, instance=self.instance.user, prefix='user_form')
-        print("user form")
-        print(user_form)
         obj_form = self.get_obj_form(initial=self.request.POST)
-        print("obj form")
-        print(user_form)
 
         if user_form.is_valid() and obj_form.is_valid():
             user = user_form.save()
