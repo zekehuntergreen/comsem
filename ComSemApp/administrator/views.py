@@ -145,7 +145,7 @@ class UserCreateMixin(UserMixin):
         user_form = UserForm(self.request.POST, prefix='user_form')
         obj_form = self.get_obj_form()
         print("I AM HERE 1")
-        print(obj_form)
+        print(user_form)
         if user_form.is_valid() and obj_form.is_valid():
             # create the user object with random password
             user = user_form.save()
