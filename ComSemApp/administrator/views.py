@@ -56,13 +56,8 @@ class StudentListView(AdminViewMixin, ListView):
     def post(self, request, *args, **kwargs):
 
 
-        form = self.form_class(request.POST)
-        print(form)
-        if not csv_file.name.endswith('.csv'):
-            print( "This file is not a .csv file")
 
-        data_set = csv_file.read().decode('utf-8')
-        print (data_set)
+        print (request)
 
     def get_queryset(self):
         
