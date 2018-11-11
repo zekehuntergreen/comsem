@@ -56,7 +56,7 @@ class StudentListView(AdminViewMixin, ListView):
     success_url = reverse_lazy("administrator:students")
     def post(self, request, *args, **kwargs):
         csv_file = request.FILES['file']
-        for (line in file):
+        for line in csv_file:
             print (line)
         print (csv_file)
         return HttpResponseRedirect(self.success_url)
