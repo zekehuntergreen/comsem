@@ -55,7 +55,10 @@ class StudentListView(AdminViewMixin, ListView):
     template_name = 'ComSemApp/admin/student_list.html'
 
     def get_queryset(self):
+        print("HEST")
         return Student.objects.filter(institution=self.institution)
+
+    
 
 
 class CourseListView(AdminViewMixin, ListView):
