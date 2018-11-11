@@ -54,11 +54,6 @@ class StudentListView(AdminViewMixin, ListView):
     model = Student
     template_name = 'ComSemApp/admin/student_list.html'
     def contact_upload(request):
-            template = "contact_upload.html"
-
-        prompt = {
-            'order': "Order of csv should be first_name, last_name, email, ip_address, message"
-        }
 
 
         csv_file = request.FILES['file']
