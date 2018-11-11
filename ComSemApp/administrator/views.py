@@ -55,9 +55,8 @@ class StudentListView(AdminViewMixin, ListView):
     template_name = 'ComSemApp/admin/student_list.html'
     def post(self, request, *args, **kwargs):
 
-
-
         print (request)
+        return Student.objects.filter(institution=self.institution)
 
     def get_queryset(self):
         
