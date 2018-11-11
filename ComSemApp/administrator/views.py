@@ -53,11 +53,11 @@ class TeacherListView(AdminViewMixin, ListView):
 class StudentListView(AdminViewMixin, ListView):
     model = Student
     template_name = 'ComSemApp/admin/student_list.html'
-    def post(request):
+    def post(self, request, *args, **kwargs):
 
 
-        csv_file = request.FILES['file']
-
+        form = self.form_class(request.POST)
+        print(form)
         if not csv_file.name.endswith('.csv'):
             print( "This file is not a .csv file")
 
