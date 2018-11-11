@@ -10,15 +10,16 @@
 			</div>
 			<div class="col-md-6">
 				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'administrator:create_student' %}">
-					<i class="m-t-0 header-title">Upload File
+					<i class="m-t-0 header-title">Create Student
 					</i>
 				</a>
 			</div>
 
-			<form action="{% url 'administrator:create_student' %}" method="post" enctype="multipart/form-data">
-				{% csrf_token %}
-				<input type="file" name="csv_file1">
-				<input type="submit" value="Upload">
+			<form method="post" enctype="multipart/form-data">{% csrf_token %}
+				<label>Upload File</label>
+				<input type="file" name="file">
+				<p>Only Accepts CSV Files</p>
+				<button type="save">Upload</button>
 			</form>
 
 		</div>

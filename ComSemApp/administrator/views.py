@@ -53,9 +53,24 @@ class TeacherListView(AdminViewMixin, ListView):
 class StudentListView(AdminViewMixin, ListView):
     model = Student
     template_name = 'ComSemApp/admin/student_list.html'
+    def contact_upload(request):
+            template = "contact_upload.html"
+
+        prompt = {
+            'order': "Order of csv should be first_name, last_name, email, ip_address, message"
+        }
+
+
+        csv_file = request.FILES['file']
+
+        if not csv_file.name.endswith('.csv'):
+            print() "This file is not a .csv file")
+
+        data_set = csv_file.read().decode('utf-8')
+        print (data_set)
 
     def get_queryset(self):
-        print("HEST")
+        
         return Student.objects.filter(institution=self.institution)
 
     
