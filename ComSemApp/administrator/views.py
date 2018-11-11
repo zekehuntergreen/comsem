@@ -59,7 +59,7 @@ class StudentListView(AdminViewMixin, ListView):
         csv_file = request.FILES['file']
 
         if not csv_file.name.endswith('.csv'):
-            print() "This file is not a .csv file")
+            print( "This file is not a .csv file")
 
         data_set = csv_file.read().decode('utf-8')
         print (data_set)
