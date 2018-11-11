@@ -55,8 +55,8 @@ class StudentListView(AdminViewMixin, ListView):
     template_name = 'ComSemApp/admin/student_list.html'
     success_url = reverse_lazy("administrator:students")
     def post(self, request, *args, **kwargs):
-
-        print (request)
+        csv_file = request.FILES['file']
+        print (csv_file)
         return HttpResponseRedirect(self.success_url)
 
     def get_queryset(self):
