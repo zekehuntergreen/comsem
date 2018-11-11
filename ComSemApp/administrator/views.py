@@ -53,7 +53,7 @@ class TeacherListView(AdminViewMixin, ListView):
 class StudentListView(AdminViewMixin, ListView):
     model = Student
     template_name = 'ComSemApp/admin/student_list.html'
-    def contact_upload(request):
+    def post(request):
 
 
         csv_file = request.FILES['file']
