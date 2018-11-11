@@ -56,7 +56,7 @@ class StudentListView(AdminViewMixin, ListView):
     def post(self, request, *args, **kwargs):
 
         print (request)
-        return Student.objects.filter(institution=self.institution)
+        return  HttpResponseRedirect(self.success_url)
 
     def get_queryset(self):
         
