@@ -58,7 +58,6 @@ class StudentListView(AdminViewMixin, ListView):
         csv_file = request.FILES['file']
         for line in csv_file:
             print (line)
-        print (csv_file)
         return HttpResponseRedirect(self.success_url)
 
     def get_queryset(self):
@@ -143,6 +142,7 @@ class UserCreateMixin(UserMixin):
     def post(self, request, *args, **kwargs):
         user_form = UserForm(self.request.POST, prefix='user_form')
         obj_form = self.get_obj_form()
+        print(obj_form)
 
         if user_form.is_valid() and obj_form.is_valid():
             # create the user object with random password
@@ -231,7 +231,11 @@ class UserUpdateMixin(UserMixin):
 
     def post(self, request, *args, **kwargs):
         user_form = UserForm(self.request.POST, instance=self.instance.user, prefix='user_form')
+        print("user form")
+        print(user_form)
         obj_form = self.get_obj_form(initial=self.request.POST)
+        print("obj form")
+        print(user_form)
 
         if user_form.is_valid() and obj_form.is_valid():
             user = user_form.save()
