@@ -53,10 +53,11 @@ class TeacherListView(AdminViewMixin, ListView):
 class StudentListView(AdminViewMixin, ListView):
     model = Student
     template_name = 'ComSemApp/admin/student_list.html'
+    success_url = reverse_lazy("administrator:students")
     def post(self, request, *args, **kwargs):
 
         print (request)
-        return  HttpResponseRedirect(self.success_url)
+        return HttpResponseRedirect(self.success_url)
 
     def get_queryset(self):
         
