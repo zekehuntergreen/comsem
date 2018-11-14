@@ -103,7 +103,7 @@ class StudentListView(AdminViewMixin, ListView):
             for row in readCSV:
                 print(row)
                 print(row[0])
-                print(row[1]
+                print(row[1])
         return HttpResponseRedirect(self.success_url)
 
     def get_queryset(self):
