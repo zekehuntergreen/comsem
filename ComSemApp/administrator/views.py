@@ -97,13 +97,12 @@ class StudentListView(AdminViewMixin, ListView):
     #handle CSV upload
     def post(self, request, *args, **kwargs):
         #self.db_create_student(**kwargs)
-        csv_file = request.FILES['file'].read()
-        with open(csv_file) as csvfile:
-            readCSV = csv.reader(csvfile, delimiter=',')
-            for row in readCSV:
-                print(row)
-                print(row[0])
-                print(row[1])
+        csv_file = request.FILES['file']
+        readCSV = csv.reader(csv_file, delimiter=',')
+        for row in readCSV:
+            print(row)
+            print(row[0])
+            print(row[1])
         return HttpResponseRedirect(self.success_url)
 
     def get_queryset(self):
