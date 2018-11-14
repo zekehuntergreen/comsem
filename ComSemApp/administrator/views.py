@@ -103,7 +103,7 @@ class StudentListView(AdminViewMixin, ListView):
             if (fields[0] == '' or fields[0] == ""):
                 #end of file
                 break
-            user{
+            user = {
                 "first_name": field[0]
                 "last_name": field[1]
                 "email":field[2]
