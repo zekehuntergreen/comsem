@@ -21,6 +21,8 @@ from django.contrib.auth.models import User
 from ComSemApp.administrator.forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, TeacherForm, StudentForm, UserForm
 from ComSemApp.libs.mixins import RoleViewMixin
 
+from ComSemApp.libs.factories import create_student
+
 
 class AdminViewMixin(RoleViewMixin):
 
@@ -54,7 +56,34 @@ class StudentListView(AdminViewMixin, ListView):
     model = Student
     template_name = 'ComSemApp/admin/student_list.html'
     success_url = reverse_lazy("administrator:students")
+
+    def db_create_user(self, **kwargs):
+        defaults = {
+            "first_name": "firstname",
+            "last_name": "lastname",
+            "username": kwargs.get("username", str(uuid.uuid4())),
+        }
+        user = User.objects.create(**defaults)
+        password = kwargs.get("password", "password123")
+        user.set_password(password)
+        user.save()
+    return user
+
+    def db_create_student(self, **kwargs):
+        defaults = {
+            "first_name": "testFirst",
+            "last_name": "testLast",
+            "email":"danieltestnotrealfsaskdj@gmail.com"
+            "username": kwargs.get("danieltestnotrealfsaskdj@gmail.com", str(uuid.uuid4())),
+        }
+        print("USER MADE IN DB")
+        institution = self.db_get_or_create_institution()
+        user = self.db_create_user(**defaults)
+    return Student.objects.create(user=user, institution=institution)
+
+    #handle CSV upload
     def post(self, request, *args, **kwargs):
+        db_create_student(self, **kwargs)
         csv_file = request.FILES['file']
         for line in csv_file:
             print (line)
@@ -134,7 +163,6 @@ class UserMixin(AdminViewMixin, FormView):
 class UserCreateMixin(UserMixin):
 
     def get(self, request, *args, **kwargs):
-        print("I AM HERE 2")
         user_form = UserForm()
         user_form.prefix = 'user_form'
         obj_form = self.get_obj_form()
@@ -145,7 +173,7 @@ class UserCreateMixin(UserMixin):
         user_form = UserForm(self.request.POST, prefix='user_form')
         obj_form = self.get_obj_form()
         print("I AM HERE 1")
-        print(user_form)
+        print(user_form.username)
         if user_form.is_valid() and obj_form.is_valid():
             # create the user object with random password
             user = user_form.save()
