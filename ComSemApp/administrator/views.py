@@ -73,7 +73,7 @@ class StudentListView(AdminViewMixin, ListView):
         defaults = {
             "first_name": "firstname",
             "last_name": "lastname",
-            "username": kwargs.get("username", str(uuid.uuid4())),
+            "username": kwargs.get("username")
         }
         user = User.objects.create(**kwargs)
         #password = kwargs.get("password", "password123")
@@ -86,7 +86,7 @@ class StudentListView(AdminViewMixin, ListView):
             "first_name": "NEeW",
             "last_name": "LASd",
             "email":"dasfsdfsdfsadf@gmail.com",
-            "username": kwargs.get("dasfsdfsdfsadf@gmail.com", str(uuid.uuid4())),
+            "username": "dasfsdfsdfsadf@gmail.com"
         }
         print("USER MADE IN DB")
         institution = self.db_get_or_create_institution()
