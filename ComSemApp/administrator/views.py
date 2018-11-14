@@ -14,7 +14,7 @@ from django.views import View
 
 from django.core.mail import send_mail
 from django.contrib import messages
-import CSV
+import csv
 
 
 from ComSemApp.models import *
