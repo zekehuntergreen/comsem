@@ -21,7 +21,6 @@ from django.contrib.auth.models import User
 from ComSemApp.administrator.forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, TeacherForm, StudentForm, UserForm
 from ComSemApp.libs.mixins import RoleViewMixin
 
-from ComSemApp.libs.factories import create_student
 
 
 class AdminViewMixin(RoleViewMixin):
