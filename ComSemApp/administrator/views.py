@@ -15,6 +15,7 @@ from django.views import View
 from django.core.mail import send_mail
 from django.contrib import messages
 import csv
+import io
 
 
 from ComSemApp.models import *
@@ -97,7 +98,9 @@ class StudentListView(AdminViewMixin, ListView):
     #handle CSV upload
     def post(self, request, *args, **kwargs):
         #self.db_create_student(**kwargs)
-        csv_file = request.FILES['file'].read()
+
+        csv_file = request.FILES['file']
+        io_file = io.TextIOWrapper(csv_file.file)
         readCSV = csv.reader(csv_file, delimiter=',')
         for row in readCSV:
             print(row)
