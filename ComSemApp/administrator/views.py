@@ -63,7 +63,7 @@ class StudentListView(AdminViewMixin, ListView):
             "last_name": "lastname",
             "username": kwargs.get("username", str(uuid.uuid4())),
         }
-        user = User.objects.create(**defaults)
+        user = User.objects.create(**kwargs)
         password = kwargs.get("password", "password123")
         user.set_password(password)
         user.save()
