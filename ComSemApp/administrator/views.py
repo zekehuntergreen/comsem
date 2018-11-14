@@ -67,7 +67,7 @@ class StudentListView(AdminViewMixin, ListView):
         password = kwargs.get("password", "password123")
         user.set_password(password)
         user.save()
-    return user
+        return user
 
     def db_create_student(self, **kwargs):
         defaults = {
@@ -79,7 +79,7 @@ class StudentListView(AdminViewMixin, ListView):
         print("USER MADE IN DB")
         institution = self.db_get_or_create_institution()
         user = self.db_create_user(**defaults)
-    return Student.objects.create(user=user, institution=institution)
+        return Student.objects.create(user=user, institution=institution)
 
     #handle CSV upload
     def post(self, request, *args, **kwargs):
