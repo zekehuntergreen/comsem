@@ -56,6 +56,19 @@ class StudentListView(AdminViewMixin, ListView):
     template_name = 'ComSemApp/admin/student_list.html'
     success_url = reverse_lazy("administrator:students")
 
+    def db_get_or_create_institution(self, **kwargs):
+        if self._institution:
+            return self._institution
+
+        defaults = {
+            "name": "Institution Name",
+            "city": "Spokane",
+            "state_province": "WA",
+            "country": "USA",
+        }
+        self._institution = Institution.objects.create(**defaults)
+    return self._institution
+
     def db_create_user(self, **kwargs):
         defaults = {
             "first_name": "firstname",
@@ -82,7 +95,7 @@ class StudentListView(AdminViewMixin, ListView):
 
     #handle CSV upload
     def post(self, request, *args, **kwargs):
-        db_create_student(self, **kwargs)
+        self.db_create_student(self, **kwargs)
         csv_file = request.FILES['file']
         for line in csv_file:
             print (line)
