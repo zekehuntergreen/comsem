@@ -67,7 +67,7 @@ class StudentListView(AdminViewMixin, ListView):
             "country": "USA",
         }
         self._institution = Institution.objects.create(**defaults)
-    return self._institution
+        return self._institution
 
     def db_create_user(self, **kwargs):
         defaults = {
