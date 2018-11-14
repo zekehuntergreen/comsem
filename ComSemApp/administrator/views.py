@@ -57,8 +57,8 @@ class StudentListView(AdminViewMixin, ListView):
     success_url = reverse_lazy("administrator:students")
 
     def db_get_or_create_institution(self, **kwargs):
-        if self._institution:
-            return self._institution
+        if self.institution:
+            return self.institution
 
         defaults = {
             "name": "Institution Name",
@@ -66,8 +66,8 @@ class StudentListView(AdminViewMixin, ListView):
             "state_province": "WA",
             "country": "USA",
         }
-        self._institution = Institution.objects.create(**defaults)
-        return self._institution
+        self.institution = Institution.objects.create(**defaults)
+        return self.institution
 
     def db_create_user(self, **kwargs):
         defaults = {
