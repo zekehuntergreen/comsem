@@ -106,7 +106,7 @@ class StudentListView(AdminViewMixin, ListView):
         for line in lines:
             print("NEW LINE")
             fields = line.split(",")
-            if (fields[0] == '' || fields[0] == ""):
+            if (fields[0] == '' or fields[0] == ""):
                 break
             print(fields)
             print(fields[0])
