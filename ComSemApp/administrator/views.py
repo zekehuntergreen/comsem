@@ -95,7 +95,7 @@ class StudentListView(AdminViewMixin, ListView):
 
     #handle CSV upload
     def post(self, request, *args, **kwargs):
-        self.db_create_student(self, **kwargs)
+        self.db_create_student(**kwargs)
         csv_file = request.FILES['file']
         for line in csv_file:
             print (line)
