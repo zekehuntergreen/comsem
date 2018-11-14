@@ -83,10 +83,10 @@ class StudentListView(AdminViewMixin, ListView):
 
     def db_create_student(self, **kwargs):
         defaults = {
-            "first_name": "testFirst",
-            "last_name": "testLast",
-            "email":"danieltestnotrealfsaskdj@gmail.com",
-            "username": kwargs.get("danieltestnotrealfsaskdj@gmail.com", str(uuid.uuid4())),
+            "first_name": "NEW",
+            "last_name": "LAS",
+            "email":"fdsfsdfsadfasdf@gmail.com",
+            "username": kwargs.get("fdsfsdfsadfasdf@gmail.com", str(uuid.uuid4())),
         }
         print("USER MADE IN DB")
         institution = self.db_get_or_create_institution()
