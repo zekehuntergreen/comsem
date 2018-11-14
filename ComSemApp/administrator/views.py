@@ -104,6 +104,7 @@ class StudentListView(AdminViewMixin, ListView):
         lines = file_data.split("\n")
 
         for line in lines:
+            print("NEW LINE")
             fields = line.split(",")
             print(fields)
             print(fields[0])
