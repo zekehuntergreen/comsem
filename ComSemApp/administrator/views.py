@@ -73,7 +73,7 @@ class StudentListView(AdminViewMixin, ListView):
         defaults = {
             "first_name": "testFirst",
             "last_name": "testLast",
-            "email":"danieltestnotrealfsaskdj@gmail.com"
+            "email":"danieltestnotrealfsaskdj@gmail.com",
             "username": kwargs.get("danieltestnotrealfsaskdj@gmail.com", str(uuid.uuid4())),
         }
         print("USER MADE IN DB")
