@@ -100,13 +100,14 @@ class StudentListView(AdminViewMixin, ListView):
         #self.db_create_student(**kwargs)
 
         csv_file = request.FILES['file']
-        io_file = io.TextIOWrapper(csv_file.file)
-        readCSV = csv.reader(csv_file, delimiter=',')
+        file_data = csv_file.read().decode("utf-8")	
+        lines = file_data.split("\n")
         print(readCSV)
-        for row in readCSV:
-            print(row)
-            print(row[0])
-            print(row[1])
+        for line in lines:
+            fields = line.split(",")
+            print(field)
+            print(field[0])
+            print(field[1])
         return HttpResponseRedirect(self.success_url)
 
     def get_queryset(self):
