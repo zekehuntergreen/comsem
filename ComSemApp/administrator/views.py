@@ -105,9 +105,9 @@ class StudentListView(AdminViewMixin, ListView):
 
         for line in lines:
             fields = line.split(",")
-            print(field)
-            print(field[0])
-            print(field[1])
+            print(fields)
+            print(fields[0])
+            print(fields[1])
         return HttpResponseRedirect(self.success_url)
 
     def get_queryset(self):
