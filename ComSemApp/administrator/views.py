@@ -104,10 +104,10 @@ class StudentListView(AdminViewMixin, ListView):
                 #end of file
                 break
             user = {
-                "first_name": field[0],
-                "last_name": field[1],
-                "email":field[2],
-                "username":field[2]
+                "first_name": fields[0],
+                "last_name": fields[1],
+                "email": fields[2],
+                "username": fields[2]
             }
             print(fields)
             print(fields[0])
