@@ -102,6 +102,7 @@ class StudentListView(AdminViewMixin, ListView):
         csv_file = request.FILES['file']
         io_file = io.TextIOWrapper(csv_file.file)
         readCSV = csv.reader(csv_file, delimiter=',')
+        print(readCSV)
         for row in readCSV:
             print(row)
             print(row[0])
