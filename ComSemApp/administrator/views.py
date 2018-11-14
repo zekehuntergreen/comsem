@@ -72,11 +72,6 @@ class StudentListView(AdminViewMixin, ListView):
         return self.institution
 
     def db_create_user(self, **kwargs):
-        defaults = {
-            "first_name": "firstname",
-            "last_name": "lastname",
-            "username": kwargs.get("username")
-        }
         user = User.objects.create(**kwargs)
         #password = kwargs.get("password", "password123")
         user.set_password("password123")
@@ -92,12 +87,11 @@ class StudentListView(AdminViewMixin, ListView):
         }
         print("USER MADE IN DB")
         institution = self.db_get_or_create_institution()
-        user = self.db_create_user(**defaults)
+        user = self.db_create_user(**kwargs)
         return Student.objects.create(user=user, institution=institution)
 
     #handle CSV upload
     def post(self, request, *args, **kwargs):
-        #self.db_create_student(**kwargs)
 
         csv_file = request.FILES['file']
         file_data = csv_file.read().decode("utf-8")	
@@ -107,10 +101,18 @@ class StudentListView(AdminViewMixin, ListView):
             print("NEW LINE")
             fields = line.split(",")
             if (fields[0] == '' or fields[0] == ""):
+                #end of file
                 break
+            user{
+                "first_name": field[0]
+                "last_name": field[1]
+                "email":field[2]
+                "username":field[2]
+            }
             print(fields)
             print(fields[0])
             print(fields[1])
+            self.db_create_student(**user)
         return HttpResponseRedirect(self.success_url)
 
     def get_queryset(self):
