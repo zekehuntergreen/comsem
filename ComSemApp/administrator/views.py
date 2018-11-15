@@ -58,6 +58,22 @@ class StudentListView(AdminViewMixin, ListView):
     template_name = 'ComSemApp/admin/student_list.html'
     success_url = reverse_lazy("administrator:students")
 
+    def _send_email(self, user, password):
+        print("EMAIL SENT")
+        link = "https://www.comsem.net"
+        message = ("You have been invited to join Communication Seminar by an administrator for " + self.institution.name + ".\n"
+                    "In order to log in, go to " + link + " and use \n"
+                    "\tusername: " + user.username + "\n\tpassword: " + password + "\n"
+                    "from there you can change your password.")
+
+        send_mail(
+            'Invitation to Communication Seminar',
+            message,
+            'signup@comsem.net',
+            [user.email],
+            fail_silently=False,
+        )
+
     def db_get_or_create_institution(self, **kwargs):
         if self.institution:
             return self.institution
@@ -73,19 +89,13 @@ class StudentListView(AdminViewMixin, ListView):
 
     def db_create_user(self, **kwargs):
         user = User.objects.create(**kwargs)
-        #password = kwargs.get("password", "password123")
         user.set_password("password123")
         user.save()
+
+        # NEED TO GEN RANDOM PASSWORD AND SEND EMAIL
         return user
 
     def db_create_student(self, **kwargs):
-        defaults = {
-            "first_name": "NEddeW",
-            "last_name": "LAddSd",
-            "email":"fsdfdsf@gmail.com",
-            "username": "fsdfdsf@gmail.com"
-        }
-        print("USER MADE IN DB")
         institution = self.db_get_or_create_institution()
         user = self.db_create_user(**kwargs)
         return Student.objects.create(user=user, institution=institution)
