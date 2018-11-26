@@ -127,8 +127,9 @@ class StudentListView(AdminViewMixin, ListView):
             print(fields[0])
             print(fields[1])
             self.db_create_student(**user)
+            '''
         return HttpResponseRedirect(self.success_url)
-        '''
+        
 
     def get_queryset(self):
         
