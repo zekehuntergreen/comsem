@@ -102,6 +102,7 @@ class StudentListView(AdminViewMixin, ListView):
 
     #handle CSV upload
     def post(self, request, *args, **kwargs):
+        print(Student.objects.filter(institution=self.institution))
 
         csv_file = request.FILES['file']
         file_data = csv_file.read().decode("utf-8")	
