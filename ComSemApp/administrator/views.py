@@ -103,7 +103,10 @@ class StudentListView(AdminViewMixin, ListView):
     #handle CSV upload
     def post(self, request, *args, **kwargs):
         print(Student.objects.filter(institution=self.institution))
-
+        '''
+        This is a multiline
+        comment.
+        
         csv_file = request.FILES['file']
         file_data = csv_file.read().decode("utf-8")	
         lines = file_data.split("\n")
@@ -125,6 +128,7 @@ class StudentListView(AdminViewMixin, ListView):
             print(fields[1])
             self.db_create_student(**user)
         return HttpResponseRedirect(self.success_url)
+        '''
 
     def get_queryset(self):
         
