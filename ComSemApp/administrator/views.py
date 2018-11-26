@@ -102,7 +102,7 @@ class StudentListView(AdminViewMixin, ListView):
 
     #handle CSV upload
     def post(self, request, *args, **kwargs):
-        print(Student.objects.filter(institution=self.institution))
+        print(Student.objects.filter(institution=self.institution)[0])
         '''
         This is a multiline
         comment.
