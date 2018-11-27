@@ -89,8 +89,12 @@ class StudentListView(AdminViewMixin, ListView):
 
     def db_create_user(self, **kwargs):
         user = User.objects.create(**kwargs)
-        user.set_password("password123")
+        password = User.objects.make_random_password()
+        print("password")
+        print(password)
+        user.set_password(password)
         user.save()
+        self._send_email(user, password)
 
         # NEED TO GEN RANDOM PASSWORD AND SEND EMAIL
         return user
@@ -103,10 +107,7 @@ class StudentListView(AdminViewMixin, ListView):
     #handle CSV upload
     def post(self, request, *args, **kwargs):
         print(Student.objects.filter(institution=self.institution)[0])
-        '''
-        This is a multiline
-        comment.
-        
+
         csv_file = request.FILES['file']
         file_data = csv_file.read().decode("utf-8")	
         lines = file_data.split("\n")
@@ -127,7 +128,7 @@ class StudentListView(AdminViewMixin, ListView):
             print(fields[0])
             print(fields[1])
             self.db_create_student(**user)
-            '''
+            
         return HttpResponseRedirect(self.success_url)
         
 
