@@ -95,8 +95,6 @@ class StudentListView(AdminViewMixin, ListView):
         user.set_password(password)
         user.save()
         self._send_email(user, password)
-
-        # NEED TO GEN RANDOM PASSWORD AND SEND EMAIL
         return user
 
     def db_create_student(self, **kwargs):
@@ -111,12 +109,19 @@ class StudentListView(AdminViewMixin, ListView):
         csv_file = request.FILES['file']
         file_data = csv_file.read().decode("utf-8")	
         lines = file_data.split("\n")
-
+        rejectedLines = []
         for line in lines:
             print("NEW LINE")
             fields = line.split(",")
-            if (fields[0] == '' or fields[0] == ""):
+            dupeUser = False
+            
+            for (user in Student.objects.filter(institution=self.institution)):
+                if(user.username == fields[2]):
+                    dupeUser = True
+                    break
+            if (fields[0] == '' or fields[0] == "" or dupeUser == True):
                 #end of file
+                rejectedLines.append(fields)
                 break
             user = {
                 "first_name": fields[0],
@@ -128,6 +133,7 @@ class StudentListView(AdminViewMixin, ListView):
             print(fields[0])
             print(fields[1])
             self.db_create_student(**user)
+        print(rejectedLines)
             
         return HttpResponseRedirect(self.success_url)
         
@@ -215,8 +221,6 @@ class UserCreateMixin(UserMixin):
     def post(self, request, *args, **kwargs):
         user_form = UserForm(self.request.POST, prefix='user_form')
         obj_form = self.get_obj_form()
-        print("I AM HERE 1")
-        print(user_form.username)
         if user_form.is_valid() and obj_form.is_valid():
             # create the user object with random password
             user = user_form.save()
