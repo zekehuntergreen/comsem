@@ -124,7 +124,7 @@ class StudentListView(AdminViewMixin, ListView):
                 "email": fields[2],
                 "username": fields[2]
             }
-            dupeUser = Student.objects.filter(user=user.username).exists()
+            dupeUser = Student.objects.filter(user=user['username']).exists()
             if dupeUser :
                 break
             print(fields)
