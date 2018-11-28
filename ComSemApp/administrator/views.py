@@ -115,7 +115,7 @@ class StudentListView(AdminViewMixin, ListView):
             fields = line.split(",")
 
             for user in Student.objects.filter(institution=self.institution):
-                print(user)
+                print(user['username'])
                 if(user['username'] == fields[2]):
                     dupeUser = True
                     print("DUPE USER")
