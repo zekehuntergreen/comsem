@@ -118,6 +118,7 @@ class StudentListView(AdminViewMixin, ListView):
             for user in Student.objects.filter(institution=self.institution):
                 if(user.username == fields[2]):
                     dupeUser = True
+                    print("DUPE USER")
                     break
             if (fields[0] == '' or fields[0] == "" or dupeUser == True):
                 #end of file
@@ -133,6 +134,7 @@ class StudentListView(AdminViewMixin, ListView):
             print(fields[0])
             print(fields[1])
             self.db_create_student(**user)
+        print("REJECTED LINES")
         print(rejectedLines)
             
         return HttpResponseRedirect(self.success_url)
