@@ -136,7 +136,7 @@ class StudentListView(AdminViewMixin, ListView):
             self.db_create_student(**user)
         print("REJECTED LINES")
         print(rejectedLines)
-        messages.info(request, rejectedLines)
+        messages.error(request, rejectedLines)
             
         return HttpResponseRedirect(self.success_url)
         
