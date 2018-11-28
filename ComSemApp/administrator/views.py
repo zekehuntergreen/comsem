@@ -114,7 +114,7 @@ class StudentListView(AdminViewMixin, ListView):
             print("NEW LINE")
             fields = line.split(",")
 
-            if (fields[0] == '' or fields[0] == "" or dupeUser == True):
+            if (fields[0] == '' or fields[0] == ""):
                 #end of file
                 rejectedLines.append(fields)
                 break
