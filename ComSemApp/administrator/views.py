@@ -114,7 +114,13 @@ class StudentListView(AdminViewMixin, ListView):
             print("NEW LINE")
             fields = line.split(",")
 
-            if (fields[0] == '' or fields[0] == ""):
+            for user in Student.objects.filter(institution=self.institution):
+                print(user)
+                if(user['username'] == fields[2]):
+                    dupeUser = True
+                    print("DUPE USER")
+                    break
+            if (fields[0] == '' or fields[0] == "" or dupeUser == True):
                 #end of file
                 rejectedLines.append(fields)
                 break
@@ -124,7 +130,6 @@ class StudentListView(AdminViewMixin, ListView):
                 "email": fields[2],
                 "username": fields[2]
             }
-            dupeUser = Student.objects.filter(user=user['username']).exists()
             if dupeUser :
                 break
             print(fields)
