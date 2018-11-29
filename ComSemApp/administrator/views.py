@@ -22,8 +22,6 @@ from ComSemApp.models import *
 from django.contrib.auth.models import User
 from ComSemApp.administrator.forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, TeacherForm, StudentForm, UserForm
 from ComSemApp.libs.mixins import RoleViewMixin
-from django.contrib import messages
-
 
 
 
@@ -106,6 +104,7 @@ class StudentListView(AdminViewMixin, ListView):
 
     #handle CSV upload
     def post(self, request, *args, **kwargs):
+
         csv_file = request.FILES['file']
         file_data = csv_file.read().decode("utf-8")	
         lines = file_data.split("\n")
@@ -132,12 +131,13 @@ class StudentListView(AdminViewMixin, ListView):
             }
             if dupeUser :
                 break
-
+            print(fields)
+            print(fields[0])
+            print(fields[1])
             self.db_create_student(**user)
         print("REJECTED LINES")
         print(rejectedLines)
-        messages.error(request, rejectedLines)
-            
+        messages.add_message(request, messages.INFO, 'Hello world.')
         return HttpResponseRedirect(self.success_url)
         
 
