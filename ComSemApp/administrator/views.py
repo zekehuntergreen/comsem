@@ -22,6 +22,7 @@ from ComSemApp.models import *
 from django.contrib.auth.models import User
 from ComSemApp.administrator.forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, TeacherForm, StudentForm, UserForm
 from ComSemApp.libs.mixins import RoleViewMixin
+from django.core.exceptions import ValidationError
 
 
 
@@ -57,6 +58,7 @@ class StudentListView(AdminViewMixin, ListView):
     model = Student
     template_name = 'ComSemApp/admin/student_list.html'
     success_url = reverse_lazy("administrator:students")
+    errors= []
 
     def _send_email(self, user, password):
         print("EMAIL SENT")
@@ -142,6 +144,7 @@ class StudentListView(AdminViewMixin, ListView):
                 print(user)
         print("REJECTED LINES")
         print(rejectedLines)
+        errors.append(rejectedLines)
         messages.add_message(request, messages.ERROR, rejectedLines)
         return HttpResponseRedirect(self.success_url)
             
