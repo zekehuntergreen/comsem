@@ -27,8 +27,8 @@
 
 		{% if messages %}
 			<ul class="alert">
-				{% for error in errors %}
-				<li{% if errors.len() %} class="{{ alert }}"{% endif %}>{{ error }}</li>
+				{% for message in messages %}
+				<li{% if message.tags %} {% endif %}>{{ message }}</li>
 				{% endfor %}
 			</ul>
 		{% endif %}
