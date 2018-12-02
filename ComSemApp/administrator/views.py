@@ -122,6 +122,11 @@ class StudentListView(AdminViewMixin, ListView):
                 if (fields[0] == "" or fields[0] == ""):
                     #end of file
                     break
+                if (!fields[0].isAlpha or !fields[1].isAlpha):
+                    print("invalid name")
+                    message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid first or last name ")
+                    message_content.append(message)
+                    break
                 for user in Student.objects.filter(institution=self.institution):
                     if(user.user.username== fields[2]):
                         dupeUser = True
