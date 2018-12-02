@@ -140,10 +140,10 @@ class StudentListView(AdminViewMixin, ListView):
                 self.db_create_student(**user)
                 print("student made")
                 print(user)
-            print("REJECTED LINES")
-            print(rejectedLines)
-            messages.add_message(request, messages.ERROR, rejectedLines)
-            return HttpResponseRedirect(self.success_url)
+        print("REJECTED LINES")
+        print(rejectedLines)
+        messages.add_message(request, messages.ERROR, rejectedLines)
+        return HttpResponseRedirect(self.success_url)
             
 
     def get_queryset(self):
