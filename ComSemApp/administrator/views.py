@@ -122,7 +122,7 @@ class StudentListView(AdminViewMixin, ListView):
                 if (fields[0] == "" or fields[0] == ""):
                     #end of file
                     break
-                if (fields[0].isAlpha == False or fields[1].isAlpha == False):
+                if (fields[0].isalpha == False or fields[1].isalpha == False):
                     print("invalid name")
                     message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid first or last name ")
                     message_content.append(message)
