@@ -134,12 +134,12 @@ class StudentListView(AdminViewMixin, ListView):
                     "email": fields[2],
                     "username": fields[2]
                 }
-                if dupeUser :
-                    break
                 print(fields)
                 print(fields[0])
                 print(fields[1])
                 self.db_create_student(**user)
+                print("student made")
+                print(user)
             print("REJECTED LINES")
             print(rejectedLines)
             messages.add_message(request, messages.ERROR, rejectedLines)
