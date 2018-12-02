@@ -148,7 +148,7 @@ class StudentListView(AdminViewMixin, ListView):
         print("REJECTED LINES")
         print(rejectedLines)
         messages.add_message(request, messages.ERROR, message)
-        return HttpResponseRedirect(self.success_url))
+        return HttpResponseRedirect(self.success_url)
             
 
     def get_queryset(self):
