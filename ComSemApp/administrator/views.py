@@ -109,9 +109,11 @@ class StudentListView(AdminViewMixin, ListView):
         file_data = csv_file.read().decode("utf-8")	
         lines = file_data.split("\n")
         rejectedLines = []
+        
         for line in lines:
             print("NEW LINE")
             fields = line.split(",")
+            dupeUser = False
 
             for user in Student.objects.filter(institution=self.institution):
                 if(user.user.username== fields[2]):
