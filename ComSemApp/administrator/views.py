@@ -58,7 +58,7 @@ class StudentListView(AdminViewMixin, ListView):
     model = Student
     template_name = 'ComSemApp/admin/student_list.html'
     success_url = reverse_lazy("administrator:students")
-    bob = ["TEST MESSAGE"]
+    errors= ["bobo"]
 
     def _send_email(self, user, password):
         print("EMAIL SENT")
@@ -111,8 +111,10 @@ class StudentListView(AdminViewMixin, ListView):
         file_data = csv_file.read().decode("utf-8")	
         lines = file_data.split("\n")
         rejectedLines = []
+        message = "The Following users were not added \n"
         
         for line in lines:
+            count = 2
             if len(line): #make sure line isnt empy
                 print("NEW LINE")
                 fields = line.split(",")
@@ -125,11 +127,13 @@ class StudentListView(AdminViewMixin, ListView):
                         dupeUser = True
                         print(user.user)
                         print("DUPE USER")
+                        message.append(count+ " " + fields[0]+" "+fields[1]+" "+fields[2]+"    Duplicate Username)
                         break
                 if (dupeUser == True):
                     #end of file
                     rejectedLines.append(fields)
                     break
+                if ()
                 user = {
                     "first_name": fields[0],
                     "last_name": fields[1],
@@ -144,9 +148,8 @@ class StudentListView(AdminViewMixin, ListView):
                 print(user)
         print("REJECTED LINES")
         print(rejectedLines)
-
-        messages.add_message(request, messages.ERROR, rejectedLines)
-        return HttpResponseRedirect(self.success_url)
+        messages.add_message(request, messages.ERROR, message)
+        return HttpResponseRedirect(self.success_url))
             
 
     def get_queryset(self):
