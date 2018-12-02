@@ -17,13 +17,12 @@
 			</div>
 
 			<form method="post" enctype="multipart/form-data">{% csrf_token %}
-				<input class="btn btn-sm btn-outline-info pull-right" type="file" name="file" accept=".csv" ></input>
+				<input class="btn btn-sm btn-outline-info pull-left" type="file" name="file" accept=".csv" ></input>
 				<br>
-				<button class="btn btn-sm btn-outline-info pull-right" type="save">Upload</button>
+				<button class="btn btn-sm btn-outline-info pull-left" type="save">Upload</button>
 			</form>
-
-
 		</div>
+		<br>
 		<div>
 			<p>Uploader only allows CSV Files</p>
 		</div>
