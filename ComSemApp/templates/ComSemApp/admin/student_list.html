@@ -17,8 +17,7 @@
 			</div>
 
 			<form method="post" enctype="multipart/form-data">{% csrf_token %}
-				<label class="btn btn-sm btn-outline-info pull-right">Upload File</label>
-				<input type="file" name="file" accept=".csv" >
+				<input class="btn btn-sm btn-outline-info pull-right" type="file" name="file" accept=".csv" >Select File</input>
 				<p>Only Accepts CSV Files</p>
 				<button class="btn btn-sm btn-outline-info pull-right" type="save">Upload</button>
 			</form>
