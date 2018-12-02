@@ -111,7 +111,7 @@ class StudentListView(AdminViewMixin, ListView):
         file_data = csv_file.read().decode("utf-8")	
         lines = file_data.split("\n")
         rejectedLines = []
-        messages = ["The Following users were not added"]
+        message_content = ["The Following users were not added"]
         
         for line in lines:
             count = 2
@@ -128,7 +128,7 @@ class StudentListView(AdminViewMixin, ListView):
                         print(user.user)
                         print("DUPE USER")
                         message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username ")
-                        messages.append(message)
+                        message_content.append(message)
                         break
                 if (dupeUser == True):
                     #end of file
