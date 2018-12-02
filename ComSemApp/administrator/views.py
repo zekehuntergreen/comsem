@@ -134,8 +134,7 @@ class StudentListView(AdminViewMixin, ListView):
                     message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid email ")
                     message_content.append(message)
                     break
-                pattern = re.compile("^([A-Z][0-9]+)+$")
-                pattern.match(string)
+
                 for user in Student.objects.filter(institution=self.institution):
                     if(user.user.username== fields[2]):
                         dupeUser = True
