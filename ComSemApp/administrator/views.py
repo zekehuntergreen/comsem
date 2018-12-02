@@ -133,7 +133,6 @@ class StudentListView(AdminViewMixin, ListView):
                     #end of file
                     rejectedLines.append(fields)
                     break
-                if ()
                 user = {
                     "first_name": fields[0],
                     "last_name": fields[1],
