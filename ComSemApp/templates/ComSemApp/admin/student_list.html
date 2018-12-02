@@ -25,14 +25,6 @@
 
 		</div>
 
-		{% if messages %}
-			<ul >
-				{% for message in messages %}
-				<li{% if message.tags %} {% endif %}>{{ message }}</li>
-				{% endfor %}
-			</ul>
-		{% endif %}
-
 		{% if student_list %}
 		<div class="row mt-3 cs-admin-table">
 			<table class="table table-hover tablesorter">
