@@ -108,64 +108,53 @@ class StudentListView(AdminViewMixin, ListView):
 
     #handle CSV upload
     def post(self, request, *args, **kwargs):
-
-        csv_file = request.FILES['file']
-        file_data = csv_file.read().decode("utf-8")	
-        lines = file_data.split("\n")
-        rejectedLines = []
-        message_content = ["The Following users were not added"]
-        
-        for line in lines:
-            count = 2
-            if len(line): #make sure line isnt empy
-                fields = line.split(",")
-                dupeUser = False
-                if (fields[0] == "" or fields[0] == ""):
-                    #end of file
-                    break
-                if (fields[0].isalpha() == False or fields[1].isalpha() == False):
-                    message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid first or last name ")
-                    message_content.append(message)
-                    break
-                #
-                #valid_email = False
-                #try: 
-                #    validate_email(fields[2])
-                #    valid_email = True
-                #except validate_email.ValidationError:
-                #    valid_email = False
-
-                #if (valid_email == False):
-                #    message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid email")
-                #    message_content.append(message)
-                #    break
-
-                for user in Student.objects.filter(institution=self.institution):
-                    if(user.user.username== fields[2]):
-                        dupeUser = True
-                        print(user.user)
-                        message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username ")
+        if (len(request.FILES['file'] > 0): #check to make sure file was selected
+            csv_file = request.FILES['file']
+            file_data = csv_file.read().decode("utf-8")	
+            lines = file_data.split("\n")
+            rejectedLines = []
+            message_content = ["The Following users were not added"]
+            
+            for line in lines:
+                count = 2
+                if len(line): #make sure line isnt empy
+                    fields = line.split(",")
+                    dupeUser = False
+                    if (fields[0] == "" or fields[0] == ""):
+                        #end of file
+                        break
+                    if (fields[0].isalpha() == False or fields[1].isalpha() == False):
+                        message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid first or last name ")
                         message_content.append(message)
                         break
-                if (dupeUser == True):
-                    #end of file
-                    rejectedLines.append(fields)
-                    break
-                user = {
-                    "first_name": fields[0],
-                    "last_name": fields[1],
-                    "email": fields[2],
-                    "username": fields[2]
-                }
-                print(fields)
-                print(fields[0])
-                print(fields[1])
-                self.db_create_student(**user)
-                print("student made")
-                print(user)
-        print("REJECTED LINES")
-        print(rejectedLines)
-        messages.add_message(request, messages.ERROR, message_content)
+
+
+                    for user in Student.objects.filter(institution=self.institution):
+                        if(user.user.username== fields[2]):
+                            dupeUser = True
+                            print(user.user)
+                            message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username ")
+                            message_content.append(message)
+                            break
+                    if (dupeUser == True):
+                        #end of file
+                        rejectedLines.append(fields)
+                        break
+                    user = {
+                        "first_name": fields[0],
+                        "last_name": fields[1],
+                        "email": fields[2],
+                        "username": fields[2]
+                    }
+                    print(fields)
+                    print(fields[0])
+                    print(fields[1])
+                    self.db_create_student(**user)
+                    print("student made")
+                    print(user)
+            print("REJECTED LINES")
+            print(rejectedLines)
+            messages.add_message(request, messages.ERROR, message_content)
         return HttpResponseRedirect(self.success_url)
             
 
