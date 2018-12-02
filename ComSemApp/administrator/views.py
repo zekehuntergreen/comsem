@@ -111,39 +111,40 @@ class StudentListView(AdminViewMixin, ListView):
         rejectedLines = []
         
         for line in lines:
-            print("NEW LINE")
-            fields = line.split(",")
-            dupeUser = False
-            if (fields[0] == '' or fields[0] == "")
-                #end of file
-                break
-            for user in Student.objects.filter(institution=self.institution):
-                if(user.user.username== fields[2]):
-                    dupeUser = True
-                    print(user.user)
-                    print("DUPE USER")
+            if len(line): #make sure line isnt empy
+                print("NEW LINE")
+                fields = line.split(",")
+                dupeUser = False
+                if (fields[0] == "" or fields[0] == "")
+                    #end of file
                     break
-            if (dupeUser == True):
-                #end of file
-                rejectedLines.append(fields)
-                break
-            user = {
-                "first_name": fields[0],
-                "last_name": fields[1],
-                "email": fields[2],
-                "username": fields[2]
-            }
-            if dupeUser :
-                break
-            print(fields)
-            print(fields[0])
-            print(fields[1])
-            self.db_create_student(**user)
-        print("REJECTED LINES")
-        print(rejectedLines)
-        messages.add_message(request, messages.ERROR, rejectedLines)
-        return HttpResponseRedirect(self.success_url)
-        
+                for user in Student.objects.filter(institution=self.institution):
+                    if(user.user.username== fields[2]):
+                        dupeUser = True
+                        print(user.user)
+                        print("DUPE USER")
+                        break
+                if (dupeUser == True):
+                    #end of file
+                    rejectedLines.append(fields)
+                    break
+                user = {
+                    "first_name": fields[0],
+                    "last_name": fields[1],
+                    "email": fields[2],
+                    "username": fields[2]
+                }
+                if dupeUser :
+                    break
+                print(fields)
+                print(fields[0])
+                print(fields[1])
+                self.db_create_student(**user)
+            print("REJECTED LINES")
+            print(rejectedLines)
+            messages.add_message(request, messages.ERROR, rejectedLines)
+            return HttpResponseRedirect(self.success_url)
+            
 
     def get_queryset(self):
         
