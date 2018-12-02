@@ -13,9 +13,11 @@ from django.views.generic.edit import CreateView, UpdateView, FormView, DeleteVi
 from django.views import View
 
 from django.core.mail import send_mail
+from django.core.validators import validate_email
 from django.contrib import messages
 import csv
 import io
+
 
 
 from ComSemApp.models import *
@@ -127,6 +129,13 @@ class StudentListView(AdminViewMixin, ListView):
                     message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid first or last name ")
                     message_content.append(message)
                     break
+                if (validate_email(fields[2]) == False):
+                    print("email invalid")
+                    message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid email ")
+                    message_content.append(message)
+                    break
+                pattern = re.compile("^([A-Z][0-9]+)+$")
+                pattern.match(string)
                 for user in Student.objects.filter(institution=self.institution):
                     if(user.user.username== fields[2]):
                         dupeUser = True
