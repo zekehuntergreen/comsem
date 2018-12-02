@@ -52,7 +52,6 @@ class Factory:
         return teacher
 
     def db_create_student(self, **kwargs):
-        print("USER MADE IN DB")
         institution = self.db_get_or_create_institution()
         user = self.db_create_user(**kwargs)
         return Student.objects.create(user=user, institution=institution)
