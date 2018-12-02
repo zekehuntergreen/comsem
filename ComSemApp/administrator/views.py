@@ -128,14 +128,15 @@ class StudentListView(AdminViewMixin, ListView):
                     message_content.append(message)
                     break
                 valid_email = False
-                try:
-                    validate_email(username)
+                try: validate_email(username)
                     valid_email = True
                 except validate_email.ValidationError:
                     valid_email = False
+
                 if (valid_email == False):
                     message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid email")
                     message_content.append(message)
+                    break
 
                 for user in Student.objects.filter(institution=self.institution):
                     if(user.user.username== fields[2]):
