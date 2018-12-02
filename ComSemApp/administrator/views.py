@@ -127,7 +127,7 @@ class StudentListView(AdminViewMixin, ListView):
                         dupeUser = True
                         print(user.user)
                         print("DUPE USER")
-                        message = (count + " " + fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username ")
+                        message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username ")
                         messages.append(message)
                         break
                 if (dupeUser == True):
