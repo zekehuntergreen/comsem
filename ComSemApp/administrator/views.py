@@ -108,7 +108,7 @@ class StudentListView(AdminViewMixin, ListView):
 
     #handle CSV upload
     def post(self, request, *args, **kwargs):
-        if (len(request.FILES['file'] > 0): #check to make sure file was selected
+        if (len(request.FILES['file'] > 0)): #check to make sure file was selected
             csv_file = request.FILES['file']
             file_data = csv_file.read().decode("utf-8")	
             lines = file_data.split("\n")
