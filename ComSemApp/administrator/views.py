@@ -58,7 +58,7 @@ class StudentListView(AdminViewMixin, ListView):
     model = Student
     template_name = 'ComSemApp/admin/student_list.html'
     success_url = reverse_lazy("administrator:students")
-
+    bob = ["TEST MESSAGE"]
 
     def _send_email(self, user, password):
         print("EMAIL SENT")
