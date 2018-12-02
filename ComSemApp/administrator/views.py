@@ -115,7 +115,7 @@ class StudentListView(AdminViewMixin, ListView):
                 print("NEW LINE")
                 fields = line.split(",")
                 dupeUser = False
-                if (fields[0] == "" or fields[0] == "")
+                if (fields[0] == "" or fields[0] == ""):
                     #end of file
                     break
                 for user in Student.objects.filter(institution=self.institution):
