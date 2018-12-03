@@ -119,27 +119,20 @@ class StudentListView(AdminViewMixin, ListView):
                 count = 2
                 if len(line): #make sure line isnt empy
                     fields = line.split(",")
-                    dupeUser = False
+                    okToCreate = True
                     if (fields[0] == "" or fields[0] == ""):
                         #end of file
                         break
                     if (fields[0].isalpha() == False or fields[1].isalpha() == False):
                         message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid first or last name ")
                         message_content.append(message)
-                        break
-
-
+                        okToCreate == False
                     for user in Student.objects.filter(institution=self.institution):
                         if(user.user.username== fields[2]):
-                            dupeUser = True
+                            okToCreate == False
                             print(user.user)
                             message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username \n ")
                             message_content.append(message)
-                            break
-                    if (dupeUser == True):
-                        #end of file
-                        rejectedLines.append(fields)
-                        break
                     user = {
                         "first_name": fields[0],
                         "last_name": fields[1],
