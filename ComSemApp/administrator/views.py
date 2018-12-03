@@ -109,7 +109,7 @@ class StudentListView(AdminViewMixin, ListView):
 
     #handle CSV upload
     def post(self, request, *args, **kwargs):
-        if (len(request.FILES) > 0): #check to make sure file was selected
+        if (len(request.FILES) > 0): #check to make sure file was uploaded
             csv_file = request.FILES['file']
             file_data = csv_file.read().decode("utf-8")	
             lines = file_data.split("\n")
@@ -130,6 +130,7 @@ class StudentListView(AdminViewMixin, ListView):
                         message_content.append(message)
                         okToCreate = False
                         rejectcount += 1
+                        break
                     for user in Student.objects.filter(institution=self.institution):
                         if(user.user.username== fields[2]):
                             okToCreate = False
