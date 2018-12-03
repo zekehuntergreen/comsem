@@ -167,7 +167,7 @@ class StudentListView(AdminViewMixin, ListView):
             print("rejected lines" + str(rejectcount))
             message_disp = "".join(message_content)
             messages.add_message(request, messages.ERROR, message_disp)
-            request.FILES.pop('FILE', None)
+            request.FILES.pop('file', None)
         return HttpResponseRedirect(self.success_url)
             
 
