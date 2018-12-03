@@ -129,14 +129,14 @@ class StudentListView(AdminViewMixin, ListView):
                     if (fields[0].isalpha() == False or fields[1].isalpha() == False):
                         message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "        Invalid First or Last Name \n")
                         message_content.append(message)
-                        if (!rejected): ##if rejected is true, we need to increment the number of rejects, if its already false, dont increment it,
+                        if (rejected == False): ##if rejected is false, we need to increment the number of rejects, if its already false, dont increment it but still log error
                             rejectcount += 1
                             rejected = True
                         okToCreate = False
                     for user in Student.objects.filter(institution=self.institution):
                         if(user.user.username== fields[2]):
                             okToCreate = False
-                            if (!rejected):
+                            if (rejected == False):
                                 rejectcount += 1
                                 rejected = True
                             rejectcount += 1
@@ -147,7 +147,7 @@ class StudentListView(AdminViewMixin, ListView):
                     # Check if a valid email address
                     match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', fields[2])
                     if (match == None):
-                        if (!rejected):
+                        if(rejected == False):
                             rejectcount += 1
                             rejected = True
                         okToCreate = False 
