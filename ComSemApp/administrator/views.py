@@ -133,6 +133,7 @@ class StudentListView(AdminViewMixin, ListView):
                             print(user.user)
                             message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username \n ")
                             message_content.append(message)
+                            break
                     user = {
                         "first_name": fields[0],
                         "last_name": fields[1],
