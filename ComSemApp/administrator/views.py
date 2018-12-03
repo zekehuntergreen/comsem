@@ -125,13 +125,13 @@ class StudentListView(AdminViewMixin, ListView):
                         #end of file
                         break
                     if (fields[0].isalpha() == False or fields[1].isalpha() == False):
-                        message = (linecount + " " + fields[0] + " " + fields[1] + " " + fields[2] + "    Invalid First or Last Name \n")
+                        message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "    Invalid First or Last Name \n")
                         message_content.append(message)
                         okToCreate = False
                     for user in Student.objects.filter(institution=self.institution):
                         if(user.user.username== fields[2]):
                             okToCreate = False
-                            message = (linecount + " " +  fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Email Address \n")
+                            message = (str(linecount) + " " +  fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Email Address \n")
                             message_content.append(message)
                             break
                     
@@ -139,7 +139,7 @@ class StudentListView(AdminViewMixin, ListView):
                     match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', fields[2])
                     if (match == None):
                         okToCreate = False 
-                        message = (linecount + " " + fields[0] + " " + fields[1] + " " + fields[2] + "    Invalid Email Address \n")
+                        message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "    Invalid Email Address \n")
                         message_content.append(message)
                     user = {
                         "first_name": fields[0],
