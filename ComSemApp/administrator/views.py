@@ -143,7 +143,7 @@ class StudentListView(AdminViewMixin, ListView):
                     if (match == None):
                         okToCreate = False 
                         rejectcount += 1
-                        message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "       ß Invalid Email Address \n")
+                        message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "        Invalid Email Address \n")
                         message_content.append(message)
                     user = {
                         "first_name": fields[0],
