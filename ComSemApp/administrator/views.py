@@ -142,9 +142,10 @@ class StudentListView(AdminViewMixin, ListView):
                     print(fields)
                     print(fields[0])
                     print(fields[1])
-                    self.db_create_student(**user)
-                    print("student made")
-                    print(user)
+                    if (okToCreate):
+                        self.db_create_student(**user)
+                        print("student made")
+                        print(user)
             print("REJECTED LINES")
             print(rejectedLines)
             message_disp = "\n".join(message_content)
