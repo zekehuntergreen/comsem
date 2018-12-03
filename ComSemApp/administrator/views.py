@@ -129,9 +129,11 @@ class StudentListView(AdminViewMixin, ListView):
                         okToCreate == False
                     for user in Student.objects.filter(institution=self.institution):
                         if(user.user.username== fields[2]):
+                            print("DUPE USER")
                             okToCreate == False
                             print(user.user)
                             message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username \n ")
+                            print(message)
                             message_content.append(message)
                             break
                     user = {
@@ -144,7 +146,7 @@ class StudentListView(AdminViewMixin, ListView):
                     print(fields[0])
                     print(fields[1])
                     if (okToCreate == True):
-                        self.db_create_student(**user)
+                        #self.db_create_student(**user)
                         print("student made")
                         print(user)
             print("REJECTED LINES")
