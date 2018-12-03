@@ -140,8 +140,10 @@ class StudentListView(AdminViewMixin, ListView):
                     
                     addressToVerify =fields[2]
                     match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', addressToVerify)
-                    print("match")
-                    print(match)
+                    if (match == None):
+                        print(fields[2]+ "NOT A VALID EMAIL")
+                    else: 
+                        print(fields[2]+ "VALID email ")
                     user = {
                         "first_name": fields[0],
                         "last_name": fields[1],
