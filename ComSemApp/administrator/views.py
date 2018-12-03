@@ -125,13 +125,13 @@ class StudentListView(AdminViewMixin, ListView):
                         #end of file
                         break
                     if (fields[0].isalpha() == False or fields[1].isalpha() == False):
-                        message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid first or last name \n ")
+                        message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid first or last name \n")
                         message_content.append(message)
                         okToCreate = False
                     for user in Student.objects.filter(institution=self.institution):
                         if(user.user.username== fields[2]):
                             okToCreate = False
-                            message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username \n ")
+                            message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username \n")
                             message_content.append(message)
                             break
                     
@@ -143,7 +143,7 @@ class StudentListView(AdminViewMixin, ListView):
                         "first_name": fields[0],
                         "last_name": fields[1],
                         "email": fields[2],
-                        "username": fields[2]
+                        "username": fields[2] #using email as username so teacher doesnt need to make usernames for everyone
                     }
                     if (okToCreate == True):
                         self.db_create_student(**user)
