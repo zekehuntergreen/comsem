@@ -146,7 +146,9 @@ class StudentListView(AdminViewMixin, ListView):
                     print(fields[0])
                     print(fields[1])
                     if (okToCreate == True):
-                        self.db_create_student(**user)
+                        print("oktocreate")
+                        print(okToCreate)
+                        ##self.db_create_student(**user)
                         print("student made")
                         print(user)
             print("REJECTED LINES")
