@@ -130,38 +130,26 @@ class StudentListView(AdminViewMixin, ListView):
                         okToCreate = False
                     for user in Student.objects.filter(institution=self.institution):
                         if(user.user.username== fields[2]):
-                            print("DUPE USER")
                             okToCreate = False
-                            print(user.user)
                             message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username \n ")
-                            print(message)
                             message_content.append(message)
                             break
                     
-                    addressToVerify =fields[2]
-                    match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', addressToVerify)
+                    # Check if a valid email address
+                    match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', fields[2])
                     if (match == None):
-                        print(fields[2]+ "NOT A VALID EMAIL")
-                    else: 
-                        print(fields[2]+ "VALID email ")
+                        okToCreate = False 
                     user = {
                         "first_name": fields[0],
                         "last_name": fields[1],
                         "email": fields[2],
                         "username": fields[2]
                     }
-                    print(fields)
-                    print(fields[0])
-                    print(fields[1])
                     if (okToCreate == True):
-                        print("oktocreate")
-                        print(okToCreate)
-                        ##self.db_create_student(**user)
+                        self.db_create_student(**user)
                         print("student made")
                         print(user)
-            print("REJECTED LINES")
-            print(rejectedLines)
-            message_disp = "\n".join(message_content)
+            message_disp = "".join(message_content)
             messages.add_message(request, messages.ERROR, message_disp)
         return HttpResponseRedirect(self.success_url)
             
