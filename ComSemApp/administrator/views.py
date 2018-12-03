@@ -17,6 +17,7 @@ from django.core.validators import validate_email
 from django.contrib import messages
 import csv
 import io
+import re
 
 
 
@@ -124,7 +125,7 @@ class StudentListView(AdminViewMixin, ListView):
                         #end of file
                         break
                     if (fields[0].isalpha() == False or fields[1].isalpha() == False):
-                        message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid first or last name ")
+                        message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid first or last name \n ")
                         message_content.append(message)
                         okToCreate = False
                     for user in Student.objects.filter(institution=self.institution):
@@ -136,6 +137,13 @@ class StudentListView(AdminViewMixin, ListView):
                             print(message)
                             message_content.append(message)
                             break
+                    
+                    addressToVerify =fields[2]
+                    match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', addressToVerify)
+                    if match == None:
+                        print("INVALID EMAIL")
+                    else:
+                        print("valid Email")
                     user = {
                         "first_name": fields[0],
                         "last_name": fields[1],
@@ -148,7 +156,7 @@ class StudentListView(AdminViewMixin, ListView):
                     if (okToCreate == True):
                         print("oktocreate")
                         print(okToCreate)
-                        self.db_create_student(**user)
+                        ##self.db_create_student(**user)
                         print("student made")
                         print(user)
             print("REJECTED LINES")
