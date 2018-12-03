@@ -130,7 +130,6 @@ class StudentListView(AdminViewMixin, ListView):
                         message_content.append(message)
                         okToCreate = False
                         rejectcount += 1
-                        break
                     for user in Student.objects.filter(institution=self.institution):
                         if(user.user.username== fields[2]):
                             okToCreate = False
@@ -146,14 +145,13 @@ class StudentListView(AdminViewMixin, ListView):
                         rejectcount += 1
                         message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "        Invalid Email Address \n")
                         message_content.append(message)
-                        break
-                    user = {
-                        "first_name": fields[0],
-                        "last_name": fields[1],
-                        "email": fields[2],
-                        "username": fields[2] #using email as username so teacher doesnt need to make usernames for everyone
-                    }
                     if (okToCreate == True):
+                        user = {
+                            "first_name": fields[0],
+                            "last_name": fields[1],
+                            "email": fields[2],
+                            "username": fields[2] #using email as username so teacher doesnt need to make usernames for everyone
+                        }
                         self.db_create_student(**user)
                         print("student made")
                         print(user)
