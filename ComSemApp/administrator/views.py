@@ -132,7 +132,7 @@ class StudentListView(AdminViewMixin, ListView):
                             print("DUPE USER")
                             okToCreate = False
                             print(user.user)
-                            message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username <br/> ")
+                            message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username \n ")
                             print(message)
                             message_content.append(message)
                             break
