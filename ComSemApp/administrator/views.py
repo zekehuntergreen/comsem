@@ -113,7 +113,7 @@ class StudentListView(AdminViewMixin, ListView):
             file_data = csv_file.read().decode("utf-8")	
             lines = file_data.split("\n")
             rejectedLines = []
-            message_content = ["The Following users were not added"]
+            message_content = ["The Following users were not added: \n"]
             
             for line in lines:
                 count = 2
@@ -154,7 +154,8 @@ class StudentListView(AdminViewMixin, ListView):
                     print(user)
             print("REJECTED LINES")
             print(rejectedLines)
-            messages.add_message(request, messages.ERROR, message_content)
+            message_disp = "".join(message_content)
+            messages.add_message(request, messages.ERROR, message_disp)
         return HttpResponseRedirect(self.success_url)
             
 
