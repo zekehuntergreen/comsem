@@ -127,7 +127,7 @@ class StudentListView(AdminViewMixin, ListView):
                         #end of file
                         break
                     if (fields[0].isalpha() == False or fields[1].isalpha() == False):
-                        message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "        Invalid First or Last Name \n")
+                        message = (str(linecount) + " " + fields[0] + " " + fields[1] + "      " + fields[2] + "        Invalid First or Last Name \n")
                         message_content.append(message)
             
                         rejectcount += 1
@@ -139,7 +139,7 @@ class StudentListView(AdminViewMixin, ListView):
                             if (rejected == False):     ##if rejected is false, we need to increment the number of rejects, if its already false, dont increment it but still log error
                                 rejectcount += 1
                                 rejected = True
-                            message = (str(linecount) + " " +  fields[0] + " " + fields[1] + " " + fields[2] + "        Duplicate Email Address \n")
+                            message = (str(linecount) + " " +  fields[0] + " " + fields[1] + "      " + fields[2] + "        Duplicate Email Address \n")
                             message_content.append(message)
                             break
                     
