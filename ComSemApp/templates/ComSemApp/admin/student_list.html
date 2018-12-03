@@ -28,13 +28,15 @@
 		<div>
 			<p>Uploader only allows CSV Files</p>
 		</div>
+
 		<div>
 		{% if messages %}
 				{% for message in messages %}
-				<p>{% if message.tags %} class="{{ alert }}"{% endif %}>{{ message }}</p>
+				<p>{% if message.tags %} {{ alert }}"{% endif %}>{{ message }}</p>
 				{% endfor %}
 		{% endif %}
 		</div>
+
 		{% if student_list %}
 		<div class="row mt-3 cs-admin-table">
 			<table class="table table-hover tablesorter">
