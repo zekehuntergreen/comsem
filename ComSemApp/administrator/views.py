@@ -142,7 +142,7 @@ class StudentListView(AdminViewMixin, ListView):
                     print(fields)
                     print(fields[0])
                     print(fields[1])
-                    if (okToCreate):
+                    if (okToCreate == True):
                         self.db_create_student(**user)
                         print("student made")
                         print(user)
