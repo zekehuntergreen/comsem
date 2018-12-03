@@ -114,7 +114,7 @@ class StudentListView(AdminViewMixin, ListView):
             file_data = csv_file.read().decode("utf-8")	
             lines = file_data.split("\n")
             rejectedLines = []
-            message_content = ["The Following users were not added: \n"]
+            message_content = ["The Following users were not added: \n Their line numbers are listed to the left \n"]
             linecount = 0
             for line in lines:
                 linecount += 1
