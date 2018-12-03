@@ -121,7 +121,7 @@ class StudentListView(AdminViewMixin, ListView):
                 if len(line): #make sure line isnt empty
                     fields = line.split(",")
                     okToCreate = True
-                    rejected = True
+                    rejected = False
                     linecount += 1
                     if (fields[0] == "" or fields[0] == ""):
                         #end of file
