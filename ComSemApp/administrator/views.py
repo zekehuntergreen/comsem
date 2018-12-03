@@ -162,7 +162,7 @@ class StudentListView(AdminViewMixin, ListView):
                         self.db_create_student(**user)
                         print("student made")
                         print(user)
-            message_content.insert(0, ("" +  str((linecount - rejectcount)) + "/" + str(linecount)+ " Accounts created sucessfully\n" + "The below users were not added, Their line numbers are listed to the left, Lines with multiple errors will be listed multiple times \n \n"))
+            message_content.insert(0, ("" +  str((linecount - rejectcount)) + "/" + str(linecount)+ " Accounts created sucessfully\n" + "The below users were not added, Their line numbers are listed to the left, \n Lines with multiple errors will be listed multiple times \n \n"))
             print("linecount" + str(linecount))
             print("rejected lines" + str(rejectcount))
             message_disp = "".join(message_content)
