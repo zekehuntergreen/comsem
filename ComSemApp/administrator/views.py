@@ -115,7 +115,7 @@ class StudentListView(AdminViewMixin, ListView):
             lines = file_data.split("\n")
             rejectedLines = []
             message_content = ["The Following users were not added: \n"]
-            linecount
+            linecount = 0
             for line in lines:
                 linecount += 1
                 if len(line): #make sure line isnt empty
