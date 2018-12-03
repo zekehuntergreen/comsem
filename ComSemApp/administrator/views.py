@@ -114,8 +114,9 @@ class StudentListView(AdminViewMixin, ListView):
             file_data = csv_file.read().decode("utf-8")	
             lines = file_data.split("\n")
             rejectedLines = []
-            message_content = ["The Following users were not added: \n Their line numbers are listed to the left \n"]
+            message_content = [""]
             linecount = 0
+            rejectcount = 0
             for line in lines:
                 linecount += 1
                 if len(line): #make sure line isnt empty
@@ -128,9 +129,11 @@ class StudentListView(AdminViewMixin, ListView):
                         message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "    Invalid First or Last Name \n")
                         message_content.append(message)
                         okToCreate = False
+                        rejectcount += 1
                     for user in Student.objects.filter(institution=self.institution):
                         if(user.user.username== fields[2]):
                             okToCreate = False
+                            rejectcount += 1
                             message = (str(linecount) + " " +  fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Email Address \n")
                             message_content.append(message)
                             break
@@ -139,6 +142,7 @@ class StudentListView(AdminViewMixin, ListView):
                     match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', fields[2])
                     if (match == None):
                         okToCreate = False 
+                        rejectcount += 1
                         message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "    Invalid Email Address \n")
                         message_content.append(message)
                     user = {
@@ -151,6 +155,7 @@ class StudentListView(AdminViewMixin, ListView):
                         self.db_create_student(**user)
                         print("student made")
                         print(user)
+            message_content.insert(0,"The Following users were not added: \n Their line numbers are listed to the left \n "+ str((linecount - rejectcount))+ "Accounts created sucessfully")
             message_disp = "".join(message_content)
             messages.add_message(request, messages.ERROR, message_disp)
         return HttpResponseRedirect(self.success_url)
