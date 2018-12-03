@@ -155,7 +155,7 @@ class StudentListView(AdminViewMixin, ListView):
                         self.db_create_student(**user)
                         print("student made")
                         print(user)
-            message_content.insert(0, ("" +  str((linecount - rejectcount)) + "/" + str(linecount)+ " Accounts created sucessfully\n" + "The below users were not added, Their line numbers are listed to the left \n "))
+            message_content.insert(0, ("" +  str((linecount - rejectcount)) + "/" + str(linecount)+ " Accounts created sucessfully\n" + "The below users were not added, Their line numbers are listed to the left \n \n"))
             message_disp = "".join(message_content)
             messages.add_message(request, messages.ERROR, message_disp)
         return HttpResponseRedirect(self.success_url)
