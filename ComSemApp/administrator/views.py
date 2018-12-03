@@ -145,6 +145,8 @@ class StudentListView(AdminViewMixin, ListView):
                     
                     # Check if a valid email address
                     match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', fields[2])
+                    print("EMAIL ADDRESS XXXXX")
+                    print(fields[2])
                     if (match == None):
                         if(rejected == False):
                             rejectcount += 1
