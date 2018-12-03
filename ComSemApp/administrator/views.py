@@ -117,7 +117,7 @@ class StudentListView(AdminViewMixin, ListView):
             message_content = ["The Following users were not added: \n"]
             line = 0
             for line in lines:
-                line = line + 1
+                line++
                 if len(line): #make sure line isnt empty
                     fields = line.split(",")
                     okToCreate = True
