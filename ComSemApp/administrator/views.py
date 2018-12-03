@@ -126,7 +126,7 @@ class StudentListView(AdminViewMixin, ListView):
                         #end of file
                         break
                     if (fields[0].isalpha() == False or fields[1].isalpha() == False):
-                        message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "    Invalid First or Last Name \n")
+                        message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "        Invalid First or Last Name \n")
                         message_content.append(message)
                         okToCreate = False
                         rejectcount += 1
@@ -134,7 +134,7 @@ class StudentListView(AdminViewMixin, ListView):
                         if(user.user.username== fields[2]):
                             okToCreate = False
                             rejectcount += 1
-                            message = (str(linecount) + " " +  fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Email Address \n")
+                            message = (str(linecount) + " " +  fields[0] + " " + fields[1] + " " + fields[2] + "        Duplicate Email Address \n")
                             message_content.append(message)
                             break
                     
@@ -143,7 +143,7 @@ class StudentListView(AdminViewMixin, ListView):
                     if (match == None):
                         okToCreate = False 
                         rejectcount += 1
-                        message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "    Invalid Email Address \n")
+                        message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "       ß Invalid Email Address \n")
                         message_content.append(message)
                     user = {
                         "first_name": fields[0],
