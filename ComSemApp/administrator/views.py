@@ -126,11 +126,11 @@ class StudentListView(AdminViewMixin, ListView):
                     if (fields[0].isalpha() == False or fields[1].isalpha() == False):
                         message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    invalid first or last name ")
                         message_content.append(message)
-                        okToCreate == False
+                        okToCreate = False
                     for user in Student.objects.filter(institution=self.institution):
                         if(user.user.username== fields[2]):
                             print("DUPE USER")
-                            okToCreate == False
+                            okToCreate = False
                             print(user.user)
                             message = ( fields[0] + " " + fields[1] + " " + fields[2] + "    Duplicate Username \n ")
                             print(message)
