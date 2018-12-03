@@ -121,6 +121,7 @@ class StudentListView(AdminViewMixin, ListView):
                 if len(line): #make sure line isnt empty
                     fields = line.split(",")
                     okToCreate = True
+                    rejected = False
                     linecount += 1
                     if (fields[0] == "" or fields[0] == ""):
                         #end of file
@@ -128,14 +129,16 @@ class StudentListView(AdminViewMixin, ListView):
                     if (fields[0].isalpha() == False or fields[1].isalpha() == False):
                         message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "        Invalid First or Last Name \n")
                         message_content.append(message)
-                        if (okToCreate): ##if oktocreate is true, we need to increment the number of rejects, if its already false, dont increment it,
+                        if (!rejected): ##if rejected is true, we need to increment the number of rejects, if its already false, dont increment it,
                             rejectcount += 1
+                            rejected = True
                         okToCreate = False
                     for user in Student.objects.filter(institution=self.institution):
                         if(user.user.username== fields[2]):
                             okToCreate = False
-                            if (okToCreate):
+                            if (!rejected):
                                 rejectcount += 1
+                                rejected = True
                             rejectcount += 1
                             message = (str(linecount) + " " +  fields[0] + " " + fields[1] + " " + fields[2] + "        Duplicate Email Address \n")
                             message_content.append(message)
@@ -144,8 +147,9 @@ class StudentListView(AdminViewMixin, ListView):
                     # Check if a valid email address
                     match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', fields[2])
                     if (match == None):
-                        if (okToCreate):
+                        if (!rejected):
                             rejectcount += 1
+                            rejected = True
                         okToCreate = False 
                         rejectcount += 1
                         message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "        Invalid Email Address \n")
