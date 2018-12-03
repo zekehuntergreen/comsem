@@ -129,14 +129,14 @@ class StudentListView(AdminViewMixin, ListView):
                     if (fields[0].isalpha() == False or fields[1].isalpha() == False):
                         message = (str(linecount) + " " + fields[0] + " " + fields[1] + " " + fields[2] + "        Invalid First or Last Name \n")
                         message_content.append(message)
-                        if (rejected == False): ##if rejected is false, we need to increment the number of rejects, if its already false, dont increment it but still log error
-                            rejectcount += 1
-                            rejected = True
+            
+                        rejectcount += 1
+                        rejected = True
                         okToCreate = False
                     for user in Student.objects.filter(institution=self.institution):
                         if(user.user.username== fields[2]):
                             okToCreate = False
-                            if (rejected == False):
+                            if (rejected == False):     ##if rejected is false, we need to increment the number of rejects, if its already false, dont increment it but still log error
                                 rejectcount += 1
                                 rejected = True
                             rejectcount += 1
