@@ -127,7 +127,7 @@ class StudentListView(AdminViewMixin, ListView):
                         #end of file
                         break
                     if (len(fields) < 4):
-                        messeage = "Missing columns, please make sure you have columns as follows: firstname,lastname,email,username"
+                        message = "Missing columns, please make sure you have columns as follows: firstname,lastname,email,username"
                         message_content.append(message)
                         break
                     if (fields[0].isalpha() == False or fields[1].isalpha() == False):
