@@ -118,13 +118,17 @@ class StudentListView(AdminViewMixin, ListView):
             linecount = 0
             rejectcount = 0
             for line in lines:
-                if len(line) > 3: #make sure line isnt empty
+                if len(line): #make sure line isnt empty
                     fields = line.split(",")
                     okToCreate = True
                     rejected = False
                     linecount += 1
                     if (fields[0] == "" or fields[0] == ""):
                         #end of file
+                        break
+                    if (fields.count() < 4):
+                        messeage = "Missing columns, please make sure you have columns as follows: firstname,lastname,email,username")
+                        message_content.append(message)
                         break
                     if (fields[0].isalpha() == False or fields[1].isalpha() == False):
                         message = (str(linecount) + " " + fields[0] + " " + fields[1] + "      " + fields[2] + "       " + fields[3] + "        Invalid First or Last Name \n")
