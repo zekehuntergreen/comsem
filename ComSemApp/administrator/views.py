@@ -146,7 +146,7 @@ class StudentListView(AdminViewMixin, ListView):
                                 rejected = True
                             message = (str(linecount) + " " + fields[0] + " " + fields[1] + "      " + fields[2] + "       " + fields[3] + "        Duplicate Email Address  \n")
                             message_content.append(message)
-                            break
+                            
                         if(user.user.username== fields[3]):
                             okToCreate = False
                             if (rejected == False):     ##if rejected is false, we need to increment the number of rejects, if its already false, dont increment it but still log error
@@ -154,6 +154,7 @@ class StudentListView(AdminViewMixin, ListView):
                                 rejected = True
                             message = (str(linecount) + " " + fields[0] + " " + fields[1] + "      " + fields[2] + "       " + fields[3] + "        Duplicate Username  \n")
                             message_content.append(message)
+                        if(okToCreate == False):
                             break
                     
                     # Check if a valid email address
