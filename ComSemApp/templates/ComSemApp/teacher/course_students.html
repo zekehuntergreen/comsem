@@ -8,7 +8,7 @@
 <tbody>
 	{% for student in course.students.all %}
 	<tr>
-		<td>{{ student }}</td>
+		<td>{{ student.email }}</td>
 	</tr>
 	{% endfor %}
 </tbody>
