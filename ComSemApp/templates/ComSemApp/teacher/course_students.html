@@ -10,8 +10,8 @@
 	<tr>
 		<td>{{ student}}</td>
 		<td> 44/23 worksheets</td>
-		<td>{% if course.worksheets.submissions %}
-				<td>SUBMISSIONS</td>
+		<td>{% if course.worksheets %}
+				<td>{% course.workseets %}</td>
 
 			{% endif %}
 		</td>
