@@ -13,9 +13,9 @@
 		<td>{% if submissions %}
 				{% for submission in submissions %}
 					{%if submission.student.user == student.user%}
-					<p>USER FOUNDS</p>
+					<td>USER FOUNDS</td>
 					{% else % }
-					<p>NOT FOUND</p>
+					<td>NOT FOUND</td>
 					{% endif %}
 					{% endfor %}
 					{% endif %}
