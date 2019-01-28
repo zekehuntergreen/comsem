@@ -11,10 +11,13 @@
 	<tr>
 		<td>{{ student}}</td>
 		<td> 44/23 worksheets</td>
-		<td>{% if submissions %}
-				<td>SUBMISSIONS</td>
+		<td>
+				{% if submissions %}
+				{% else %}
+				<h5>No submissions.</h5>
+				{% endif %}
 
-			{% endif %}
+
 		</td>
 		<td><a href="mailto:{{student.user.email}}">Email</a></td>
 	</tr>
