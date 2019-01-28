@@ -12,6 +12,8 @@
 		<td> 44/23 worksheets</td>
 		<td>{% if course.submissions %}
 				<td>SUBMISSIONS</td>
+			{% else % }
+				<td> No submissions</td>
 			{% endif %}
 		</td>
 		<td><a href="mailto:{{student.user.email}}">Email</a></td>
