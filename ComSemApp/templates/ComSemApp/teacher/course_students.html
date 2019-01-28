@@ -9,8 +9,8 @@
 	{% for student in course.students.all %}
 	<tr>
 		<td>{{ student}}</td>
-		<td>{{ student.user.email}}</td>
-		<td>{{ student}}</td>
+		<td> 44/23 worksheets</td>
+		<td><a href="{{student.user.email}}">Email</a></td>
 	</tr>
 	{% endfor %}
 </tbody>
