@@ -11,14 +11,7 @@
 		<td>{{ student}}</td>
 		<td> 44/23 worksheets</td>
 		<td>{% if submissions %}
-				{% for submission in submissions %}
-					{%if submission.student.user == student.user%}
-					<td>USER FOUNDS</td>
-					{% else % }
-					<td>NOT FOUND</td>
-					{% endif %}
-					{% endfor %}
-					{% endif %}
+				<td>SUBMISSIONS</td>
 		</td>
 		<td><a href="mailto:{{student.user.email}}">Email</a></td>
 	</tr>
