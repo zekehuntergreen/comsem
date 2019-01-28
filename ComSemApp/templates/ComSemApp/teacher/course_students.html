@@ -11,6 +11,11 @@
 		<td>{{ student}}</td>
 		<td> 44/23 worksheets</td>
 		<td><a href="mailto:{{student.user.email}}">Email</a></td>
+		<td>{% if submissions %}
+				{% for submission in submissions %}
+					{%if submission.student.user == student.user%}
+					<p>USER FOUNDS</p>
+		</td>
 	</tr>
 	{% endfor %}
 </tbody>
