@@ -11,10 +11,10 @@
 <tbody>
 	{% for student in course.students.all %}
 	<tr>
-		<td>{{ student}}</td>
+		<td>{{student}}</td>
 		<td> {{worksheetCount}}</td>
 		<td>
-			{{ submissions }}
+			{{ submissions.items.student }}
 		</td>
 		<td><a href="mailto:{{student.user.email}}">Email</a></td>
 	</tr>
