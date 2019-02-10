@@ -14,8 +14,8 @@
 		<td>{{ student}}</td>
 		<td> {{worksheetCount}}</td>
 		<td>
-				{% if course.worksheets.submissions %}
-				<h5>submissions</h5>
+				{% if submissions %}
+				<h5>{ count(submissions.filter(id=student=student))</h5>
 				{% else %}
 				<h5>No submissions.</h5>
 				{% endif %}
