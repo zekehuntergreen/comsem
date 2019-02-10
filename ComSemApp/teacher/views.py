@@ -73,6 +73,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
+        print(data)
         data['bob'] = 'Ron Johnson'
         return data
     def get_object(self):
