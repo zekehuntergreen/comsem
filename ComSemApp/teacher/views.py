@@ -75,7 +75,6 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         data = super().get_context_data(**kwargs)
 
         data['bob'] = 'Ron Johnson'
-        count = 0
         worksheets = Worksheet.objects.filter(course=self.course)
         data['worksheetCount'] = count(worksheets)
         return data
