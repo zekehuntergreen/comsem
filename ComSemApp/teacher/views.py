@@ -76,9 +76,8 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
 
         data['bob'] = 'Ron Johnson'
         count = 0
-        for worksheet in self.course.worksheets:
-            count = count + 1
-        data['worksheet count'] = count
+        worksheets = Worksheet.objects.filter(course=self.course)
+        data['worksheetCount'] = count(worksheets)
         return data
     def get_object(self):
         return self.course
