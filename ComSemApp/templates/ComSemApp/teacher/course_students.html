@@ -14,7 +14,15 @@
 		<td>{{ student}}</td>
 		<td> {{worksheetCount}}</td>
 		<td>
-				<h5>{ count(submissions.filter(id=student)) }</h5>
+				<h5>{{ submissions = StudentSubmission.objects.filter(student=student)
+						subcount = 0
+						for submission in submissions :
+							subcount = count + 1
+							if submission.worksheet.course != self.course:
+								subcount = subcount - 1 
+						return subcount}}
+							
+				</h5>
 
 		</td>
 		<td><a href="mailto:{{student.user.email}}">Email</a></td>

@@ -76,18 +76,19 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
 
         data['bob'] = 'Ron Johnson'
         worksheets = Worksheet.objects.filter(course=self.course)
-        for student in self.course.students.all(): 
-            submissions = StudentSubmission.objects.filter(student=student)
-            for submission in submissions :
-                if submission.worksheet.course != self.course:
-                    print("SUB NOT IN COURSE")
+        
+        submissions = StudentSubmission.objects
+        for submission in submissions :
+            subcount = count + 1
+            if submission.worksheet.course != self.course:
+                subcount = subcount - 1
 
-            print('SUBS')
-            print(len(submissions))
+
         
         
         count = len(worksheets)
         data['worksheetCount'] = count
+        data['submissions'] = submissions
         return data
     def get_object(self):
         return self.course
