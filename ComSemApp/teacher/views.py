@@ -70,9 +70,9 @@ class CourseListView(TeacherViewMixin, ListView):
 class CourseDetailView(TeacherCourseViewMixin, DetailView):
     context_object_name = 'course'
     template_name = "ComSemApp/teacher/course.html"
-
+    bob = "bond"
     def get_object(self):
-        return self.course
+        return self.course, bob
 
 
 class WorksheetListView(TeacherCourseViewMixin, ListView):
