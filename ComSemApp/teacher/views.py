@@ -78,10 +78,9 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         worksheets = Worksheet.objects.filter(course=self.course)
         for student in self.course.students.all(): 
             submissions = StudentSubmission.objects.filter(student=student)
-            sublist = submissions.values()
-            for submission in sublist :
+            for submission in submissions :
                 if submission.worksheet.course != self.course:
-                    submissions.remove(submission)
+                    print("SUB NOT IN COURSE")
 
             print('SUBS')
             print(len(submissions))
