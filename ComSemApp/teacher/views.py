@@ -78,6 +78,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         worksheets = Worksheet.objects.filter(course=self.course)
         for student in self.course.students.all(): 
             submissions = StudentSubmission.objects.filter(student=student)
+            print('SUBS')
             print(len(submissions))
         count = len(worksheets)
 
