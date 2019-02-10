@@ -76,6 +76,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
 
         data['bob'] = 'Ron Johnson'
         worksheets = Worksheet.objects.filter(course=self.course)
+        subcountdict = {}
         for student in self.course.students.all(): 
             subcount = 0
             submissions = StudentSubmission.objects.filter(student=student)
@@ -83,11 +84,13 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                 subcount = subcount + 1
                 if submission.worksheet.course != self.course:
                     subcount = subcount - 1
-
+            subcountdict[student] = subcount
             print('SUBS')
             print(len(submissions))
             print('right subs')
             print(subcount)
+            print('dict')
+            print(subcountdict)
         
         
         count = len(worksheets)
