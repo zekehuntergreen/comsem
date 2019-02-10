@@ -77,10 +77,10 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         data['bob'] = 'Ron Johnson'
         worksheets = Worksheet.objects.filter(course=self.course)
         for student in self.course.students.all(): 
-            submissions = StudentSubmission.objects.filter(student=student)
+            submissions = StudentSubmission.objects.values().filter(student=student)
             for submission in submissions :
                 if submission.worksheet.course != self.course:
-                    submissions.values.remove(submission)
+                    submissions.remove(submission)
 
             print('SUBS')
             print(len(submissions))
