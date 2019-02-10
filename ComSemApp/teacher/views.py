@@ -78,6 +78,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         worksheets = Worksheet.objects.filter(course=self.course)
         
         submissions = StudentSubmission.objects
+        subcount = 0
         for submission in submissions.all() :
             subcount = subcount + 1
             if submission.worksheet.course != self.course:
