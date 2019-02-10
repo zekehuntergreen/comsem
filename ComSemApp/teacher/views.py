@@ -70,7 +70,7 @@ class CourseListView(TeacherViewMixin, ListView):
 class CourseDetailView(TeacherCourseViewMixin, DetailView):
     context_object_name = 'course'
     template_name = "ComSemApp/teacher/course.html"
-    subcountdict = {}
+
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
 
@@ -85,7 +85,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                 subcount = subcount + 1
                 if submission.worksheet.course != self.course:
                     subcount = subcount - 1
-            subcountdict['bob'] = subcount
+            subcountdict[student] = subcount
         
         
         count = len(worksheets)
