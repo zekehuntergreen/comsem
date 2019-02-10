@@ -75,6 +75,8 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         data = super().get_context_data(**kwargs)
         print(data)
         data['bob'] = 'Ron Johnson'
+        print(count)
+        print(course.workshees.count)
         return data
     def get_object(self):
         return self.course
