@@ -85,7 +85,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                 subcount = subcount + 1
                 if submission.worksheet.course != self.course:
                     subcount = subcount - 1
-            subcountdict[student.user.username] = subcount
+            subcountdict[student] = subcount
         
         
         count = len(worksheets)
