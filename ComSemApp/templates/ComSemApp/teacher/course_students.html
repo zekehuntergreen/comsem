@@ -14,12 +14,7 @@
 		<td>{{ student}}</td>
 		<td> {{worksheetCount}}</td>
 		<td>
-				{% if submissions %}
 				<h5>{ count(submissions.filter(id=student=student))</h5>
-				{% else %}
-				<h5>No submissions.</h5>
-				{% endif %}
-
 
 		</td>
 		<td><a href="mailto:{{student.user.email}}">Email</a></td>
