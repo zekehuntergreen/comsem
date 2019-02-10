@@ -16,7 +16,7 @@
 		<td>
 				<h5>{{ submissions = StudentSubmission.objects.filter(student=student)
 						subcount = 0
-						for submission in submissions :
+						for submission in submissions.all() :
 							subcount = count + 1
 							if submission.worksheet.course != self.course:
 								subcount = subcount - 1 
