@@ -79,7 +79,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         for student in self.course.students.all(): 
             submissions = StudentSubmission.objects.filter(student=student)
             print("COUNT ")
-            print(count(submissions))
+            print(len(submissions))
         count = 0
 
         for worksheet in worksheets:
