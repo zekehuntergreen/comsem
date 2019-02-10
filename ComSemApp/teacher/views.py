@@ -85,16 +85,11 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                 if submission.worksheet.course != self.course:
                     subcount = subcount - 1
             subcountdict[student] = subcount
-            print('SUBS')
-            print(len(submissions))
-            print('right subs')
-            print(subcount)
-            print('dict')
-            print(subcountdict)
         
         
         count = len(worksheets)
         data['worksheetCount'] = count
+        data['submissions'] = subcountdict
         return data
     def get_object(self):
         return self.course
