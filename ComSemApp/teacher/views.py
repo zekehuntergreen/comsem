@@ -79,7 +79,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         for student in self.course.students.all(): 
             submissions = StudentSubmission.objects.filter(student=student)
             for submission in submissions :
-                if submission.course != self.course:
+                if submission.worksheet.course != self.course:
                     submissions.remove(submission)
 
             print('SUBS')
