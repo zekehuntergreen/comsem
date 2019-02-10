@@ -76,7 +76,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         print(data)
         data['bob'] = 'Ron Johnson'
 
-        print(course.workshees.count)
+        print(self.course.workshees.count)
         return data
     def get_object(self):
         return self.course
