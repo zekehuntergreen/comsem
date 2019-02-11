@@ -82,7 +82,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         data['bob'] = 'Ron Johnson'
         worksheets = Worksheet.objects.filter(course=self.course)
         subcountdict = {}
-        unradedcountdict = {}
+        ungradedcountdict = {}
         for student in self.course.students.all(): 
             subcount = 0
             ungradedcount = 0
@@ -95,7 +95,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                         ungradedcount = ungradedcount + 1
 
             subcountdict[student.user.username] = subcount
-            ungradedcountdict[student.user.username] = subcount
+            ungradedcountdict[student.user.username] = ungradedcount
         
         
 
