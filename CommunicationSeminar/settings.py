@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_select2',
     'django_smoke_tests',
+    'django_chartit'
 ]
 
 MIDDLEWARE = [
