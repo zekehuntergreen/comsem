@@ -14,9 +14,9 @@
 		<td>{{student}}</td>
 		<td> {{worksheetCount}}</td>
 		<td>
-				{% for key, value in submissions.items %}
-				<p> {{ submissions.student.user.username }} </p>
-				{% endfor %}
+				{% with username=student.user.username %}
+					{{submissions[username]}}
+				{% endwith %}
 		</td>
 		<td><a href="mailto:{{student.user.email}}">Email</a></td>
 	</tr>
