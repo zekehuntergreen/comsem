@@ -91,9 +91,8 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
 
                 if submission.worksheet.course == self.course:
                     subcount = subcount + 1
-                    print ("SUB STATUS")
-                    print (submission.status)
-                    if submission.status == 'ungraded':
+
+                    if submission.status == 'pending':
                         ungradedcount = ungradedcount + 1
 
             subcountdict[student.user.username] = subcount
