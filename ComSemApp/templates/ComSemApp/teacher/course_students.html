@@ -14,7 +14,9 @@
 		<td>{{student}}</td>
 		<td> {{worksheetCount}}</td>
 		<td>
-			{{submissions.student.user.username}}
+				{% with username=student.user.username %}
+					{{submissions.username}}
+				{% endwith %}
 		</td>
 		<td><a href="mailto:{{student.user.email}}">Email</a></td>
 	</tr>
