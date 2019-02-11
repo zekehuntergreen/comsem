@@ -101,7 +101,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
 
         data['worksheetCount'] = len(worksheets)
         data['submissions'] = subcountdict
-        data['ungraded'] = gradedcountdict
+        data['ungraded'] = ungradedcountdict
         return data
     def get_object(self):
         return self.course
