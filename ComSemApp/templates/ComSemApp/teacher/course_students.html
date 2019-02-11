@@ -14,7 +14,7 @@
 		<td>{{student}}</td>
 		<td> {{worksheetCount}}</td>
 		<td>
-			{{ submissions|get_item:item.student.user.username }}
+			{{ submissions|get_item:student.user.username }}
 		</td>
 		<td><a href="mailto:{{student.user.email}}">Email</a></td>
 	</tr>
