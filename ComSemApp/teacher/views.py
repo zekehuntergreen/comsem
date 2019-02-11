@@ -23,6 +23,7 @@ from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewM
 
 import json, math, datetime, os
 from ComSemApp.models import *
+from django.template.defaulttags import register
 
 
 class TeacherViewMixin(RoleViewMixin):
@@ -70,6 +71,10 @@ class CourseListView(TeacherViewMixin, ListView):
 class CourseDetailView(TeacherCourseViewMixin, DetailView):
     context_object_name = 'course'
     template_name = "ComSemApp/teacher/course.html"
+    
+    @register.filter('get_item')
+    def get_item(dictionary, key):
+        return dictionary.get(key)
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
@@ -85,7 +90,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                 subcount = subcount + 1
                 if submission.worksheet.course != self.course:
                     subcount = subcount - 1
-            data[student.user.username + 'count'] = subcount
+            subcountdict[student.user.username] = subcount
         
         
         count = len(worksheets)
