@@ -16,7 +16,7 @@
 			{{ submissions|get_item:student.user.username }} / {{worksheetCount}}</td>
 		<td>
 			<!-- using username to get the calculated count for submissions for that student in this class section -->
-			{{ submissions|get_item:student.user.username }}
+			{{ ungraded|get_item:student.user.username }}
 		</td>
 		<td><a href="mailto:{{student.user.email}}">Email</a></td>
 	</tr>
