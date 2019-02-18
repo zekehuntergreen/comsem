@@ -94,10 +94,12 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                     print(submission.status)
                     if submission.status == 'ungraded':
                         ungradedcount = ungradedcount + 1
-
+            for submission in submissions: 
+                print("num of attempts:")
+                print(submission.get_number(self))
             subcountdict[student.user.username] = subcount
             ungradedcountdict[student.user.username] = ungradedcount
-        
+
         
 
         data['worksheetCount'] = len(worksheets)
