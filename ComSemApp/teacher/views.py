@@ -97,7 +97,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
             for submission in submissions: 
                 print("num of attempts:")
                 print(submission.get_number())
-                print(submission.student)
+                print(submission.worksheet.course)
             subcountdict[student.user.username] = subcount
             ungradedcountdict[student.user.username] = ungradedcount
 
