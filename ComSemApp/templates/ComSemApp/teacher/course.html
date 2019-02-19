@@ -69,19 +69,16 @@
 				var completed = {{ classcomplete }};
 				var ungraded = {{ classungraded }};
 				
-				console.log("incomplete", incomplete);
 				var data = google.visualization.arrayToDataTable([
 				  ['Source', 'Clicks'],
 				  ['Completed', completed],
 				  ['Incomplete', incomplete],
-				  ['ungraded', ungraded]
+				  ['Ungraded', ungraded]
 				]);
 		
 		
 				// Set chart options
-				var options = {'title':'Worksheet Status',
-							   'width':500,
-							   'height':300};
+				var options = {'title':'Worksheet Status'};
 		
 				// Instantiate and draw our chart, passing in some options.
 				var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
