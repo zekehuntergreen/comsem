@@ -96,6 +96,8 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                         ungradedcount = ungradedcount + 1
             for worksheet in self.course.worksheets.all():
                 worksheetcount = worksheetcount +1 
+                print("WORKSHEET attempt")
+                print(worksheet.last_submission(student).get_number())
                 attemptcount = worksheet.last_submission(student).get_number() + attemptcount
             print("attempts")
             print(attemptcount)
