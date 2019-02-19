@@ -96,7 +96,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                         ungradedcount = ungradedcount + 1
             for worksheet in self.course.worksheets.all():
                 print("last sub")
-                print(worksheet.last_submission(student).get_number())
+                print(worksheet.last_submission(student))
 
             subcountdict[student.user.username] = subcount
             ungradedcountdict[student.user.username] = ungradedcount
