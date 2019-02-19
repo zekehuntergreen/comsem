@@ -47,12 +47,6 @@
 
 	</div>
 
-	<div>
-		<p hidden id ="classcomplete"> {{classcomplete}} </p> 
-		<p hidden id ="classungraded"> {{classungraded}} </p> 
-		<p hidden id ="classincomplete"> {{classincomplete}} </p> 
-	</div>
-
 	<div> 
 			<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 			<script type="text/javascript">
@@ -67,14 +61,13 @@
 			  // draws it.
 			  function drawChart() {
 
-				var test = {{ classincomplete }};
-				console.log("test", test);
+
 		
 				// Create the data table.
 				var data = new google.visualization.DataTable();
-				var incomplete = document.getElementById('classincomplete').value;
-				var completed = document.getElementById('classcomplete').value;
-				var ungraded = document.getElementById('classungraded').value;
+				var incomplete = {{ classincomplete }};
+				var completed = {{ classcomplete }};
+				var ungraded = {{ classungraded }};
 				
 				console.log("incomplete", incomplete);
 				var data = google.visualization.arrayToDataTable([
