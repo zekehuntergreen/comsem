@@ -90,12 +90,12 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
             attemptcount = 0
             submissions = StudentSubmission.objects.filter(student=student)
             for submission in submissions :
-
                 if submission.worksheet.course == self.course:
-                    subcount = subcount + 1
+                    attemptcount = attemptcount + 1
                     if submission.status == 'ungraded':
                         ungradedcount = ungradedcount + 1
-                    attemptcount = submission.get_number() + attemptcount
+            for worksheet in course.workeets.all():
+                print("worksheet")
 
             subcountdict[student.user.username] = subcount
             ungradedcountdict[student.user.username] = ungradedcount
@@ -103,8 +103,6 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
 
         
 
-        data['worksheetCount'] = len(worksheets)
-        data['submissions'] = subcountdict
         data['ungraded'] = ungradedcountdict
         data['attempts'] = attemptsdict
         return data
