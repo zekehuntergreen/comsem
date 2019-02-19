@@ -101,19 +101,19 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
 
         ungraded = 0
         complete = 0
-        pending = 0
+        incomplete = 0
         for submission in submissions :
             if submission.worksheet.course == self.course:
                 if submission.status == 'ungraded':
                     ungraded = ungraded + 1
                 if submission.status == 'complete':
                     complete = complete + 1
-                if submission.status == 'pending':
-                    pending = pending + 1
+                if submission.status == 'incomplete':
+                    incomplete = incomplete + 1
         print('ungraded')
         print(ungraded)
-        print("pending")
-        print(pending)
+        print("incomplete")
+        print(incomplete)
         print("complete")
         print(complete)
 
