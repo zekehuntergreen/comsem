@@ -3,53 +3,51 @@
 {% block content %}
 
 	<!-- Page-Title -->
-	<div class = "row">
-		<div class="column">
-			<div class="row">
-				<div class="col-sm-12">
-					<div class="page-title-box">
-						<h4 class="page-title">Course Information</h4>
-						<div class="clearfix"></div>
-					</div>
-				</div>
-
-				<!-- course info -->
-				<div class="col-lg-5 col-md-5 col-sm-4">
-					{% include 'ComSemApp/course_details.html' %}
+	<div class="column">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="page-title-box">
+					<h4 class="page-title">Course Information</h4>
+					<div class="clearfix"></div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-lg-5 col-md-5 col-sm-4">
-						<div class = "portlet">
-								<div class="column2" id="chart_div"></div>
-							</div>
-					</div>
-			</div>
 
+			<!-- course info -->
+			<div class="col-lg-5 col-md-5 col-sm-4">
+				{% include 'ComSemApp/course_details.html' %}
+			</div>
 		</div>
-		<div class="column">
-			<!-- course students -->
-			<div class="col-lg-7 col-md-7 col-sm-8">
-				<div class="portlet">
-
-					<div class="portlet-heading portlet-default">
-						<h4 class="portlet-title m-t-0 header-title"><b>Students</b></h4>
-
-						<div class="portlet-widgets">
-
-							<a data-toggle="collapse" data-parent="#accordion1" href="#courseStudentsPortlet"><i class="ion-minus-round"></i></a>
-
+		<div class="row">
+			<div class="col-lg-5 col-md-5 col-sm-4">
+					<div class = "portlet">
+							<div class="column2" id="chart_div"></div>
 						</div>
-						<div class="clearfix"></div>
+				</div>
+		</div>
+
+	</div>
+	<div class="column">
+		<!-- course students -->
+		<div class="col-lg-7 col-md-7 col-sm-8">
+			<div class="portlet">
+
+				<div class="portlet-heading portlet-default">
+					<h4 class="portlet-title m-t-0 header-title"><b>Students</b></h4>
+
+					<div class="portlet-widgets">
+
+						<a data-toggle="collapse" data-parent="#accordion1" href="#courseStudentsPortlet"><i class="ion-minus-round"></i></a>
 
 					</div>
+					<div class="clearfix"></div>
 
-					<div id="courseStudentsPortlet" class="panel-collapse collapse show">
-						<div class="portlet-body">
-							<table course_id="{{ course.id }}" class="courseStudentsTable table table-hover">
-								{% include 'ComSemApp/teacher/course_students_detail.html' %}
-							</table>
-						</div>
+				</div>
+
+				<div id="courseStudentsPortlet" class="panel-collapse collapse show">
+					<div class="portlet-body">
+						<table course_id="{{ course.id }}" class="courseStudentsTable table table-hover">
+							{% include 'ComSemApp/teacher/course_students_detail.html' %}
+						</table>
 					</div>
 				</div>
 			</div>
