@@ -99,6 +99,8 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                 print("WORKSHEET attempt")
                 print(worksheet.last_submission(student).get_number())
                 attemptcount = worksheet.last_submission(student).get_number() + attemptcount
+                print("CURR COUNT")
+                print(attemptcount)
             print("attempts")
             print(attemptcount)
             worksheetsdict[student.user.username] = worksheetcount
