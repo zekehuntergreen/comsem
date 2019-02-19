@@ -83,6 +83,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         worksheets = Worksheet.objects.filter(course=self.course)
         subcountdict = {}
         ungradedcountdict = {}
+        attemptsdict = {}
         for student in self.course.students.all(): 
             subcount = 0
             ungradedcount = 0
