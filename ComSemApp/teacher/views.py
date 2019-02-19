@@ -95,6 +95,8 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                         ungradedcount = ungradedcount + 1
             for worksheet in self.course.worksheets.all():
                 attemptcount = worksheet.last_submission(student).get_number() + attemptcount
+                worksheetcount = worksheetcount + 1
+
             worksheetsdict[student.user.username] = worksheetcount
             ungradedcountdict[student.user.username] = ungradedcount
             attemptsdict[student.user.username] = attemptcount
@@ -110,13 +112,6 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                     complete = complete + 1
                 if submission.status == 'incomplete':
                     incomplete = incomplete + 1
-
-        print('ungraded')
-        print(ungraded)
-        print("incomplete")
-        print(incomplete)
-        print("complete")
-        print(complete)
 
 
         data['classungraded'] = ungraded
