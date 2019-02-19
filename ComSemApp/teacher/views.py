@@ -102,7 +102,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
             ungradedcountdict[student.user.username] = ungradedcount
             attemptsdict[student.user.username] = attemptcount
 
-        data['worksheets'] = worksheetscountdict
+        data['worksheets'] = worksheetsdict
         data['ungraded'] = ungradedcountdict
         data['attempts'] = attemptsdict
         return data
