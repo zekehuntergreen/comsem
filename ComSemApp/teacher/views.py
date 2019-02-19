@@ -94,17 +94,38 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                     if submission.status == 'ungraded':
                         ungradedcount = ungradedcount + 1
             for worksheet in self.course.worksheets.all():
-                print("worksheet")
-                print("worksheetcount")
-                worksheetcount = worksheetcount + 1 
                 attemptcount = worksheet.last_submission(student).get_number() + attemptcount
             worksheetsdict[student.user.username] = worksheetcount
             ungradedcountdict[student.user.username] = ungradedcount
             attemptsdict[student.user.username] = attemptcount
 
+        ungraded = 0
+        complete = 0
+        pending = 0
+        for submission in submissions :
+            if submission.worksheet.course == self.course:
+                if submission.status == 'ungraded':
+                    ungraded = ungraded + 1
+                if submission.status == 'complete':
+                    complete = complete + 1
+                if submission.status == 'pending':
+                    pending = pending + 1
+        print('ungraded')
+        print(ungraded)
+        print("pending")
+        print(pending)
+        print("complete")
+        print(complete)
+
+        
+        data['ungraded'] = ungraded
+        data['pending'] = pending
+        data['complete'] = complete
+        data['ungradedSubmissions'] = len(self.course.worksheets.all)
         data['worksheets'] = worksheetsdict
         data['ungraded'] = ungradedcountdict
         data['attempts'] = attemptsdict
+
         return data
     def get_object(self):
         return self.course
