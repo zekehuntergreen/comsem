@@ -94,7 +94,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                     attemptcount = attemptcount + 1
                     if submission.status == 'ungraded':
                         ungradedcount = ungradedcount + 1
-            for worksheet in course.workeets.all():
+            for worksheet in self.course.workeets.all():
                 print("worksheet")
 
             subcountdict[student.user.username] = subcount
