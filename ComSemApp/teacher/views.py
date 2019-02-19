@@ -91,11 +91,11 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
             submissions = StudentSubmission.objects.filter(student=student)
             for submission in submissions :
                 if submission.worksheet.course == self.course:
-                    attemptcount = attemptcount + 1
                     if submission.status == 'ungraded':
                         ungradedcount = ungradedcount + 1
             for worksheet in self.course.worksheets.all():
-                worksheetcount = worksheetcount +1 
+                print("")
+                worksheetcount = worksheetcount + 1 
                 print("WORKSHEET attempt")
                 print(worksheet.last_submission(student).get_number())
                 attemptcount = worksheet.last_submission(student).get_number() + attemptcount
