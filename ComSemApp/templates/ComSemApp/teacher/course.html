@@ -70,15 +70,15 @@
 		
 				// Create the data table.
 				var data = new google.visualization.DataTable();
-				var incomplete = document.getElementById('classincomplete');
-				var completed = document.getElementById('classcomplete');
-				var ungraded = document.getElementById('classungraded');
+				var incomplete = document.getElementById('classincomplete').value;
+				var completed = document.getElementById('classcomplete').value;
+				var ungraded = document.getElementById('classungraded').value;
 		
 				var data = google.visualization.arrayToDataTable([
 				  ['Source', 'Clicks'],
 				  ['Completed', completed],
 				  ['Incomplete', incomplete],
-				  ['ungraded', ungraded],
+				  ['ungraded', ungraded]
 				]);
 		
 		
