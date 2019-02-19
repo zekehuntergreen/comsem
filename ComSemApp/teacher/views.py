@@ -121,7 +121,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         data['ungraded'] = ungraded
         data['pending'] = pending
         data['complete'] = complete
-        data['ungradedSubmissions'] = len(self.course.worksheets.all())_
+        data['ungradedSubmissions'] = len(self.course.worksheets.all())
         data['worksheets'] = worksheetsdict
         data['ungraded'] = ungradedcountdict
         data['attempts'] = attemptsdict
