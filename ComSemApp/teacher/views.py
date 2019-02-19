@@ -110,6 +110,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                     complete = complete + 1
                 if submission.status == 'incomplete':
                     incomplete = incomplete + 1
+
         print('ungraded')
         print(ungraded)
         print("incomplete")
@@ -118,9 +119,9 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         print(complete)
 
 
-        data['ungraded'] = ungraded
-        data['incomplete'] = incomplete
-        data['complete'] = complete
+        data['classungraded'] = ungraded
+        data['classincomplete'] = incomplete
+        data['classcomplete'] = complete
         data['ungradedSubmissions'] = len(self.course.worksheets.all())
         data['worksheets'] = worksheetsdict
         data['ungraded'] = ungradedcountdict
