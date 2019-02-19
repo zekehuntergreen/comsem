@@ -3,30 +3,20 @@
 {% block content %}
 
 	<!-- Page-Title -->
-	<div class = "column" style=" float: left">
-		<div class="row">
-			<div class="col-sm-12">
-				<div class="page-title-box">
-					<h4 class="page-title">Course Information</h4>
-					<div class="clearfix"></div>
-				</div>
-			</div>
-
-			<!-- course info -->
-			<div class="col-lg-5 col-md-5 col-sm-4">
-				{% include 'ComSemApp/course_details.html' %}
+	<div class="column">
+		<div class="col-sm-12">
+			<div class="page-title-box">
+				<h4 class="page-title">Course Information</h4>
+				<div class="clearfix"></div>
 			</div>
 		</div>
-		<div class="row">
-			<div class="col-lg-5 col-md-5 col-sm-4">
-					<div class = "portlet">
-							<div class="column2" id="chart_div"></div>
-						</div>
-				</div>
-		</div>
 
+		<!-- course info -->
+		<div class="col-lg-5 col-md-5 col-sm-4">
+			{% include 'ComSemApp/course_details.html' %}
+		</div>
 	</div>
-	<div class = "column" style=" float: right">
+	<div class="column">
 		<!-- course students -->
 		<div class="col-lg-7 col-md-7 col-sm-8">
 			<div class="portlet">
@@ -51,6 +41,13 @@
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
+	<div class = "row">
+		<div class="col-lg-5 col-md-5 col-sm-4">
+			<div class = "portlet">
+					<div class="column2" id="chart_div"></div>
+				</div>
 		</div>
 	</div>
 
