@@ -95,15 +95,14 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                         ungradedcount = ungradedcount + 1
             for worksheet in self.course.worksheets.all():
                 print("worksheet")
-                worksheetcount = worksheetcount + 1 
                 print("worksheetcount")
+                worksheetcount = worksheetcount + 1 
                 attemptcount = worksheet.last_submission(student).get_number() + attemptcount
-                print(attemptcount)
             worksheetsdict[student.user.username] = worksheetcount
             ungradedcountdict[student.user.username] = ungradedcount
             attemptsdict[student.user.username] = attemptcount
 
-        data['worksheets'] = ungradedcountdict
+        data['worksheets'] = worksheetscountdict
         data['ungraded'] = ungradedcountdict
         data['attempts'] = attemptsdict
         return data
