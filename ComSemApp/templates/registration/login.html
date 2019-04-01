@@ -60,11 +60,21 @@
 					<a href="{% url 'password_reset' %}" class="text-muted"><i class="fa fa-lock m-r-5"></i> Forgot your password?
 					</a>
 				</div>
-				<div class="col-sm-4 text-right">
-					<button class="btn btn-primary btn-custom w-md waves-effect waves-light" type="submit">Log In
+				<div id = "test" class="col-sm-4 text-right">
+					<button  class="btn btn-primary btn-custom w-md waves-effect waves-light" type="submit">Log In
 					</button>
 				</div>
 			</div>
+
+			<script>
+				Tour.run([
+					{
+						element: $('#test'),
+						content: 'last tour step'
+					},
+					]);
+
+			</script>
 
 
 
