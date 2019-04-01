@@ -60,7 +60,7 @@
 						<h4 class="m-t-0 header-title"><b>Worksheets</b></h4>
 					</div>
 					<div class="col-6">
-						<a href="{% url 'teacher:worksheet_create' course_id=course.id %}" class="btn btn-sm btn-outline-info float-right"><i class="fa fa-plus"></i></a>
+						<a id= "worksheet_create" href="{% url 'teacher:worksheet_create' course_id=course.id %}" class="btn btn-sm btn-outline-info float-right"><i class="fa fa-plus"></i></a>
 					</div>
 
 				</div>
@@ -143,5 +143,17 @@
 
 
 	</script>
+<script>
+	Tour.run([
+		{
+			element: $('#worksheet_create'),
+			content: 'Enter Topic name'
+		},
+		{
+			element: $('#newExpressionButton'),
+			content: 'Click Here to Create an Expression'
+		},
+		]);
+</script>
 
 {% endblock %}
