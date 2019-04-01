@@ -1,8 +1,8 @@
 {% load static %}
 
 <!-- recordmp3 needed by ComSemRecording -->
-<script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
-<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
+<script src="{% static 'ComSemApp/js/opus-recorder/dist/recorder.min.js' %}"></script>
+<script src="{% static 'ComSemApp/js/ComSemRecording-opus.js' %}?{% now 'U' %}"></script>
 
 <input hidden type="text" id="create_or_update_url">
 
@@ -75,6 +75,9 @@
     {% include 'ComSemApp/audio_recording.html' %}
 </div>
 
+<button id="googleTranscribeTest">Transcribe Test</button>
+<a href="googleTranscribe">Google Transcribe</a> <!-- gets error, googleTranscribe() got an unexpected keyword argument 'course_id' -->
+
 {% if attempt.audio %}
 <script>
     $(function(){
@@ -95,6 +98,19 @@
 
 
 <script>
+$("googleTranscribeTest").click(function(e) {
+    $.ajax({
+        type: "POST",
+        url: "googleTranscribe",
+        success: function(response) {
+            alert("Response");
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert(errorThrown);
+        }
+    })
+});
+
 $("#saveAttempt").click(function(e){
     e.preventDefault()
 

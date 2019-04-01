@@ -17,6 +17,12 @@ from ComSemApp.teacher import constants as teacher_constants
 from ComSemApp.models import *
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin, SubmissionViewMixin
 
+def googleTranscribe(request):
+    print("GoogleTranscribe has been called")
+    if request.method == "POST":
+        return HttpResponse("Posted for Google")
+    else:
+        return HttpResponse("Here's lookin at you, Kid")
 
 class StudentViewMixin(RoleViewMixin):
 
