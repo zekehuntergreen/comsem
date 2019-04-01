@@ -69,14 +69,15 @@
     </div>
 </div>
 
+<div class="row">
+    <button id="transcribeTest">Transcribe Test</button>
+    <textarea id="transcribeTestResult" name="transcribeTestResult" placeholder="Transcription will appear here."></textarea>
+</div>
 
 <!-- AUDIO RECORDING -->
 <div class="row" id="display_reformulation_audioRow" style="{% if not worksheet.display_reformulation_audio %}display: none{% endif %}">
     {% include 'ComSemApp/audio_recording.html' %}
 </div>
-
-<button id="googleTranscribeTest">Transcribe Test</button>
-<a href="googleTranscribe">Google Transcribe</a> <!-- gets error, googleTranscribe() got an unexpected keyword argument 'course_id' -->
 
 {% if attempt.audio %}
 <script>
@@ -98,18 +99,68 @@
 
 
 <script>
-$("googleTranscribeTest").click(function(e) {
-    $.ajax({
-        type: "POST",
-        url: "googleTranscribe",
-        success: function(response) {
-            alert("Response");
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            alert(errorThrown);
+
+// for voice recognition
+
+// source: https://tutorialzine.com/2017/08/converting-from-speech-to-text-with-javascript
+var SpeechRecognition;
+var recognition;
+var noteContent = '';
+var speechSupport = false;
+try {
+    SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+
+    speechSupport = true;
+}
+catch(e) {
+    console.error(e);
+    alert("No browser support for audio transcription.");
+}
+
+recognition.continuous = true;
+recognition.onresult = function(event) {
+    var current = event.resultIndex;
+    var transcript = event.results[current][0].transcript;
+    var mobileRepeatBug = (current == 1 && transcript == event.results[0][0].transcript);
+    if(!mobileRepeatBug) {
+        noteContent += transcript;
+        alert(noteContent);
+        $('#transcribeTestResult').val(noteContent);
+    }
+    alert("Done with onresult function");
+}
+
+var recording = false;
+
+$("#transcribeTest").click(function(e) {
+    if (speechSupport === true) {
+        if (recording === false) {
+            alert("Recording");
+            recording = true;
+            recognition.start();
         }
-    })
+        else {
+            recording = false;
+            alert("Done recording");
+            recognition.stop();
+            if(!noteContent.length) {
+                alert('Could not save empty note. Please add a message to your note.');
+            }
+            else {
+                // Save note to localStorage.
+                // The key is the dateTime with seconds, the value is the content of the note.
+                saveNote(new Date().toLocaleString(), noteContent);
+
+                // Reset variables and update UI.
+                noteContent = '';
+                instructions.text('Note saved successfully.');
+            }
+        }
+    }
 });
+
+// end voice recognition
 
 $("#saveAttempt").click(function(e){
     e.preventDefault()
