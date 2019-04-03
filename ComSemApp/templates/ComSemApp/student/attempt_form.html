@@ -69,10 +69,11 @@
     </div>
 </div>
 
-<div class="row">
-    <button id="transcribeTest">Transcribe Test</button>
-    <textarea id="transcribeTestResult" name="transcribeTestResult" placeholder="Transcription will appear here."></textarea>
+<div class="row" id="SpeechTranscription" name="SpeechTranscription">
+    <button id="transcribeTest" style="margin:10px; margin-right:20px">Transcribe Test</button>
+    <div id="transcribeTestResult" name="transcribeTestResult" ><p>Transcription will appear here.</p></div>
 </div>
+<br>
 
 <!-- AUDIO RECORDING -->
 <div class="row" id="display_reformulation_audioRow" style="{% if not worksheet.display_reformulation_audio %}display: none{% endif %}">
@@ -115,6 +116,7 @@ try {
 }
 catch(e) {
     console.error(e);
+    $("#SpeechTranscription").hide();
     alert("No browser support for audio transcription.");
 }
 
@@ -126,9 +128,9 @@ recognition.onresult = function(event) {
     if(!mobileRepeatBug) {
         noteContent += transcript;
         alert(noteContent);
-        $('#transcribeTestResult').val(noteContent);
+        $('#transcribeTestResult').html("<p>" + noteContent + "</p>");
+        noteContent = '';
     }
-    alert("Done with onresult function");
 }
 
 var recording = false;
@@ -136,26 +138,14 @@ var recording = false;
 $("#transcribeTest").click(function(e) {
     if (speechSupport === true) {
         if (recording === false) {
-            alert("Recording");
+            $(this).css('color', 'red');
             recording = true;
             recognition.start();
         }
         else {
             recording = false;
-            alert("Done recording");
             recognition.stop();
-            if(!noteContent.length) {
-                alert('Could not save empty note. Please add a message to your note.');
-            }
-            else {
-                // Save note to localStorage.
-                // The key is the dateTime with seconds, the value is the content of the note.
-                saveNote(new Date().toLocaleString(), noteContent);
-
-                // Reset variables and update UI.
-                noteContent = '';
-                instructions.text('Note saved successfully.');
-            }
+            $(this).css('color', 'black');
         }
     }
 });
