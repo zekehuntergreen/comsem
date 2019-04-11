@@ -71,7 +71,7 @@
 
 <div class="row" id="SpeechTranscription" name="SpeechTranscription">
     <button id="transcribeTest" style="margin:10px; margin-right:20px">Transcribe Test</button>
-    <div id="transcribeTestResult" name="transcribeTestResult" ><p>Transcription will appear here.</p></div>
+    <div id="transcribeTestResult" name="transcribeTestResult" ><p></p></div>
 </div>
 <br>
 
@@ -117,7 +117,7 @@ try {
 catch(e) {
     console.error(e);
     $("#SpeechTranscription").hide();
-    alert("No browser support for audio transcription.");
+    alert("No browser support for audio transcription. Please sign in with Google Chrome to use this feature.");
 }
 
 recognition.continuous = true;
@@ -127,9 +127,14 @@ recognition.onresult = function(event) {
     var mobileRepeatBug = (current == 1 && transcript == event.results[0][0].transcript);
     if(!mobileRepeatBug) {
         noteContent += transcript;
-        alert(noteContent);
-        $('#transcribeTestResult').html("<p>" + noteContent + "</p>");
-        noteContent = '';
+        if (noteContent === '') {
+            $('#transcribeTestResult').html("<p>Please try again.</p>");
+        }
+        else {
+            $('#CorrectedExpr').val(noteContent);
+            $('#transcribeTestResult').html("");
+            noteContent = '';
+        }
     }
 }
 
