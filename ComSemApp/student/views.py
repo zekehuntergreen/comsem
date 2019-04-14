@@ -91,6 +91,8 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
 
             last_submission = worksheet.last_submission(self.student)
             last_submission_status = last_submission.status if last_submission else "none"
+
+            # Loop through and count status of worksheets/expressions
             if last_submission_status == "incomplete" or last_submission_status == "none":
                 context['incomplete'] += 1
                 for expression in expressions:
@@ -145,7 +147,7 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
             worksheet.button_text = button_texts[last_submission_status]
             worksheet.link_url = link_urls[last_submission_status]
 
-        context['expressions'] = expressionList
+        context['expressions'] = expressionList #list of expressions
         context['worksheets'] = worksheets
 
         return context
