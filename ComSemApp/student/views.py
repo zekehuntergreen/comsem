@@ -86,7 +86,7 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
         for worksheet in worksheets:
             expression_filters = Q(worksheet=worksheet)
             if not worksheet.display_all_expressions:
-                expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True | Q(worksheet=worksheet))
+                expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True) | Q(worksheet=worksheet))
                 expressions = Expression.objects.filter(expression_filters)
 
             last_submission = worksheet.last_submission(self.student)
