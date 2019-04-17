@@ -101,61 +101,59 @@
 
 <script>
 
-// for voice recognition
+    // source: https://tutorialzine.com/2017/08/converting-from-speech-to-text-with-javascript
+    var SpeechRecognition;
+    var recognition;
+    var noteContent = '';
+    var speechSupport = false;
+    try {
+        SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
 
-// source: https://tutorialzine.com/2017/08/converting-from-speech-to-text-with-javascript
-var SpeechRecognition;
-var recognition;
-var noteContent = '';
-var speechSupport = false;
-try {
-    SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
+        speechSupport = true;
+    }
+    catch(e) {
+        console.error(e);
+        $("#SpeechTranscription").hide();
+        alert("No browser support for audio transcription. Please sign in with Google Chrome to use this feature.");
+    }
 
-    speechSupport = true;
-}
-catch(e) {
-    console.error(e);
-    $("#SpeechTranscription").hide();
-    alert("No browser support for audio transcription. Please sign in with Google Chrome to use this feature.");
-}
-
-recognition.continuous = true;
-recognition.onresult = function(event) {
-    var current = event.resultIndex;
-    var transcript = event.results[current][0].transcript;
-    var mobileRepeatBug = (current == 1 && transcript == event.results[0][0].transcript);
-    if(!mobileRepeatBug) {
-        noteContent += transcript;
-        if (noteContent === '') {
-            $('#transcribeTestResult').html("<p>Please try again.</p>");
-        }
-        else {
-            $('#CorrectedExpr').val(noteContent);
-            $('#transcribeTestResult').html("");
-            noteContent = '';
+    recognition.continuous = true;
+    recognition.onresult = function(event) {
+        var current = event.resultIndex;
+        var transcript = event.results[current][0].transcript;
+        var mobileRepeatBug = (current == 1 && transcript == event.results[0][0].transcript);
+        if(!mobileRepeatBug) {
+            noteContent += transcript;
+            if (noteContent === '') {
+                $('#transcribeTestResult').html("<p>Please try again.</p>");
+            }
+            else {
+                $('#CorrectedExpr').val(noteContent);
+                $('#transcribeTestResult').html("");
+                noteContent = '';
+            }
         }
     }
-}
 
-var recording = false;
+    var recording = false;
 
-$("#transcribeTest").click(function(e) {
-    if (speechSupport === true) {
-        if (recording === false) {
-            $(this).css('color', 'red');
-            recording = true;
-            recognition.start();
+    $("#transcribeTest").click(function(e) {
+        if (speechSupport === true) {
+            if (recording === false) {
+                $(this).css('color', 'red');
+                recording = true;
+                recognition.start();
+            }
+            else {
+                recording = false;
+                recognition.stop();
+                $(this).css('color', 'black');
+            }
         }
-        else {
-            recording = false;
-            recognition.stop();
-            $(this).css('color', 'black');
-        }
-    }
-});
+    });
 
-// end voice recognition
+    // end voice recognition
 
 $("#saveAttempt").click(function(e){
     e.preventDefault()
