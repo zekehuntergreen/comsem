@@ -114,8 +114,6 @@
 
 <script>
     // source: https://tutorialzine.com/2017/08/converting-from-speech-to-text-with-javascript
-    alert("Script called");
-
     var SpeechRecognition;
     var recognition;
     var noteContent = '';
@@ -143,7 +141,7 @@
                 $('#transcribeTestResult').html("<p>Please try again.</p>");
             }
             else {
-                $('#Reformulation').val(noteContent);
+                $('#reformulation').val(noteContent);
                 $('#transcribeTestResult').html("");
                 noteContent = '';
             }
