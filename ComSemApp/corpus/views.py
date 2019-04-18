@@ -23,7 +23,7 @@ def corpus_search(request):
 
 @login_required
 def populate_word_tag(request):
-    val = request.POST.get('val', None).lstrip(' ').rstrip(' ')
+    val = request.POST.get('val', None).strip()
     search_type = request.POST.get('type', None)
     output = request.POST.get('output', None)
 
@@ -60,7 +60,7 @@ def search_results(request):
     sequential_search = request.POST.get('searchType') == '1'
     search_criteria = request.POST.get('searchCriteria', None)
 
-    if not search_criteria or search_criteria == "":
+    if not search_criteria:
         return HttpResponse('No search criteria provided', status=401)
 
     search_criteria = json.loads(search_criteria)
