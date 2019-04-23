@@ -61,10 +61,8 @@ class StudentListView(AdminViewMixin, ListView):
     model = Student
     template_name = 'ComSemApp/admin/student_list.html'
     success_url = reverse_lazy("administrator:students")
-    errors= ["bobo"]
 
     def _send_email(self, user, password):
-        print("EMAIL SENT")
         link = "https://www.comsem.net"
         message = ("You have been invited to join Communication Seminar by an administrator for " + self.institution.name + ".\n"
                     "In order to log in, go to " + link + " and use \n"
@@ -79,31 +77,17 @@ class StudentListView(AdminViewMixin, ListView):
             fail_silently=False,
         )
 
-    def db_get_or_create_institution(self, **kwargs):
-        if self.institution:
-            return self.institution
-
-        defaults = {
-            "name": "Institution Name",
-            "city": "Spokane",
-            "state_province": "WA",
-            "country": "USA",
-        }
-        self.institution = Institution.objects.create(**defaults)
-        return self.institution
 
     def db_create_user(self, **kwargs):
         user = User.objects.create(**kwargs)
         password = User.objects.make_random_password()
-        print("password")
-        print(password)
         user.set_password(password)
         user.save()
         self._send_email(user, password)
         return user
 
     def db_create_student(self, **kwargs):
-        institution = self.db_get_or_create_institution()
+        institution = self.insititution
         user = self.db_create_user(**kwargs)
         return Student.objects.create(user=user, institution=institution)
 
@@ -187,13 +171,10 @@ class StudentListView(AdminViewMixin, ListView):
                         }
                         self.db_create_student(**user)
                         print("student made")
-                        print(user)
             message_content.insert(0, ("" +  str((linecount - rejectcount)) + "/" + str(linecount)+ " Accounts created sucessfully\n" + "The below users were not added, Their line numbers are listed to the left,\nLines with multiple errors will be listed multiple times \n \n"))
-            print("linecount" + str(linecount))
-            print("rejected lines" + str(rejectcount))
             message_disp = "".join(message_content)
             messages.add_message(request, messages.ERROR, message_disp)
-            request.FILES.pop('file', None)
+            request.FILES.pop('file', None) #delete the csv file from memory
         return HttpResponseRedirect(self.success_url)
             
 

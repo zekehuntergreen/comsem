@@ -33,6 +33,7 @@ ALLOWED_HOSTS = [
     'comsempython.us-east-2.elasticbeanstalk.com',
     'localhost',
     '.comsem.net',
+    'comsem.localhost.run'
 ]
 
 # Application definition
