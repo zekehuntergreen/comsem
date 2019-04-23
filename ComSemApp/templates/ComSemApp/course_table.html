@@ -38,7 +38,7 @@
 
 					{% if teacher_view %}
 					<td>
-						<a href="{% url 'teacher:course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</a>
+						<a id="coursePageButton_Teacher" href="{% url 'teacher:course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</a>
 						<button type='button' class='btn btn-sm btn-outline-primary show-students'>Students</button>
 					</td>
 					{% else %}
@@ -46,7 +46,7 @@
 						{{ course.teachers.all|join:", " }}
 					</td>
 					<td>
-						<a id="coursePageButton" href="{% url 'student:course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</button>
+						<a id="coursePageButton_Student" href="{% url 'student:course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</button>
 					</td>
 					{% endif %}
 				</tr>
@@ -64,8 +64,12 @@
 	<script>
 		Tour.run([
 			{
-				element: $('#coursePageButton'),
+				element: $('#coursePageButton_Student'),
 				content: 'Click HERE to go to your class.'
+			},
+			{
+				element: $('#coursePageButton_Teacher'),
+				content: 'Select the course you want to add a worksheet to.'
 			},
 			]);
 	</script>

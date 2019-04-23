@@ -36,13 +36,14 @@
 							<span class='badge badge-{{ worksheet.status_color }}'>{{ worksheet.last_submission_status }}</span>
 						</td>
 						<td>
-							<a href="{{ worksheet.link_url }}" class='btn btn-sm btn-outline-primary'>{{ worksheet.button_text }}</a>
+							<a id="createSubmissionButton" href="{{ worksheet.link_url }}" class='btn btn-sm btn-outline-primary'>{{ worksheet.button_text }}</a>
 						</td>
 					</tr>
 					{% endfor %}
 				</tbody>
 				{% include 'ComSemApp/tablesorter_footer.html'%}
 			</table>
+
 			{% else %}
 				<p>No worksheets available</p>
 			{% endif %}
@@ -50,4 +51,14 @@
 	</div>
 </div>
 
+<script>
+	Tour.run([
+		{
+			element: $('#createSubmissionButton'),
+			content: 'Click HERE to listen to your teacher\'s feedback on your speaking.'
+		},
+		]);
+</script>
+
 {% endblock %}
+

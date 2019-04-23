@@ -44,7 +44,7 @@
 
 					</div>
 
-					<div class="col-12 col-md-6">
+					<div id="allWorksheetFeatures" class="col-12 col-md-6">
 
 						<label for="display_original">My Students Will See</label>
 
@@ -83,12 +83,6 @@
 								<input type="radio" value="false" name="display_all_expressions" {% if not worksheet.display_all_expressions %}checked='checked'{% endif %} id="allExpressionsNo">
 								<label for="allExpressionsNotopic"> Expressions Assigned to Them and All Do Expressions</label>
 							</div>
-Tour.run([
-					{
-						element: $('#test'),
-						content: 'last tour step'
-					},
-					]);
 						</div>
 
 						<script>
@@ -126,12 +120,7 @@ Tour.run([
 
 			<div class="row">
 				<div class="col-md-6">
-					<h4 class="m-t-0 header-title"><Tour.run([
-					{
-						element: $('#test'),
-						content: 'last tour step'
-					},
-					]);b>Expressions</b></h4>
+					<h4 class="m-t-0 header-title"><b>Expressions</b></h4>
 				</div>
 
 				<div class="col-md-6">
@@ -167,5 +156,21 @@ Tour.run([
 
 <script src="{% static 'ComSemApp/js/edit_worksheet.js' %}" v="3"></script>
 
+<script>
+	Tour.run([
+		{
+			element: $('#topic'),
+			content: 'Enter a worksheet topic.'
+		},
+		{
+			element: $('#allWorksheetFeatures'),
+			content: 'Choose the features you want to provide for this worksheet.'
+		},
+		{
+			element: $('#newExpressionButton'),
+			content: 'Click HERE to add an Expression (sentence) to the worksheet.'
+		},
+		]);
+</script>
 
 {% endblock %}

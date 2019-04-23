@@ -99,9 +99,9 @@
     <div class="row">
         <div class="col-12 text-center">
             <div class="btn-group" role="group">
-                <button type="button" id="saveExpression"  name="SaveExpression" class="btn btn-outline-success">Save Expression</button>
+                <button type="studentIDbutton" id="saveExpression" name="SaveExpression" class="btn btn-outline-success">Save Expression</button>
             </div>
-        </div>
+        </div>expression
     </div>
 
 </div>
@@ -157,4 +157,21 @@ $("#saveExpression").click(function(e){
     // clear editor
     $("#ExpressionEditor").slideUp();
 });
+</script>
+
+<script>
+    Tour.run([
+		{
+            element: $('#pronunciation'),
+            content: 'Enter pronunciation Here'
+        },
+        {
+            element: $('#reformulation'),
+            content: 'Enter reformulation Here'
+        },
+        {
+            element: $('#saveExpression'),
+            content: 'save expression'
+        },
+		]);
 </script>

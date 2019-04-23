@@ -16,7 +16,7 @@
 
             <form id="pageForm" method="POST">
                 {% csrf_token %}
-                <button class="btn btn-success float-right" type="submit">Submit</button>
+                <button id="submitButton" class="btn btn-success float-right" type="submit">Submit</button>
             </form>
             <div class="clearfix"></div>
         </div>
@@ -94,7 +94,6 @@ function clearEditor(){
 
 
 
-
 <style>
 .expressionNumberCol{
     width: 25px;
@@ -120,5 +119,13 @@ function clearEditor(){
 }
 </style>
 
+<script>
+    Tour.run([
+        {
+            element: $('#submitButton'),
+            content: 'When you have made ALL your corrections, click HERE.'
+        },
+        ]);
+</script>
 
 {% endblock %}
