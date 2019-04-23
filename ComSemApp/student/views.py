@@ -71,11 +71,49 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
         worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
+        submissions = StudentSubmission.objects.filter(student=self.student)
+        expressionList = []
 
-        # TODO should this logic be in the worksheet model ?
+
+
+
+        context['complete'] = 0
+        context['incomplete'] = 0
+        context['ungraded']= 0
+        context['expressionCount']= 0
+
+        # TODO should this logic be in the worksheet model ? -Zeke
         for worksheet in worksheets:
+            expression_filters = Q(worksheet=worksheet)
+            if not worksheet.display_all_expressions:
+                expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True) | Q(worksheet=worksheet))
+                expressions = Expression.objects.filter(expression_filters)
+
             last_submission = worksheet.last_submission(self.student)
             last_submission_status = last_submission.status if last_submission else "none"
+
+            # Loop through and count status of worksheets/expressions
+            if last_submission_status == "incomplete" or last_submission_status == "none":
+                context['incomplete'] += 1
+                for expression in expressions:
+                    if expression.worksheet == worksheet:
+                        expressionList.append(expression.expression)
+            if last_submission_status == "complete":
+                context['complete'] += 1
+                for expression in expressions:
+                    print('COMPLETE')
+                    print(expression.expression)
+                    if expression.worksheet == worksheet:
+                        context['expressionCount'] += 1
+            if last_submission_status == "ungraded":
+                context['ungraded'] += 1
+                for expression in expressions:
+                    if expression.worksheet == worksheet:
+                        expressionList.append(expression.expression)
+
+
+            
+
             last_submission_id = last_submission.id if last_submission else 0
             status_colors = {
                 "complete": "success",
@@ -109,7 +147,9 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
             worksheet.button_text = button_texts[last_submission_status]
             worksheet.link_url = link_urls[last_submission_status]
 
+        context['expressions'] = expressionList #list of expressions
         context['worksheets'] = worksheets
+
         return context
 
 
