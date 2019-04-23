@@ -16,7 +16,23 @@
 
 		<!-- course info -->
 		<div class="col-lg-5 col-md-5 col-sm-4">
-			{% include 'ComSemApp/course_details.html' %}
+			<div>
+				{% include 'ComSemApp/course_details.html' %}
+			</div>
+
+			<div class = "portlet">
+				<div class="portlet-heading portlet-default">
+
+						<h4 class="portlet-title m-t-0 header-title"><b>Submission Status</b></h4>
+				
+						<div class="portlet-widgets">
+	
+							<a data-toggle="collapse" data-parent="#accordion1" href="#coursePieChart"><i class="ion-minus-round"></i></a>
+						</div>
+						<div class="clearfix"></div>
+					</div>
+				<div class="column2" id="chart_div"></div>
+			</div>
 		</div>
 
 		<!-- course students -->
@@ -38,13 +54,64 @@
 				<div id="courseStudentsPortlet" class="panel-collapse collapse show">
 					<div class="portlet-body">
 						<table course_id="{{ course.id }}" class="courseStudentsTable table table-hover">
-							{% include 'ComSemApp/teacher/course_students.html' %}
+							{% include 'ComSemApp/teacher/course_students_detail.html' %}
 						</table>
 					</div>
 				</div>
 			</div>
 		</div>
+	</div>
+	<div class = "row">
+		<div class="col-lg-5 col-md-5 col-sm-4">
+			<div class = "portlet">
+				<div class="column2" id="chart_div"></div>
+			</div>
+		</div>
+	</div>
 
+	<div> 
+			<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+			<script type="text/javascript">
+		
+			  google.charts.load('current', {'packages':['corechart']});
+		
+			  // Set a callback to run when the Google Visualization API is loaded.
+			  google.charts.setOnLoadCallback(drawChart);
+		
+			  // Callback that creates and populates a data table,
+			  // instantiates the pie chart, passes in the data and
+			  // draws it.
+			  function drawChart() {
+		
+				// Create the data table.
+				var data = new google.visualization.DataTable();
+				var incomplete = {{ classincomplete }};
+				var completed = {{ classcomplete }};
+				var ungraded = {{ classungraded }};
+				
+				var data = google.visualization.arrayToDataTable([
+				  ['Source', 'Clicks'],
+				  ['Completed', completed],
+				  ['Incomplete', incomplete],
+				  ['Ungraded', ungraded]
+				]);
+		
+		
+				// Set chart options
+				var options = {'height':300};
+		
+				// Instantiate and draw our chart, passing in some options.
+				var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+				chart.draw(data, options);
+		
+		
+				google.charts.load('current', {packages: ['corechart', 'line']});
+				google.charts.setOnLoadCallback(drawBackgroundColor);
+			  }
+			  </script>
+
+		
+		
 	</div>
 
 	<!-- worksheets -->
