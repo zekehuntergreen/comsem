@@ -17,7 +17,6 @@ from ComSemApp.teacher import constants as teacher_constants
 from ComSemApp.models import *
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin, SubmissionViewMixin
 
-
 class StudentViewMixin(RoleViewMixin):
 
     role_class = Student
