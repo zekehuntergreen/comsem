@@ -29,10 +29,10 @@
                 {{ expression.expression }}
             </td>
             <td>
-                <button class='btn btn-sm btn-outline-primary editExpression' url="{% url 'teacher:expression_update' course_id=course.id worksheet_id=worksheet.id expression_id=expression.id %}">
+                <button id="editExpressionButton" class='btn btn-sm btn-outline-primary editExpression' url="{% url 'teacher:expression_update' course_id=course.id worksheet_id=worksheet.id expression_id=expression.id %}">
                     <i class='fa fa-pencil-square-o'></i>
                 </button>
-                <button class='btn btn-sm btn-outline-danger deleteExpression' url="{% url 'teacher:expression_delete' course_id=course.id worksheet_id=worksheet.id expression_id=expression.id %}">
+                <button id="deleteExpressionButton" class='btn btn-sm btn-outline-danger deleteExpression' url="{% url 'teacher:expression_delete' course_id=course.id worksheet_id=worksheet.id expression_id=expression.id %}">
                     <i class='fa fa-trash-o'></i>
                 </button>
             </td>
@@ -66,3 +66,16 @@
 {% else %}
 <p>No expressions have been created for this worksheet yet.</p>
 {% endif %}
+
+<script>
+	Tour.run([
+		{
+			element: $('#editExpressionButton'),
+			content: 'You can EDIT this item by clicking here.'
+		},
+		{
+			element: $('#deleteExpressionButton'),
+			content: 'You can DELETE this item by clicking here.'
+		},
+		]);
+</script>
