@@ -65,8 +65,139 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
     context_object_name = 'course'
     template_name = "ComSemApp/student/course.html"
 
+    def post(self, request, *args, **kwargs): #create Worksheets
+        self.generate_worksheet()
+
+
+        return HttpResponseRedirect(reverse("student:course", kwargs={"course_id": self.course.id}))
+
+
+    def db_create_expression(self, worksheet, student, expression):
+
+        defaults = {
+            "worksheet": worksheet,
+            "expression": expression.expression,
+            "student": student,
+            "all_do": False,
+            "pronunciation": expression.pronunciation,
+            "context_vocabulary": expression.context_vocabulary,
+            "reformulation_text": expression.reformulation_text,
+            "audio": expression.audio,
+        }
+        return Expression.objects.create(**defaults)
+
+    def create_worksheet(self, **kwargs):
+        course = kwargs.get("course")
+        if not course:
+            course = self.db_create_course()
+
+        defaults = {
+            "course": course,
+            "topic": kwargs.get("topic", "TOPIC"),
+            "status": kwargs.get("status", WORKSHEET_STATUS_UNRELEASED),
+            "display_original": kwargs.get("display_original", True),
+            "display_reformulation_text": kwargs.get("display_reformulation_text", True),
+            "display_reformulation_audio": kwargs.get("display_reformulation_audio", True),
+            "display_all_expressions": kwargs.get("display_all_expressions", True),
+            "autogen": True,
+            "auto_student": self.student
+        }
+
+        return Worksheet.objects.create(**defaults)
+
     def get_object(self):
         return self.course
+
+    # Generates a practice worksheet for a student
+    def generate_worksheet(self, **kwargs):
+
+        worksheets = self.course.worksheets.filter(Q(auto_student=self.student) | Q(auto_student=None), status=teacher_constants.WORKSHEET_STATUS_RELEASED)
+
+        expressions = ""
+        expressionList = []
+        get_top = []  # Most attempted worksheets and attempts tuple
+        top_worksheets = []  # Most attempted worksheets
+        top_expressions = []  # Expressions from most attempted worksheets
+
+
+
+        # make a list of worksheets with most attempts
+        for worksheet in worksheets:
+            # get the last submission on the worksheet
+            # assign that submission to a variable, then run .get_number() on that
+            # keep track of the highest 3 worksheets
+            last_sub = worksheet.last_submission(self.student)
+            attempts = 0
+            if last_sub:
+                attempts = last_sub.get_number()
+
+                get_top.append((str(worksheet), attempts)) #str worksheet is the ID
+
+
+
+
+
+
+        # # Sort and keep top 3 most attempted worksheets
+        top_worksheets = sorted(get_top, key=lambda tup: tup[1], reverse=True)[:3]
+        top_worksheets = [i[0] for i in top_worksheets]
+
+
+        # Get expressions from top worksheets
+        for worksheet in top_worksheets:
+            print("HERHHERHEHEHR")
+            print(worksheet)
+
+            # change current worksheet to a string to compare to the list
+            expression_filters = Q(Q(student=self.student) | Q(student=None) | Q(all_do=True) | Q(worksheet=worksheet))
+            expressions = Expression.objects.filter(expression_filters)
+
+
+
+
+            # If current worksheet is in top list add it's expressions to top_expressions
+            for expression in expressions:
+                if expression.worksheet in top_worksheets:
+                    top_expressions.append(expression)
+
+        # create worksheet with unique name based on current time
+
+        print("TOP EXPRESSIONS")
+        print(top_expressions)
+
+
+
+
+        current_time = datetime.datetime.now()
+        new_topic = str("Practice Worksheet " + current_time.strftime("%Y-%m-%d %H:%M:%S") + " for " + self.student.user.first_name + " " + self.student.user.last_name)
+        defaults = {
+            "course": self.course,
+            "topic": new_topic,
+            "status": kwargs.get("status", WORKSHEET_STATUS_UNRELEASED),
+            "display_original": kwargs.get("display_original", True),
+            "display_reformulation_text": kwargs.get("display_reformulation_text", True),
+            "display_reformulation_audio": kwargs.get("display_reformulation_audio", True),
+            "display_all_expressions": kwargs.get("display_all_expressions", True),
+            "auto_student": self.student,
+            "autogen": True
+        }
+
+        #self.create_worksheet(**defaults)
+
+        # assign newly created worksheet to autogen_worksheet variable
+        for worksheet in self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_UNRELEASED).all():
+            topic_check = str(worksheet.topic)
+            if topic_check == new_topic:
+                autogen_worksheet = worksheet  # New worksheet assigned to this variable
+
+        for expression in top_expressions:
+            self.db_create_expression(autogen_worksheet, self.student, expression)
+
+        # release the worksheet after giving it the new expressions
+        #autogen_worksheet.release()
+
+        return
+
 
     def get_context_data(self, **kwargs):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
