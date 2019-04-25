@@ -36,7 +36,7 @@
 							<span class='badge badge-{{ worksheet.status_color }}'>{{ worksheet.last_submission_status }}</span>
 						</td>
 						<td>
-							<a id="createSubmissionButton" href="{{ worksheet.link_url }}" class='btn btn-sm btn-outline-primary'>{{ worksheet.button_text }}</a>
+							<a href="{{ worksheet.link_url }}" class='btn btn-sm btn-outline-primary'>{{ worksheet.button_text }}</a>
 						</td>
 					</tr>
 					{% endfor %}
@@ -54,7 +54,7 @@
 <script>
 	Tour.run([
 		{
-			element: $('#createSubmissionButton'),
+			element: $('#help'),
 			content: 'Click HERE to listen to your teacher\'s feedback on your speaking.'
 		},
 		]);

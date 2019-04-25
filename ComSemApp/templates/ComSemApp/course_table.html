@@ -7,7 +7,7 @@
 		</h4>
 	</div>
 	<div class="col-6">
-		<button> Button</button>
+		<button onclick="help()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
 	</div>
 </div>
 
@@ -43,7 +43,9 @@
 					<td>
 						<a id="coursePageButton_Teacher" href="{% url 'teacher:course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</a>
 						<button type='button' class='btn btn-sm btn-outline-primary show-students'>Students</button>
-					</td>
+					</td><div class="col-6">
+		<button onclick="help()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
+	</div>
 					{% else %}
 					<td>
 						{{ course.teachers.all|join:", " }}
@@ -66,6 +68,7 @@
 
 
 	<script>
+	function help() {
 		Tour.run([
 			{
 				element: $('#coursePageButton_Student'),
@@ -76,6 +79,7 @@
 				content: 'Select the course you want to add a worksheet to.'
 			},
 			]);
+		}
 	</script>
 
 

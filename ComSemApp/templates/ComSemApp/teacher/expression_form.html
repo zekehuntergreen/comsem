@@ -5,7 +5,9 @@
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
 
 <div class="control-group controls" id="ExpressionEditor" style="display: none">
-
+	<div class="col-6">
+		<button onclick="help()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
+	</div>
     <input hidden type="text" id="create_or_update_url">
 
     <div class="form-group row">
@@ -101,7 +103,7 @@
             <div class="btn-group" role="group">
                 <button type="studentIDbutton" id="saveExpression" name="SaveExpression" class="btn btn-outline-success">Save Expression</button>
             </div>
-        </div>expression
+        </div>
     </div>
 
 </div>
@@ -160,6 +162,7 @@ $("#saveExpression").click(function(e){
 </script>
 
 <script>
+function help(){
     Tour.run([
         {
             element: $('#studentID'),
@@ -182,4 +185,5 @@ $("#saveExpression").click(function(e){
             content: 'Be sure to click here to SAVE your worksheet item.'
         },
 		]);
+	}
 </script>
