@@ -10,7 +10,9 @@
         </tr>
     </thead>
     <tbody name='expressionTable'>
+        <button onclick="helpManageExpression()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
         {% for expression in expressions %}
+
         <tr expressionID='{{ expression.id }}'>
             <td>{{ forloop.counter }}</td>
             <td>
@@ -68,6 +70,7 @@
 {% endif %}
 
 <script>
+function helpManageExpression() {
 	Tour.run([
 		{
 			element: $('#editExpressionButton'),
@@ -78,4 +81,5 @@
 			content: 'You can DELETE this item by clicking here.'
 		},
 		]);
+}
 </script>

@@ -4,10 +4,9 @@
 <script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
 
+
+
 <div class="control-group controls" id="ExpressionEditor" style="display: none">
-	<div class="col-6">
-		<button onclick="help()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
-	</div>
     <input hidden type="text" id="create_or_update_url">
 
     <div class="form-group row">
@@ -28,6 +27,7 @@
                 <label for="all_do">
                     All Do
                 </label>
+                <button onclick="helpEditExpression()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
             </div>
         </div>
     </div>
@@ -162,7 +162,7 @@ $("#saveExpression").click(function(e){
 </script>
 
 <script>
-function help(){
+function helpEditExpression(){
     Tour.run([
         {
             element: $('#studentID'),
@@ -175,6 +175,14 @@ function help(){
         {
             element: $('#contextVocabulary'),
             content: 'Enter Context\/Vocab Here'
+        },
+        {
+            element: $('#pronunciation'),
+            content: 'Enter Pronunciation Here'
+        },
+        {
+            element: $('#reformulation'),
+            content: 'Enter Reformulation Here'
         },
 		{
             element: $('#display_reformulation_audioRow'),

@@ -5,6 +5,7 @@
 	<!-- Page-Title -->
 	<div class="row">
 		<div class="col-sm-12">
+			<button onclick="helpNewWorksheet()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
 			<div class="page-title-box">
 				<h4 class="page-title">Course Information</h4>
 				<div class="clearfix"></div>
@@ -146,12 +147,14 @@
 
 
 <script>
+function helpNewWorksheet() {
 	Tour.run([
 		{
 			element: $('#worksheet_create'),
 			content: 'Click HERE to add a new worksheet.'
 		},
 		]);
+}
 </script>
 
 {% endblock %}

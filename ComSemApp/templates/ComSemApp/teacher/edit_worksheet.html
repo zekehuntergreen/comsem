@@ -4,8 +4,11 @@
 
 {% block content %}
 
+<button onclick="helpCreateWorksheet()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
+
 <!-- page head -->
 <form method="POST" id="editWorksheetForm">
+
 	{% csrf_token %}
 
 	<!-- Page-Title -->
@@ -32,8 +35,8 @@
 		<div class="col-12">
 
 			<div class="card-box">
-				<h4 class="m-t-0 header-title"><b>Worksheet Info</b></h4>
 
+				<h4 class="m-t-0 header-title"><b>Worksheet Info</b></h4>
 				<div class="row">
 
 					<div class="col-12 col-md-6">
@@ -73,7 +76,6 @@
 						</div>
 
 						<div class="checkbox checkbox-primary">
-
 							<div class="radio radio-primary form-check-inline">
 								<input type="radio" value="true" name="display_all_expressions" {% if worksheet.display_all_expressions %}checked='checked'{% endif %} id="allExpressionsYes">
 								<label for="allExpressionsYes"> All Expressions </label>
@@ -157,6 +159,7 @@
 <script src="{% static 'ComSemApp/js/edit_worksheet.js' %}" v="3"></script>
 
 <script>
+function helpCreateWorksheet() {
 	Tour.run([
 		{
 			element: $('#topic'),
@@ -176,6 +179,7 @@
 			content: 'When you are finished entering Expressions, be sure to SAVE the worksheet.'
 		},
 		]);
+}
 </script>
 
 {% endblock %}
