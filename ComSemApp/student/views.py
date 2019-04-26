@@ -205,6 +205,7 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
         worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
 
+
         # TODO should this logic be in the worksheet model ?
         for worksheet in worksheets:
             last_submission = worksheet.last_submission(self.student)
