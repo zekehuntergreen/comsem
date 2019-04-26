@@ -11,6 +11,7 @@
 <div class="row">
     <div class="col-12">
         <label>Original Expression:</label>
+        <button onclick="helpAttemptForm()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
         <p id="ExprToEdit">{{ expression.expression }}</p>
     </div>
 </div>
@@ -68,7 +69,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- AUDIO RECORDING -->
 <div class="row" id="display_reformulation_audioRow" style="{% if not worksheet.display_reformulation_audio %}display: none{% endif %}">
@@ -133,4 +133,27 @@ $("#saveAttempt").click(function(e){
 
     clearEditor()
 });
+</script>
+
+<script>
+function helpAttemptForm() {
+	Tour.run([
+	    {
+			element: $('#teacherReformulationAudio'),
+			content: 'Click HERE to listen to your teacher\'s correction.'
+		},
+		{
+			element: $('#CorrectedExpr'),
+			content: 'Write the correct version here.'
+		},
+		{
+			element: $('#display_reformulation_audioRow'),
+			content: 'Click the RED button to record your correct version.'
+		},
+		{
+			element: $('#saveAttempt'),
+			content: 'When you are finished, click HERE to save this correction and SEND it to your teacher.'
+		},
+		]);
+}
 </script>

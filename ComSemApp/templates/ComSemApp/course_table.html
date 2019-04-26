@@ -38,14 +38,11 @@
 					<td>{{ course.session.start_date.year }}</td>
 					<td>{{ course.course_type.name }}</td>
 					<td>{{ course.section }}</td>
-
 					{% if teacher_view %}
 					<td>
 						<a id="coursePageButton_Teacher" href="{% url 'teacher:course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</a>
 						<button type='button' class='btn btn-sm btn-outline-primary show-students'>Students</button>
-					</td><div class="col-6">
-		<button onclick="help()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
-	</div>
+					</td>
 					{% else %}
 					<td>
 						{{ course.teachers.all|join:", " }}

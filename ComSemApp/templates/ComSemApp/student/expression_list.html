@@ -33,9 +33,9 @@
                     </td>
                     <td>
                         {% if expression.attempt %}
-                        <button id="createUpdateButton" class='btn btn-outline-primary btn-sm editExpression' url="{% url 'student:update_attempt' course_id=course.id worksheet_id=worksheet.id submission_id=submission.id attempt_id=expression.attempt.id %}">Update Attempt</button>
+                        <button class='btn btn-outline-primary btn-sm editExpression' url="{% url 'student:update_attempt' course_id=course.id worksheet_id=worksheet.id submission_id=submission.id attempt_id=expression.attempt.id %}">Update Attempt</button>
                         {% else %}
-                        <button id="createAttemptButton" class='btn btn-outline-primary btn-sm editExpression' url="{% url 'student:create_attempt' course_id=course.id worksheet_id=worksheet.id submission_id=submission.id expression_id=expression.id %}">Create Attempt</button>
+                        <button class='btn btn-outline-primary btn-sm editExpression' url="{% url 'student:create_attempt' course_id=course.id worksheet_id=worksheet.id submission_id=submission.id expression_id=expression.id %}">Create Attempt</button>
                         {% endif %}
                     </td>
                 </tr>
@@ -57,16 +57,3 @@
 {% else %}
     <h5 class='text center'>This worksheet has no expressions.</h5>
 {% endif %}
-
-<script>
-    Tour.run([
-    {
-        element: $('#createAttemptButton'),
-        content: 'Click HERE to listen to this sentence and record the correction.'
-    },
-    {
-        element: $('#createUpdateButton'),
-        content: 'Click HERE to listen to this sentence and record the correction.'
-    },
-    ]);
-</script>

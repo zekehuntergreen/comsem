@@ -13,7 +13,7 @@
                     Create Submission
                 </small>
             </h4>
-
+            <button onclick="helpSubmitButton()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
             <form id="pageForm" method="POST">
                 {% csrf_token %}
                 <button id="submitButton" class="btn btn-success float-right" type="submit">Submit</button>
@@ -120,12 +120,14 @@ function clearEditor(){
 </style>
 
 <script>
+function helpSubmitButton(){
     Tour.run([
         {
             element: $('#submitButton'),
             content: 'When you have made ALL your corrections, click HERE.'
         },
         ]);
+}
 </script>
 
 {% endblock %}
