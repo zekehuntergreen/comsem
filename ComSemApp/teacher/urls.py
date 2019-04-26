@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from ComSemApp.teacher import views
 from ComSemApp.corpus import views as corpus_views
+from ComSemApp.discussionBoard import view as discussion_views
 
 app_name = 'teacher'
 urlpatterns = [
@@ -19,4 +20,7 @@ urlpatterns = [
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/submission/(?P<submission_id>[0-9]+)/$', views.SubmissionView.as_view(), name='submission'),
 
     url(r'^corpus/search$', corpus_views.corpus_search, name='corpus_search'),
+    url(r'^discussion_board$', discussion_views.TopicListView.as_view(), name='teacher_discussion_board'),
+    url(r'^topic/(?P<topic_id>[0-9]+)/$', discussion_views.ReplyView.as_view(), name='teacher_topic'),
+    url(r'^newtopic/$', discussion_views.CreateThreadView.as_view(),name='teacher_create_topic')
 ]
