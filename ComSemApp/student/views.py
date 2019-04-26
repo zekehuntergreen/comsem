@@ -113,7 +113,8 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
     # Generates a practice worksheet for a student
     def generate_worksheet(self, **kwargs):
 
-        worksheets = self.course.worksheets.filter(Q(auto_student=self.student) | Q(auto_student=None), status=teacher_constants.WORKSHEET_STATUS_RELEASED)
+        worksheets = self.course.worksheets
+        worksheets.filter(Q(auto_student=self.student) | Q(auto_student=None), status=teacher_constants.WORKSHEET_STATUS_RELEASED)
 
         expressions = ""
         expressionList = []
@@ -124,7 +125,7 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
 
 
         # make a list of worksheets with most attempts
-        for worksheet in worksheets:
+        for worksheet in worksheets.all():
             # get the last submission on the worksheet
             # assign that submission to a variable, then run .get_number() on that
             # keep track of the highest 3 worksheets
@@ -133,7 +134,7 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
             if last_sub:
                 attempts = last_sub.get_number()
 
-                get_top.append((str(worksheet), attempts)) #str worksheet is the ID
+                get_top.append((worksheet, attempts)) #str worksheet is the ID
 
 
 
@@ -184,10 +185,11 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
             "autogen": True
         }
 
-        #self.create_worksheet(**defaults)
+        self.create_worksheet(**defaults)
 
         # assign newly created worksheet to autogen_worksheet variable
         for worksheet in self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_UNRELEASED).all():
+            print(worksheets)
             topic_check = str(worksheet.topic)
             if topic_check == new_topic:
                 autogen_worksheet = worksheet  # New worksheet assigned to this variable
@@ -196,15 +198,15 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
             self.db_create_expression(autogen_worksheet, self.student, expression)
 
         # release the worksheet after giving it the new expressions
-        #autogen_worksheet.release()
+        autogen_worksheet.release()
 
         return
 
 
     def get_context_data(self, **kwargs):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
-        worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
-        expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
+        worksheets = self.course.worksheets.filter(Q(auto_student=self.student) | Q(auto_student=None), status=teacher_constants.WORKSHEET_STATUS_RELEASED)
+
 
         # TODO should this logic be in the worksheet model ?
         for worksheet in worksheets:
