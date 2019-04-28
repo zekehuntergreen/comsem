@@ -80,6 +80,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         data = super().get_context_data(**kwargs)
 
         worksheets = Worksheet.objects.filter(course=self.course)
+
         worksheetsdict = {}
         ungradedcountdict = {}
         attemptsdict = {}
@@ -92,11 +93,18 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                 if submission.worksheet.course == self.course:
                     if submission.status == 'ungraded':
                         ungradedcount = ungradedcount + 1
-
             for worksheet in worksheets:
                 if worksheet.last_submission(student):
                     attemptcount = attemptcount + worksheet.last_submission(student).get_number()
                 worksheetcount = worksheetcount + 1
+
+            print('NEW UNGRADED COunt')
+            print(submissions.objects.filter(status='ungraded').count())
+            print('OLD ungraded count')
+            print(ungradedcount)
+            print('OLD attemptcount')
+            print(attemptcount)
+
 
             worksheetsdict[student.user.username] = worksheetcount
             ungradedcountdict[student.user.username] = ungradedcount

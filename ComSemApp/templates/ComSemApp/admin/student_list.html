@@ -8,41 +8,12 @@
 			<div class="col-md-6">
 				<h4 class="m-t-0 header-title"><b>All Students</b></h4>
 			</div>
-			
+
 			<div class="col-md-6">
 				<a class="btn btn-sm btn-outline-info pull-right" href="{% url 'administrator:create_student' %}">
-					<i class="m-t-0 header-title">Create Student
-					</i>
+					<i class="fa fa-plus"></i>
 				</a>
 			</div>
-
-			<form method="post" enctype="multipart/form-data">{% csrf_token %}
-				<label class="btn btn-sm btn-outline-info pull-left" >
-					<input type="file" name="file" accept=".csv"/>
-				</label>
-				<br>
-				<button class="btn btn-sm btn-outline-info pull-left" type="save">Upload</button>
-			</form>
-		</div>
-		<br>
-		<div>
-			<p>Uploader only allows CSV Files.
-			</p>
-			<p>
-				Please order students in the following way: firstname, lastname, email, username. 
-				Below is an example of how the first line would look, a comma indicates a new column. Names must contain letters only. 
-			</p>
-			<p>
-				John,Doe,johndoe@gmail.com,johnsusername
-			</p>
-		</div>
-
-		<div>
-		{% if messages %}
-				{% for message in messages %}
-				<pre style="color: #98a6ad">{{ message }}</pre>
-				{% endfor %}
-		{% endif %}
 		</div>
 
 		{% if student_list %}

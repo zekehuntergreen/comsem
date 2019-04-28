@@ -19,6 +19,7 @@
 var cs_ajax_error = function(jqXHR, textStatus, errorThrown){
 	cs_notification('error', errorThrown)
 }
+
 function cs_notification(tag, message){
 	$.Notification.notify(tag, 'right bottom', message)
 }
