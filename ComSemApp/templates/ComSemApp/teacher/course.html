@@ -5,6 +5,7 @@
 	<!-- Page-Title -->
 	<div class="row">
 		<div class="col-sm-12">
+			<button onclick="helpNewWorksheet()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
 			<div class="page-title-box">
 				<h4 class="page-title">Course Information</h4>
 				<div class="clearfix"></div>
@@ -123,7 +124,7 @@
 						<h4 class="m-t-0 header-title"><b>Worksheets</b></h4>
 					</div>
 					<div class="col-6">
-						<a href="{% url 'teacher:worksheet_create' course_id=course.id %}" class="btn btn-sm btn-outline-info float-right"><i class="fa fa-plus"></i></a>
+						<a id= "worksheet_create" href="{% url 'teacher:worksheet_create' course_id=course.id %}" class="btn btn-sm btn-outline-info float-right"><i class="fa fa-plus"></i></a>
 					</div>
 
 				</div>
@@ -206,5 +207,17 @@
 
 
 	</script>
+
+
+<script>
+function helpNewWorksheet() {
+	Tour.run([
+		{
+			element: $('#worksheet_create'),
+			content: 'Click HERE to add a new worksheet.'
+		},
+		]);
+}
+</script>
 
 {% endblock %}

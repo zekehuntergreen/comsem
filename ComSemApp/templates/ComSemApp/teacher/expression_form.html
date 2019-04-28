@@ -4,8 +4,9 @@
 <script src="{% static 'ComSemApp/js/opus-recorder/dist/recorder.min.js' %}"></script>
 <script src="{% static 'ComSemApp/js/ComSemRecording-opus.js' %}?{% now 'U' %}"></script>
 
-<div class="control-group controls" id="ExpressionEditor" style="display: none">
 
+
+<div class="control-group controls" id="ExpressionEditor" style="display: none">
     <input hidden type="text" id="create_or_update_url">
 
     <div class="form-group row">
@@ -26,6 +27,7 @@
                 <label for="all_do">
                     All Do
                 </label>
+                <button onclick="helpEditExpression()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
             </div>
         </div>
     </div>
@@ -105,7 +107,7 @@
     <div class="row">
         <div class="col-12 text-center">
             <div class="btn-group" role="group">
-                <button type="button" id="saveExpression"  name="SaveExpression" class="btn btn-outline-success">Save Expression</button>
+                <button type="studentIDbutton" id="saveExpression" name="SaveExpression" class="btn btn-outline-success">Save Expression</button>
             </div>
         </div>
     </div>
@@ -121,7 +123,6 @@
     try {
         SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-
         speechSupport = true;
     }
     catch(e) {
@@ -129,7 +130,6 @@
         $("#SpeechTranscription").hide();
         alert("No browser support for audio transcription. Please sign in with Google Chrome to use this feature.");
     }
-
     recognition.continuous = true;
     recognition.onresult = function(event) {
         var current = event.resultIndex;
@@ -147,9 +147,7 @@
             }
         }
     }
-
     var recording = false;
-
     $("#transcribeTest").click(function(e) {
         if (speechSupport === true) {
             if (recording === false) {
@@ -164,18 +162,14 @@
             }
         }
     });
-
     // end voice recognition
-
     $("#saveExpression").click(function(e){
         e.preventDefault()
-
         if( $("#expression").val().trim() == "" ){
             // must have a valid expression
             alert("Please enter an expression")
             return;
         }
-
         // because of audio, we must send a formdata object
         var worksheetFormData = new FormData();
         student_id = $("#studentID").val()
@@ -187,16 +181,13 @@
         worksheetFormData.append('context_vocabulary', $("#contextVocabulary").val() );
         worksheetFormData.append('reformulation_text', $("#reformulation").val() );
         worksheetFormData.append('pronunciation', $("#pronunciation").val() );
-
         var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? true : false
         if (reformulation_audio){
             worksheetFormData.append('audio', audioReformulationBlob)
         } else {
             worksheetFormData.append('delete_audio', true)
         }
-
         inspectFormData(worksheetFormData)
-
         $.ajax({
             type: "POST",
             url: $("#create_or_update_url").val(),
@@ -212,8 +203,42 @@
                 cs_ajax_error(jqXHR, textStatus, errorThrown)
             },
         });
-
         // clear editor
         $("#ExpressionEditor").slideUp();
     });
+</script>
+
+<script>
+function helpEditExpression(){
+    Tour.run([
+        {
+            element: $('#studentID'),
+            content: 'Choose a student to assign this sentence to or choose Anonymous if you don\'t want to assign names.'
+        },
+        {
+            element: $('#expression'),
+            content: 'Enter the Expression (what the student said) Here'
+        },
+        {
+            element: $('#contextVocabulary'),
+            content: 'Enter Context\/Vocab Here'
+        },
+        {
+            element: $('#pronunciation'),
+            content: 'Enter Pronunciation Here'
+        },
+        {
+            element: $('#reformulation'),
+            content: 'Enter Reformulation Here'
+        },
+		{
+            element: $('#display_reformulation_audioRow'),
+            content: 'Click the RED button to record your reformulation. Click the GREEN button to stop recording.'
+        },
+        {
+            element: $('#saveExpression'),
+            content: 'Be sure to click here to SAVE your worksheet item.'
+        },
+		]);
+	}
 </script>
