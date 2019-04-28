@@ -115,7 +115,6 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
 
         worksheets = self.course.worksheets
         worksheets.filter(Q(auto_student=self.student) | Q(auto_student=None), status=teacher_constants.WORKSHEET_STATUS_RELEASED)
-
         expressions = ""
         expressionList = []
         get_top = []  # Most attempted worksheets and attempts tuple
@@ -126,15 +125,16 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
 
         # make a list of worksheets with most attempts
         for worksheet in worksheets.all():
-            # get the last submission on the worksheet
-            # assign that submission to a variable, then run .get_number() on that
-            # keep track of the highest 3 worksheets
-            last_sub = worksheet.last_submission(self.student)
-            attempts = 0
-            if last_sub:
-                attempts = last_sub.get_number()
+            if worksheet.auto_student == self.student or worksheet.auto_student == None:
+                # get the last submission on the worksheet
+                # assign that submission to a variable, then run .get_number() on that
+                # keep track of the highest 3 worksheets
+                last_sub = worksheet.last_submission(self.student)
+                attempts = 0
+                if last_sub:
+                    attempts = last_sub.get_number()
 
-                get_top.append((worksheet, attempts)) #str worksheet is the ID
+                    get_top.append((worksheet, attempts)) #str worksheet is the ID
 
 
 
@@ -205,8 +205,12 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
-        worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
-        submissions = StudentSubmission.objects.filter(student=self.student)
+        worksheets = self.course.worksheets.filter(Q(auto_student=self.student) | Q(auto_student=None), status=teacher_constants.WORKSHEET_STATUS_RELEASED )
+
+        
+
+
+
         expressionList = []
 
 
@@ -219,6 +223,7 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
 
         # TODO should this logic be in the worksheet model ? -Zeke
         for worksheet in worksheets:
+            
             expression_filters = Q(worksheet=worksheet)
             if not worksheet.display_all_expressions:
                 expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True) | Q(worksheet=worksheet))
