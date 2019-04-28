@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DK Notus Tour - Examples</title>
+  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+  <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+  <script src="dknotus-tour.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      $('#languagesCount').html($('#languagesList dd').length);
+    });
+  </script>
+</head>
+<body>
+    <div id="start" class="container">
+      <div class="panel btn-group pull-right">
+        <a href="http://www.dknotus.pl/" target="dkn" class="btn btn-default">DK Notus</a>
+        <a href="https://github.com/DKNotusIT" target="gh" class="btn btn-default">@ GitHub</a>
+      </div>
+
+      <div class="page-header">
+        <h1>DK Notus Tour <small>Examples</small></h1>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-9" style="height: 1200px">
+          <p class="lead">
+            This compact solution for guided tours has
+            <strong>27 languages support</strong>.
+            It  requires only two very common dependencies:
+            <strong>jQuery</strong> and <strong>Bootstrap</strong>.
+            Also has useful features like <strong>auto scroll</strong>
+            and <strong>"spotlight"</strong>.
+            We hope you enjoy it.
+          </p>
+
+          <div>
+            <img src="DKNotusTour.png" alt="DK Notus Tour">
+          </div>
+
+          <p>
+            We tried to keep all data regarding usage as short as possible.
+          </p>
+
+          <h2 id="features">1. Features</h2>
+
+          <p>
+            Features that we considerble important:
+          </p>
+
+          <dl class="dl-horizontal">
+            <dt>small requirements</dt>
+            <dd>only <strong>jQuery</strong> and <strong>Bootstrap</strong>;</dd>
+
+            <dt>simple usage</dt>
+            <dd>one function for common usage - yes, it's that simple;</dd>
+
+            <dt>events</dt>
+            <dd>for advanced programmers usage;</dd>
+
+            <dt>scroll</dt>
+            <dd>and some more useful features;</dd>
+
+            <dt>multi elem. selection</dt>
+            <dd>you can point more then one element for one tour step;</dd>
+
+            <dt>translations</dt>
+            <dd><span id="languagesCount"></span> languages support.</dd>
+          </dl>
+
+          <h2 id="simple">2. Simple use case</h2>
+
+          <p>Lets start with two step tour for elements below:</p>
+
+          <div class="row navbar">
+            <div class="col-md-2">
+              <button id="btn1" class="btn btn-lg btn-primary">#btn1</button>
+            </div>
+            <div class="col-md-2">
+              <button id="btn2" class="btn btn-lg btn-success">#btn2</button>
+            </div>
+          </div>
+
+          <div class="navbar">
+            <button id="simpleBtn" class="btn btn-default">
+              <span class="glyphicon glyphicon-gift"></span>
+              Simple tour: click to run the example.
+            </button>
+          </div>
+
+          <p>
+            First of all we need to include two common libraries
+            <strong>jQuery</strong> and <strong>Bootstrap</strong>.
+            You ca use some CDN for that.
+          </p>
+
+          <div class="highlight">
+            <pre>  &lt;link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+  &lt;script src="http://code.jquery.com/jquery-1.10.2.min.js"&gt;&lt;/script&gt;</pre>
+          </div>
+
+          <p>
+            Then it's time tour library <code>dknotus-tour.js</code>
+            or <code>dknotus-tour.min.js</code>.
+          </p>
+
+          <div class="highlight">
+            <pre>  &lt;script src="dknotus-tour.js"&gt;&lt;/script&gt;</pre>
+          </div>
+
+          <p>
+            Finally we can define our own tour and run it with
+            <code>Tour.run()</code>. Yes, it's that simple.
+          </p>
+
+          <script>
+            $(function(){
+              $('#simpleBtn').click(function(){
+                Tour.run([
+                  {
+                    element: $('#btn1'),
+                    content: 'first btn'
+                  },
+                  {
+                    element: $('#btn2'),
+                    content: 'and the second one<br>description might be <strong>HTML</strong>'
+                  },
+                ]);
+              });
+            });
+          </script>
+
+          <div class="highlight">
+            <pre>
+  $(function(){
+    $('#simpleBtn').click(function(){
+      Tour.run([
+        {
+          element: $('#btn1'),
+          content: 'first btn'
+        },
+        {
+          element: $('#btn2'),
+          content: 'and the second one&lt;br&gt;description might be &lt;strong&gt;HTML&lt;/strong&gt;'
+        },
+      ]);
+    });
+  });
+            </pre>
+          </div>
+
+          <h2 id="positions">3. Different tour positions</h2>
+
+          <div class="row navbar text-center">
+            <h2>
+              <div id="posBtn" class="label label-primary">Jump around</div>
+            </h2>
+          </div>
+
+          <div class="navbar">
+            <button id="positionsBtn" class="btn btn-default">
+              <span class="glyphicon glyphicon-gift"></span>
+              Different positions: click to run the example.
+            </button>
+          </div>
+
+          <script>
+            $(function(){
+              $('#positionsBtn').click(function(){
+                Tour.run([
+                  {
+                    element: $('#posBtn'),
+                    content: 'by default tour is on the right'
+                  },
+                  {
+                    element: $('#posBtn'),
+                    content: 'but it can be on top',
+                    position: 'top'
+                  },
+                  {
+                    element: $('#posBtn'),
+                    content: 'bottom',
+                    position: 'bottom'
+                  },
+                  {
+                    element: $('#posBtn'),
+                    content: 'and finally on the left',
+                    position: 'left'
+                  }
+                ]);
+              });
+            });
+          </script>
+
+          <div class="highlight">
+            <pre>
+  $(function(){
+    $('#positionsBtn').click(function(){
+      Tour.run([
+        {
+          element: $('#posBtn'),
+          content: 'by default tour is on the right'
+        },
+        {
+          element: $('#posBtn'),
+          content: 'but it can be on top',
+          position: 'top'
+        },
+        {
+          element: $('#posBtn'),
+          content: 'bottom',
+          position: 'bottom'
+        },
+        {
+          element: $('#posBtn'),
+          content: 'and finally on the left',
+          position: 'left'
+        }
+      ]);
+    });
+  });</pre>
+          </div>
+
+          <h2 id="parameters">4. Global and local parameters</h2>
+
+          <p>
+            Tour may be run with two parameters: tour description (mandatory)
+            and global options (optional) <code>Tour.run(tourDescription,
+            options)</code>. If for some tour hint some parameter is not set,
+            then if it's possible it's taken from options.
+          </p>
+
+          <h4>
+            Possible parameters for hints descriptions and for global options
+          </h4>
+
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Default&nbsp;value</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>element</td>
+                <td><em>none</em></td>
+                <td>
+                  jQuery element (might be more then one),
+                  if it's not set then hint is skipped.
+                </td>
+              </tr>
+              <tr>
+                <td>content</td>
+                <td><em>empty string</em></td>
+                <td>It's for contents of particular hints.</td>
+              </tr>
+              <tr>
+                <td>close</td>
+                <td>true</td>
+                <td>Defines if close button should be shown.</td>
+              </tr>
+              <tr>
+                <td>language</td>
+                <td>en</td>
+                <td>
+                  Defines interface language. Available languages:
+                  <dl id="languagesList" class="dl-horizontal">
+                    <dt>en</dt>
+                    <dd>English (default)</dd>
+
+                    <dt>pl</dt>
+                    <dd>Polish</dd>
+
+                    <dt>be</dt>
+                    <dd>Belarusian</dd>
+
+                    <dt>ca</dt>
+                    <dd>Catalan</dd>
+
+                    <dt>cs</dt>
+                    <dd>Czech</dd>
+
+                    <dt>da</dt>
+                    <dd>Danish</dd>
+
+                    <dt>de</dt>
+                    <dd>German</dd>
+
+                    <dt>el</dt>
+                    <dd>Greek</dd>
+
+                    <dt>es</dt>
+                    <dd>Spanish</dd>
+
+                    <dt>et</dt>
+                    <dd>Estonian</dd>
+
+                    <dt>fi</dt>
+                    <dd>Finnish</dd>
+
+                    <dt>fr</dt>
+                    <dd>French</dd>
+
+                    <dt>hu</dt>
+                    <dd>Hungarian</dd>
+
+                    <dt>it</dt>
+                    <dd>Italian</dd>
+
+                    <dt>lt</dt>
+                    <dd>Lithuanian</dd>
+
+                    <dt>lv</dt>
+                    <dd>Latvian</dd>
+
+                    <dt>mk</dt>
+                    <dd>Macedonian</dd>
+
+                    <dt>nl</dt>
+                    <dd>Dutch</dd>
+
+                    <dt>no</dt>
+                    <dd>Norwegian</dd>
+
+                    <dt>pt</dt>
+                    <dd>Portuguese</dd>
+
+                    <dt>ru</dt>
+                    <dd>Russian</dd>
+
+                    <dt>sk</dt>
+                    <dd>Slovak</dd>
+
+                    <dt>sl</dt>
+                    <dd>Slovenian</dd>
+
+                    <dt>sq</dt>
+                    <dd>Albanian</dd>
+
+                    <dt>sv</dt>
+                    <dd>Swedish</dd>
+
+                    <dt>tr</dt>
+                    <dd>Turkish</dd>
+
+                    <dt>uk</dt>
+                    <dd>Ukrainian</dd>
+                  </dl>
+                </td>
+              </tr>
+              <tr>
+                <td>padding</td>
+                <td>5</td>
+                <td>
+                  Extra space around tour exposed elements.
+                  (Has only sense when spotlight option is true).
+                </td>
+              </tr>
+              <tr>
+                <td>position</td>
+                <td>right</td>
+                <td>
+                  Determines where hint should be shown relativly to element
+                  it describes.<br>
+                  Possible values: right, left, top and bottom.
+                </td>
+              </tr>
+              <tr>
+                <td>scroll</td>
+                <td>true</td>
+                <td>
+                  If true then scrolls window so selected element
+                  and hint would be as close as possible to the view center.
+                </td>
+              </tr>
+              <tr>
+                <td>spotlight</td>
+                <td>true</td>
+                <td>
+                  If true then covers everything except selected element
+                  and hint with shadow.
+                </td>
+              </tr>
+              <tr>
+                <td>forceCorrectionLeft</td>
+                <td>0</td>
+                <td>
+                  Useful if for some reason left offset needs to be modified.
+                </td>
+              </tr>
+              <tr>
+                <td>forceCorrectionTop</td>
+                <td>0</td>
+                <td>
+                  Useful if for some reason top offset needs to be modified.
+                </td>
+              </tr>
+              <tr>
+                <td>forceCorrectionWidth</td>
+                <td>0</td>
+                <td>
+                  Useful if for some reason width needs to be modified.
+                </td>
+              </tr>
+              <tr>
+                <td>forceCorrectionHeight</td>
+                <td>0</td>
+                <td>
+                  Useful if for some reason height needs to be modified.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>
+            All above options can be used for both: single hint description
+            and for global options. With global options previous example
+            can be writen like:
+          </p>
+
+          <div class="highlight">
+            <pre>
+  $(function(){
+    $('#positionsShorterBtn').click(function(){
+      var globalOptions = {
+        element: $('#posBtn')
+      };
+
+      var tourDescription = [
+        {
+          content: 'by default tour is on the right'
+        },
+        {
+          content: 'but it can be on top',
+          position: 'top'
+        },
+        {
+          content: 'bottom',
+          position: 'bottom'
+        },
+        {
+          content: 'and finally on the left',
+          position: 'left'
+        }
+      ];
+
+      Tour.run(tourDescription, globalOptions);
+    });
+  });</pre>
+          </div>
+
+          <script type="text/javascript">
+            $(function(){
+              $('#positionsShorterBtn').click(function(){
+                var globalOptions = {
+                  element: $('#posBtn')
+                };
+
+                var tourDescription = [
+                  {
+                    content: 'by default tour is on the right'
+                  },
+                  {
+                    content: 'but it can be on top',
+                    position: 'top'
+                  },
+                  {
+                    content: 'bottom',
+                    position: 'bottom'
+                  },
+                  {
+                    content: 'and finally on the left',
+                    position: 'left'
+                  }
+                ];
+
+                Tour.run(tourDescription, globalOptions);
+              });
+            });
+          </script>
+
+          <div class="navbar">
+            <button id="positionsShorterBtn" class="btn btn-default">
+              <span class="glyphicon glyphicon-gift"></span>
+              Different positions but shorter: click to run the example.
+            </button>
+          </div>
+
+          <h2 id="events">5. Events example</h2>
+
+          <p>
+            There are four events that can be used by developers:
+          </p>
+
+          <dl class="dl-horizontal">
+            <dt>onstart()</dt>
+            <dd>Triggered when new tour starts ( <code>Tour.run()</code> ).</dd>
+
+            <dt>onfinish()</dt>
+            <dd>Triggered when Finish button is clicked.</dd>
+
+            <dt>onclose()</dt>
+            <dd>
+              Triggered when Close button is pressed
+              ( <code>Tour.close()</code> ).
+            </dd>
+
+            <dt>onstep( currentStep )</dt>
+            <dd>
+              Triggered on every step shown
+              ( <code>Tour.next()</code> or <code>Tour.prev()</code> ).
+            </dd>
+
+            <dt>onresize</dt>
+            <dd>By default this one is set.</dd>
+          </dl>
+
+          <div class="container">
+            <div class="row">
+              <div class="col-xs-6">
+                <button class="btn btn-lg btn-success pull-right" id="eventBtn1">
+                  <span class="glyphicon glyphicon-camera"></span>
+                </button>
+              </div>
+              <div class="col-xs-6">
+                <button class="btn btn-lg btn-success" id="eventBtn2">
+                  <span class="glyphicon glyphicon-plus-sign"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="container media">
+            <div class="row">
+              <div class="col-xs-6">
+                <button class="btn btn-lg btn-success pull-right" id="eventBtn3">
+                  <span class="glyphicon glyphicon-picture"></span>
+                </button>
+              </div>
+              <div class="col-xs-6">
+                <button class="btn btn-lg btn-success" id="eventBtn4">
+                  <span class="glyphicon glyphicon-facetime-video"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <script type="text/javascript">
+            $(function(){
+              $('#eventsBtn').click(function(){
+                Tour.onstart = function(){
+                  console.log('We started!');
+                };
+
+                Tour.onfinish = function(){
+                  console.log('The End');
+                };
+
+                Tour.onclose = function(){
+                  console.log('Tour interupted');
+                };
+
+                Tour.onstep = function(currentStep){
+                  console.log('"That\'s one small step for a man ..."');
+                  console.log(currentStep);
+                };
+
+                Tour.run([
+                  {
+                    element: $('#eventBtn1').add('#eventBtn3'),
+                    content: 'You prefer photos?',
+                    position: 'top'
+                  },
+                  {
+                    element: $('#eventBtn3').add('#eventBtn4'),
+                    content: 'or videos?',
+                    onstep: function(currentStep) {
+                      console.log('Events defined in step, overwrites global definition');
+                    }
+                  }
+                ]);
+              });
+            });
+          </script>
+
+          <div class="navbar">
+            <button id="eventsBtn" class="btn btn-default">
+              <span class="glyphicon glyphicon-gift"></span>
+              Events example: click to run the example.
+            </button>
+          </div>
+
+          <div class="highlight">
+            <pre>
+  $(function(){
+    $('#eventsBtn').click(function(){
+      Tour.onstart = function(){
+        console.log('We started!');
+      };
+
+      Tour.onfinish = function(){
+        console.log('The End');
+      };
+
+      Tour.onclose = function(){
+        console.log('Tour interupted');
+      };
+
+      Tour.onstep = function(currentStep){
+        console.log('"That\'s one small step for a man ..."');
+        console.log(currentStep);
+      };
+
+      Tour.run([
+        {
+          element: $('#eventBtn1').add('#eventBtn3'),
+          content: 'You prefer photos?',
+          position: 'top'
+        },
+        {
+          element: $('#eventBtn3').add('#eventBtn4'),
+          content: 'or videos?',
+          onstep: function(currentStep) {
+            console.log('Events defined in step, overwrites global definition');
+          }
+        }
+      ]);
+    });
+  });</pre>
+          </div>
+
+          <h2 id="interface">6. Tour interface</h2>
+
+          <h3>Methods</h3>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Tour.run( tourDescription, globlOptions )</td>
+                <td>Function for running Tour;</td>
+              </tr>
+              <tr>
+                <td>Tour.next()</td>
+                <td>Goes to next tour step;</td>
+              </tr>
+              <tr>
+                <td>Tour.prev()</td>
+                <td>Goes to previous tour step;</td>
+              </tr>
+              <tr>
+                <td>Tour.close()</td>
+                <td>Interrupts tour and closes it;</td>
+              </tr>
+              <tr>
+                <td>Tour.current()</td>
+                <td>Returns current step description.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Events</h3>
+
+          <p>
+            By default all except onresize are set to null.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Tour.onstart()</td>
+                <td>
+                  Triggered when new tour starts ( <code>Tour.run()</code> );
+                </td>
+              </tr>
+              <tr>
+                <td>Tour.onfinish()</td>
+                <td>Triggered when Finish button is clicked;</td>
+              </tr>
+              <tr>
+                <td>Tour.onclose()</td>
+                <td>
+                  Triggered when Close button is pressed
+                  ( <code>Tour.close()</code> );
+                </td>
+              </tr>
+              <tr>
+                <td>Tour.onstep( currentStep )</td>
+                <td>
+                  Triggered on every step shown
+                  ( <code>Tour.next()</code> or <code>Tour.prev()</code> );
+                </td>
+              </tr>
+              <tr>
+                <td>Tour.onresize()</td>
+                <td>By default this one is set.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2 id="contact">7. Contact</h2>
+
+          <a href="mailto:jan@doleczek.pl?subject=DKNotusTour feedback" "email me">Jan Doleczek</a>
+
+          <hr/>
+          <small class="pull-right">
+            No animals were harmed during development.
+          </small>
+
+          <small>
+            DK Notus 2016
+          </small>
+
+        </div>
+
+        <div class="col-xs-3">
+          <div class="list-group" style="position: fixed">
+            <a href="#start" class="list-group-item active">
+              <strong>0. Start</strong>
+            </a>
+
+            <a href="#features" class="list-group-item">
+              1. Features
+            </a>
+
+            <a href="#simple" class="list-group-item">
+              2. Simple use case
+            </a>
+
+            <a href="#positions" class="list-group-item">
+              3. Different tour positions
+            </a>
+
+            <a href="#parameters" class="list-group-item">
+              4. Global and local parameters
+            </a>
+
+            <a href="#events" class="list-group-item">
+              5. Events example
+            </a>
+
+            <a href="#interface" class="list-group-item">
+              6. Tour interface
+            </a>
+
+            <a href="#contact" class="list-group-item">
+              7. Contact
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+</html>
