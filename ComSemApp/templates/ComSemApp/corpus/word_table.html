@@ -6,8 +6,8 @@
 		<tr>
 			<th class="checkbox-cell">
 				<div class="checkbox checkbox-success">
-					<input id="checkAll" type="checkbox">
-					<label for="checkAll"></label>
+					<input id="{{ words.0.form }}_checkAll" name="{{ words.0.form }}_checkAll" type="checkbox" onclick='selectAll("{{ words.0.form }}")' >
+					<label for="{{ words.0.form }}_checkAll"></label>
 				</div>
 			</th>
 			<th>Form</th>
@@ -22,8 +22,8 @@
 		<tr>
 			<td class="checkbox-cell">
 				<div class="checkbox checkbox-primary">
-					<input type="checkbox" name="selector_checked[]" value="{{ word.id }}" id="result{{ forloop.counter }}">
-					<label for="result{{ forloop.counter }}"></label>
+					<input type="checkbox" name="{{ word.form }}_selector_checked[]" value="{{ word.id }}" id="result_{{ word.form }}{{ forloop.counter }}" >
+					<label for="result_{{ word.form }}{{ forloop.counter }}"></label>
 				</div>
 			</td>
 			<td>{{ word.form }}</td>

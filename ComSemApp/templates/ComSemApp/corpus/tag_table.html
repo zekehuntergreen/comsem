@@ -4,10 +4,6 @@
 	<thead>
 		<tr>
 			<th class="checkbox-cell">
-				<div class="checkbox checkbox-success">
-					<input id="checkAll" type="checkbox">
-					<label for="checkAll"></label>
-				</div>
 			</th>
 			<th>Tag Name</th>
 			<th>Tag Type</th>
@@ -19,7 +15,7 @@
 		<tr>
 			<td  class="checkbox-cell">
 				<div class="checkbox checkbox-primary">
-					<input type="checkbox" name="selector_checked[]" value="{{ tag.id }}" id="result{{ forloop.counter }}">
+					<input type="checkbox" name="tag_selector_checked[]" value="{{ tag.id }}" id="result{{ forloop.counter }}">
 					<label for="result{{ forloop.counter }}"></label>
 				</div>
 			</td>
