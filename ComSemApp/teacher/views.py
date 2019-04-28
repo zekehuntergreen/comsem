@@ -116,6 +116,8 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         data['worksheets'] = worksheetsdict
         data['ungraded'] = ungradedcountdict
         data['attempts'] = attemptsdict
+        print("data worksheets")
+        print(data['worksheets'])
 
         return data
     def get_object(self):
