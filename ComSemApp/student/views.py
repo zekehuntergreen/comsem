@@ -206,7 +206,6 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
         worksheets = self.course.worksheets.filter(Q(auto_student=self.student) | Q(auto_student=None), status=teacher_constants.WORKSHEET_STATUS_RELEASED )
-        worksheets.filter(worksheet_filters)
 
         
 
