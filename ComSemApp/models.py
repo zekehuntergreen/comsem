@@ -163,13 +163,13 @@ class Worksheet(models.Model):
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='worksheets')
     created_by = models.ForeignKey('Teacher', null=True, on_delete=models.SET_NULL)
     topic = models.CharField(max_length=255, blank=True, null=True)
-    status = models.CharField(max_length=10,
-        choices=teacher_constants.WORKSHEET_STATUS_CHOICES, default=teacher_constants.WORKSHEET_STATUS_PENDING)
+    status = models.CharField(max_length=10, choices=teacher_constants.WORKSHEET_STATUS_CHOICES, default=teacher_constants.WORKSHEET_STATUS_PENDING)
     display_original = models.BooleanField(default=True)
     display_reformulation_text = models.BooleanField(default=True)
     display_reformulation_audio = models.BooleanField(default=True)
     display_all_expressions = models.BooleanField(default=False)
-
+    autogen = models.NullBooleanField(default=False, null=True)
+    auto_student = models.ForeignKey('Student', null=True, on_delete=models.SET_NULL)
     objects = WorksheetManager()
 
     def __str__(self):

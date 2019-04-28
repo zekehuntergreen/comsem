@@ -101,6 +101,11 @@
 		<div class="card-box">
 
 			<h4 class="header-title m-t-0 m-b-20">Worksheets</h4>
+			<div class="col-6">
+				<form method="post" enctype="multipart/form-data">{% csrf_token %}
+					<button class="btn btn-sm btn-outline-info pull-left" value="genworksheet" type="save">Generate Worksheet</button>
+				</form>
+			</div>
 
 			{% if worksheets %}
 			<table class="table table-hover tablesorter">
