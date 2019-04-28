@@ -96,7 +96,8 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
             for worksheet in worksheets:
                 if worksheet.last_submission(student):
                     attemptcount = attemptcount + worksheet.last_submission(student).get_number()
-                worksheetcount = worksheetcount + 1
+                if worksheet.auto_student == self.student or worksheet.auto_student == None:
+                    worksheetcount = worksheetcount + 1
 
             worksheetsdict[student.user.username] = worksheetcount
             ungradedcountdict[student.user.username] = ungradedcount
