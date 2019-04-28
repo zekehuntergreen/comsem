@@ -99,7 +99,7 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
                 worksheetcount = worksheetcount + 1
 
             print('NEW UNGRADED COunt')
-            print(submissions.objects.filter(status='ungraded').count())
+            print(submissions.filter(status='ungraded').count())
             print('OLD ungraded count')
             print(ungradedcount)
             print('OLD attemptcount')
