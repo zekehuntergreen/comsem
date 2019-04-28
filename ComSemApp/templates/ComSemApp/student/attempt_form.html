@@ -101,22 +101,16 @@
 
 <script>
 
-    // source: https://tutorialzine.com/2017/08/converting-from-speech-to-text-with-javascript
-    var SpeechRecognition;
-    var recognition;
-    var noteContent = '';
-    var speechSupport = false;
-    try {
-        SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
+// source: https://tutorialzine.com/2017/08/converting-from-speech-to-text-with-javascript
+var SpeechRecognition;
+var recognition;
+var noteContent = '';
+var speechSupport = false;
+try {
+    SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
 
-        speechSupport = true;
-    }
-    catch(e) {
-        console.error(e);
-        $("#SpeechTranscription").hide();
-        alert("No browser support for audio transcription. Please sign in with Google Chrome to use this feature.");
-    }
+    speechSupport = true;
 
     recognition.continuous = true;
     recognition.onresult = function(event) {
@@ -135,25 +129,31 @@
             }
         }
     }
+}
+catch(e) {
+    console.error(e);
+    $("#SpeechTranscription").hide();
+    alert("No browser support for audio transcription. Please sign in with Google Chrome to use this feature.");
+}
 
-    var recording = false;
+var recording = false;
 
-    $("#transcribeTest").click(function(e) {
-        if (speechSupport === true) {
-            if (recording === false) {
-                $(this).css('color', 'red');
-                recording = true;
-                recognition.start();
-            }
-            else {
-                recording = false;
-                recognition.stop();
-                $(this).css('color', 'black');
-            }
+$("#transcribeTest").click(function(e) {
+    if (speechSupport === true) {
+        if (recording === false) {
+            $(this).css('color', 'red');
+            recording = true;
+            recognition.start();
         }
-    });
+        else {
+            recording = false;
+            recognition.stop();
+            $(this).css('color', 'black');
+        }
+    }
+});
 
-    // end voice recognition
+// end voice recognition
 
 $("#saveAttempt").click(function(e){
     e.preventDefault()
