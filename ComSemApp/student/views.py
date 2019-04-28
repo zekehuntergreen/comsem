@@ -126,8 +126,6 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
         # make a list of worksheets with most attempts
         for worksheet in worksheets.all():
             if worksheet.auto_student == self.student or worksheet.auto_student == None:
-                print('fklnjsdfsdklj')
-                print(worksheet.auto_student)
                 # get the last submission on the worksheet
                 # assign that submission to a variable, then run .get_number() on that
                 # keep track of the highest 3 worksheets
@@ -209,6 +207,9 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
         worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
         worksheets.filter(auto_student=self.student)
+        for worksheet in worksheets:
+            print("auto student")
+            print(worksheet.auto_student)
         expressionList = []
 
 
