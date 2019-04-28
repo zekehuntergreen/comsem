@@ -127,7 +127,7 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
         for worksheet in worksheets.all():
             if worksheet.auto_student == self.student or worksheet.auto_student == None:
                 print('fklnjsdfsdklj')
-                print(worksheet)
+                print(worksheet.auto_student)
                 # get the last submission on the worksheet
                 # assign that submission to a variable, then run .get_number() on that
                 # keep track of the highest 3 worksheets
