@@ -114,7 +114,7 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
     def generate_worksheet(self, **kwargs):
 
         worksheets = self.course.worksheets
-        worksheets.filter(Q(auto_student=self.student) | Q(auto_student=None), status=teacher_constants.WORKSHEET_STATUS_RELEASED)
+        worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
         expressions = ""
         expressionList = []
         get_top = []  # Most attempted worksheets and attempts tuple
