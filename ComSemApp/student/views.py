@@ -115,7 +115,8 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
 
         worksheets = self.course.worksheets
         worksheets.filter(Q(auto_student=self.student) | Q(auto_student=None), status=teacher_constants.WORKSHEET_STATUS_RELEASED)
-
+        for worksheet in worksheets:
+            print(worksheet.auto_student)
         expressions = ""
         expressionList = []
         get_top = []  # Most attempted worksheets and attempts tuple
@@ -219,7 +220,7 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
 
         # TODO should this logic be in the worksheet model ? -Zeke
         for worksheet in worksheets:
-            print(worksheet.auto_student)
+            if 
             expression_filters = Q(worksheet=worksheet)
             if not worksheet.display_all_expressions:
                 expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True) | Q(worksheet=worksheet))
