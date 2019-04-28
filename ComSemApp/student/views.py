@@ -115,7 +115,7 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
 
         worksheets = self.course.worksheets
         worksheets.filter(Q(auto_student=self.student) | Q(auto_student=None), status=teacher_constants.WORKSHEET_STATUS_RELEASED)
-        for worksheet in worksheets:
+        for worksheet in worksheets.all():
             print(worksheet.auto_student)
         expressions = ""
         expressionList = []
