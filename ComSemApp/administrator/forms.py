@@ -6,7 +6,7 @@ from bootstrap3_datetime.widgets import DateTimePicker
 from django_select2.forms import Select2MultipleWidget
 
 from django.contrib.auth.models import User
-from ComSemApp.models import Course, CourseType, Session, SessionType, Teacher, Student, Institution
+from ComSemApp.models import *
 
 
 
@@ -86,3 +86,16 @@ class StudentForm(ModelForm):
     class Meta:
         model = Student
         fields = ['country', 'language']
+
+class ReplyForm(ModelForm):
+    message = forms.CharField( widget=forms.Textarea(attrs={'style': "width:100%", 'placeholder': 'Enter reply here.'}))
+    class Meta:
+        model = Reply
+        fields = ["message"]
+
+class TopicForm(ModelForm):
+    message = forms.CharField( widget=forms.Textarea(attrs={'style': "width:100%"}))
+    title = forms.CharField(widget=forms.TextInput(attrs={'style': "width:100%"}))
+    class Meta:
+        model = Reply
+        fields = ["title", "message"]

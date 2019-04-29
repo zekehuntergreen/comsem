@@ -95,7 +95,7 @@ class StudentListView(AdminViewMixin, ListView):
     def post(self, request, *args, **kwargs):
         if (len(request.FILES) > 0): #check to make sure file was uploaded
             csv_file = request.FILES['file']
-            file_data = csv_file.read().decode("utf-8")	
+            file_data = csv_file.read().decode("utf-8") 
             lines = file_data.split("\n")
             rejectedLines = []
             message_content = [""]

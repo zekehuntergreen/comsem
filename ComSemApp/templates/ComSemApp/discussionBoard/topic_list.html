@@ -1,0 +1,65 @@
+{% extends 'ComSemApp/sidebar.html' %}
+{% block content %}
+<div class="card-box cs-table-container" style="min-height:600px;">
+    <div class="row">
+        <div class="col-6">
+            <h4 class="m-t-0 header-title">
+                <b>Topic List</b>
+            </h4>
+        </div>
+        <div class="col-md-6">
+            {% if current_role %}
+                {% if current_role == "teacher" %}
+                    <a class="btn btn-sm btn-outline-info pull-right" href="{% url 'teacher:teacher_create_topic' %}">
+                        <i class="fa fa-plus"></i>
+                    </a>
+                {% elif current_role == "admin" %}
+                    <a class="btn btn-sm btn-outline-info pull-right" href="{% url 'admin:admin_create_topic' %}">
+                        <i class="fa fa-plus"></i>
+                    </a>
+                {% elif current_role == "student" %}
+                    <a class="btn btn-sm btn-outline-info pull-right" href="{% url 'student:student_create_topic' %}">
+                        <i class="fa fa-plus"></i>
+                    </a>
+                {% endif %}
+            {% endif %}	
+        </div>
+    </div>
+
+    <div class = "row mt-3 cs-admin-table">
+        {% if topics %}
+        <table class="table table-hover tablesorter">
+            <thead>
+                <tr>
+                    <th>Person Posted</th>
+                    <th>Topic</th>
+                    <th class="d-xs-none" data-filter="false" data-sorter="false"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for topic in topics %}
+                <tr topic_id = "{{ topic.id }}">
+                    <td>{{topic.personPosted}}</td>
+                    <td>{{topic.topic}}</td>
+                    <td>
+                        {% if current_role %}
+                            {% if current_role == "teacher" %}
+                                <a href="{% url 'teacher:teacher_topic' topic.id %}" class="btn btn-sm btn-outline-primary">Go To Thread</a>
+                            {% elif current_role == "admin" %}
+                                <a href="{% url 'admin:admin_topic' topic.id %}" class="btn btn-sm btn-outline-primary">Go To Thread</a>
+                            {% elif current_role == "student" %}
+                                <a href="{% url 'student:student_topic' topic.id %}" class="btn btn-sm btn-outline-primary">Go To Thread</a>
+                            {% endif %}
+                        {% endif %}		
+                    </td>
+                </tr>
+                {% endfor %}
+                {% include 'ComSemApp/tablesorter_footer.html' %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>No available topics.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
