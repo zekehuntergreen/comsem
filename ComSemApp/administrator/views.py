@@ -87,7 +87,7 @@ class StudentListView(AdminViewMixin, ListView):
         return user
 
     def db_create_student(self, **kwargs):
-        institution = self.insititution
+        institution = self.institution
         user = self.db_create_user(**kwargs)
         return Student.objects.create(user=user, institution=institution)
 
