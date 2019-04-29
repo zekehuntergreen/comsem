@@ -2,6 +2,8 @@ from django.conf.urls import url
 from ComSemApp.administrator import views
 from ComSemApp.corpus import views as corpus_views
 
+from ComSemApp.discussionBoard import view as discussion_views
+
 app_name = 'admin'
 urlpatterns = [
     url(r'^$', views.TeacherListView.as_view(), name='home'),
@@ -37,5 +39,8 @@ urlpatterns = [
     url(r'^session_type/(?P<pk>[0-9]+)/delete/$', views.SessionTypeDeleteView.as_view(), name='delete_session_type'),
 
     url(r'^corpus/search$', corpus_views.corpus_search, name='corpus_search'),
+    url(r'^discussion_board$', discussion_views.TopicListView.as_view(), name='admin_discussion_board'),
+    url(r'^topic/(?P<topic_id>[0-9]+)/$', discussion_views.ReplyView.as_view(), name='admin_topic'),
+    url(r'^newtopic/$', discussion_views.CreateThreadView.as_view(),name='admin_create_topic')
 ]
 

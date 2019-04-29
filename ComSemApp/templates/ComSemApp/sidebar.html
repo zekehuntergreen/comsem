@@ -1,7 +1,7 @@
 {% extends 'ComSemApp/base.html' %}
 
 {% block body %}
-<body class="fixed-left">
+<body id="main_body" class="fixed-left">
 
 	<!-- Begin page -->
 	<div id="wrapper">
@@ -114,7 +114,6 @@
 							<a href="{% url 'logout' %}" class="dropdown-item notify-item">
 								<i class="mdi mdi-logout"></i> <span>Logout</span>
 							</a>
-
 						</div>
 					</li>
 
@@ -199,6 +198,14 @@
 							</ul>
 						</li>
 					</ul>
+					<ul>
+						<li>
+							<a href="{% url 'admin:admin_discussion_board' %}">
+								<i class="ti-blackboard"></i>
+								<span>Discussion Board</span>
+							</a>
+						</li>
+					</ul>
 					{% elif current_role == "teacher" %}
 					<ul>
 						<li>
@@ -219,6 +226,14 @@
 							</ul>
 						</li>
 					</ul>
+					<ul>
+						<li>
+							<a href="{% url 'teacher:teacher_discussion_board' %}">
+								<i class="ti-blackboard"></i>
+								<span>Discussion Board</span>
+							</a>
+						</li>
+					</ul>
 					{% elif current_role == "student" %}
 					<ul>
 						<li>
@@ -228,7 +243,15 @@
 							</a>
 						</li>
 					</ul>
-					{% endif %}
+					<ul>
+						<li>
+							<a href="{% url 'student:student_discussion_board' %}">
+								<i class="ti-blackboard"></i>
+								<span>Discussion Board</span>
+							</a>
+						</li>
+					</ul>
+					{% endif %}					
 				</div>
 				<div class="clearfix"></div>
 			</div>
@@ -238,7 +261,7 @@
 		<!-- Left Sidebar End -->
 
 
-		<div class="content-page" style="{% if not current_role %}margin-left: 0px{% endif %}">
+		<div class="content-page" style="{% if not current_role %}margin-left: 0px{% endif %}">j
 
 			<!-- Start content -->
 			<div class="content">
@@ -252,6 +275,5 @@
 
 
 </body>
-
 
 {% endblock %}
