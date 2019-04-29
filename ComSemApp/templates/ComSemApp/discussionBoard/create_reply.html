@@ -1,0 +1,44 @@
+
+{% block content %}
+
+<input hidden type="text" id="create_or_update_url">
+<div class="form-group">
+    {% csrf_token %}
+    <textarea id="comment" name="comment_area" class="form-control" rows="4" placeholder="input comment!"></textarea>
+    <button type = "submit" id="saveReply" class="btn btn-primary">submit</button>
+</div>
+<script>
+$("#saveReply").click(function(e){
+    e.preventDefault()
+
+    if( $("#comment").val().trim() == "" ){
+        // must have a valid expression
+        alert("Please enter a comment")
+        return;
+    }
+
+    // because of audio, we must send a formdata object
+    var replyFormData = new FormData();
+    replyFormData.append( 'message', $("#comment").val() );
+    
+
+    $.ajax({
+        type: "POST",
+        url: $("#create_or_update_url").val(),
+        data: replyFormData,
+        processData: false,
+        contentType: false,
+        success: function(response){
+            cs_notification('success', "Comment Saved")
+            // update expressions table
+            
+        },
+        error: function(jqXHR, textStatus, errorThrown){
+            cs_ajax_error(jqXHR, textStatus, errorThrown)
+        },
+    });
+
+    clearEditor()
+});
+</script>
+{% endblock %}
