@@ -309,3 +309,22 @@ class Tag(models.Model):
     def frequency(self):
         words = Word.objects.filter(tag=self).all()
         return SequentialWords.objects.filter(word__in=words).count()
+
+
+# Discussion Board
+
+#Topic model stores the person that posted it (which is a refrence to a user)
+#and a string that is the topic title
+class Topic(models.Model):
+    personPosted = models.ForeignKey(User, on_delete=models.CASCADE)
+    topic = models.CharField(max_length=255)
+
+#Each reply has a topic which is a reference to a topic object 
+#the personPosted which is a reference to a user
+#the message is a string associated with a reply
+#and hasMark is an integer associated with a mark (like a facebook like or dislike)
+class Reply(models.Model):
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
+    personPosted = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.CharField(max_length=1023)
+    hasMark = models.IntegerField()
