@@ -114,6 +114,9 @@
 							<a href="{% url 'logout' %}" class="dropdown-item notify-item">
 								<i class="mdi mdi-logout"></i> <span>Logout</span>
 							</a>
+							<a class="dropdown-item notify-item" id="dyslexic_button">
+								<span>This is an Error</span>
+							</a>
 						</div>
 					</li>
 
@@ -275,5 +278,26 @@
 
 
 </body>
+
+<script>
+var isDyslexic = false
+if(isDyslexic){
+	document.getElementById("dyslexic_button").innerHTML = "Switch to Normal Font";
+
+}else{
+	document.getElementById("dyslexic_button").innerHTML = "Switch to Dyslexic Font";
+}
+$('#dyslexic_button').click(function(){
+	isDyslexic = !isDyslexic;
+	if(isDyslexic){
+		$('#main_body').css('font-family','Open-Dyslexic');
+		document.getElementById("dyslexic_button").innerHTML = "Switch to Normal Font";
+
+	}else{
+		$('#main_body').css('font-family', 'Arial, sans-serif');
+		document.getElementById("dyslexic_button").innerHTML = "Switch to Dyslexic Font";
+	}
+});
+</script>
 
 {% endblock %}
