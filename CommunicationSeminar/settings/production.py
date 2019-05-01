@@ -36,6 +36,9 @@ ALLOWED_HOSTS = [
     'comsem.localhost.run',
     'group08.localhost.run',
     'group081.localhost.run',
+    'group082.localhost.run',
+    'group083.localhost.run',
+    'group088.localhost.run',
 ]
 
 # Application definition
