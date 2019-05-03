@@ -13,13 +13,20 @@ from django.views.generic.edit import CreateView, UpdateView, FormView, DeleteVi
 from django.views import View
 
 from django.core.mail import send_mail
+from django.core.validators import validate_email
 from django.contrib import messages
+import csv
+import io
+import re
+
 
 
 from ComSemApp.models import *
 from django.contrib.auth.models import User
 from ComSemApp.administrator.forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, TeacherForm, StudentForm, UserForm
 from ComSemApp.libs.mixins import RoleViewMixin
+from django.core.exceptions import ValidationError
+
 
 
 class AdminViewMixin(RoleViewMixin):
@@ -53,9 +60,134 @@ class TeacherListView(AdminViewMixin, ListView):
 class StudentListView(AdminViewMixin, ListView):
     model = Student
     template_name = 'ComSemApp/admin/student_list.html'
+    success_url = reverse_lazy("administrator:students")
+
+    def _send_email(self, user, password):
+        link = "https://www.comsem.net"
+        message = ("You have been invited to join Communication Seminar by an administrator for " + self.institution.name + ".\n"
+                    "In order to log in, go to " + link + " and use \n"
+                    "\tusername: " + user.username + "\n\tpassword: " + password + "\n"
+                    "from there you can change your password.")
+
+        send_mail(
+            'Invitation to Communication Seminar',
+            message,
+            'signup@comsem.net',
+            [user.email],
+            fail_silently=False,
+        )
+
+
+    def db_create_user(self, **kwargs):
+        user = User.objects.create(**kwargs)
+        password = User.objects.make_random_password()
+        user.set_password(password)
+        user.save()
+        self._send_email(user, password)
+        return user
+
+    def db_create_student(self, **kwargs):
+        institution = self.institution
+        user = self.db_create_user(**kwargs)
+        return Student.objects.create(user=user, institution=institution)
+
+    #handle CSV upload
+    def post(self, request, *args, **kwargs):
+        if (len(request.FILES) > 0): #check to make sure file was uploaded
+            csv_file = request.FILES['file']
+            file_data = csv_file.read().decode("utf-8") 
+            lines = file_data.split("\n")
+            rejectedLines = []
+            message_content = [""]
+            linecount = 0
+            rejectcount = 0
+            for line in lines:
+                if len(line): #make sure line isnt empty
+                    fields = line.split(",")
+                    okToCreate = True
+                    rejected = False
+                    linecount += 1
+                    first = fields[0].rstrip()
+                    last = fields[1].rstrip()
+                    email = fields[2].rstrip()
+                    username = fields[3].rstrip()
+                    if (first == "" or first == ""):
+                        #end of file
+                        break
+                    if (len(fields) < 4):
+                        message = "!!! Missing columns, please make sure you have columns as follows: firstname,lastname,email,username"
+                        message_content.append(message)
+                        rejected = True
+                        rejectcount += 1
+                        break
+                    if (first.isalpha() == False or last.isalpha() == False):
+                        message = (str(linecount) + " " + first + " " + last + "      " + email + "       " + username + "        Invalid First or Last Name \n")
+                        message_content.append(message)
+                        rejectcount += 1
+                        rejected = True
+                        okToCreate = False
+                    for user in Student.objects.filter(institution=self.institution):
+                        if(user.user.email== email):
+                            okToCreate = False
+                            if (rejected == False):     ##if rejected is false, we need to increment the number of rejects, if its already false, dont increment it but still log error
+                                rejectcount += 1
+                                rejected = True
+                            message = (str(linecount) + " " + first + " " + last + "      " + email + "       " + username + "        Duplicate Email Address  \n")
+                            message_content.append(message)
+                            
+                        if(user.user.username== username):
+                            okToCreate = False
+                            if (rejected == False):     ##if rejected is false, we need to increment the number of rejects, if its already false, dont increment it but still log error
+                                rejectcount += 1
+                                rejected = True
+                            message = (str(linecount) + " " + first + " " + last + "      " + email + "       " + username + "        Duplicate Username  \n")
+                            message_content.append(message)
+                        if(okToCreate == False):
+                            break
+                    
+                    # Check if a valid email address
+                    match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', email.lower())
+
+                    if (match == None):
+                        if(rejected == False):
+                            rejectcount += 1
+                            rejected = True
+                        okToCreate = False 
+                        message = (str(linecount) + " " + first + " " + last + "      " + email + "       " + username + "        Invalid Email Address  \n")
+                        message_content.append(message)
+
+                    # Check for valid username
+                    usernameCheck = re.match('^[\w.@+-]+$', username.rstrip())
+                    print(usernameCheck)
+                    if (usernameCheck == None):
+                        if(rejected == False):
+                            rejectcount += 1
+                            rejected = True
+                        okToCreate = False 
+                        message = (str(linecount) + " " + first + " " + last + "      " + email + "       " + username + "        Invalid Username  \n")
+                        message_content.append(message)
+                        
+                    if (okToCreate == True):
+                        user = {
+                            "first_name": first,
+                            "last_name": last,
+                            "email": email,
+                            "username": username,
+                        }
+                        self.db_create_student(**user)
+                        print("student made")
+            message_content.insert(0, ("" +  str((linecount - rejectcount)) + "/" + str(linecount)+ " Accounts created sucessfully\n" + "The below users were not added, Their line numbers are listed to the left,\nLines with multiple errors will be listed multiple times \n \n"))
+            message_disp = "".join(message_content)
+            messages.add_message(request, messages.ERROR, message_disp)
+            request.FILES.pop('file', None) #delete the csv file from memory
+        return HttpResponseRedirect(self.success_url)
+            
 
     def get_queryset(self):
+        
         return Student.objects.filter(institution=self.institution)
+
+    
 
 
 class CourseListView(AdminViewMixin, ListView):
@@ -106,6 +238,7 @@ class UserMixin(AdminViewMixin, FormView):
         return self.render_to_response(self.get_context_data(form=user_form, obj_form=obj_form))
 
     def _send_email(self, user, password):
+        print("EMAIL SENT")
         link = "https://www.comsem.net"
         message = ("You have been invited to join Communication Seminar by an administrator for " + self.institution.name + ".\n"
                     "In order to log in, go to " + link + " and use \n"
@@ -133,7 +266,6 @@ class UserCreateMixin(UserMixin):
     def post(self, request, *args, **kwargs):
         user_form = UserForm(self.request.POST, prefix='user_form')
         obj_form = self.get_obj_form()
-
         if user_form.is_valid() and obj_form.is_valid():
             # create the user object with random password
             user = user_form.save()

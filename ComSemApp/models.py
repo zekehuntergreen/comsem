@@ -163,13 +163,13 @@ class Worksheet(models.Model):
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='worksheets')
     created_by = models.ForeignKey('Teacher', null=True, on_delete=models.SET_NULL)
     topic = models.CharField(max_length=255, blank=True, null=True)
-    status = models.CharField(max_length=10,
-        choices=teacher_constants.WORKSHEET_STATUS_CHOICES, default=teacher_constants.WORKSHEET_STATUS_PENDING)
+    status = models.CharField(max_length=10, choices=teacher_constants.WORKSHEET_STATUS_CHOICES, default=teacher_constants.WORKSHEET_STATUS_PENDING)
     display_original = models.BooleanField(default=True)
     display_reformulation_text = models.BooleanField(default=True)
     display_reformulation_audio = models.BooleanField(default=True)
     display_all_expressions = models.BooleanField(default=False)
-
+    autogen = models.NullBooleanField(default=False, null=True)
+    auto_student = models.ForeignKey('Student', null=True, on_delete=models.SET_NULL)
     objects = WorksheetManager()
 
     def __str__(self):
@@ -309,3 +309,22 @@ class Tag(models.Model):
     def frequency(self):
         words = Word.objects.filter(tag=self).all()
         return SequentialWords.objects.filter(word__in=words).count()
+
+
+# Discussion Board
+
+#Topic model stores the person that posted it (which is a refrence to a user)
+#and a string that is the topic title
+class Topic(models.Model):
+    personPosted = models.ForeignKey(User, on_delete=models.CASCADE)
+    topic = models.CharField(max_length=255)
+
+#Each reply has a topic which is a reference to a topic object 
+#the personPosted which is a reference to a user
+#the message is a string associated with a reply
+#and hasMark is an integer associated with a mark (like a facebook like or dislike)
+class Reply(models.Model):
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
+    personPosted = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.CharField(max_length=1023)
+    hasMark = models.IntegerField()

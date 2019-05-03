@@ -33,6 +33,12 @@ ALLOWED_HOSTS = [
     'comsempython.us-east-2.elasticbeanstalk.com',
     'localhost',
     '.comsem.net',
+    'comsem.localhost.run',
+    'group08.localhost.run',
+    'group081.localhost.run',
+    'group082.localhost.run',
+    'group083.localhost.run',
+    'group088.localhost.run',
 ]
 
 # Application definition
@@ -46,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_select2',
+    'django_smoke_tests',
 ]
 
 MIDDLEWARE = [

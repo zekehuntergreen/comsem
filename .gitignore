@@ -15,5 +15,6 @@ efs/*
 # ignore sent email dir for tests
 app-messages/*
 
+CommunicationSeminar-7d*
 # local dev settings module
 local_dev.py

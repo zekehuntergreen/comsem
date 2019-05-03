@@ -14,6 +14,8 @@
 		<link href="{% static "ComSemApp/Minton/css/bootstrap.min.css" %}" rel="stylesheet" type="text/css">
 		<link href="{% static "ComSemApp/Minton/css/icons.css" %}" rel="stylesheet" type="text/css">
 
+		<link href="{% static "ComSemApp/Dyslexic/css/style.css" %}" rel="stylesheet" type="text/css">
+
 		{% with 'ComSemApp/Minton/css-'|add:minton_style|add:'/style.css' as minton_style_css %}
 		<link href="{% static minton_style_css %}" rel="stylesheet" type="text/css" v="2">
 		{% endwith %}
@@ -33,6 +35,7 @@
 		<!-- pager plugin -->
 		<link rel="stylesheet" href="{% static 'ComSemApp/tablesorter/addons/pager/jquery.tablesorter.pager.css' %}" >
 		<script src="{% static "ComSemApp/tablesorter/addons/pager/jquery.tablesorter.pager.js" %}"></script>
+		<script type="text/javascript" src="{% static 'ComSemApp/DKNotus-Tour-master/dknotus-tour.js' %}"></script>
 
 
 		<script src="{% static "ComSemApp/Minton/js/modernizr.min.js"  %}"></script>
