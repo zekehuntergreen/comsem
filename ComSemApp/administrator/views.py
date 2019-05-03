@@ -107,10 +107,10 @@ class StudentListView(AdminViewMixin, ListView):
                     okToCreate = True
                     rejected = False
                     linecount += 1
-                    first = first.rstrip()
-                    last = last.rstrip()
-                    email = email.rstrip()
-                    username = username.rstrip()
+                    first = fields[0].rstrip()
+                    last = fields[1].rstrip()
+                    email = fields[2].rstrip()
+                    username = fields[3].rstrip()
                     if (first == "" or first == ""):
                         #end of file
                         break
