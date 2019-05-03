@@ -154,7 +154,7 @@ class StudentListView(AdminViewMixin, ListView):
 
                     # Check for valid username
                     usernameCheck = re.match('^[\w.@+-]+$', fields[3])
-                    print(fields[3])
+                    print(usernameCheck)
                     if (usernameCheck == None):
                         if(rejected == False):
                             rejectcount += 1
