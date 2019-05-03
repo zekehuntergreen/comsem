@@ -153,7 +153,7 @@ class StudentListView(AdminViewMixin, ListView):
                         message_content.append(message)
 
                     # Check for valid username
-                    usernameCheck = re.match('^[\w.@+-]+$', str(fields[3]))
+                    usernameCheck = re.match('^[\w.@+-]+$', fields[3].rstrip())
                     print(usernameCheck)
                     if (usernameCheck == None):
                         if(rejected == False):
