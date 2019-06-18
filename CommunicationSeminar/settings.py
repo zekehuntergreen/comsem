@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import sys
-import urlparse
+from urllib.parse import urlparse
 
 
 def env_get(name, default=None):
