@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import sys
-from urllib.parse import urlparse
+import urllib.parse
 
 
 def env_get(name, default=None):
@@ -102,7 +102,7 @@ DATABASES = {}
 
 if LIVE:
     # Register database schemes in URLs.
-    urlparse.uses_netloc.append('mysql')
+    urllib.parse.uses_netloc.append('mysql')
 
     try:
 
@@ -113,7 +113,7 @@ if LIVE:
             DATABASES = {}
 
         if 'CLEARDB_DATABASE_URL' in os.environ:
-            url = urlparse.urlparse(os.environ['CLEARDB_DATABASE_URL'])
+            url = urllib.parse.urlparse(os.environ['CLEARDB_DATABASE_URL'])
 
             # Ensure default database exists.
             DATABASES['default'] = DATABASES.get('default', {})
