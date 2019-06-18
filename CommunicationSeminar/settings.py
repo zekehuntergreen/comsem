@@ -11,7 +11,16 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-import logging
+
+def env_get(name, default=None):
+    return os.environ.get(name, default)
+
+def env_get_int(name, default=None):
+    return int(env_get(name, default))
+
+def env_get_bool(name, default=None):
+    return bool(env_get_int(name, default))
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,13 +33,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'c7so+hqfe+a_9i9*##vgl!k-xb^)nin&o-ev*^t@ipq6y!wt!-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-LIVE = 'DB_NAME' in os.environ
-DEBUG = False if LIVE else True
+DEBUG = env_get_bool("DEBUG", True)
+LIVE = not DEBUG
+
 
 ADMINS = [('Zeke Hunter-Green', 'zekehuntergreen@gmail.com')]
 
 ALLOWED_HOSTS = [
-    'comsem.herokuapp.com'
+    'comsem.herokuapp.com',
     'localhost',
     '.comsem.net',
 ]
@@ -91,11 +101,11 @@ if LIVE:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ['DB_NAME'],
-            'USER': os.environ['DB_USERNAME'],
-            'PASSWORD': os.environ['DB_PASSWORD'],
-            'HOST': os.environ['DB_HOSTNAME'],
-            'PORT': os.environ['DB_PORT'],
+            'NAME': env_get('DB_NAME'),
+            'USER': env_get('DB_USERNAME'),
+            'PASSWORD': env_get('DB_PASSWORD'),
+            'HOST': env_get('DB_HOSTNAME'),
+            'PORT': env_get('DB_PORT'),
         }
     }
 else:
@@ -163,12 +173,12 @@ else:
 
 # EMAIL
 if LIVE:
-    EMAIL_HOST = 'smtp.sendgrid.net'
-    EMAIL_PORT = 587
-    EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
-    EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
-    EMAIL_USE_TLS = True
-    DEFAULT_FROM_EMAIL = 'ComSem <noreply@comsem.net>'
+    EMAIL_HOST = env_get('EMAIL_HOST', 'smtp.sendgrid.net')
+    EMAIL_PORT = env_get('EMAIL_PORT', 587)
+    EMAIL_HOST_USER = env_get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = env_get('EMAIL_HOST_PASSWORD')
+    EMAIL_USE_TLS = env_get('EMAIL_USE_TLS', True)
+    DEFAULT_FROM_EMAIL = env_get('DEFAULT_FROM_EMAIL', 'ComSem <noreply@comsem.net>')
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
     EMAIL_FILE_PATH = 'app-messages'
