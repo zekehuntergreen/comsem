@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import sys
+import urlparse
+
 
 def env_get(name, default=None):
     return os.environ.get(name, default)
@@ -34,7 +37,7 @@ SECRET_KEY = 'c7so+hqfe+a_9i9*##vgl!k-xb^)nin&o-ev*^t@ipq6y!wt!-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env_get_bool("DEBUG", True)
-LIVE = not DEBUG
+LIVE = env_get_bool("LIVE", False)
 
 
 ADMINS = [('Zeke Hunter-Green', 'zekehuntergreen@gmail.com')]
@@ -98,16 +101,37 @@ WSGI_APPLICATION = 'CommunicationSeminar.wsgi.application'
 DATABASES = {}
 
 if LIVE:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': env_get('DB_NAME'),
-            'USER': env_get('DB_USERNAME'),
-            'PASSWORD': env_get('DB_PASSWORD'),
-            'HOST': env_get('DB_HOSTNAME'),
-            'PORT': env_get('DB_PORT'),
-        }
-    }
+    # Register database schemes in URLs.
+    urlparse.uses_netloc.append('mysql')
+
+    try:
+
+        # Check to make sure DATABASES is set in settings.py file.
+        # If not default to {}
+
+        if 'DATABASES' not in locals():
+            DATABASES = {}
+
+        if 'CLEARDB_DATABASE_URL' in os.environ:
+            url = urlparse.urlparse(os.environ['CLEARDB_DATABASE_URL'])
+
+            # Ensure default database exists.
+            DATABASES['default'] = DATABASES.get('default', {})
+
+            # Update with environment configuration.
+            DATABASES['default'].update({
+                'NAME': url.path[1:],
+                'USER': url.username,
+                'PASSWORD': url.password,
+                'HOST': url.hostname,
+                'PORT': url.port,
+            })
+
+            if url.scheme == 'mysql':
+                DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
+    except Exception:
+        print
+        'Unexpected error:', sys.exc_info()
 else:
     DATABASES = {
         'default': {
