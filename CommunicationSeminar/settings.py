@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'c7so+hqfe+a_9i9*##vgl!k-xb^)nin&o-ev*^t@ipq6y!wt!-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-LIVE = 'RDS_DB_NAME' in os.environ
+LIVE = 'DB_NAME' in os.environ
 DEBUG = False if LIVE else True
 
 ADMINS = [('Zeke Hunter-Green', 'zekehuntergreen@gmail.com')]
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_select2',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -89,11 +90,11 @@ if LIVE:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ['RDS_DB_NAME'],
-            'USER': os.environ['RDS_USERNAME'],
-            'PASSWORD': os.environ['RDS_PASSWORD'],
-            'HOST': os.environ['RDS_HOSTNAME'],
-            'PORT': os.environ['RDS_PORT'],
+            'NAME': os.environ['DB_NAME'],
+            'USER': os.environ['DB_USERNAME'],
+            'PASSWORD': os.environ['DB_PASSWORD'],
+            'HOST': os.environ['DB_HOSTNAME'],
+            'PORT': os.environ['DB_PORT'],
         }
     }
 else:

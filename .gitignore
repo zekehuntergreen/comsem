@@ -14,3 +14,5 @@ efs/*
 
 # ignore sent email dir for tests
 app-messages/*
+
+.idea/*
