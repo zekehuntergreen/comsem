@@ -3,7 +3,10 @@ import os
 import sys
 
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "CommunicationSeminar.settings")
+    settings_module = "CommunicationSeminar.settings.production"
+    if os.path.exists("CommunicationSeminar/settings/local_dev.py"):
+        settings_module = "CommunicationSeminar.settings.local_dev"
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
     try:
         from django.core.management import execute_from_command_line
     except ImportError:
