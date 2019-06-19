@@ -33,7 +33,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'c7so+hqfe+a_9i9*##vgl!k-xb^)nin&o-ev*^t@ipq6y!wt!-'
+SECRET_KEY = env_get('AWS_ACCESS_KEY_ID', "c7so+hqfe+a_9i9*##vgl!k-xb^)nin&o-ev*^t@ipq6y!wt!-")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env_get_bool("DEBUG", True)
@@ -241,9 +241,9 @@ MEDIA_URL = '/efs/'
 
 # Amazon S3
 if LIVE:
-    AWS_ACCESS_KEY_ID = 'AKIAU4PHKXC3J3GPZFF5'
-    AWS_SECRET_ACCESS_KEY = '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'
-    AWS_STORAGE_BUCKET_NAME = 'comsem-media'
+    AWS_ACCESS_KEY_ID = env_get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = env_get('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = env_get('AWS_STORAGE_BUCKET_NAME')
     AWS_S3_OBJECT_PARAMETERS = {
         'CacheControl': 'max-age=86400',
     }
