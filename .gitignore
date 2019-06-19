@@ -16,3 +16,6 @@ efs/*
 app-messages/*
 
 .idea/*
+
+# local dev settings module
+local_dev.py
