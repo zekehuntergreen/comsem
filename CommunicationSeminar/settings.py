@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'storages',
     'django_select2',
     'django_extensions',
 ]
@@ -130,8 +132,7 @@ if LIVE:
             if url.scheme == 'mysql':
                 DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
     except Exception:
-        print
-        'Unexpected error:', sys.exc_info()
+        print('Unexpected error:', sys.exc_info())
 else:
     DATABASES = {
         'default': {
@@ -180,20 +181,6 @@ USE_TZ = True
 
 # where should the login form redirect to?
 LOGIN_REDIRECT_URL = '/initiate_roles/'
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
-
-# STATIC_ROOT = os.path.join(BASE_DIR, "static")
-# STATIC_URL = '/static/'
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'efs')
-MEDIA_URL = '/efs/'
-
-if LIVE:
-    EFS_DIR = '/efs/'
-else:
-    EFS_DIR = 'efs/'
 
 # EMAIL
 if LIVE:
@@ -247,3 +234,18 @@ STATICFILES_DIRS = (
 
 #  Add configuration for static files storage using whitenoise
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Media
+MEDIA_ROOT = os.path.join(BASE_DIR, 'efs')
+MEDIA_URL = '/efs/'
+
+# Amazon S3
+if LIVE:
+    AWS_ACCESS_KEY_ID = 'AKIAU4PHKXC3J3GPZFF5'
+    AWS_SECRET_ACCESS_KEY = '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'
+    AWS_STORAGE_BUCKET_NAME = 'comsem-media'
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+    }
+
+    DEFAULT_FILE_STORAGE = 'CommunicationSeminar.storage_backends.MediaStorage'
