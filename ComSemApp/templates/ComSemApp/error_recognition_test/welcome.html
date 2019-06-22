@@ -1,0 +1,67 @@
+{% extends 'ComSemApp/about/base.html' %}
+
+{% block content %}
+
+    <section class="section" id="how-it-work">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-sm-12 text-center">
+                    <h2 class="title zoomIn animated wow" data-wow-delay=".1s">Error Recognition Test</h2>
+                      <p class="sub-title zoomIn animated wow" data-wow-delay=".2s"></p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <p>Welcome to the comsem.net Error Recognition Test pages!</p>
+                    <p>The goal of this research is to investigate <u>how quickly, accurately, and confidently people make judgments about correct and incorrect English</u>. </p>
+                    <p>In each test, you will hear a series of 25 sentences, and when each one ends, you will see two buttons: &quot;<span id="green">Correct</span>&quot; and &quot;<span class="red">Incorrect</span>&quot;. Click &quot;<span class="green"><span class="green">Correct</span></span>&quot; if you think the sentence is correct, and &quot;<span class="red">Incorrect</span>&quot; if you think there's something wrong with it. Try to click the buttons <strong>AS FAST AS YOU CAN</strong>. Next, you will be asked to rate your confidence in judgement, from 0 - 100, using a slider control. If you are not very confident, set the slider in the 20-30 range; if you are very confident, set it at 80-100. Next, you will hear another sentence, and so on. You will hear each sentence <strong>ONLY ONCE</strong>.</p>
+                    <p>There are two tests, and each one takes about 5 minutes: in the first, you will hear a native speaker of English with a North American-influenced, British accent saying the sentences. In the second, you will hear a variety of English language learners (speakers of Arabic, Chinese, Japanese, Korean,  Russian, Spanish) saying the sentences.</p>
+                    <p>Before you start each test, you will be asked to test your sound,  to say whether you consider yourself a native speaker of English, and to enter a username and password. You can use <strong>ANY NAME</strong> you like (but please use the <strong>SAME</strong> name for both tests), and the password is &quot;ELC&quot; (or &quot;elc&quot;). </p>
+                    <p>Next, your baseline reaction time will be tested: you will hear a tone, and when it stops, the <span class="green">Correct</span> &amp; <span class="red">Incorrect</span> buttons will appear; just click either one <strong>AS FAST AS YOU CAN</strong>. This will repeat two more times; then you will see instructions for the test, and then test will begin. </p>
+                    <p>At the end of each test, you will see your average reaction time and your score. You will also be able to read and hear the sentences again, and see an explanation for why the incorrect sentences are incorrect. You may take the test again if you wish, but only data from your first atempt will be used.</p>
+                    <p>The tests are anonymous and no personal data (or IP addresses) will be collected. After each judgement (i.e. when you click the <span class="red">Incorrect</span> or <span class="green">Correct</span> button), the following data is collected: </p>
+                    <ul>
+                        <li>	the username you entered at the start</li>
+                        <li>which button you just clicked</li>
+                        <li>your reaction time (how quickly you clicked a button after the sentence stopped)</li>
+                        <li>your confidence rating for that judgement</li>
+                        <li>the current date and time </li>
+                    </ul>
+                    <p><em>By clicking &quot;Continue&quot; below, you are consenting to take part in this test. You give us permission to collect the data listed above, and understand that the data may be published in articles and presentations. You understand that you can stop the test any time. You understand what is involved in taking the test and are willing to participate. If you have any question about the tests or this research, please contact James Hunter (<a href="mailto:hunter@gonzaga.edu">hunter@gonzaga.edu</a>). Thank you, and have fun!</em></p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 text-right">
+                    <div class="pr-button">
+                        <a href="" class="btn btn-primary btn-rnd">Continue</a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pr-button">
+                        <a href="{% url 'about' %}" class="btn btn-danger btn-rnd">No, get me out of here!</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style type="text/css">
+    .welcome {
+        font-family: Verdana, Geneva, sans-serif;
+        text-align: left;
+    }
+    #green {
+        color: #0C0;
+    }
+    .red {
+        color: #F00;
+    }
+    .green {
+        color: #0C0;
+    }
+    </style>
+
+{% endblock %}

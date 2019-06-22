@@ -52,6 +52,9 @@ class AboutTeacher(TemplateView):
     template_name = "ComSemApp/about/teacher.html"
 
 
+class ErrorRecognitionTestWelcome(TemplateView):
+    template_name = "ComSemApp/error_recognition_test/welcome.html"
+
 
 def change_password(request):
     if request.method == 'POST':
