@@ -52,6 +52,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'ComSemApp.apps.ComsemappConfig',
+    'error_recognition.apps.ErrorRecognitionConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

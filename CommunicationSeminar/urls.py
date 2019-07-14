@@ -26,6 +26,9 @@ from django.conf.urls.static import static
 urlpatterns = [
     url(r'', include('ComSemApp.urls')),
 
+    # HACK - the swf files seem to append the root of the url to where they look for static files :'(
+    url(r'', include('error_recognition.urls', namespace='error_recognition')),
+
     url(r'^admin/', admin.site.urls),
     url(r'^accounts/login/$', auth_views.login, name='login'),
     url(r'^accounts/logout/$', auth_views.logout, {'next_page': 'login'}, name='logout'),
