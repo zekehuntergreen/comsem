@@ -1,0 +1,35 @@
+{% extends 'ComSemApp/about/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+    <section class="section" id="how-it-work">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-sm-12 text-center">
+                    <h2 class="title" data-wow-delay=".1s">Error Recognition Test</h2>
+                      <p class="sub-title zoomIn animated wow" data-wow-delay=".2s"></p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <p align="center">
+                      <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7,0,19,0" align="middle" height="727" width="1000">
+                        <param name="movie" value="Error Recognition L1 with practice.swf" />
+                        <param name="menu" value="false" />
+                        <param name="quality" value="high" />
+                        <param name="BGCOLOR" value="#FFFFFF" />
+                        <embed src="{% static 'error_recognition/l1.swf' %}" menu="false" quality="high" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" bgcolor="#FFFFFF" align="center" height="727" width="1000">
+                      </object>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+{% endblock %}
+

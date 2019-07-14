@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<player showDisplay="yes" showPlaylist="yes" autoStart="no">
+  <song path="static/error_recognition/TestSounds/test1.mp3" title="0"/>
+  <song path="static/error_recognition/TestSounds/test2.mp3" title="0"/>
+  <song path="static/error_recognition/TestSounds/test3.mp3" title="0"/>
+</player>
