@@ -142,7 +142,7 @@ else:
             'PORT': '3306',
             'NAME': 'CommunicationSeminarDjango',
             'USER': 'root',
-            'PASSWORD': 'tempcbsql',
+            'PASSWORD': '2017%ComSem',
         }
     }
 
