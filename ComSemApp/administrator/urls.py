@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^students/$', views.StudentListView.as_view(), name='students'),
     url(r'^student/create/$', views.StudentCreateView.as_view(), name='create_student'),
     url(r'^student/(?P<pk>[0-9]+)/$', views.StudentUpdateView.as_view(), name='edit_student'),
+    url(r'^student/(?P<pk>[0-9]+)/reset-password/$', views.StudentResetPassword.as_view(), name='reset_student_password'),
     url(r'^student/(?P<pk>[0-9]+)/delete/$', views.StudentDisactivateView.as_view(), name='disactivate_student'),
 
     url(r'^courses/$', views.CourseListView.as_view(), name='courses'),
@@ -38,4 +39,3 @@ urlpatterns = [
 
     url(r'^corpus/search$', corpus_views.corpus_search, name='corpus_search'),
 ]
-
