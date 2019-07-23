@@ -216,15 +216,11 @@
 		var val = $(wordEntryField).val();
 		var type = 'word';
 		if (val == "") { // user enters nothing, clear field and return
-			if (resultField == "#DynamicField2") {
-				val = "ALL";
-				type = 'tag';
-			}
-			else {
-				$(resultField).empty();
+			$(resultField).empty();
+			if (resultField == "#DynamicField1") {
 				$(resultField).html("<p>Please enter a word.</p>");
-				return;
 			}
+			return;
 		}
 
 		$(resultField).empty(); // clear the result field, prep for new results
