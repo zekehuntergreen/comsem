@@ -67,19 +67,13 @@
 	</div>
 
 	<div class="col-lg-3">
-
-		<!-- submit button -->
-		<button class="btn btn-sm btn-outline-success pull-right" type="submit">
-		    <span>Search <i class="ti-angle-right"></i></span>
-		</button>
-		<br><br>
-		<button class="btn btn-sm btn-outline-success pull-right" name="clearForm" id="clearForm">
-			<span>Clear <i class="ti-angle-left"></i></span>
-		</button>
-
-		<br><br>
 		<!-- user specifies offset for the corpus search -->
-		<label for="newOffset">Select Offset</label><br>
+		<label for="newOffset">Select Offset
+			<i class="fa fa-question-circle" style="cursor:pointer" onclick="$('#offset-info').slideToggle()"></i>
+		</label>
+
+		<br>
+
 		<select id="newOffset" name="newOffset">
 			{% for i in offsetRange %}
 				{% if i == 0 %}
@@ -90,13 +84,34 @@
 			{% endfor %}
 		</select>
 		<br><br>
-		<p><b>Offset</b> determines how many spaces away from each other two words
+
+		<div id="offset-info" style="display: none">
+			<p>
+				<b>Offset</b> determines how many spaces away from each other two words
 			can be in a sentence. For example, if you want to see "the" followed
 			by "king," you would set an offset of 1 (or -1 if "king" is entered for
-			the first word).</p>
-		<p>The offset indicates "up to and including," so for an offset value of 4,
-			two words may be shown together between 1 and 4 spaces away. Negative values
-			mean the second word will come first in the sentences.</p>
+			the first word).
+			</p>
+			<p>
+				The offset indicates "up to and including," so for an offset value of 4,
+				two words may be shown together between 1 and 4 spaces away. Negative values
+				mean the second word will come first in the sentences.
+			</p>
+		</div>
+
+		<div class="row">
+			<div class="col-6">
+				<button class="btn btn-sm btn-outline-success" name="clearForm" id="clearForm">
+					<span>Clear <i class="ti-angle-left"></i></span>
+				</button>
+			</div>
+			<div class="col-6">
+				<!-- submit button -->
+				<button class="btn btn-sm btn-outline-success pull-right" type="submit">
+					<span>Search <i class="ti-angle-right"></i></span>
+				</button>
+			</div>
+		</div>
 	</div>
 
 
