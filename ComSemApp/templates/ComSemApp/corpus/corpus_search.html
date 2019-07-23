@@ -2,6 +2,8 @@
 
 {% block content %}
 
+{% csrf_token %}
+
 <!-- Page-Title -->
 <div class="row">
 	<div class="col-sm-12">
@@ -15,212 +17,107 @@
 </div>
 
 <!-- search criteria -->
+<form class="csSpacer" method="POST" id="SubmitSearchForm">
+<input type="hidden" name="searchCriteria" id="searchCriteria" />
 <div class="row">
+	<!-- left most column -->
+	<div class="col-lg-4">
 
-
-	<!-- 1. ADD TO SEARCH QUERY  -->
-    <div class="col-md-12 col-lg-4">
-
-        <div class="card-box searchCardBox">
-
-            <form class="csSpacer" method="POST" role="form" action="" id="word_or_tag_load">
-
-				<table class="csSpacer">
-					<tr>
-						<td class="align-top">
-							<div class="row">
-								<div class="col-12">
-									<h4 class="m-t-0 header-title"><b>Add to Search Query</b></h4>
-								</div>
-							</div>
-
-							<div class="row">
-								<div class="col-12">
-									<div class="form-group">
-										<label for="new_word">Load Word</label>
-						                <input type="text" class="form-control input-sm" id="new_word" name="new_word" placeholder="Type a word to search">
-									</div>
-								</div>
-							</div>
-
-							<div class="row">
-								<div class="col-12">
-									<div class="form-group">
-										<label for="new_tag">Load part-of-speech tag</label>
-										<select class="form-control input-sm" id="new_tag" name="new_tag">
-											<option selected="selected" value="ALL">Full Tagset</option>
-											{% for tag in tags %}
-											<option value="{{ tag }}">{{ tag }}</option>
-											{% endfor %}
-										</select>
-									</div>
-								</div>
-							</div>
-
-						</td>
-					</tr>
-
-					<tr>
-						<td class="align-bottom">
-							<div class="row" style="margin-top: 10px;">
-								<div class="col-6">
-									<button class="btn btn-sm btn-outline-primary addToSearch" type="button" output="html">
-										<span>Selector <i class="ti-angle-right"></i></span>
-									</button>
-								</div>
-								<div class="col-6">
-									<button class="btn btn-sm btn-outline-primary pull-right addToSearch" type="button" output="json">
-										<span>Query Builder <i class="ti-angle-double-right"></i></span>
-									</button>
-								</div>
-							</div>
-						</td>
-					</tr>
-				</table>
-
-			</form>
-
+		<!-- Space for user to enter the first word, mandatory -->
+		<div class="form-group">
+			<br>
+			<label for="word1">Enter a Word</label>
+			<input type="text" class="form-control input-sm" id="word1" name="word1" placeholder="Type a word to search">
+		</div>
+		<div class="row">
+			<div class="col-sm-12 col-md-6">
+				<h4 class="m-b-10 header-title">
+					Selector
+				</h4>
+			</div>
+			<div class="col-sm-12 col-md-6">
+				<a href= "javascript:window.open('http://ucrel.lancs.ac.uk/claws7tags.html','width=700,height=650')" target="_blank" class="text-muted m-b-10 font-13 float-right">About CLAWS7 Tagset</a>
+			</div>
 		</div>
 
+		<div class="row">
+			<div class="col-12 nicescroll" id="DynamicField1" name="DynamicField1">
+				<p>Please enter a word.</p>
+			</div>
+        </div>
 	</div>
 
+	<!-- middle column -->
+	<div class="col-lg-4">
+		<div class="form-group">
+			<label for="word2">Enter a Second Word or Select a Tag (Optional)</label>
+			<input type="text" class="form-control input-sm" id="word2" name="word2" placeholder="Type another word (optional)">
+		</div>
+		<div class="row">
+			<div class="col-sm-12 col-md-6" >
+				<h4 class="m-b-10 header-title">
+					Selector
+				</h4>
+			</div>
+		</div>
+		<div class="row" style="max-height: 400px; overflow-y: scroll;">
+			<div class="col-12 nicescroll" id="DynamicField2" name="DynamicField2">
 
-	<!-- 2. SELECT -->
-	<div class="col-md-12 col-lg-4">
+			</div>
+        </div>
+	</div>
 
-		<div class="card-box searchCardBox">
+	<div class="col-lg-3">
+		<!-- user specifies offset for the corpus search -->
+		<label for="newOffset">Select Offset
+			<i class="fa fa-question-circle" style="cursor:pointer" onclick="$('#offset-info').slideToggle()"></i>
+		</label>
 
-			<form class="csSpacer" method="POST" action="" id="SubmitNewEntity" autocomplete="off">
+		<br>
 
-				<table class="csSpacer">
-					<tr>
-						<td class="align-top">
-							<div class="row">
-								<div class="col-sm-12 col-md-6">
-									<h4 class="m-b-10 header-title">
-										Selector
-									</h4>
-								</div>
-								<div class="col-sm-12 col-md-6">
-									<a href= "javascript:window.open('http://ucrel.lancs.ac.uk/claws7tags.html','width=700,height=650')" target="_blank" class="text-muted m-b-10 font-13 float-right">About CLAWS7 Tagset</a>
-								</div>
-							</div>
+		<select id="newOffset" name="newOffset">
+			{% for i in offsetRange %}
+				{% if i == 0 %}
+					<option value="none" selected>none</option>
+				{% else %}
+					<option value="{{ i }}" >{{ i }}</option>
+				{% endif %}
+			{% endfor %}
+		</select>
+		<br><br>
 
-							<div class="row">
-								<div class="col-12 nicescroll" id="DynamicField"></div>
-			                </div>
-						</td>
-					</tr>
-
-
-					<tr>
-						<td class="align-bottom">
-							<div class="row" class="align-bottom">
-								<div class="col-sm-12 col-md-6">
-									<button class='btn btn-sm btn-outline-danger' type="button" name="ClearSelector">Clear</button>
-								</div>
-								<div class="col-sm-12 col-md-6">
-									<button type="button" class="btn btn-sm btn-outline-primary pull-right" name="SubmitSelector">Query Builder <i class="ti-angle-right"></i></button>
-								</div>
-							</div>
-						</td>
-					</tr>
-				</table>
-
-			</form>
-
+		<div id="offset-info" style="display: none">
+			<p>
+				<b>Offset</b> determines how many spaces away from each other two words
+			can be in a sentence. For example, if you want to see "the" followed
+			by "king," you would set an offset of 1 (or -1 if "king" is entered for
+			the first word).
+			</p>
+			<p>
+				The offset indicates "up to and including," so for an offset value of 4,
+				two words may be shown together between 1 and 4 spaces away. Negative values
+				mean the second word will come first in the sentences.
+			</p>
 		</div>
 
-	</div>
-
-
-	<!-- 3. BUILD QUERY -->
-	<div class="col-md-12 col-lg-4">
-
-		<div class="card-box searchCardBox">
-
-			<form class="csSpacer" method="POST" id="SubmitSearchForm">
-
-				<input type="hidden" name="searchCriteria" id="searchCriteria" />
-
-				<table class="csSpacer">
-					<tr>
-						<td class="align-top">
-
-							<div class="row">
-								<div class="col-12">
-									<h4 class="m-t-0 header-title">
-										Query Builder
-									</h4>
-								</div>
-
-							</div>
-
-							<div class="row">
-								<div class="col-12">
-									<div class="radio radio-primary form-check-inline">
-										<input type="radio" name="searchType" value="1" id="searchType1">
-										<label for="searchType1"> Sequential </label>
-									</div>
-									<div class="radio radio-primary form-check-inline">
-										<input type="radio" name="searchType" value="0" checked="checked" id="searchType0">
-										<label for="searchType0"> Non-Sequential </label>
-									</div>
-								</div>
-
-							</div>
-
-							<div class="row">
-								<div class="col-12 nicescroll" id="sortParams">
-									<table style="display: none" class="table table-hover table-sm">
-										<thead>
-											<tr>
-												<th>Type</th>
-												<th>Content</th>
-												<th></th>
-											</tr>
-										</thead>
-										<tbody></tbody>
-									</table>
-								</div>
-							</div>
-						</td>
-					</tr>
-
-					<tr>
-						<td class="align-bottom">
-							<div class="row">
-			                    <div class="col-4">
-									<label for="newOffset">Offset</label>
-									<input class="form-control input-sm" type="number" min="1" max="8" value="1" id="newOffset" name="addOffset">
-								</div>
-								<div class="col-8">
-									<button class="btn btn-sm btn-outline-primary" id="addOffsetButton" type="button" style="bottom: 0px; position: absolute; min-height: 10px !important; ">Add</button>
-								</div>
-							</div>
-
-							<div class="row" style="margin-top: 15px">
-								<div class="col-6">
-									<button class='btn btn-sm btn-outline-danger' type="button" name="ClearSelector" id="clearQueryBuilder">Clear</button>
-								</div>
-
-								<div class="col-6">
-									<button class="btn btn-sm btn-outline-success pull-right" type="submit">
-										<span>Search <i class="ti-angle-right"></i></span>
-									</button>
-								</div>
-							</div>
-						</td>
-					</tr>
-				</table>
-
-			</form>
-
+		<div class="row">
+			<div class="col-6">
+				<button class="btn btn-sm btn-outline-success" name="clearForm" id="clearForm">
+					<span>Clear <i class="ti-angle-left"></i></span>
+				</button>
+			</div>
+			<div class="col-6">
+				<!-- submit button -->
+				<button class="btn btn-sm btn-outline-success pull-right" type="submit">
+					<span>Search <i class="ti-angle-right"></i></span>
+				</button>
+			</div>
 		</div>
 	</div>
+
 
 </div>
-
+</form>
 
 <!-- results -->
 <br />
@@ -232,21 +129,50 @@
 </div>
 
 <script>
-    var numOffsets = 0;
+
+	// Holds search data that is sent to Django to extract sentences from the
+	// corpus for search.
 	var searchCriteria = [];
 
-	function buildSearchQueryRow(type, val, id_list){
+	// Adds each checked word / POS tag pair to the search criteria
+	function collectData(posTableWord) {
 
-		row_string = "<tr><td>" + type + "</td><td>" + val + "</td><td><button class='btn btn-sm btn-outline-danger float-right' type='button' name='DeleteRow'><i class='ti-trash'></i></button></td></tr>"
+		var type = "word";
+		var id_list = [];
+		var val = posTableWord;
 
-		$("#DynamicField").empty();
-		$("#sortParams table").show().find("tbody").append(row_string);
-		appendCriterion(type, val, id_list)
-		$("button[name='SubmitSelector']").prop("disabled",false);
+		$("input[name^='" + posTableWord + "_selector_checked']").each(function() {
+			if ($(this).is(':checked')) {
+				id_list.push($(this).val());
+			}
+		});
+
+		appendCriterion(type, val, id_list);
 	}
 
+	// Adds each selected POS tag with no accompanying word to the
+	// search criteria.
+	function collectTags() {
+		var type = "tag";
+		var id_list = [];
+		var val = "Tag";
 
-	// type in ('word', 'tag')
+		$("input[name^='tag_selector_checked']").each(function() {
+			if ($(this).is(':checked')) {
+				id_list.push($(this).val());
+			}
+		});
+
+		if (id_list.length > 0) {
+			appendCriterion(type, val, id_list);
+		}
+	}
+
+	/*
+	Add search data to the search criteria, and add it to a hidden element
+	holding the search data that is a hold-over from Zeke Hunter-Green's version
+	of the Corpus interface.
+	*/
 	function appendCriterion(type, val, id_list){
 		searchCriteria.push({
 			type: type,
@@ -256,218 +182,143 @@
 		$('#searchCriteria').val(JSON.stringify(searchCriteria));
 	}
 
-	$(document).ready(function() {
-
-		$("#SubmitSearchForm").submit(function(e){
-			e.preventDefault();
-			var data = {
-				'searchCriteria': $('#searchCriteria').val(),
-				'searchType': $('[name=searchType]:checked').val(),
-			}
-			$('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load("{% url 'corpus:search_results' %}", data );
-		});
-
-
-		// add offset
-		$("#addOffsetButton").click(function() {
-			var offsetVal = $("#newOffset").val();
-
-			if (offsetVal == 0)
-				return false;
-
-			var toAdd = "<tr><td>offset</td><td>" + offsetVal + "</td><td><button class='btn btn-sm btn-outline-danger float-right' type='button' name='DeleteRow'><i class='ti-trash'></i></button></td><input hidden type='text' value='' name='offset[" + numOffsets + "]'></tr>";
-
-			numOffsets = numOffsets + 1;
-
-			appendCriterion('offset', offsetVal, null)
-
-			$("#sortParams table").append(toAdd).show();
-		});
-
-		// clear selector
-		$("button[name='ClearSelector']").click(function() {
-			$("#DynamicField").empty();
-		});
-
-		//clear query Builder
-		$('#clearQueryBuilder').click(function(){
-			$('#sortParams table').hide().find('tbody').html('');
-			searchCriteria = [];
-			$('#searchCriteria').val(JSON.stringify(searchCriteria));
-		});
-
-
-		// submit selector
-		$("button[name='SubmitSelector']").click(function() {
-
-			$(this).prop("disabled",true);
-			var type = $('#search_type').val()
-			var id_list = [];
-			var val = $("input[name='val']").val();
-
-			$("input[name^='selector_checked']").each(function() {
-				if ($(this).is(':checked')) {
-					id_list.push($(this).val());
-				}
+	/*
+	If the user marks the 'select all' option in a POS check list, each element
+	is toggled so that checkAll is selected, each element is also selected.
+	If checkAll is deselected, each element is also deselected, or left alone
+	if they are already deselected.
+	*/
+	function selectAll(form) {
+		if ($("input[name^='" + form + "_checkAll']").is(':checked')) {
+			$("input[name^='" + form + "_selector_checked']").each(function() {
+				$(this).prop('checked', true);
 			});
-
-			buildSearchQueryRow(type, val, id_list);
-
-		});
-
-	});
-
-
-
-	$(document).on("click", "button[name='DeleteRow']", function() {
-
-		// delete the criteria from the search criteria array, put new json string in input field
-		var index = $(this).parents('tr').index();
-		searchCriteria.splice(index, 1);
-		$('#searchCriteria').val(JSON.stringify(searchCriteria));
-
-		// remove the row from the document
-        $(this).closest('tr').remove();
-    });
-
-
-
-	$('input[name="new_word"]').keypress(function(e){
-		if (e.which == 13) return false;
-	});
-
-	$(".addToSearch").on("click", function(e){
-		e.preventDefault();
-
-		var output = $(this).attr('output'); // refine the search in the second box or go directly to the query builder?
-		var type = $('#new_word').val() ? 'word' : 'tag'; // is this a word or tag? if word input has content, it's a word
-		var val = '';
-
-		$(this).prop("disabled",true);
-		$("#DynamicField").empty();
-
-		if(type == 'word'){
-			val = $("input[name='new_word']").val();
 		} else {
-			val = $("select[name='new_tag']").val();
+			$("input[name^='" + form + "_selector_checked']").each(function() {
+				$(this).prop('checked', false);
+			});
+		}
+	}
+
+	/*
+	This function returns as a string the value in an HTML input above.
+	*/
+	function updateTextInput(val) {
+		document.getElementById('textInput').value=val; // Maybe change to "none" if val is 0?
+	};
+
+	/*
+	This function takes a word entry field and the field to outout Ajax results,
+	sends the word to the backend to retrieve tags for it, and populates a
+	field with check boxes for each retruned POS tag.
+	*/
+	function getWordPosTags(wordEntryField, resultField) {
+		var val = $(wordEntryField).val();
+		var type = 'word';
+		if (val == "") { // user enters nothing, clear field and return
+			$(resultField).empty();
+			if (resultField == "#DynamicField1") {
+				$(resultField).html("<p>Please enter a word.</p>");
+			}
+			return;
 		}
 
-
-		if(output == "html"){
-			$("#LoadingInfo").append("<strong>loading...</strong>");
-		}
-
-		$.ajax({
+		$(resultField).empty(); // clear the result field, prep for new results
+		$.ajax({ // call function to retrieve data and write it to this view
 			type: "POST",
 			url: "{% url 'corpus:populate_word_tag' %}",
 			data: {
 				'type': type,
 				'val': val,
-				'output': output,
+				'output': 'html',
 			},
 
 			success: function(data){
-
-				$("input[name=new_word]").val('');
-				$("#LoadingInfo").empty();
-
-				if(output == 'json') {
-					if(data.id_list.length == 0){
-						$("#DynamicField").html("No entries matched <i>" + val + "</i>.");
-					} else {
-						// add to criterion array, query builder table
-						buildSearchQueryRow(type, val, data.id_list);
-					}
-				} else {
-					// insert onto search table
-					$("#DynamicField").html(data);
-				}
+				$(resultField).html(data);
+				$('#' + val.toLowerCase() + '_checkAll').prop( "checked", true );
+				selectAll(val.toLowerCase());
+			},
+			fail: function(xhr, textStatus, errorThrown) {
+				alert("Search Failed");
 			}
 		});
-		$(this).prop("disabled",false);
-	});
+	}
 
+	// progressTimeout tracks whether a timeout function is in progress.
+	var progressTimeout = null;
 
-	$(document).on("change", "#checkAll", function(e){
-		e.preventDefault();
-		$("input:checkbox").prop('checked', $(this).prop("checked"));
-	});
+	/*
+	Event listeners for components in this view.
+	*/
+	$(document).ready(function() {
 
-	$(function() {
-		$(document).on('click', '.btn-add', function(e) {
+		// user enters word in either box
+		$("#word1,#word2").on("keydown paste", function() {
+			if (progressTimeout) {
+				clearTimeout(progressTimeout);
+			}
+			var dynamicField;
+			if ($(this).attr("id") === "word1") {
+				dynamicField = "#DynamicField1";
+			} else {
+				dynamicField = "#DynamicField2";
+			}
+			progressTimeout = setTimeout(getWordPosTags, 500, "#" + $(this).attr("id"), dynamicField);
+		});
+
+		// User hits the "Clear" button, word entries are set to empty and the
+		// offset is set to "none."
+		$('#clearForm').click(function() {
+			$("#word2").val("");
+			$("#word1").val("");
+			getWordPosTags("#word1", "#DynamicField1");
+			getWordPosTags("#word2", "#DynamicField2");
+			$('#newOffset').val("none");
+		});
+
+		// user hits the "search" button, display corpus search results.
+		// For compatibility, the criteria must be of the form "word1 offset
+		// word2"
+		$("#SubmitSearchForm").submit(function(e){
 			e.preventDefault();
 
-			var controlForm = $('.controls form:first'),
-			container = controlForm.children()
-			currentEntry = $(this).parents('.entry:first'),
-			newEntry = $(currentEntry.clone()).appendTo(controlForm);
+			searchCriteria = [];
 
-			newEntry.find('input').val('');
-			newEntry.find('input[name^=offset]').val(0);
-			controlForm.find('.entry:not(:last) .btn-add')
-			.removeClass('btn-add').addClass('btn-remove')
-			.removeClass('btn-primary').addClass('btn-danger')
-			.html('<span>Remove Word</span>');
-		}).on('click', '.btn-remove', function(e) {
-			$(this).parents('.entry:first').remove();
-			e.preventDefault();
-			return false;
+			$(this).prop("disabled",true);
+
+
+
+			if ($("#word1").val() !== "") {
+				collectData($("#word1").val());
+			} else {
+				$(this).prop("disabled",false);
+				return;
+			}
+
+			var sequential_search;
+
+			if ($('#newOffset').val() !== "none") {
+				appendCriterion('offset', parseInt($('#newOffset').val()), []);
+				sequential_search = '1';
+			} else {
+				sequential_search = '0';
+			}
+
+			if ($("#word2").val() !== "") {
+				collectData($("#word2").val());
+			} else {
+				collectTags();
+			}
+
+			var data = {
+				'searchCriteria': $('#searchCriteria').val(),
+				'searchType': sequential_search,
+			}
+			$('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load("{% url 'corpus:search_results' %}", data);
+			$(this).prop("disabled",false);
 		});
 	});
 
 </script>
-<style>
-    #language-list{float:left;list-style:none;margin:0;width:100%;padding:0;opacity:1.0;}
-    #language-list li{padding: 10px;background-color: #8b8b8b; border-bottom:#F0F0F0 1px solid;border-width:#F0F0F0 1px solid; opacity:1.0;}
-    #language-list li:hover{background: rgba(56, 110, 128, 1);}
-
-    #tags-list{float:left;list-style:none;margin:0;width:100%;padding:0;opacity: 1;}
-    #tags-list li{padding: 10px;background-color: #8b8b8b; border-bottom:#F0F0F0 1px solid;border-width:#F0F0F0 1px solid;}
-    #tags-list li:hover{background: rgba(56, 110, 128, 1);}
-
-    .btn-add {
-        min-height: 34px;
-    }
-    .btn-remove {
-        min-height: 34px;
-    }
-    .btn-primary {
-        min-height: 34px;
-        position: static;
-    }
-
-    .select {
-        position:relative;
-    }
-
-	.searchCardBox {
-		height: 100%;
-
-	}
-
-	#DynamicField,#sortParams{
-		overflow: hidden;
-		max-height: 250px;
-	}
-
-	td.checkbox-cell, th.checkbox-cell{
-		text-align: center;
-		vertical-align: middle;
-	}
-
-	.checkbox-cell label {
-		top: -5px;
-	}
-
-	.checkbox-cell label:after {
-		padding-left: 1px;
-	}
-
-	.csSpacer {
-		height: 100%;
-		width: 100%;
-	}
-</style>
-
 
 {% endblock %}
