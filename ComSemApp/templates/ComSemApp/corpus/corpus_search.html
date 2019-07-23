@@ -25,6 +25,7 @@
 
 		<!-- Space for user to enter the first word, mandatory -->
 		<div class="form-group">
+			<br>
 			<label for="word1">Enter a Word</label>
 			<input type="text" class="form-control input-sm" id="word1" name="word1" placeholder="Type a word to search">
 		</div>
@@ -49,7 +50,7 @@
 	<!-- middle column -->
 	<div class="col-lg-4">
 		<div class="form-group">
-			<label for="word2">Enter a Second Word (Optional)</label>
+			<label for="word2">Enter a Second Word or Select a Tag (Optional)</label>
 			<input type="text" class="form-control input-sm" id="word2" name="word2" placeholder="Type another word (optional)">
 		</div>
 		<div class="row">
@@ -212,7 +213,6 @@
 	field with check boxes for each retruned POS tag.
 	*/
 	function getWordPosTags(wordEntryField, resultField) {
-
 		var val = $(wordEntryField).val();
 		var type = 'word';
 		if (val == "") { // user enters nothing, clear field and return
@@ -252,20 +252,18 @@
 	*/
 	$(document).ready(function() {
 
-		// user enters word in left box
-		$("#word1").on("keydown paste", function() {
+		// user enters word in either box
+		$("#word1,#word2").on("keydown paste", function() {
 			if (progressTimeout) {
 				clearTimeout(progressTimeout);
 			}
-			progressTimeout = setTimeout(getWordPosTags, 500, "#word1", "#DynamicField1");
-		});
-
-		// user enters word in right box
-		$("#word2").on("keydown paste", function() {
-			if (progressTimeout) {
-				clearTimeout(progressTimeout);
+			var dynamicField;
+			if ($(this).attr("id") === "word1") {
+				dynamicField = "#DynamicField1";
+			} else {
+				dynamicField = "#DynamicField2";
 			}
-			progressTimeout = setTimeout(getWordPosTags, 500, "#word2", "#DynamicField2");
+			progressTimeout = setTimeout(getWordPosTags, 500, "#" + $(this).attr("id"), dynamicField);
 		});
 
 		// User hits the "Clear" button, word entries are set to empty and the
