@@ -240,6 +240,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'efs')
 MEDIA_URL = '/efs/'
 
+if LIVE:
+    SECURE_SSL_REDIRECT = True
+
 # Amazon S3
 if LIVE:
     AWS_ACCESS_KEY_ID = env_get('AWS_ACCESS_KEY_ID')
