@@ -1,13 +1,27 @@
 from django import forms
 from django.forms import ModelForm
-from django.urls import reverse_lazy
+from django.conf import settings
+from django.core.mail import send_mail
 
-from bootstrap3_datetime.widgets import DateTimePicker
 from django_select2.forms import Select2MultipleWidget
-
 from django.contrib.auth.models import User
+
 from ComSemApp.models import Course, CourseType, Session, SessionType, Teacher, Student, Institution
 
+
+class ContactForm(forms.Form):
+    email = forms.EmailField(label="Email Address")
+    message = forms.CharField(label="Message", widget=forms.Textarea)
+
+    def send_email(self):
+        email = self.cleaned_data['email']
+        message = "Somebody has filled out the Communications Seminar contact form!\n" \
+                  "Here is their info:\n\n"
+
+        for key, value in self.cleaned_data.items():
+                message += "\t" + key + ": " + value + "\n"
+
+        send_mail("ComSem Contact", message, email, settings.CONTACT_FORM_RECIPIENTS)
 
 
 class SignupForm(ModelForm):

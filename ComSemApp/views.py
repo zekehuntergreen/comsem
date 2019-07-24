@@ -6,9 +6,11 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.mail import send_mail
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import FormView
+from django.urls import reverse_lazy
 
 from .models import Admin, Teacher, Student
-from ComSemApp.administrator.forms import SignupForm
+from ComSemApp.administrator.forms import SignupForm, ContactForm
 
 # TODO - these are the sort of extra views that don't exactly fit into one of the existing "apps"
 # and should be reorganized
@@ -35,7 +37,8 @@ def about(request):
 
             form = SignupForm() # clear the form
 
-            messages.success(request, 'Your request has been sent successfully! We will contact you shortly to set up an account.')
+            messages.success(request, 'Your request has been sent successfully! '
+                                      'We will contact you shortly to set up an account.')
         else:
             messages.error(request, 'Please correct the above error.')
     else:
@@ -44,6 +47,17 @@ def about(request):
     return render(request, 'ComSemApp/about/home.html', {
         'form': form,
     })
+
+
+class Contact(FormView):
+    template_name = 'ComSemApp/about/contact.html'
+    form_class = ContactForm
+    success_url = reverse_lazy("about")
+
+    def form_valid(self, form):
+        form.send_email()
+        messages.success(self.request, 'Your message has been sent successfully!')
+        return super().form_valid(form)
 
 
 class AboutTeacher(TemplateView):

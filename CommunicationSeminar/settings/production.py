@@ -39,8 +39,10 @@ SECRET_KEY = env_get('SECRET_KEY', "c7so+hqfe+a_9i9*##vgl!k-xb^)nin&o-ev*^t@ipq6
 DEBUG = env_get_bool("DEBUG", True)
 LIVE = env_get_bool("LIVE", False)
 
-
-ADMINS = [('Zeke Hunter-Green', 'zekehuntergreen@gmail.com')]
+ZEKES_EMAIL = 'zekehuntergreen@gmail.com'
+JAMES_EMAIL = 'hunter@gonzaga.edu'
+ADMINS = [('Zeke Hunter-Green', ZEKES_EMAIL)]
+CONTACT_FORM_RECIPIENTS = [ZEKES_EMAIL, JAMES_EMAIL]
 
 ALLOWED_HOSTS = [
     'comsem.herokuapp.com',
