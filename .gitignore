@@ -4,6 +4,9 @@ __pycache__/
 
 .DS_Store
 
+# ignore statics
+static/*
+
 # ignore efs directory
 efs/*
 
