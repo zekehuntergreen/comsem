@@ -4,12 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
-from django.http import Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.urls import reverse_lazy
 
-from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView, UpdateView, FormView, DeleteView
+from django.views.generic import View, ListView, CreateView, UpdateView, FormView, DeleteView
 from django.views import View
 
 from django.core.mail import send_mail
@@ -383,6 +381,41 @@ class StudentUpdateView(UserUpdateMixin):
         return StudentForm(initial, instance=self.instance, prefix='obj_form')
 
 
+class StudentResetPassword(AdminViewMixin, View):
+    # called by ajax from the student list
+
+    def get(self, request, *args, **kwargs):
+        student = get_object_or_404(Student, pk=kwargs['pk'], institution=self.institution)
+        user = student.user
+        # reset password
+        password = User.objects.make_random_password()
+        user.set_password(password)
+        user.save()
+
+        # send an email
+        link = "https://www.comsem.net"
+        message = ("A Communication Seminar administrator for " + self.institution.name + " has reset your password.\n"
+                    "In order to log in, go to " + link + " and use \n"
+                    "\tusername: " + user.username + "\n\tpassword: " + password + "\n"
+                    "from there you'll be able to change your password.")
+
+        send_mail(
+            'Communication Seminar Password Change',
+            message,
+            'signup@comsem.net',
+            [user.email],
+            fail_silently=False,
+        )
+
+        if user.first_name and user.last_name:
+            success_message = user.first_name + " " + user.last_name
+        else:
+            success_message = "The student"
+        success_message += "'s password has been reset!"
+        messages.success(request, success_message)
+        return HttpResponseRedirect(reverse("administrator:students"))
+
+
 class CourseTypeUpdateView(AdminViewMixin, UpdateView):
     success_url = reverse_lazy("administrator:course_types")
     model = CourseType
@@ -425,7 +458,7 @@ class DisactivateUserMixin(NoConfirmDeleteMixin):
         user = self.get_object().user
         user.is_active = False
         user.save()
-        return  HttpResponseRedirect(self.success_url)
+        return HttpResponseRedirect(self.success_url)
 
 
 class TeacherDisactivateView(DisactivateUserMixin):
@@ -456,4 +489,3 @@ class CourseDeleteView(NoConfirmDeleteMixin):
 class SessionDeleteView(NoConfirmDeleteMixin):
     success_url = reverse_lazy("administrator:sessions")
     model = Session
-

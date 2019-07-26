@@ -92,6 +92,7 @@
 						</p>
 
 						<form method="post">
+							{% csrf_token %}
 							<div class="row" style="margin-top: 5em">
 								<div class="col-8 mx-auto">
 									{% include 'ComSemApp/form_contents.html' %}
