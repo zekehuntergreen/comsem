@@ -13,7 +13,8 @@ from .models import Admin, Teacher, Student
 from ComSemApp.administrator.forms import SignupForm, ContactForm
 
 # TODO - these are the sort of extra views that don't exactly fit into one of the existing "apps"
-# and should be reorganized
+# and should be reorganized and tested
+
 
 class About(FormView):
     template_name = 'ComSemApp/about/home.html'
