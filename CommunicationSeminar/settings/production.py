@@ -43,6 +43,8 @@ ZEKES_EMAIL = 'zekehuntergreen@gmail.com'
 JAMES_EMAIL = 'hunter@gonzaga.edu'
 ADMINS = [('Zeke Hunter-Green', ZEKES_EMAIL)]
 CONTACT_FORM_RECIPIENTS = [ZEKES_EMAIL, JAMES_EMAIL]
+SIGNUP_FORM_RECIPIENTS = [ZEKES_EMAIL, JAMES_EMAIL]
+
 
 ALLOWED_HOSTS = [
     'comsem.herokuapp.com',

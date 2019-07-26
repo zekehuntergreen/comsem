@@ -37,6 +37,16 @@ class SignupForm(ModelForm):
             "state_province": "State or Province",
         }
 
+    def send_email(self):
+        email = self.cleaned_data['email']
+
+        message = "Somebody has requested to join Communications Seminar!\nHere is their info:\n\n"
+
+        for key, value in self.cleaned_data.items():
+                message += "\t" + key + ": " + value + "\n"
+
+        send_mail("Request to join ComSem", message, email, settings.SIGNUP_FORM_RECIPIENTS)
+
 
 class CourseForm(ModelForm):
 
