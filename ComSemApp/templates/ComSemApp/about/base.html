@@ -52,10 +52,13 @@
 							<a class="nav-link" href="{% url 'about' %}#how-it-works">About</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="{% url 'about' %}#signup">Sign Up</a>
+							<a class="nav-link" href="{% url 'error_recognition:welcome' %}">Error Recognition</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="{% url 'error_recognition:welcome' %}">Error Recognition</a>
+							<a class="nav-link" href="{% url 'contact' %}">Contact</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'about' %}#signup">Sign Up</a>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" href="{% url 'login' %}">Login</a>
@@ -127,6 +130,10 @@
 		.pretty-link,  .pretty-link:hover{
 			text-decoration: none;
 			color: inherit;
+		}
+		.section {
+			padding-top: 80px;
+			padding-bottom: 80px;
 		}
 		</style>
 

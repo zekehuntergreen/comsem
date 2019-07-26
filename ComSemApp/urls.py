@@ -3,8 +3,9 @@ from django.conf.urls import url, include
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.about, name='about'),
+    url(r'^$', views.About.as_view(), name='about'),
     url(r'^about/teacher/$', views.AboutTeacher.as_view(), name='about_teacher'),
+    url(r'^contact/$', views.Contact.as_view(), name='contact'),
 
     url(r'^initiate_roles/$', views.initiate_roles, name='initiate_roles'),
     url(r'^administrator/', include('ComSemApp.administrator.urls', namespace='administrator')),
