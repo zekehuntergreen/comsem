@@ -1,11 +1,8 @@
 import datetime, uuid
 
 from django.db import models
-from django.conf import settings
-from django.utils import timezone
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
-from django.urls import reverse
 
 from ComSemApp.teacher import constants as teacher_constants
 
