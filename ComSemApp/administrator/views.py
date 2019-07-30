@@ -52,13 +52,13 @@ class StudentListView(AdminViewMixin, ListView):
 
     def _send_email(self, user, password):
         link = "https://www.comsem.net"
-        message = ("You have been invited to join Communication Seminar by an administrator for " + self.institution.name + ".\n"
+        message = ("You have been invited to join Communications Seminar by an administrator for " + self.institution.name + ".\n"
                     "In order to log in, go to " + link + " and use \n"
                     "\tusername: " + user.username + "\n\tpassword: " + password + "\n"
                     "from there you can change your password.")
 
         send_mail(
-            'Invitation to Communication Seminar',
+            'Invitation to Communications Seminar',
             message,
             'signup@comsem.net',
             [user.email],
@@ -187,13 +187,13 @@ class UserMixin(AdminViewMixin, FormView):
 
     def _send_email(self, user, password):
         link = "https://www.comsem.net"
-        message = ("You have been invited to join Communication Seminar by an administrator for " + self.institution.name + ".\n"
+        message = ("You have been invited to join Communications Seminar by an administrator for " + self.institution.name + ".\n"
                     "In order to log in, go to " + link + " and use \n"
                     "\tusername: " + user.username + "\n\tpassword: " + password + "\n"
                     "from there you can change your password.")
 
         send_mail(
-            'Invitation to Communication Seminar',
+            'Invitation to Communications Seminar',
             message,
             'signup@comsem.net',
             [user.email],
@@ -348,13 +348,13 @@ class StudentResetPassword(AdminViewMixin, View):
 
         # send an email
         link = "https://www.comsem.net"
-        message = ("A Communication Seminar administrator for " + self.institution.name + " has reset your password.\n"
+        message = ("A Communications Seminar administrator for " + self.institution.name + " has reset your password.\n"
                     "In order to log in, go to " + link + " and use \n"
                     "\tusername: " + user.username + "\n\tpassword: " + password + "\n"
                     "from there you'll be able to change your password.")
 
         send_mail(
-            'Communication Seminar Password Change',
+            'Communications Seminar Password Change',
             message,
             'signup@comsem.net',
             [user.email],
