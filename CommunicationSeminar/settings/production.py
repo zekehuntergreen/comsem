@@ -50,7 +50,6 @@ ALLOWED_HOSTS = [
     'comsem.herokuapp.com',
     'localhost',
     '.comsem.net',
-    'comsem.localhost.run'
 ]
 
 # Application definition
