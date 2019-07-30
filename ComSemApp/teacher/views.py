@@ -23,7 +23,6 @@ from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewM
 
 import json, math, datetime, os
 from ComSemApp.models import *
-from django.template.defaulttags import register
 
 
 class TeacherViewMixin(RoleViewMixin):
@@ -71,59 +70,7 @@ class CourseListView(TeacherViewMixin, ListView):
 class CourseDetailView(TeacherCourseViewMixin, DetailView):
     context_object_name = 'course'
     template_name = "ComSemApp/teacher/course.html"
-    
-    @register.filter('get_item')
-    def get_item(dictionary, key):
-        return dictionary.get(key)
 
-    def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
-
-        data['bob'] = 'Ron Johnson'
-        worksheets = Worksheet.objects.filter(course=self.course)
-        worksheetsdict = {}
-        ungradedcountdict = {}
-        attemptsdict = {}
-        for student in self.course.students.all(): 
-            worksheetcount = 0
-            ungradedcount = 0
-            attemptcount = 0
-            submissions = StudentSubmission.objects.filter(student=student)
-            for submission in submissions :
-                if submission.worksheet.course == self.course:
-                    if submission.status == 'ungraded':
-                        ungradedcount = ungradedcount + 1
-            for worksheet in self.course.worksheets.all():
-                if worksheet.last_submission(student):
-                    attemptcount = attemptcount + worksheet.last_submission(student).get_number()
-                worksheetcount = worksheetcount + 1
-
-            worksheetsdict[student.user.username] = worksheetcount
-            ungradedcountdict[student.user.username] = ungradedcount
-            attemptsdict[student.user.username] = attemptcount
-
-        ungraded = 0
-        complete = 0
-        incomplete = 0
-        for submission in submissions :
-            if submission.worksheet.course == self.course:
-                if submission.status == 'ungraded':
-                    ungraded = ungraded + 1
-                if submission.status == 'complete':
-                    complete = complete + 1
-                if submission.status == 'incomplete':
-                    incomplete = incomplete + 1
-
-
-        data['classungraded'] = ungraded
-        data['classincomplete'] = incomplete
-        data['classcomplete'] = complete
-        data['ungradedSubmissions'] = len(self.course.worksheets.all())
-        data['worksheets'] = worksheetsdict
-        data['ungraded'] = ungradedcountdict
-        data['attempts'] = attemptsdict
-
-        return data
     def get_object(self):
         return self.course
 
