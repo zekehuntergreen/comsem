@@ -85,14 +85,14 @@ class StudentListView(AdminViewMixin, ListView):
             reject_count = 0
             line_count = len(lines)
 
-            for i, line in  enumerate(lines, 1):
+            for i, line in enumerate(lines, 1):
                 fields = line.split(",")
                 fields = [f.strip() for f in fields]
                 if len(fields) != 4:
                     reject_count += 1
                     errors.append(str(i) + "\t" "Wrong number of columns. "
                                            "Please make sure you have columns as follows: "
-                                           "firstname,lastname,email,ComSemApp/teacher/views.pyname")
+                                           "firstname,lastname,email,username")
                     continue
 
                 first_name, last_name, email, username = fields
