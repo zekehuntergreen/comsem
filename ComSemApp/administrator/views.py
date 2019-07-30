@@ -87,6 +87,7 @@ class StudentListView(AdminViewMixin, ListView):
 
             for i, line in  enumerate(lines, 1):
                 fields = line.split(",")
+                fields = [f.strip() for f in fields]
                 if len(fields) != 4:
                     reject_count += 1
                     errors.append(str(i) + "\t" "Wrong number of columns. "
