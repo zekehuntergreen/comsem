@@ -15,27 +15,26 @@
 					</i>
 				</a>
 			</div>
-
-			<form method="post" enctype="multipart/form-data">{% csrf_token %}
+		</div>
+		<br>
+		<div class="row">
+			<p>Create individual students or batch create by uploading a csv file.</p>
+			<p>
+				Please order the rows of the file in the following way: <b>firstname,lastname,email,username</b>
+				without spaces.
+				(e.g. John,Doe,johndoe@gmail.com,johnsusername123)<br>
+				We will generate a random password and send an email to the user containing their username and password.
+			</p>
+		</div>
+		<div class="row">
+			<form method="post" enctype="multipart/form-data">
+				{% csrf_token %}
 				<label class="btn btn-sm btn-outline-info pull-left" >
 					<input type="file" name="file" accept=".csv"/>
 				</label>
-				<br>
-				<button class="btn btn-sm btn-outline-info pull-left" type="save">Upload</button>
+				&nbsp;
+				<button class="btn btn-sm btn-outline-info" type="save">Upload</button>
 			</form>
-		</div>
-		<br>
-		<div>
-			<p>Uploader only allows CSV Files.
-			</p>
-			<p>
-				Please order students in the following way: firstname, lastname, email, username.
-				Below is an example of how the first line would look, a comma indicates a new column. Names must contain letters only.
-				We will generate a random password and send an email to the user containing their username and password.
-			</p>
-			<p>
-				John,Doe,johndoe@gmail.com,johnsusername
-			</p>
 		</div>
 
 		<div>
