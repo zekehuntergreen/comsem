@@ -1,23 +1,20 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+import re
 
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import user_passes_test
-
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.db.transaction import atomic
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-
-from django.views.generic import View, ListView, CreateView, UpdateView, FormView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, FormView, DeleteView
 from django.views import View
-
 from django.core.mail import send_mail
 from django.contrib import messages
-
+from django.contrib.auth.models import User
 
 from ComSemApp.models import *
-from django.contrib.auth.models import User
-from ComSemApp.administrator.forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, TeacherForm, StudentForm, UserForm
+from ComSemApp.administrator.forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, TeacherForm, \
+            StudentForm, UserForm
 from ComSemApp.libs.mixins import RoleViewMixin
+
 
 
 class AdminViewMixin(RoleViewMixin):
@@ -51,6 +48,90 @@ class TeacherListView(AdminViewMixin, ListView):
 class StudentListView(AdminViewMixin, ListView):
     model = Student
     template_name = 'ComSemApp/admin/student_list.html'
+    success_url = reverse_lazy("administrator:students")
+
+    def _send_email(self, user, password):
+        link = "https://www.comsem.net"
+        message = ("You have been invited to join Communication Seminar by an administrator for " + self.institution.name + ".\n"
+                    "In order to log in, go to " + link + " and use \n"
+                    "\tusername: " + user.username + "\n\tpassword: " + password + "\n"
+                    "from there you can change your password.")
+
+        send_mail(
+            'Invitation to Communication Seminar',
+            message,
+            'signup@comsem.net',
+            [user.email],
+            fail_silently=False,
+        )
+
+    @atomic
+    def _create_student(self, **kwargs):
+        user = User.objects.create_user(**kwargs)
+        password = User.objects.make_random_password()
+        user.set_password(password)
+        user.save()
+        Student.objects.create(user=user, institution=self.institution)
+        self._send_email(user, password)
+
+    #handle CSV upload
+    def post(self, request):
+        if len(request.FILES) > 0: #check to make sure file was uploaded
+            csv_file = request.FILES['file']
+            file_data = csv_file.read().decode("utf-8")
+            lines = file_data.strip().split("\n")
+            errors = []
+
+            reject_count = 0
+            line_count = len(lines)
+
+            for i, line in  enumerate(lines, 1):
+                fields = line.split(",")
+                if len(fields) != 4:
+                    reject_count += 1
+                    errors.append(str(i) + "\t" "Wrong number of columns. "
+                                           "Please make sure you have columns as follows: "
+                                           "firstname,lastname,email,ComSemApp/teacher/views.pyname")
+                    continue
+
+                first_name, last_name, email, username = fields
+
+                if not re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$',
+                                 email.lower()):
+                    reject_count += 1
+                    errors.append(str(i) + "\t" f"Invalid Email Address {email}")
+                    continue
+
+                if not re.match('^[\w.@+-]+$', username):
+                    reject_count += 1
+                    errors.append(str(i) + "\t" f"Invalid Username {username} -  Letters, digits and @/./+/-/_ only.")
+                    continue
+
+                if User.objects.filter(username=username).exists():
+                    reject_count += 1
+                    errors.append(str(i) + "\t" f"User with username {username} already exists.")
+                    continue
+
+                info = {
+                        "first_name": first_name,
+                        "last_name": last_name,
+                        "email": email,
+                        "username": username,
+                    }
+                try:
+                    self._create_student(**info)
+                except Exception as e:
+                    reject_count += 1
+                    errors.append(str(i) + "\t" + str(e))
+
+            message = str(line_count - reject_count) + "/" + str(line_count)+ " Accounts created successfully\n"
+            if reject_count:
+                message += "The below users were not added, Their line numbers are listed to the left.\n" \
+                           "Lines with multiple errors will be listed multiple times \n \n"
+                message += "\n".join(errors)
+            messages.add_message(request, messages.ERROR, message)
+        return HttpResponseRedirect(self.success_url)
+
 
     def get_queryset(self):
         return Student.objects.filter(institution=self.institution)
@@ -131,7 +212,6 @@ class UserCreateMixin(UserMixin):
     def post(self, request, *args, **kwargs):
         user_form = UserForm(self.request.POST, prefix='user_form')
         obj_form = self.get_obj_form()
-
         if user_form.is_valid() and obj_form.is_valid():
             # create the user object with random password
             user = user_form.save()
