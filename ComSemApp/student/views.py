@@ -236,3 +236,125 @@ class AttemptUpdateView(StudentSubmissionViewMixin, UpdateView):
             attempt.audio = None
             attempt.save()
         return JsonResponse({}, status=200)
+
+
+class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
+    context_object_name = 'generate_reviewsheet'
+    template_name = "ComSemApp/student/generate_reviewsheet.html"
+
+    def get_object(self):
+        return self.course
+
+    def get_expressions(self, worksheet):
+        """ Get a list of expressions in a given worksheet
+        
+        Arguments:
+            worksheet {Worksheet} -- a Worksheet object
+        
+        Returns:
+            list -- a list of expressions contained in worksheet
+        """
+        expression_filters = Q(worksheet=worksheet)
+        if not worksheet.display_all_expressions:
+            expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
+
+        return Expression.objects.filter(expression_filters)
+
+    def get_context_data(self, **kwargs):
+        """Get worksheet data for a student in a given course
+        
+        Returns:
+            dict -- context for creating generate_reviewsheet.html
+        """
+        context = super(ReviewsheetGeneratorView, self).get_context_data(**kwargs)
+        worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
+
+        # TODO should this logic be in the worksheet model ?
+        for worksheet in worksheets:
+            last_submission = worksheet.last_submission(self.student)
+            worksheet.last_submission_status = last_submission.status if last_submission else "none"
+            worksheet.expression_list = self.get_expressions(worksheet)
+
+        # Only allow students to review completed worksheets (must have an answer)
+        context['worksheets'] =  [x for x in worksheets if x.last_submission_status == 'complete']
+        return context
+
+class ReviewsheetView(StudentCourseViewMixin, DetailView):
+    # SHOULD THIS BE INHERETING ^^? 
+    # Only using it since I want to keep non-central page elements the same (sidebar/header/footer)
+    # Also I don't really know how to use Mixins properly -  AF
+    # Also: is 
+    context_object_name = 'reviewsheet'
+    template_name = "ComSemApp/student/reviewsheet.html"
+
+    def get_object(self):
+        return self.course
+
+    def get_attempts(self, expression):
+        submissions = StudentSubmission.objects.filter(student=self.student, worksheet=expression.worksheet)
+        attempts = []
+        for submission in submissions:
+            attempts.append(get_object_or_404(StudentAttempt, student_submission=submission, expression=expression))
+        return attempts
+
+    def get_context_data(self, **kwargs):
+        """Get worksheet data for a student in a given course
+        
+        Returns:
+            dict -- context for creating generate_reviewsheet.html
+        """
+        context = super(ReviewsheetView, self).get_context_data(**kwargs)
+        expression_ids = dict(self.request.GET)['choice']
+        raw_expressions = []
+        for expression_id in expression_ids:
+            expression_object = get_object_or_404(Expression, pk=expression_id)
+            expression_object.attempts = self.get_attempts(expression_object)
+            raw_expressions.append(expression_object)
+
+        context['review_data'] = json.dumps(self.make_review_questions(raw_expressions))
+        context['student_id'] = self.student.id
+
+        return context
+
+    def make_review_questions(self, raw_expressions):
+        import random
+        reviewdata = []
+        for e in raw_expressions:
+            # list all correct and incorrect responses (original expression + attempt)
+            a_correct = [x.reformulation_text for x in e.attempts if x.correct]
+            a_incorrect = [x.reformulation_text for x in e.attempts if not x.correct] + [e.expression]
+
+            correct_item = a_correct[random.randint(0, len(a_correct) - 1)]
+            incorrect_item = a_incorrect[random.randint(0, len(a_incorrect) - 1)]
+            
+            selected = [(correct_item, 'correct'), (incorrect_item, 'incorrect')][random.randint(0, 1)]
+
+            expression_data = {'id':e.id, 'original': e.expression, 'term': selected[0], 'answer': selected[1]}
+            reviewdata.append(expression_data)
+        return reviewdata
+
+class ReviewsheetGetView(ReviewsheetView):
+    def get(self, request, *args, **kwargs):
+        # student can't create a submission if there is an updatable one.
+        if 'choice' in request.GET:
+            return super().get(self, request, *args, **kwargs)
+        else:
+            messages.error(self.request, "You must select at least one expression to generate a worksheet")
+            return HttpResponseRedirect(reverse("student:generate_reviewsheet", kwargs={'course_id': self.course.id }))
+
+class ReviewAttemptCreateView(ReviewsheetView, CreateView):
+    model = ReviewAttempt
+    template_name = "ComSemApp/student/reviewsheet.html"
+    fields = ["expression", "student", "correct", "response_time"]
+
+    def get_context_data(self, **kwargs):
+        context = super(ReviewAttemptCreateView, self).get_context_data(**kwargs)
+        return context
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form):
+        form.save()
+        return JsonResponse({}, status=200)

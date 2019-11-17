@@ -267,6 +267,19 @@ class StudentAttempt(models.Model):
         verbose_name = "Student Attempt"
         unique_together = ("student_submission", "expression")
 
+class ReviewAttempt(models.Model):
+    expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
+    student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)
+    correct = models.BooleanField(default=None)
+    response_time = models.FloatField()
+
+    def __str__(self):
+        return "%d - %5s - %s" % (self.id, str(self.correct), self.expression)
+
+    class Meta:
+        verbose_name = "Review Attempt"
+
 
 # WORDS, SEQUENTIAL WORDS, TAG
 
