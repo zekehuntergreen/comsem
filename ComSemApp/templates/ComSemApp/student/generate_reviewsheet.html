@@ -1,0 +1,62 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% block content %}
+<form action="{% url 'student:create_reviewsheet' course.id  %}" method="GET">
+<div class="row">
+	
+	<div class="col-md-12 col-lg-3">
+		{% include 'ComSemApp/course_details.html' %}
+		<div class="card-box">
+			<input class="btn btn-lg btn-success w-100" type="submit" value='Start Review'>
+		</div>
+	</div>
+
+	<div class="col-md-12 col-lg-9">
+
+		<div class="card-box">
+			
+			<h4 class="header-title m-t-0 m-b-20">Reviewsheet Generator</h4>
+            <span class='glyphicon glyphicon-arrow-right' style='font-size:20px;left:10px;'></span>
+			{% if worksheets %}
+			<table class="table table-hover tablesorter">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Topic/Date</th>
+					</tr>
+				</thead>
+				 <tbody>
+				
+			            {% for worksheet in worksheets %}
+							
+                            <!--this is what expands and collapses the worksheet vhl-->
+  	                        <tr data-toggle="collapse" data-target='#worksheet{{ worksheet.id}}' class="clickable">
+					            <td>{{ forloop.counter }}</td>
+						        <td><strong>{{ worksheet.topic }}</strong><br><em>{{ worksheet.date }}</em>
+                            </tr>
+                            <tr>
+                                <td colspan="2"> 
+                                    <div id='worksheet{{ worksheet.id }}' class="collapse">
+            
+            					        {% for e in worksheet.expression_list %}
+									        <input type='checkbox' name='choice' id='expression{{ e.id }}' value='{{ e.id }}'>
+									        <label for='expression{{ e.id }}'>{{ e.expression }}</label><br>
+								        {% endfor %}
+                                    </div>
+                                </td>
+                            </tr>	
+					    {% endfor %}
+				    </tbody>
+				{% include 'ComSemApp/tablesorter_footer.html'%}
+			</table>
+			{% else %}
+				<p>No worksheets available</p>
+			{% endif %}
+		</div>
+		
+	</div>
+	
+</div>
+</form> 
+
+{% endblock %}
