@@ -1,6 +1,9 @@
 {% extends 'ComSemApp/sidebar.html' %}
 
+{% load static %}
+
 {% block content %}
+
 <form action="{% url 'student:create_reviewsheet' course.id  %}" method="GET">
 <div class="row">
 	
@@ -12,39 +15,38 @@
 	</div>
 
 	<div class="col-md-12 col-lg-9">
-
+		
 		<div class="card-box">
 			
 			<h4 class="header-title m-t-0 m-b-20">Reviewsheet Generator</h4>
-            <span class='glyphicon glyphicon-arrow-right' style='font-size:20px;left:10px;'></span>
+
 			{% if worksheets %}
-			<table class="table table-hover tablesorter">
+			<table class="table table-hover tablesorter reviewsheet-table">
 				<thead>
 					<tr>
-						<th>#</th>
-						<th>Topic/Date</th>
+						<th class="w-30">Date</th>
+						<th>Worksheet</th>
 					</tr>
 				</thead>
-				 <tbody>
+				<tbody>
 				
 			            {% for worksheet in worksheets %}
-							
                             <!--this is what expands and collapses the worksheet vhl-->
-  	                        <tr data-toggle="collapse" data-target='#worksheet{{ worksheet.id}}' class="clickable">
-					            <td>{{ forloop.counter }}</td>
-						        <td><strong>{{ worksheet.topic }}</strong><br><em>{{ worksheet.date }}</em>
+  	                        <tr>
+					            <td><em>{{ worksheet.date }}</em></td>
+						        <td><div class="d-flex justify-content-between">
+									<h5 class="w-90"><strong>{{ worksheet.topic }}</strong></h5>
+									<i data-toggle="collapse" data-target='#worksheet{{ worksheet.id}}' class="clickable fa fa-plus show-icon"></i>
+								</div>
+								
+								<div id='worksheet{{ worksheet.id }}' class="collapse">
+									{% for e in worksheet.expression_list %}
+										<input type='checkbox' name='choice' id='expression{{ e.id }}' value='{{ e.id }}'>
+										<label for='expression{{ e.id }}'>{{ e.expression }}</label><br>
+									{% endfor %}
+								</div>
+								</td>
                             </tr>
-                            <tr>
-                                <td colspan="2"> 
-                                    <div id='worksheet{{ worksheet.id }}' class="collapse">
-            
-            					        {% for e in worksheet.expression_list %}
-									        <input type='checkbox' name='choice' id='expression{{ e.id }}' value='{{ e.id }}'>
-									        <label for='expression{{ e.id }}'>{{ e.expression }}</label><br>
-								        {% endfor %}
-                                    </div>
-                                </td>
-                            </tr>	
 					    {% endfor %}
 				    </tbody>
 				{% include 'ComSemApp/tablesorter_footer.html'%}
@@ -58,5 +60,12 @@
 	
 </div>
 </form> 
+
+<script>
+	$(".show-icon").click(function() {
+		$(this).toggleClass("fa-plus");
+		$(this).toggleClass("fa-minus");
+	});
+</script>
 
 {% endblock %}
