@@ -1,0 +1,171 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<!-- page head -->
+<form method="POST" id="editWorksheetForm">
+	{% csrf_token %}
+
+	<!-- Page-Title -->
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="page-title-box">
+
+				<h4 class="page-title">
+					{% if not worksheet.id %}New Worksheet{% else %}Edit Worksheet{{ worksheet.number }}{% endif %}
+                    <small>{{ course }}</small>
+				</h4>
+                <a href="{% url 'teacher:course' course.id %}" name='' class='btn btn-sm btn-success float-right release_worksheet_button'>Release Edits</a>
+				
+
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+
+	{% include 'ComSemApp/recording_alerts.html' %}
+
+	<div class="row">
+
+		<div class="col-12">
+
+			<div class="card-box">
+				<h4 class="m-t-0 header-title"><b>Worksheet Info</b></h4>
+
+				<div class="row">
+
+					<div class="col-12 col-md-6">
+
+
+						<label for="topic">Topic: {{ worksheet.topic|default_if_none:'' }}</label>
+
+					</div>
+
+					<div class="col-12 col-md-6">
+							<label for="display_original">My Students Will See</label>
+
+							<div class="checkbox checkbox-primary">
+								<input type="checkbox" id="display_original" name="display_original" {% if worksheet.display_original %}checked='checked'{% endif %}>
+								<label for="display_original">
+									Original Expression
+								</label>
+							</div>
+	
+							<div class="checkbox checkbox-primary">
+	
+								<input type="checkbox" id="display_reformulation_text" name="display_reformulation_text" {% if worksheet.display_reformulation_text %}checked='checked'{% endif %}>
+								<label for="display_reformulation_text">
+									Text Reformulation
+								</label>
+							</div>
+	
+							<!-- not yet implemented -->
+							<div class="checkbox checkbox-primary">
+	
+								<input type="checkbox" id="display_reformulation_audio" name="display_reformulation_audio" {% if worksheet.display_reformulation_audio %}checked='checked'{% endif %}>
+								<label for="display_reformulation_audio">
+									Audio Reformulation
+								</label>
+							</div>
+	
+							<div class="checkbox checkbox-primary">
+	
+								<div class="radio radio-primary form-check-inline">
+									<input type="radio" value="true" name="display_all_expressions" {% if worksheet.display_all_expressions %}checked='checked'{% endif %} id="allExpressionsYes">
+									<label for="allExpressionsYes"> All Expressions </label>
+								</div>
+	
+								<div class="radio radio-primary form-check-inline">
+									<input type="radio" value="false" name="display_all_expressions" {% if not worksheet.display_all_expressions %}checked='checked'{% endif %} id="allExpressionsNo">
+									<label for="allExpressionsNo"> Expressions Assigned to Them and All Do Expressions</label>
+								</div>
+	
+							</div>
+	
+							<script>
+								// handle worksheet preferences checkboxes - hide the expression inputs if unchecked
+								$(function(){
+									$('#display_reformulation_text, #display_reformulation_audio').on('change', function(){
+										var checked = $(this).prop('checked');
+										var id = $(this).attr('id');
+										if(checked){
+											$('#' + id + 'Row').show();
+										} else {
+											$('#' + id + 'Row').hide();
+										}
+									})
+								});
+	
+							</script>
+
+					</div>
+
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+</form>
+
+
+<div class="row">
+
+	<!-- expressions -->
+	<div class="col-sm-12 col-md-6">
+		<div class="card-box">
+
+			<div class="row">
+				<div class="col-md-6">
+					<h4 class="m-t-0 header-title"><b>Expressions</b></h4>
+				</div>
+			</div>
+
+			<div id="expressionsTableContainer" style="max-height:600px;overflow-y:scroll"></div>
+
+		</div>
+	</div>
+
+	<!-- expression editor -->
+	<div class="col-sm-12 col-md-6">
+		<div class="card-box">
+			<h4 class="m-t-0 header-title"><b>Expression Editor</b></h4>
+
+			<div id="expression_form"></div>
+
+		</div>
+	</div>
+
+</div>
+
+<script>
+	expression_create_url = "{% url 'teacher:expression_create' course_id=course.id worksheet_id=worksheet.id %}";
+	expression_list_url = "{% url 'teacher:expressions' course_id=course.id worksheet_id=worksheet.id %}";
+	encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
+</script>
+
+<script src="{% static 'ComSemApp/js/edit_worksheet.js' %}" v="3"></script>
+
+<script>
+
+		$(".release_worksheet_button").on("click", function(e){
+			release_worksheet_url = "{% url 'teacher:worksheet_release' course_id=course.id worksheet_id=worksheet.id %}"
+			cs_confirm("Release Worksheet", "Are you sure you'd like to release this worksheet?\n", 'warning', "Yes, release it", release_worksheet);
+		});
+
+		var release_worksheet_url;
+		function release_worksheet(){
+			$.ajax({
+				type: "POST",
+				url: release_worksheet_url,
+			});
+		}
+
+
+
+	</script>
+{% endblock %}

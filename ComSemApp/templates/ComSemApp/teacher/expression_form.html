@@ -20,6 +20,8 @@
             </h4>
 
         </div>
+        <!--if worksheet is not released do not add the all do checkbox to the expression form - T.M.-->
+        {% if not worksheet.released %}
         <div class="col-4">
             <div class="checkbox checkbox-primary">
                 <input type="checkbox" id="all_do" name="all_do" {% if object.all_do %}checked{% endif %}>
@@ -28,6 +30,7 @@
                 </label>
             </div>
         </div>
+        {% endif %}
     </div>
 
     <div class="row">
@@ -99,7 +102,11 @@
     <div class="row">
         <div class="col-12 text-center">
             <div class="btn-group" role="group">
+                {% if not worksheet.released %}
                 <button type="button" id="saveExpression"  name="SaveExpression" class="btn btn-outline-success">Save Expression</button>
+                {% else %}
+                <button type="button" id="saveExpression"  name="SaveExpression" class="btn btn-outline-success">Save Edits</button>
+                {% endif %}
             </div>
         </div>
     </div>
