@@ -15,30 +15,29 @@
 			</div>
 			<input hidden type="text" id="save_attempt_url" value="{% url 'student:save_reviewsheet' course.id%}">
 			<div class="card ">
-				<div class='rs-container card-body start'>
+				<div class='rs-container card-body start'> <!--card for initial instructions-->
 					<h1 class="card-title">INSTRUCTIONS</h1>
 					<p class="card-text">For each expression you selected, you will be shown either a correct or incorrect formulation. You will have <strong>ten seconds</strong> per expression to provide your answer. If you do not know the answer to a question, select 'skip' to move to the next. Your results will be saved after every answer, so you may end the review at any point.</p>
 				</div>
 
-				<div class='rs-container card-body show-expression'>
+				<div class='rs-container card-body show-expression'> <!-- card for showing expression -->
 					<h1 class="card-title text-center" id='timedisplay' class="card-title">00.0</h1>
 					<h1 id='expression-term'  class="card-title text-center">Expression</h1>
 				</div>
 
-				<div class='rs-container card-body continue'>
+				<div class='rs-container card-body continue'> <!-- card that asks students if they would like to quit mid review sheet or continue-->
 					<h1 class="card-title">Would you like to continue?</h1>
 					<p class="card-text">Your results up to this point are automatically saved. Select <strong>EXIT</strong> to quit the review and see your results, or <strong>CONTINUE</strong> to review the next term.</p>
 				</div>
 
-				<div class='card-body end'>
+				<div class='card-body end'> <!--card for displaying results-->
 					<h1 class="card-title">Review complete!</h1>
-                    <table id="results_table" class="table table-hover">
+                    <table id="results_table" class="table table-hover"> <!--table for displaying results of a worksheet-->
                         <thead>
                             <tr>
-                                <th>Original Incorrect Expression</th> <!--displays original expression-->
-                                <th>Expression Shown</th> <!--display term that students saw in question-->
+                                <th>Expression</th> <!--display term that students saw in question-->
                                 <th>Right Answer</th> <!--displays if term is gramatically correct-->
-                                <th>Was Your Answer Correct</th> <!--displays if the student's answer was correct-->
+                                <th>Your Answer</th> <!--displays if the student's answer was correct-->
                             
                             </tr>
                         </thead>
@@ -86,10 +85,10 @@
 	let course = "{{ course.id| safe }}";
 	let current_container_id = 'start';
 	let start_time;
-	let timer;
-	let current_time = 0;
+	let timer; 
+	let current_time = 0; // variable for current time
 	let current_question; // variable for number of questions a user gets through
-	let increments = [];
+	let increments = [];  
 	get_bar_increments();
 
 	function get_bar_increments() {
@@ -120,7 +119,7 @@
 		});
 		columns.height(tallestcolumn);
 	}
-
+    // this function starts a time interval
 	function start_time_interval () {
 		set_start_time();
 		timer = setInterval(update_timer, 100);
@@ -175,20 +174,21 @@
     
     // This function displays student results
     function display_results() {
-       
+        // check is displayed if a student answered correctly and x is displayed if they are incorrect or skipped
         for(i = 0; i < current_question; i++){ // displays original incorrect expression and term
             if (review_data[i]['correct'] === true){ // checks if student is correct
                 // displays correct is student is correct
-                $("#result_body").append(`<tr><td>${review_data[i]['original']}</td><td>${review_data[i]['term']}</td><td>${review_data[i]['answer']}</td><td>Correct</td></tr>`);
+                $("#result_body").append(`<tr><td>${review_data[i]['term']}</td><td>${review_data[i]['answer']}</td><td><i class=" fa fa-check-circle"></i></td></tr>`); 
             } else {
                 // displays incorrect if student is incorrect
-                $("#result_body").append(`<tr><td>${review_data[i]['original']}</td><td>${review_data[i]['term']}</td><td>${review_data[i]['answer']}</td><td>Incorrect</td></tr>`);
+                $("#result_body").append(`<tr><td>${review_data[i]['term']}</td><td>${review_data[i]['answer']}</td><td><i class="fa fa-times-circle"></i></td></tr>`);
             }
         
         }
 
     }
 
+    // function for if the maximum time has elapsed
 	function post_max_time_exceeded(event) {
 		clearInterval(timer);
 		let attemptFormData = new FormData();
@@ -247,6 +247,7 @@
 		}); 
 	}
 
+    // this function allows users to continue or quit a worksheet after each question
 	function process_response() {
 		$('.progress-bar').attr('aria-valuenow', increments[i]).css('width', increments[i] + "%");
 		if (increments[i] === 100) {
@@ -256,8 +257,8 @@
 		i++;
 		if (i >= review_data.length) {
 			// If there are no more expressions, go to end
-			change_container("end");
-            display_results();
+			change_container("end"); // displays results page
+            display_results(); // populates results page
 		} else {
 			// Allow user to go on
 			change_container("continue");

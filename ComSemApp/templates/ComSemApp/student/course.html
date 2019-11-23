@@ -6,9 +6,11 @@
 
 	<div class="col-md-12 col-lg-3">
 		{% include 'ComSemApp/course_details.html' %}
-		<div class="card-box">
-			<a href="{% url 'student:generate_reviewsheet' course.id  %}" class="btn btn-lg btn-success w-100">Review Past Expressions</a>
+		{% if worksheets %} <!-- prevents students from practicing if there are no worksheets -->
+		<div class="card-box"> <!--Button that takes students to a review sheet generator-->
+			<a href="{% url 'student:generate_reviewsheet' course.id  %}" class="btn btn-lg btn-success w-100">Practice previous expressions</a>
 		</div>
+		{% endif %}
 	</div>
 
 	<div class="col-md-12 col-lg-9">
@@ -17,7 +19,7 @@
 
 			<h4 class="header-title m-t-0 m-b-20">Worksheets</h4>
 
-			{% if worksheets %}
+			{% if worksheets %} <!--if worksheets are in the table-->
 			<table class="table table-hover tablesorter">
 				<thead>
 					<tr>
@@ -28,7 +30,7 @@
 						<th></th>
 					</tr>
 				</thead>
-				<tbody>
+				<tbody> <!--displays current worksheets-->
 					{% for worksheet in worksheets %}
 
 					<tr id="worksheet-{{ worksheet.id }}">
@@ -46,7 +48,7 @@
 				</tbody>
 				{% include 'ComSemApp/tablesorter_footer.html'%}
 			</table>
-			{% else %}
+			{% else %} <!-- message displays if no worksheets are available-->
 				<p>No worksheets available</p>
 			{% endif %}
 		</div>
