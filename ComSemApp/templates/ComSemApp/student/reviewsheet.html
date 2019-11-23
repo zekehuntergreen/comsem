@@ -35,8 +35,11 @@
                     <table id="results_table" class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Expression</th>
-                                <th>Results</th>
+                                <th>Original Incorrect Expression</th> <!--displays original expression-->
+                                <th>Expression Shown</th> <!--display term that students saw in question-->
+                                <th>Right Answer</th> <!--displays if term is gramatically correct-->
+                                <th>Was Your Answer Correct</th> <!--displays if the student's answer was correct-->
+                            
                             </tr>
                         </thead>
                         <tbody id="result_body">
@@ -163,6 +166,7 @@
 	function start_review() {
 		i = 0;
 		// Show the first expression
+		console.log(review_data);
 		$("#expression-term").html(review_data[i]['term']);
 		change_container("show-expression");
 		start_time_interval();
@@ -170,13 +174,14 @@
     
     // This function displays student results
     function display_results() {
-        for(i = 0; i < current_question; i++){
+       
+        for(i = 0; i < current_question; i++){ // displays original incorrect expression and term
             if (review_data[i]['correct'] === true){ // checks if student is correct
                 // displays correct is student is correct
-                $("#result_body").append(`<tr><td>${review_data[i]['original']}</td><td>Correct</td></tr>`);
+                $("#result_body").append(`<tr><td>${review_data[i]['original']}</td><td>${review_data[i]['term']}</td><td>${review_data[i]['answer']}</td><td>Correct</td></tr>`);
             } else {
                 // displays incorrect if student is incorrect
-                $("#result_body").append(`<tr><td>${review_data[i]['original']}</td><td>Incorrect</td></tr>`);
+                $("#result_body").append(`<tr><td>${review_data[i]['original']}</td><td>${review_data[i]['term']}</td><td>${review_data[i]['answer']}</td><td>Incorrect</td></tr>`);
             }
         
         }
@@ -191,7 +196,7 @@
 		attemptFormData.append( 'student', student );
 		attemptFormData.append( 'expression', review_data[i]['id']);
 		attemptFormData.append( 'response_time', MAX_TIME );
-
+        
 		$.ajax({
 			type: "POST",
 			url: $("#save_attempt_url").val(),
@@ -215,7 +220,7 @@
 		let attemptFormData = new FormData();
 		let is_correct = (response_value == review_data[i]['answer']);
 		review_data[i]['correct'] = is_correct;
-
+        
 
 		attemptFormData.append( 'correct', is_correct );
 		attemptFormData.append( 'student', student );
