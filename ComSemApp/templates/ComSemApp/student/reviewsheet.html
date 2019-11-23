@@ -83,6 +83,7 @@
 	let review_data = {{ review_data | safe }};
 	shuffle(review_data);
 	let student = "{{ student_id | safe }}";
+	let course = "{{ course.id| safe }}";
 	let current_container_id = 'start';
 	let start_time;
 	let timer;
@@ -196,6 +197,7 @@
 		attemptFormData.append( 'student', student );
 		attemptFormData.append( 'expression', review_data[i]['id']);
 		attemptFormData.append( 'response_time', MAX_TIME );
+		attemptFormData.append( 'course', course);
         
 		$.ajax({
 			type: "POST",
@@ -226,6 +228,7 @@
 		attemptFormData.append( 'student', student );
 		attemptFormData.append( 'expression', review_data[i]['id']);
 		attemptFormData.append( 'response_time', time );
+		attemptFormData.append( 'course', course);
 
 		$.ajax({
 			type: "POST",

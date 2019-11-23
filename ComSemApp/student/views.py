@@ -245,7 +245,17 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
     def get_object(self):
         return self.course
 
-    def get_expressions(self, worksheet):
+    def get_attempts(self, expression):
+
+        submissions = StudentSubmission.objects.filter(student=self.student, worksheet=expression.worksheet)
+
+        attempts = []
+        for submission in submissions:
+            attempts.append(get_object_or_404(StudentAttempt, student_submission=submission, expression=expression))
+        print(attempts)
+        return attempts
+
+    def get_expressions(self, worksheet, reactions):
         """ Get a list of expressions in a given worksheet
         
         Arguments:
@@ -254,11 +264,60 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
         Returns:
             list -- a list of expressions contained in worksheet
         """
+        import statistics
+
+        course_avg = statistics.mean(reactions)
+        course_std = statistics.stdev(reactions)
+
         expression_filters = Q(worksheet=worksheet)
         if not worksheet.display_all_expressions:
             expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
 
-        return Expression.objects.filter(expression_filters)
+        expression_qset = Expression.objects.filter(expression_filters)
+
+        for e in expression_qset:
+            print(e.expression)
+            e.last_submission = StudentSubmission.objects.filter(student=self.student, worksheet=e.worksheet).latest('date').date.date()
+            e.attempts = self.get_attempts(e)
+            
+            # AF - gets the number of attempts it took for the student to get the expression correct
+            attempt_factor = len([x for x in e.attempts if not x.correct]) + 1
+
+            # AF - gets the reviews
+            past_correct_review = ReviewAttempt.objects.filter(expression=e.id, correct=True)
+            past_incorrect_count = len(ReviewAttempt.objects.filter(expression=e.id, correct=False))
+            
+            # AF - get the number of days since reviewed or submitted an attempt
+            if past_correct_review:
+                time_since_view = (datetime.date.today() - past_correct_review.latest("date").date.date()).days
+                print("last review:",past_correct_review.latest("date").date.date())
+                expression_z = (statistics.mean([x.response_time for x in past_correct_review]) - course_avg)/course_std
+            else:
+                time_since_view = (datetime.date.today() - e.last_submission).days
+                print("last attempt:",e.last_submission)
+                expression_z = 0
+
+            # AF - placeholder algorithm: 1/(number of initial attempts + days since last seen  + 
+            #      expression reaction time vs course reaction time z score + number of incorrect review attempts - number of correct review attempts)
+            e.practice_score = int(100/(max(0, attempt_factor + time_since_view + expression_z + past_incorrect_count - len(past_correct_review)) + 1))
+            print("attempt factor:", attempt_factor)
+            print("days since last review:", time_since_view)
+            print("reaction zscore:", expression_z)
+            print("past incorrect review count:", past_incorrect_count)
+            print("past correct review count:", len(past_correct_review))
+            print(e.practice_score)
+
+            if e.practice_score <= 33:
+                e.bar_style = "bg-danger"
+                e.border_style = "border-danger"
+            elif e.practice_score <= 66:
+                e.bar_style = "bg-warning"
+                e.border_style = "border-warning"
+            else:
+                e.bar_style = "bg-primary"
+                e.border_style = "border-success"
+        
+        return expression_qset
 
     def get_context_data(self, **kwargs):
         """Get worksheet data for a student in a given course
@@ -268,22 +327,25 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
         """
         context = super(ReviewsheetGeneratorView, self).get_context_data(**kwargs)
         worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
+        course_response_times = [x.response_time for x in ReviewAttempt.objects.filter(student=self.student, course=self.course, correct=True)]
 
         # TODO should this logic be in the worksheet model ?
         for worksheet in worksheets:
             last_submission = worksheet.last_submission(self.student)
             worksheet.last_submission_status = last_submission.status if last_submission else "none"
-            worksheet.expression_list = self.get_expressions(worksheet)
+            if worksheet.last_submission_status == 'complete':
+                worksheet.expression_list = self.get_expressions(worksheet, course_response_times)
 
         # Only allow students to review completed worksheets (must have an answer)
         context['worksheets'] =  [x for x in worksheets if x.last_submission_status == 'complete']
+
         return context
 
 class ReviewsheetView(StudentCourseViewMixin, DetailView):
     # SHOULD THIS BE INHERETING ^^? 
     # Only using it since I want to keep non-central page elements the same (sidebar/header/footer)
     # Also I don't really know how to use Mixins properly -  AF
-    # Also: is 
+
     context_object_name = 'reviewsheet'
     template_name = "ComSemApp/student/reviewsheet.html"
 
@@ -292,6 +354,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
 
     def get_attempts(self, expression):
         submissions = StudentSubmission.objects.filter(student=self.student, worksheet=expression.worksheet)
+
         attempts = []
         for submission in submissions:
             attempts.append(get_object_or_404(StudentAttempt, student_submission=submission, expression=expression))
@@ -303,34 +366,67 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
         Returns:
             dict -- context for creating generate_reviewsheet.html
         """
+        
         context = super(ReviewsheetView, self).get_context_data(**kwargs)
+        
+        
         expression_ids = dict(self.request.GET)['choice']
         raw_expressions = []
         for expression_id in expression_ids:
             expression_object = get_object_or_404(Expression, pk=expression_id)
+            expression_object.last_submission = StudentSubmission.objects.filter(student=self.student, worksheet=expression_object.worksheet).latest('date').date.date()
             expression_object.attempts = self.get_attempts(expression_object)
             raw_expressions.append(expression_object)
 
-        context['review_data'] = json.dumps(self.make_review_questions(raw_expressions))
+        course_response_times = [x.response_time for x in ReviewAttempt.objects.filter(student=self.student, course=self.course, correct=True)]
+        
+        context['review_data'] = json.dumps(self.make_review_questions(raw_expressions, course_response_times))
         context['student_id'] = self.student.id
 
         return context
 
-    def make_review_questions(self, raw_expressions):
+    def make_review_questions(self, raw_expressions, reactions):
         import random
+        import statistics as stats
+
+        course_avg = stats.mean(reactions)
+        course_std = stats.stdev(reactions)
+
         reviewdata = []
         for e in raw_expressions:
+            print(e.expression)
             # list all correct and incorrect responses (original expression + attempt)
             a_correct = [x.reformulation_text for x in e.attempts if x.correct]
             a_incorrect = [x.reformulation_text for x in e.attempts if not x.correct] + [e.expression]
+            
+            # AF - gets the number of attempts it took for the student to get the expression correct
+            attempt_factor = len(a_incorrect) - 1
+
+            # AF - gets the reviews
+            past_correct_review = ReviewAttempt.objects.filter(expression=e.id, correct=True)
+            past_incorrect_count = len(ReviewAttempt.objects.filter(expression=e.id, correct=False))
+            
+            # AF - get the number of days since reviewed or submitted an attempt
+            if past_correct_review:
+                time_since_view = (datetime.date.today() - past_correct_review.latest("date").date.date()).days
+                expression_z = (stats.mean([x.response_time for x in past_correct_review]) - course_avg)/course_std
+            else:
+                time_since_view = (datetime.date.today() - e.last_submission).days
+                expression_z = 0
+
+            # AF - placeholder algorithm: 1/(number of initial attempts + days since last seen  + 
+            #      expression reaction time vs course reaction time z score + number of incorrect review attempts - number of correct review attempts)
+            practice_score = int(100/(max(0, attempt_factor + time_since_view + expression_z + past_incorrect_count - len(past_correct_review)) + 1))
+            print(practice_score)
 
             correct_item = a_correct[random.randint(0, len(a_correct) - 1)]
             incorrect_item = a_incorrect[random.randint(0, len(a_incorrect) - 1)]
             
             selected = [(correct_item, 'correct'), (incorrect_item, 'incorrect')][random.randint(0, 1)]
 
-            expression_data = {'id':e.id, 'original': e.expression, 'term': selected[0], 'answer': selected[1]}
+            expression_data = {'id':e.id, 'original': e.expression, 'term': selected[0], 'answer': selected[1], 'score':practice_score}
             reviewdata.append(expression_data)
+
         return reviewdata
 
 class ReviewsheetGetView(ReviewsheetView):
@@ -345,7 +441,7 @@ class ReviewsheetGetView(ReviewsheetView):
 class ReviewAttemptCreateView(ReviewsheetView, CreateView):
     model = ReviewAttempt
     template_name = "ComSemApp/student/reviewsheet.html"
-    fields = ["expression", "student", "correct", "response_time"]
+    fields = ["expression", "course", "student", "correct", "response_time"]
 
     def get_context_data(self, **kwargs):
         context = super(ReviewAttemptCreateView, self).get_context_data(**kwargs)

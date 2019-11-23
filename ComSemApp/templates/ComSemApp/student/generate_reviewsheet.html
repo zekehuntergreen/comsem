@@ -7,17 +7,23 @@
 <form action="{% url 'student:create_reviewsheet' course.id  %}" method="GET">
 <div class="row">
 	
-	<div class="col-md-12 col-lg-3">
+	<div class="col-md-12 col-xl-3">
 		{% include 'ComSemApp/course_details.html' %}
 		<div class="card-box">
 			<input class="btn btn-lg btn-success w-100" type="submit" value='Start Review'>
 		</div>
 	</div>
 
-	<div class="col-md-12 col-lg-9">
-		
+	<div class="col-md-12 col-xl-9">
 		<div class="card-box">
-			
+			{% comment %} <div class="container">
+				<div class="row">
+					<div class="col-12 col-sm-3 bg-success">col</div>
+					<div class="col-12 col-md-3 bg-primary">col</div>
+					<div class="col-12 col-lg-3 bg-warning">col</div>
+					<div class="col-12 col-xl-3 bg-danger">col</div>
+				</div>
+			</div> {% endcomment %}
 			<h4 class="header-title m-t-0 m-b-20">Reviewsheet Generator</h4>
             <p> 
                 Please select at least one expression before generating a worksheet. Expressions can be shown by clicking on the plus icon next to the name of each completed worksheet.
@@ -25,29 +31,45 @@
 			{% if worksheets %}
 			<table class="table table-hover tablesorter reviewsheet-table">
 				<thead>
-				    
 					<tr>
-						<th class="w-30">Date</th>
-						<th>Worksheet</th>
+						<th class="w-25">Date</th>
+						<th class="w-75">Worksheet</th>
 					</tr>
 				</thead>
 				<tbody>
-				
 			            {% for worksheet in worksheets %}
                             <!--this is what expands and collapses the worksheet vhl-->
   	                        <tr>
-					            <td><em>{{ worksheet.date }}</em></td>
-						        <td><div class="d-flex justify-content-between">
-									<h5 class="w-90"><strong>{{ worksheet.topic }}</strong></h5>
-									<i data-toggle="collapse" data-target='#worksheet{{ worksheet.id}}' class="clickable fa fa-plus show-icon"></i>
-								</div>
-								
-								<div id='worksheet{{ worksheet.id }}' class="collapse">
-									{% for e in worksheet.expression_list %}
-										<input type='checkbox' name='choice' id='expression{{ e.id }}' value='{{ e.id }}'>
-										<label for='expression{{ e.id }}'>{{ e.expression }}</label><br>
-									{% endfor %}
-								</div>
+					            <td><div class="pt-2 align-middle"><em>{{ worksheet.date }}</em></div></td>
+						        <td>
+									<div class="container">
+									
+										<div data-toggle="collapse" data-target='#worksheet{{ worksheet.id}}' class="row align-middle pt-2 clickable show-icon">
+											<h4 class="col-10"><strong>{{ worksheet.topic }}</strong></h4>
+											<div  class="text-center col-2">
+												<i  class="icon fa fa-plus"></i>
+											</div>
+										</div>
+										<div id='worksheet{{ worksheet.id }}' class="collapse show">
+											{% for e in worksheet.expression_list %}
+												<hr class="w-100"> 
+												<div class="row d-inline-flex w-100 expression-display">
+													<div class="col-9 col-xl-10 p2 row" for='expression{{ e.id }}'>
+														<div class="col-2 text-right">
+															<input type='checkbox' name='choice' id='expression{{ e.id }}' value='{{ e.id }}'>
+														</div>
+														<label class="col-10" for='expression{{ e.id }}'>{{ e.expression }}</label>
+													</div>
+													<div class="col-3 col-xl-2 pt-2 d-inline-block">
+														<div class="progress border {{ e.border_style }}">
+															<div class="progress-bar {{ e.bar_style }}" role="progressbar" style="width: {{ e.practice_score }}%" aria-valuenow="{{ e.practice_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+														</div>
+													</div>
+												</div>
+												
+											{% endfor %}
+										</div>
+									</div>
 								</td>
                             </tr>
 					    {% endfor %}
@@ -66,9 +88,10 @@
 
 <script>
 	$(".show-icon").click(function() {
-		$(this).toggleClass("fa-plus");
-		$(this).toggleClass("fa-minus");
+		$(".icon", this).toggleClass("fa-plus");
+		$(".icon", this).toggleClass("fa-minus");
 	});
+
 </script>
 
 {% endblock %}
