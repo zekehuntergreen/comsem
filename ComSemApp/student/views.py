@@ -380,54 +380,27 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
             expression_object.last_submission = StudentSubmission.objects.filter(student=self.student, worksheet=expression_object.worksheet).latest('date').date.date()
             expression_object.attempts = self.get_attempts(expression_object)
             raw_expressions.append(expression_object)
-
-        course_response_times = [x.response_time for x in ReviewAttempt.objects.filter(student=self.student, course=self.course, correct=True)]
         
-        context['review_data'] = json.dumps(self.make_review_questions(raw_expressions, course_response_times))
+        context['review_data'] = json.dumps(self.make_review_questions(raw_expressions))
         context['student_id'] = self.student.id
 
         return context
 
-    def make_review_questions(self, raw_expressions, reactions):
+    def make_review_questions(self, raw_expressions):
         import random
-        import statistics as stats
-
-        course_avg = stats.mean(reactions)
-        course_std = stats.stdev(reactions)
 
         reviewdata = []
         for e in raw_expressions:
-            print(e.expression)
             # list all correct and incorrect responses (original expression + attempt)
             a_correct = [x.reformulation_text for x in e.attempts if x.correct]
             a_incorrect = [x.reformulation_text for x in e.attempts if not x.correct] + [e.expression]
-            
-            # AF - gets the number of attempts it took for the student to get the expression correct
-            attempt_factor = len(a_incorrect) - 1
-
-            # AF - gets the reviews
-            past_correct_review = ReviewAttempt.objects.filter(expression=e.id, correct=True)
-            past_incorrect_count = len(ReviewAttempt.objects.filter(expression=e.id, correct=False))
-            
-            # AF - get the number of days since reviewed or submitted an attempt
-            if past_correct_review:
-                time_since_view = (datetime.date.today() - past_correct_review.latest("date").date.date()).days
-                expression_z = (stats.mean([x.response_time for x in past_correct_review]) - course_avg)/course_std
-            else:
-                time_since_view = (datetime.date.today() - e.last_submission).days
-                expression_z = 0
-
-            # AF - placeholder algorithm: 1/(number of initial attempts + days since last seen  + 
-            #      expression reaction time vs course reaction time z score + number of incorrect review attempts - number of correct review attempts)
-            practice_score = int(100/(max(0, attempt_factor + time_since_view + expression_z + past_incorrect_count - len(past_correct_review)) + 1))
-            print(practice_score)
 
             correct_item = a_correct[random.randint(0, len(a_correct) - 1)]
             incorrect_item = a_incorrect[random.randint(0, len(a_incorrect) - 1)]
             
             selected = [(correct_item, 'correct'), (incorrect_item, 'incorrect')][random.randint(0, 1)]
 
-            expression_data = {'id':e.id, 'original': e.expression, 'term': selected[0], 'answer': selected[1], 'score':practice_score}
+            expression_data = {'id':e.id, 'original': e.expression, 'term': selected[0], 'answer': selected[1]}
             reviewdata.append(expression_data)
 
         return reviewdata
