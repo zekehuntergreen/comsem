@@ -265,9 +265,12 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
             list -- a list of expressions contained in worksheet
         """
         import statistics
-
-        course_avg = statistics.mean(reactions)
-        course_std = statistics.stdev(reactions)
+        if len(reactions) > 1:
+            course_avg = statistics.mean(reactions) 
+            course_std = statistics.stdev(reactions)
+        else:
+            course_avg = 0
+            course_std = 1
 
         expression_filters = Q(worksheet=worksheet)
         if not worksheet.display_all_expressions:
@@ -282,7 +285,7 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
             
             # AF - gets the number of attempts it took for the student to get the expression correct
             attempt_factor = len([x for x in e.attempts if not x.correct]) + 1
-
+            
             # AF - gets the reviews
             past_correct_review = ReviewAttempt.objects.filter(expression=e.id, correct=True)
             past_incorrect_count = len(ReviewAttempt.objects.filter(expression=e.id, correct=False))
