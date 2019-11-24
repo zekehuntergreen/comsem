@@ -7,14 +7,18 @@
 <div class="row">
 
 	<div class="col-md-12 col-lg-9">
-
+		<!-- invisible until setup is complete -->
 		<div class="card-box invisible">
 			<h4 class="header-title m-t-0 m-b-20">Reviewsheet</h4>
+
+			<!-- bar displaying student's progress throughout the reviewsheet -->
 			<div class="progress"  style="height: 20px;">
   				<div class="progress-bar bg-success" role="progressbar" style="height: 20px; width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
 			</div>
 			<input hidden type="text" id="save_attempt_url" value="{% url 'student:save_reviewsheet' course.id%}">
 			<div class="card ">
+				<!-- rs-container: only shown one at a time, allowing user to navigate start > show-expression > continue > ... > end -->
+
 				<div class='rs-container card-body start'> <!--card for initial instructions-->
 					<h1 class="card-title">INSTRUCTIONS</h1>
 					<p class="card-text">For each expression you selected, you will be shown either a correct or incorrect formulation. You will have <strong>ten seconds</strong> per expression to provide your answer. If you do not know the answer to a question, select 'skip' to move to the next. Your results will be saved after every answer, so you may end the review at any point.</p>
@@ -42,14 +46,15 @@
                             </tr>
                         </thead>
                         <tbody id="result_body">
-                            
-
+                            <!-- Results populated here -->
                         </tbody>
 
                     </table>
                     
 				</div>
 				<div class="btn-group d-flex card-footer" role="group" aria-label="...">
+
+					<!-- button display cycles same as rs-containers -->
 					<button class='btn btn-success btn-lg w-100 start' id='begin-review'>BEGIN REVIEW</button>
 
 					<button class="btn btn-primary btn-lg review-response w-100 show-expression" value="correct">CORRECT</button>
@@ -67,7 +72,8 @@
 </div>
 
 <script>
-	// I need to move all of this into the static file - AF
+	// AF - Sets up the screen height according to the tallest rs-container
+	// 		Should be replaced with a more dynamic option!
 	$('.rs-container').css("height", "auto");
 	setEqualHeight($('.rs-container'));
 
@@ -77,10 +83,11 @@
 
 	$('.card-box').removeClass("invisible");
 
+	// AF - set to 10.0 for production!
 	const MAX_TIME = 1000.0;
 
 	let review_data = {{ review_data | safe }};
-	shuffle(review_data);
+
 	let student = "{{ student_id | safe }}";
 	let course = "{{ course.id| safe }}";
 	let current_container_id = 'start';
@@ -89,8 +96,15 @@
 	let current_time = 0; // variable for current time
 	let current_question; // variable for number of questions a user gets through
 	let increments = [];  
+
+	// AF - shuffle the expressions
+	review_data.sort(() => Math.random() - 0.5);
+
+
 	get_bar_increments();
 
+	// AF - Get a list of points (0-100) that the progress bar will stop at as the student
+	//		completes the review
 	function get_bar_increments() {
 		let inc = 100 / review_data.length;
 		let prog = 0;
@@ -101,14 +115,18 @@
 		increments.push(100);
 	}
 
+	// AF - Hide all elements having classname
 	function hide(classname) {
 		$('.' + classname).addClass("d-none");
 	}
 
+	// AF - Show all elements having classname
 	function show(classname) {
 		$('.' + classname).removeClass("d-none");
 	}
 
+	// AF - Use to set rs-containers to constant height, 
+	//		replace this when we can
 	function setEqualHeight(columns) {
 		var tallestcolumn = 0;
 		columns.each(function() {
@@ -119,14 +137,16 @@
 		});
 		columns.height(tallestcolumn);
 	}
-    // this function starts a time interval
+   
+	// AF - initializes timer to the current time
 	function start_time_interval () {
-		set_start_time();
+		start_time = getnow();
 		timer = setInterval(update_timer, 100);
 	}
 	
+	// AF - update timer with time since start
 	function update_timer() {
-		update_current_time();
+		current_time = (getnow() - start_time) / 1000;
 		$("#timedisplay").html(pad2(current_time.toFixed(1)));
 		if (current_time >= MAX_TIME) {
 			clearInterval(timer);
@@ -137,32 +157,25 @@
 		} 
 	}
 
+	// AF - pad out number to format as 00.0
 	function pad2(number) {
-     return (number < 10 ? '0' : '') + number;
+    	return (number < 10 ? '0' : '') + number;
    	}
 
-	function set_start_time() {
-		start_time = getnow();
-	}
-
+	// AF - return the current time
 	function getnow() {
 		return new Date().getTime();
 	}
 
-	function update_current_time() {
-		current_time = (getnow() - start_time) / 1000;
-	}	
-
-	function shuffle(array) {
-  		array.sort(() => Math.random() - 0.5);
-	}
-
+	// AF - switch current_container_id to new_container_id and
+	//		hide/show rs-containers accordingly
 	function change_container(new_container_id) {
 		hide(current_container_id);
 		show(new_container_id);
 		current_container_id = new_container_id;
 	};
 
+	// AF - Initialize the reviewsheet
 	function start_review() {
 		i = 0;
 		// Show the first expression
@@ -172,7 +185,7 @@
 		start_time_interval();
 	}
     
-    // This function displays student results
+    // VL - This function displays student results
     function display_results() {
         // check is displayed if a student answered correctly and x is displayed if they are incorrect or skipped
         for(i = 0; i < current_question; i++){ // displays original incorrect expression and term
@@ -188,7 +201,7 @@
 
     }
 
-    // function for if the maximum time has elapsed
+    // AF - post a ReviewAttempt if the student has exceeded MAX_TIME
 	function post_max_time_exceeded(event) {
 		clearInterval(timer);
 		let attemptFormData = new FormData();
@@ -216,6 +229,7 @@
 		}); 
 	}
 
+	// AF - post a ReviewAttempt with response_value at time
 	function post_response(event, time, response_value) {
 		console.log(time);
 		event.preventDefault();
@@ -223,7 +237,6 @@
 		let is_correct = (response_value == review_data[i]['answer']);
 		review_data[i]['correct'] = is_correct;
         
-
 		attemptFormData.append( 'correct', is_correct );
 		attemptFormData.append( 'student', student );
 		attemptFormData.append( 'expression', review_data[i]['id']);
@@ -237,7 +250,7 @@
 			processData: false,
 			contentType: false,
 			success: function(response){
-				// REMOVE THIS FOR REAL VERSION
+				// REMOVE THIS FOR REAL VERSION!!
 				cs_notification('success', "(debug) Review Attempt Recorded");
 				
 			},
@@ -247,7 +260,8 @@
 		}); 
 	}
 
-    // this function allows users to continue or quit a worksheet after each question
+	// AF - enter continue and allow user to go to next expression or choose to end early,
+	//		OR end automatically if no expressions left
 	function process_response() {
 		$('.progress-bar').attr('aria-valuenow', increments[i]).css('width', increments[i] + "%");
 		if (increments[i] === 100) {
@@ -267,12 +281,13 @@
 
 	$( document ).ready(function() {
         console.log( "document loaded" );
-	
+		// initializing review
 		$("#begin-review").click( function() {
 		    current_question = 1;
 			start_review();
 		});
 
+		// get responses and stop the timer
 		$(".review-response").mousedown( function(e) {
 			clearInterval(timer);
 			post_response(e, current_time, this.value);
@@ -281,6 +296,7 @@
 			process_response();
 		});
 
+		// direct to appropriate rs-container based on continue response
 		$(".continue-response").click( function() {
 			if (this.value === "quit") {
 			    display_results();
@@ -295,7 +311,5 @@
 
     });
 	
-	
-
 </script>
 {% endblock %}
