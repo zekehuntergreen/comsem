@@ -398,7 +398,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
             correct_item = a_correct[random.randint(0, len(a_correct) - 1)]
             incorrect_item = a_incorrect[random.randint(0, len(a_incorrect) - 1)]
             
-            selected = [(correct_item, 'correct'), (incorrect_item, 'incorrect')][random.randint(0, 1)]
+            selected = [(correct_item, 'right'), (incorrect_item, 'wrong')][random.randint(0, 1)]
 
             expression_data = {'id':e.id, 'original': e.expression, 'term': selected[0], 'answer': selected[1]}
             reviewdata.append(expression_data)

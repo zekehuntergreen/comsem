@@ -4,13 +4,13 @@
 
 {% block content %}
 
-<form action="{% url 'student:create_reviewsheet' course.id  %}" method="GET">
+<form action="{% url 'student:create_reviewsheet' course.id  %}" method="GET" id="generator-form">
 <div class="row">
 	
 	<div class="col-md-12 col-xl-3">
 		{% include 'ComSemApp/course_details.html' %}
 		<div class="card-box">
-			<input class="btn btn-lg btn-success w-100" type="submit" value='Start Review'>
+			<input class="btn btn-lg btn-disabled w-100" type="submit" value='Start Review' id='start-review' disabled>
 		</div>
 	</div>
 
@@ -39,10 +39,10 @@
 										<div data-toggle="collapse" data-target='#worksheet{{ worksheet.id}}' class="row align-middle pt-2 clickable show-icon">
 											<h4 class="col-10"><strong>{{ worksheet.topic }}</strong></h4>
 											<div  class="text-center col-2">
-												<i  class="icon fa fa-plus"></i>
+												<i  class="icon fa fa-plus"></i> 
 											</div>
 										</div>
-										<div id='worksheet{{ worksheet.id }}' class="collapse show">
+										<div id='worksheet{{ worksheet.id }}' class="worksheet-content collapse">
 											{% for e in worksheet.expression_list %}
 												<hr class="w-100"> 
 												<div class="row d-inline-flex w-100 expression-display">
@@ -79,9 +79,43 @@
 </form> 
 
 <script>
+	// AF - track number of expressions selected 
+	let count = 0;
+	let expressions_selected = false;
+
+	// AF - expand the first worksheet to show checkboxes
+	$( document ).ready(function() {
+       $(".icon",".show-icon").first().toggleClass("fa-plus");
+	   $(".icon",".show-icon").first().toggleClass("fa-minus");
+	   $(".worksheet-content").first().addClass("show");
+    });
+
+	// AF - toggle +/- as the user clicks
 	$(".show-icon").click(function() {
 		$(".icon", this).toggleClass("fa-plus");
 		$(".icon", this).toggleClass("fa-minus");
+	});
+
+	// AF - enable/disable start button whenever a checkbox value
+	//		is changed.
+	$("input[type=checkbox]").change(function() {
+		if (this.checked) {
+			count++;
+		} else {
+			count--;
+		}
+
+		if (count > 0 && !expressions_selected) {
+			$("#start-review").removeClass("btn-disabled");
+			$("#start-review").attr("disabled", false);
+			$("#start-review").addClass("btn-primary");
+			expressions_selected = true;
+		} else if (count == 0 && expressions_selected) {
+			$("#start-review").addClass("btn-disabled");
+			$("#start-review").attr("disabled", true);
+			$("#start-review").removeClass("btn-primary");
+			expressions_selected = false;
+		}
 	});
 
 </script>

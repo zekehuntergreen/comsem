@@ -6,7 +6,7 @@
 
 <div class="row">
 
-	<div class="col-md-12 col-lg-9">
+	<div class="col-12">
 		<!-- invisible until setup is complete -->
 		<div class="card-box invisible">
 			<h4 class="header-title m-t-0 m-b-20">Reviewsheet</h4>
@@ -39,10 +39,9 @@
                     <table id="results_table" class="table table-hover"> <!--table for displaying results of a worksheet-->
                         <thead>
                             <tr>
-                                <th>Expression</th> <!--display term that students saw in question-->
-                                <th>Right Answer</th> <!--displays if term is gramatically correct-->
-                                <th>Your Answer</th> <!--displays if the student's answer was correct-->
-                            
+                                <th>Expression Shown</th> <!--display term that students saw in question-->
+                                <th>Correct Response</th> <!--displays if term is gramatically correct-->
+                                <th>Result</th> <!--displays if the student's answer was correct-->
                             </tr>
                         </thead>
                         <tbody id="result_body">
@@ -57,9 +56,9 @@
 					<!-- button display cycles same as rs-containers -->
 					<button class='btn btn-success btn-lg w-100 start' id='begin-review'>BEGIN REVIEW</button>
 
-					<button class="btn btn-primary btn-lg review-response w-100 show-expression" value="correct">CORRECT</button>
+					<button class="btn btn-primary btn-lg review-response w-100 show-expression" value="right">RIGHT</button>
 					<button class="btn btn-warning btn-lg review-response w-100 show-expression" value="skipped">SKIP</button>
-					<button class="btn btn-danger btn-lg review-response w-100 show-expression" value="incorrect">INCORRECT</button>
+					<button class="btn btn-danger btn-lg review-response w-100 show-expression" value="wrong">WRONG</button>
 					
 					<button class="btn btn-danger btn-lg continue-response w-100 continue" value="quit">EXIT REVIEW</button>
 					<button class="btn btn-primary btn-lg continue-response w-100 continue" value="next-expression">CONTINUE REVIEW</button>
@@ -191,14 +190,12 @@
         for(i = 0; i < current_question; i++){ // displays original incorrect expression and term
             if (review_data[i]['correct'] === true){ // checks if student is correct
                 // displays correct is student is correct
-                $("#result_body").append(`<tr><td>${review_data[i]['term']}</td><td>${review_data[i]['answer']}</td><td><i class=" fa fa-check-circle"></i></td></tr>`); 
+                $("#result_body").append(`<tr><td class="align-center">${review_data[i]['term']}</td><td>${review_data[i]['answer'].toUpperCase()}</td><td><i class=" fa fa-check-circle btn-outline-primary"></i></td></tr>`); 
             } else {
                 // displays incorrect if student is incorrect
-                $("#result_body").append(`<tr><td>${review_data[i]['term']}</td><td>${review_data[i]['answer']}</td><td><i class="fa fa-times-circle"></i></td></tr>`);
+                $("#result_body").append(`<tr><td class="align-center">${review_data[i]['term']}</td><td>${review_data[i]['answer'].toUpperCase()}</td><td><i class="fa fa-times-circle btn-outline-danger"></i></td></tr>`);
             }
-        
         }
-
     }
 
     // AF - post a ReviewAttempt if the student has exceeded MAX_TIME
@@ -251,8 +248,7 @@
 			contentType: false,
 			success: function(response){
 				// REMOVE THIS FOR REAL VERSION!!
-				cs_notification('success', "(debug) Review Attempt Recorded");
-				
+				cs_notification('success', "Review Attempt Saved!");
 			},
 			error: function(jqXHR, textStatus, errorThrown){
 				cs_ajax_error(jqXHR, textStatus, errorThrown);
@@ -308,7 +304,6 @@
 				start_time_interval();
 			}
 		}); 
-
     });
 	
 </script>
