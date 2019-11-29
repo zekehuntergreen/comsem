@@ -58,7 +58,7 @@
 												</div>
 											</div>
 											<div class="col-4 col-sm-3 col-lg-2">
-												<button type='button' class="btn btn-primary btn-sm w-100 addall" value="add" id='choices{{ worksheet.id }}'><i  class="icon fa fa-check"></i></button>
+												<button type='button' class="btn btn-primary btn-sm w-100 addall" value="add" id='choices{{ worksheet.id }}'><i  class="fa fa-check"></i></button>
 											</div>
 											
 										</div>	
@@ -148,13 +148,13 @@
 				if (this.value === "add") {
 					checkval = true;
 					this.value = "remove";
-					$(this).html('<i  class="icon fa fa-times"></i>');
+					$(this).html('<i  class="fa fa-times"></i>');
 					$(this).removeClass('btn-primary');
 					$(this).addClass('btn-danger');
 				}  else {
 					checkval = false;
 					this.value = "add";
-					$(this).html('<i  class="icon fa fa-check"></i>');
+					$(this).html('<i  class="fa fa-check"></i>');
 					$(this).addClass('btn-primary');
 					$(this).removeClass('btn-danger');
 				}
@@ -184,14 +184,14 @@
 				// If any expressions are selected, change button to remove
 				if (wcount > 0) {
 					worksheets[j].value = "remove";
-					$(worksheets[j]).html('<i  class="icon fa fa-times"></i>');
+					$(worksheets[j]).html('<i  class="fa fa-times"></i>');
 					$(worksheets[j]).removeClass('btn-primary');
 					$(worksheets[j]).addClass('btn-danger');
 					console.log("here")
 					// If no expressions are selected, change button to add.
 				} else {
 					worksheets[j].value = "add";
-					$(worksheets[j]).html('<i  class="icon fa fa-check"></i>');
+					$(worksheets[j]).html('<i  class="fa fa-check"></i>');
 					$(worksheets[j]).addClass('btn-primary');
 					$(worksheets[j]).removeClass('btn-danger');
 				}

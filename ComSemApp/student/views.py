@@ -251,8 +251,12 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
 
         attempts = []
         for submission in submissions:
-            attempts.append(get_object_or_404(StudentAttempt, student_submission=submission, expression=expression))
-        print(attempts)
+            try:
+                sattempt = StudentAttempt.objects.get(student_submission=submission, expression=expression)
+                attempts.append(sattempt)
+            except:
+                pass
+
         return attempts
 
     def get_expressions(self, worksheet, reactions):
@@ -279,7 +283,6 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
         expression_qset = Expression.objects.filter(expression_filters)
 
         for e in expression_qset:
-            print(e.expression)
             e.last_submission = StudentSubmission.objects.filter(student=self.student, worksheet=e.worksheet).latest('date').date.date()
             e.attempts = self.get_attempts(e)
             
@@ -293,22 +296,14 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
             # AF - get the number of days since reviewed or submitted an attempt
             if past_correct_review:
                 time_since_view = (datetime.date.today() - past_correct_review.latest("date").date.date()).days
-                print("last review:",past_correct_review.latest("date").date.date())
                 expression_z = (statistics.mean([x.response_time for x in past_correct_review]) - course_avg)/course_std
             else:
                 time_since_view = (datetime.date.today() - e.last_submission).days
-                print("last attempt:",e.last_submission)
                 expression_z = 0
 
             # AF - placeholder algorithm: 1/(number of initial attempts + days since last seen  + 
             #      expression reaction time vs course reaction time z score + number of incorrect review attempts - number of correct review attempts)
             e.practice_score = int(100/(max(0, attempt_factor + time_since_view + expression_z + past_incorrect_count - len(past_correct_review)) + 1))
-            print("attempt factor:", attempt_factor)
-            print("days since last review:", time_since_view)
-            print("reaction zscore:", expression_z)
-            print("past incorrect review count:", past_incorrect_count)
-            print("past correct review count:", len(past_correct_review))
-            print(e.practice_score)
 
             if e.practice_score <= 33:
                 e.bar_style = "bg-danger"
@@ -360,7 +355,12 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
 
         attempts = []
         for submission in submissions:
-            attempts.append(get_object_or_404(StudentAttempt, student_submission=submission, expression=expression))
+            try:
+                sattempt = StudentAttempt.objects.get(student_submission=submission, expression=expression)
+                attempts.append(sattempt)
+            except:
+                pass
+
         return attempts
 
     def get_context_data(self, **kwargs):
