@@ -26,12 +26,14 @@
 				<p>Click on a topic to see expressions from each worksheet. Please select <strong>at least one</strong> expression that you would like to practice. The buttons to the right of each of 
 					each topic will select or remove all expressions for a worksheet.
 					Colored bars to the right of each expression indicate how familiar you are with an expression:</p>
-					<ul> 
-						<li><strong style="color: #ef5350">RED</strong>: low familiarity (practice <span style="text-decoration: underline;">highly</span> recommended)</li>
-						<li><strong style="color: #ffaa00">ORANGE</strong>: moderate familiarity (practice recommended)</li>
-						<li><strong style="color: #00b19d">GREEN</strong>: high familiarity</li>
-					</ul>
-					{% if worksheets %}
+				<ul> 
+					<li><strong style="color: #ef5350">RED</strong>: low familiarity (practice <span style="text-decoration: underline;">highly</span> recommended)</li>
+					<li><strong style="color: #ffaa00">ORANGE</strong>: moderate familiarity (practice recommended)</li>
+					<li><strong style="color: #00b19d">GREEN</strong>: high familiarity</li>
+				</ul>
+				<p>Hover over a bar to see your actual score. The more you practice an expression, the higher your score will get!</p>
+				<p>Expressions with a <i  class="icon fa fa-volume-up"></i> icon next to them will include audio practice in the sheet.</p>
+				{% if worksheets %}
 					<table class="table table-hover tablesorter reviewsheet-table header-fixed">
 						<thead>
 							<tr>
@@ -76,7 +78,12 @@
 													</div>
 													
 													<div class="col-10 col-md-11 py-0">
-														<label class="m-0" for='expression{{ e.id }}'>{{ e.expression }}</label>
+														<label class="m-0" for='expression{{ e.id }}'>
+															{% if e.has_audio%}
+																<i  class="icon fa fa-volume-up"></i>
+															{% endif %}
+															{{ e.expression }}
+														</label>
 													</div>
 													
 												</div>
@@ -99,9 +106,9 @@
 						</tbody>
 						{% include 'ComSemApp/tablesorter_footer.html'%}
 					</table>
-					{% else %}
+				{% else %}
 					<p>No worksheets available</p>
-					{% endif %}
+				{% endif %}
 				</div>
 				
 			</div>

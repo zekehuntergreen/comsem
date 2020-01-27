@@ -1,4 +1,5 @@
 import json
+import os
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -283,8 +284,14 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
         expression_qset = Expression.objects.filter(expression_filters)
 
         for e in expression_qset:
+            print(e)
             e.last_submission = StudentSubmission.objects.filter(student=self.student, worksheet=e.worksheet).latest('date').date.date()
             e.attempts = self.get_attempts(e)
+            e.has_audio = False
+            
+            for a in e.attempts:
+                if a.audio:
+                    e.has_audio = True
             
             # AF - gets the number of attempts it took for the student to get the expression correct
             attempt_factor = len([x for x in e.attempts if not x.correct]) + 1
@@ -372,7 +379,6 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
         
         context = super(ReviewsheetView, self).get_context_data(**kwargs)
         
-        
         expression_ids = dict(self.request.GET)['choice']
         raw_expressions = []
         for expression_id in expression_ids:
@@ -381,29 +387,60 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
             expression_object.attempts = self.get_attempts(expression_object)
             raw_expressions.append(expression_object)
         
-        context['review_data'] = json.dumps(self.make_review_questions(raw_expressions))
+        review_data, audio_paths = self.make_review_questions(raw_expressions)
+        context['review_data'] = json.dumps(review_data)
+        context['audio_paths'] = audio_paths
         context['student_id'] = self.student.id
 
         return context
 
     def make_review_questions(self, raw_expressions):
+        """ AF - Get expression data: expression ID, original expression, randomly selected term and answer 
+        
+        Arguments:
+            raw_expressions {[list]} -- [A list of ]
+        
+        Returns:
+            [type] -- [description]
+        """
         import random
-
+        
         reviewdata = []
+        audio_paths = []
+        
+        
         for e in raw_expressions:
+            
             # list all correct and incorrect responses (original expression + attempt)
-            a_correct = [x.reformulation_text for x in e.attempts if x.correct]
-            a_incorrect = [x.reformulation_text for x in e.attempts if not x.correct] + [e.expression]
+            a_correct = [x for x in e.attempts if x.correct]
+            a_incorrect = [x for x in e.attempts if not x.correct] + [e]
 
             correct_item = a_correct[random.randint(0, len(a_correct) - 1)]
             incorrect_item = a_incorrect[random.randint(0, len(a_incorrect) - 1)]
             
             selected = [(correct_item, 'right'), (incorrect_item, 'wrong')][random.randint(0, 1)]
+            expression_data = {'id':e.id, 'original': e.expression, 'answer': selected[1]}
+            # Choose between audio and text
+            if e == selected[0]:
+                print("EXPRESSION")
+                expression_data['term'] = selected[0].expression
+                expression_data['type'] = 'TEXT'
+            # elif selected[0].audio and random.randint(0, 1) == 1:
+            elif selected[0].audio:
+                print("AUDIO")
+                expression_data['term'] = selected[0].reformulation_text
+                a_id = "%d_audio" % e.id
+                expression_data['audio_id'] = a_id
+                audio_paths.append((a_id, selected[0].audio))
+                expression_data['type'] = 'AUDIO'
+            else:
+                print("ATTEMPT")
+                expression_data['term'] = selected[0].reformulation_text
+                expression_data['type'] = 'TEXT'
 
-            expression_data = {'id':e.id, 'original': e.expression, 'term': selected[0], 'answer': selected[1]}
             reviewdata.append(expression_data)
-
-        return reviewdata
+            
+        return reviewdata, audio_paths
 
 class ReviewsheetGetView(ReviewsheetView):
     def get(self, request, *args, **kwargs):

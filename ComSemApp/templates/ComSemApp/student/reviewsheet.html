@@ -4,12 +4,15 @@
 
 {% block content %}
 
+{% for a_id, a_path in audio_paths%}
+	<audio src="{{ a_path.url }}" id='{{a_id}}'></audio>
+{% endfor %}
+
 <div class="row h-100">
 	<div class="col-12 h-100">
 		<!-- invisible until setup is complete -->
 		<div class="card-box invisible">
 			<h4 class="header-title m-t-0 m-b-20">Reviewsheet</h4>
-
 			<!-- bar displaying student's progress throughout the reviewsheet -->
 			<div class="progress"  style="height: 20px;">
   				<div class="progress-bar bg-success" role="progressbar" style="height: 20px; width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
@@ -22,9 +25,13 @@
 					<p class="card-text">For each expression you selected, you will be shown either a <strong>RIGHT</strong> or <strong>WRONG</strong> formulation. You will have <strong>10 SECONDS</strong> per expression to provide your answer. If you do not know the answer to a question, select <strong>SKIP</strong> to move to the next. Your results will be saved after every answer, so you may end the review at any point.</p>
 				</div>
 
-				<div class='sec ec card-body show-expression'> <!-- card for showing expression -->
+				<div class='sec ec card-body bg-primary play-audio text-center' id='audio-container'> <!-- card for playing audio -->
+					<h1><i  class="icon fa fa-volume-up fa-3x text-white"></i></h1>	
+				</div>
+
+				<div class='sec ec card-body show-expression' id='expression-container'> <!-- card for showing expression -->
 					<h1 class="card-title text-center" id='timedisplay' class="card-title">00.0</h1>
-					<h1 id='expression-term'  class="card-title text-center">Expression</h1>
+					<h1 id='expression-term'  class="card-title text-center"></h1>
 				</div>
 
 				<div class='sec ec card-body continue'> <!-- card that asks students if they would like to quit mid review sheet or continue-->
@@ -61,7 +68,7 @@
 					<button class="btn btn-danger btn-lg sec ec continue-response w-100 continue" value="quit">EXIT REVIEW</button>
 					<button class="btn btn-primary btn-lg sec ec continue-response w-100 continue" value="next-expression">CONTINUE REVIEW</button>
 
-					<a class="btn btn-success btn-lg w-100 end d-none" id='exit-review' href="{% url 'student:course' course.id%}">RETURN TO COURSE</a>
+					<a class="btn btn-success btn-lg w-100 end d-none" id='exit-review' href="{% url 'student:course' course.id %}">RETURN TO COURSE</a>
 				</div>
 			</div>
 		</div>
@@ -70,18 +77,21 @@
 
 <script>
 	// AF - set to 10.0 for production!
-	const MAX_TIME = 10.0;
+	//const MAX_TIME = 10.0;
+	const MAX_TIME = 100.0;
 
 	let review_data = {{ review_data | safe }};
 
 	let student = "{{ student_id | safe }}";
 	let course = "{{ course.id| safe }}";
+
 	let current_container_id = 'start';
 	let start_time;
 	let timer; 
 	let current_time = 0; // variable for current time
 	let current_question; // variable for number of questions a user gets through
 	let increments = [];  
+
 
 	// AF - Sets up the screen height according to the tallest sec
 	// 		Should be replaced with a more dynamic option!
@@ -177,10 +187,31 @@
 	function start_review() {
 		i = 0;
 		// Show the first expression
-		console.log(review_data);
-		$("#expression-term").html(review_data[i]['term']);
-		change_container("show-expression");
-		start_time_interval();
+		set_display(review_data[i]);
+	}
+
+	function set_display(exp_ob) {
+		if (exp_ob['type'] === 'AUDIO') {
+			change_container("play-audio");
+			var audio_ob = document.getElementById(exp_ob['audio_id']);
+			// Time delay to play audio
+			setTimeout(function() {
+				audio_ob.play();
+				// begin interval 0.5s after audio is done playing.
+				setTimeout(function() {
+					$("#expression-term").html("<i  class='icon fa fa-volume-up fa-lg'></i>");
+					change_container("show-expression");
+					start_time_interval();
+				}, (audio_ob.duration * 1000) + 500);
+			}, 500);
+			
+
+		} else {
+			console.log("NO AUDIO")
+			$("#expression-term").html(exp_ob['term']);
+			change_container("show-expression");
+			start_time_interval();
+		}
 	}
     
     // VL - This function displays student results
@@ -287,6 +318,8 @@
 			return event.returnValue;
 		});
 
+		//change_container("play-audio");
+
 		// initializing review
 		$("#begin-review").click( function() {
 		    current_question = 1;
@@ -309,15 +342,12 @@
 				change_container("end");
 				$(window).off("beforeunload");
 			} else if (this.value === "next-expression") {
-				$("#expression-term").html(review_data[i]['term']);
+				set_display(review_data[i])
 				current_question += 1;
-				change_container("show-expression");
-				start_time_interval();
 			}
 		}); 
 
 		$(window).resize(function() {
-			console.log('resizing with');
 			if (current_container_id == 'start') {
 				setEqualHeight('sec');
 			} else if (current_container_id != 'end') {
