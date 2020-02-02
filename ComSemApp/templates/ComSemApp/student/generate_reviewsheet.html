@@ -32,20 +32,18 @@
 					<li><strong style="color: #00b19d">GREEN</strong>: high familiarity</li>
 				</ul>
 				<p>Hover over a bar to see your actual score. The more you practice an expression, the higher your score will get!</p>
-				<p>Expressions with a <i  class="icon fa fa-volume-up"></i> icon next to them will include audio practice in the sheet.</p>
+				<p>Expressions with a <i class="icon fa fa-volume-up"></i> icon next to them will include audio practice in the sheet.</p>
 				{% if worksheets %}
 					<table class="table table-hover tablesorter reviewsheet-table header-fixed">
 						<thead>
 							<tr>
 								<th class="w-75">Worksheet</th>
-								<th class="w-25">Date Assigned</th>
 							</tr>
 						</thead>
 						<tbody>
 							{% for worksheet in worksheets %}
 							<!--this is what expands and collapses the worksheet vhl-->
 							<tr>
-								
 								<td>
 									<div class="container">
 										
@@ -53,16 +51,17 @@
 											
 											<div data-toggle="collapse" data-target='#worksheet{{ worksheet.id}}' class="col-8 col-sm-9 col-lg-10 row clickable show-icon d-flex align-items-center">
 												<div  class="col-2 col-md-1 py-0 text-right">
-													<i  class="icon fa fa-plus"></i> 
+													<i  class="icon fa fa-plus"></i>
 												</div>
 												<div class="col-10 col-md-11 py-0">
-													<h4 class="pt-2"><strong>{{ worksheet.topic }}</strong></h4>
+													<div class="col-12"><h4 class="pt-2"><strong>{{ worksheet.topic }}</strong></h4></div>
+													<div class="col-12 pt-2"><em>{{ worksheet.date.date }}</em></div>
 												</div>
 											</div>
 											<div class="col-4 col-sm-3 col-lg-2">
-												<button type='button' class="btn btn-primary btn-sm w-100 addall" value="add" id='choices{{ worksheet.id }}'><i  class="fa fa-check"></i></button>
+												<button type='button' class="btn btn-primary btn-sm w-100 addall" data-toggle="tooltip" data-placement="top" title="Add All" value="add" id='choices{{ worksheet.id }}'><i  class="fa fa-check"></i></button>
 											</div>
-											
+				
 										</div>	
 										
 										<div id='worksheet{{ worksheet.id }}' class="py-2 worksheet-content collapse" value=0>
@@ -100,7 +99,7 @@
 										
 									</div>
 								</td>
-								<td><div class="pt-2 w-100"><em>{{ worksheet.date.date }}</em></div></td>
+		
 							</tr>
 							{% endfor %}
 						</tbody>
@@ -149,7 +148,7 @@
 			setTimeout(setFilterNames, 100);
 			
 			$(".addall").click( function() {
-				
+				$(this).tooltip('hide')
 				let expressions = $("." + this.id);
 				let checkval;
 				if (this.value === "add") {
@@ -158,12 +157,14 @@
 					$(this).html('<i  class="fa fa-times"></i>');
 					$(this).removeClass('btn-primary');
 					$(this).addClass('btn-danger');
+					$(this).attr("data-original-title", "Remove All");
 				}  else {
 					checkval = false;
 					this.value = "add";
 					$(this).html('<i  class="fa fa-check"></i>');
 					$(this).addClass('btn-primary');
 					$(this).removeClass('btn-danger');
+					$(this).attr("data-original-title", "Add All");
 				}
 				
 				for (let j = 0; j < expressions.length; j++) {
@@ -194,13 +195,15 @@
 					$(worksheets[j]).html('<i  class="fa fa-times"></i>');
 					$(worksheets[j]).removeClass('btn-primary');
 					$(worksheets[j]).addClass('btn-danger');
-					console.log("here")
+					$(worksheets[j]).attr("data-original-title", "Remove All");
+
 					// If no expressions are selected, change button to add.
 				} else {
 					worksheets[j].value = "add";
 					$(worksheets[j]).html('<i  class="fa fa-check"></i>');
 					$(worksheets[j]).addClass('btn-primary');
 					$(worksheets[j]).removeClass('btn-danger');
+					$(worksheets[j]).attr("data-original-title", "Add All");
 				}
 			}
 			
