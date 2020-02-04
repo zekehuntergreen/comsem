@@ -19,13 +19,14 @@
 <!-- search criteria -->
 <form class="csSpacer" method="POST" id="SubmitSearchForm">
 <input type="hidden" name="searchCriteria" id="searchCriteria" />
+
 <div class="row">
 	<!-- left most column -->
 	<div class="col-lg-4">
 
 		<!-- Space for user to enter the first word, mandatory -->
 		<div class="form-group">
-			<br>
+			<!-- removed <br> tag - DF -->
 			<label for="word1">Enter a Word</label>
 			<input type="text" class="form-control input-sm" id="word1" name="word1" placeholder="Type a word to search">
 		</div>
@@ -36,7 +37,8 @@
 				</h4>
 			</div>
 			<div class="col-sm-12 col-md-6">
-				<a href= "javascript:window.open('http://ucrel.lancs.ac.uk/claws7tags.html','width=700,height=650')" target="_blank" class="text-muted m-b-10 font-13 float-right">About CLAWS7 Tagset</a>
+				<!-- changed URL to penn treebank and the link text - DF -->
+				<a href= "javascript:window.open('https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html','width=700,height=650')" target="_blank" class="text-muted m-b-10 font-13 float-right">About Penn Treebank Tagset</a>
 			</div>
 		</div>
 
@@ -66,6 +68,13 @@
 			</div>
         </div>
 	</div>
+	
+	<!-- Toggle to switch between word and tag - DF
+		<label>
+			<input type="checkbox"></input>
+			<span class="slider round"></span>
+			<p>HERE</p>
+		</label> -->
 
 	<div class="col-lg-3">
 		<!-- user specifies offset for the corpus search -->
@@ -88,10 +97,10 @@
 
 		<div id="offset-info" style="display: none">
 			<p>
-				<b>Offset</b> determines how many spaces away from each other two words
-			can be in a sentence. For example, if you want to see "the" followed
-			by "king," you would set an offset of 1 (or -1 if "king" is entered for
-			the first word).
+				<!-- reworded offset - DF -->
+				<b>Offset</b> determines how many spaces away the two selected words can be from each other.
+				For example, if you want to see "the dog" you would type "the" into the first search box and "dog"
+				into the second search box, with an offset of 1.
 			</p>
 			<p>
 				The offset indicates "up to and including," so for an offset value of 4,
@@ -117,6 +126,7 @@
 
 
 </div>
+
 </form>
 
 <!-- results -->
@@ -212,9 +222,38 @@
 	sends the word to the backend to retrieve tags for it, and populates a
 	field with check boxes for each retruned POS tag.
 	*/
+
 	function getWordPosTags(wordEntryField, resultField) {
 		var val = $(wordEntryField).val();
-		var type = 'word';
+		
+		// DF switch between TAG and WORD search based on input
+		if (val == "CC" || val == "CD" ||
+		val == "DT" || val == "EX" ||
+		val == "FW" || val == "IN" ||
+		val == "JJ" || val == "JJR" ||
+		val == "JJS" || val == "LS" ||
+		val == "MD" || val == "NN" ||
+		val == "NNS" || val == "NNP" ||
+		val == "NNPS" || val == "PDT" ||
+		val == "POS" || val == "PRP" ||
+		val == "PRP$" || val == "RB" ||
+		val == "RBR" || val == "RBS" ||
+		val == "RP" || val == "SYM" ||
+		val == "TO" || val == "UH" ||
+		val == "VB" || val == "VBD" ||
+		val == "VBG" || val == "VBN" ||
+		val == "VBP" || val == "VBZ" ||
+		val == "WDT" || val == "WP" ||
+		val == "WP$" || val == "WRB" ){
+			var type = 'tag';
+		}else{
+			var type = 'word';
+		}
+		//Attempted... Regex to detect PennTreebank tags and search using tag search instead of word search
+		// if (val == /\b(CC|CD|DT|EX|FW|IN|JJ|JJR|JJS|LS|MD|NN|NNS|NNP|NNPS|PDT|POS|PRP|PRP\$|RB|RBR|RBS|RP|SYM|TO|UH|VB|VBD|VBG|VBN|VBP|VBZ|WDT|WP|WP\$|WRB)\b/i){
+		// 	var type = 'tag';
+		// }
+
 		if (val == "") { // user enters nothing, clear field and return
 			$(resultField).empty();
 			if (resultField == "#DynamicField1") {
@@ -304,11 +343,64 @@
 				sequential_search = '0';
 			}
 
-			if ($("#word2").val() !== "") {
-				collectData($("#word2").val());
-			} else {
-				collectTags();
+			//DF
+			//searches corpus, finds words or tags depending on what is in box 2
+			if ($("#word2").val() !== ""){
+				if ($("#word2").val() == "CC"   || $("#word2").val() == "CD" ||
+					$("#word2").val() == "DT"   || $("#word2").val() == "EX" ||
+					$("#word2").val() == "FW"   || $("#word2").val() == "IN" ||
+					$("#word2").val() == "JJ"   || $("#word2").val() == "JJR" ||
+					$("#word2").val() == "JJS"  || $("#word2").val() == "LS" ||
+					$("#word2").val() == "MD"   || $("#word2").val() == "NN" ||
+					$("#word2").val() == "NNS"  || $("#word2").val() == "NNP" ||
+					$("#word2").val() == "NNPS" || $("#word2").val() == "PDT" ||
+					$("#word2").val() == "POS"  || $("#word2").val() == "PRP" ||
+					$("#word2").val() == "PRP$" || $("#word2").val() == "RB" ||
+					$("#word2").val() == "RBR"  || $("#word2").val() == "RBS" ||
+					$("#word2").val() == "RP"   || $("#word2").val() == "SYM" ||
+					$("#word2").val() == "TO"   || $("#word2").val() == "UH" ||
+					$("#word2").val() == "VB"   || $("#word2").val() == "VBD" ||
+					$("#word2").val() == "VBG"  || $("#word2").val() == "VBN" ||
+					$("#word2").val() == "VBP"  || $("#word2").val() == "VBZ" ||
+					$("#word2").val() == "WDT"  || $("#word2").val() == "WP" ||
+					$("#word2").val() == "WP$"  || $("#word2").val() == "WRB" )
+				{
+					collectTags();
+				}else{
+					collectData($("#word2").val());
+				}
 			}
+
+			//DOESNT GRAB ANYTHING
+			// // Regex for tags to see if a word or a tag should be searched - DF
+			// const RegexTags = RegExp('CC'|'CD'|'DT'|'EX'|'FW'|'IN'|'JJ'|'JJR'|'JJS'|'LS'|'MD'|'NN'|'NNS'|'NNP'|'NNPS'|'PDT'|'POS'|'PRP'|'PRP'|'RB'|'RBR'|'RBS'|'RP'|'SYM'|'TO'|'UH'|'VB'|'VBD'|'VBG'|'VBN'|'VBP'|'VBZ'|'WDT'|'WP'|'WP'|'WRB');
+			// if ($("#word2").val() !== "") {
+			// 	alert("here");
+			// 	if (RegexTags.test($("#word2").val())){
+			// 		alert("tags");
+			// 		collectTags();
+			// 	}else{
+			// 		alert("words");
+			// 		collectData($("#word2").val());
+			// 	}
+			// }
+
+
+			// GRABS WORD + WORD
+			// if ($("#word2").val() !== ""){
+			// 	collectData($("#word2").val());
+			// }
+
+
+			//GRABS WORD + TAGS
+			// if ($("#word2").val() !== "") {
+			// 	collectTags();
+			// }
+			// // 	collectData($("#word2").val());
+			// // } else {
+			// // 	collectTags();
+			// // }
+
 
 			var data = {
 				'searchCriteria': $('#searchCriteria').val(),
