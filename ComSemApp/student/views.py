@@ -380,6 +380,8 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
         context = super(ReviewsheetView, self).get_context_data(**kwargs)
         
         expression_ids = dict(self.request.GET)['choice']
+        use_audio = dict(self.request.GET)['audio-choice'][0] == '1'
+        print("AUDIO - ", use_audio)
         raw_expressions = []
         for expression_id in expression_ids:
             expression_object = get_object_or_404(Expression, pk=expression_id)
@@ -445,6 +447,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
 class ReviewsheetGetView(ReviewsheetView):
     def get(self, request, *args, **kwargs):
         # student can't create a submission if there is an updatable one.
+        print(request.GET)
         if 'choice' in request.GET:
             return super().get(self, request, *args, **kwargs)
         else:

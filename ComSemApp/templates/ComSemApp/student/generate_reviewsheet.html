@@ -6,243 +6,278 @@
 
 <form action="{% url 'student:create_reviewsheet' course.id  %}" method="GET" id="generator-form">
 	<div class="row">
-		
+
 		<div class="col-md-12 col-xl-3">
 			<div class="card-box w-100">
-				<a class="btn btn-danger btn-lg w-100" id='exit-review' href="{% url 'student:course' course.id%}"><i class="fa fa-backward"></i> Back to Course</a>
+				<a class="btn btn-danger btn-lg w-100" id='exit-review' href="{% url 'student:course' course.id%}"><i
+						class="fa fa-backward"></i> Back to Course</a>
 			</div>
 			{% include 'ComSemApp/course_details.html' %}
 			<div class="card-box w-100">
-				
-				<span class="d-inline-block w-100" tabindex="0" data-toggle="tooltip" title="You must select expressions to review before beginning the review!" id="span-review">
-					<button class="btn btn-lg btn-disabled w-100" style="pointer-events: none;" type="submit" id='start-review' disabled><i class="fa fa-play"></i> Start Practice</button>	
+
+				<span class="d-inline-block w-100" tabindex="0" data-toggle="tooltip"
+					title="You must select expressions to review before beginning the review!" id="span-review">
+					<button class="btn btn-lg btn-disabled w-100" style="pointer-events: none;" type="submit"
+						id='start-review' disabled><i class="fa fa-play"></i> Start Practice</button>
 				</span>
 			</div>
 		</div>
-		
+
 		<div class="col-md-12 col-xl-9">
 			<div class="card-box">
 				<h4 class="header-title m-t-0 m-b-20">Reviewsheet Generator</h4>
-				<p>Click on a topic to see expressions from each worksheet. Please select <strong>at least one</strong> expression that you would like to practice. The buttons to the right of each of 
+				<p>Click on a topic to see expressions from each worksheet. Please select <strong>at least one</strong>
+					expression that you would like to practice. The buttons to the right of each of
 					each topic will select or remove all expressions for a worksheet.
 					Colored bars to the right of each expression indicate how familiar you are with an expression:</p>
-				<ul> 
-					<li><strong style="color: #ef5350">RED</strong>: low familiarity (practice <span style="text-decoration: underline;">highly</span> recommended)</li>
+				<ul>
+					<li><strong style="color: #ef5350">RED</strong>: low familiarity (practice <span
+							style="text-decoration: underline;">highly</span> recommended)</li>
 					<li><strong style="color: #ffaa00">ORANGE</strong>: moderate familiarity (practice recommended)</li>
 					<li><strong style="color: #00b19d">GREEN</strong>: high familiarity</li>
 				</ul>
-				<p>Hover over a bar to see your actual score. The more you practice an expression, the higher your score will get!</p>
-				<p>Expressions with a <i class="icon fa fa-volume-up"></i> icon next to them will include audio practice in the sheet.</p>
-				{% if worksheets %}
-					<table class="table table-hover tablesorter reviewsheet-table header-fixed">
-						<thead>
-							<tr>
-								<th class="w-75">Worksheet</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% for worksheet in worksheets %}
-							<!--this is what expands and collapses the worksheet vhl-->
-							<tr>
-								<td>
-									<div class="container">
-										
-										<div class="row">
-											
-											<div data-toggle="collapse" data-target='#worksheet{{ worksheet.id}}' class="col-8 col-sm-9 col-lg-10 row clickable show-icon d-flex align-items-center">
-												<div  class="col-2 col-md-1 py-0 text-right">
-													<i  class="icon fa fa-plus"></i>
-												</div>
-												<div class="col-10 col-md-11 py-0">
-													<div class="col-12"><h4 class="pt-2"><strong>{{ worksheet.topic }}</strong></h4></div>
-													<div class="col-12 pt-2"><em>{{ worksheet.date.date }}</em></div>
-												</div>
-											</div>
-											<div class="col-4 col-sm-3 col-lg-2">
-												<button type='button' class="btn btn-primary btn-sm w-100 addall" data-toggle="tooltip" data-placement="top" title="Add All" value="add" id='choices{{ worksheet.id }}'><i  class="fa fa-check"></i></button>
-											</div>
-				
-										</div>	
-										
-										<div id='worksheet{{ worksheet.id }}' class="py-2 worksheet-content collapse" value=0>
-											{% for e in worksheet.expression_list %}
-											<hr class="w-100"> 
-											
-											<div class="row expression-display">
-												
-												<div class="col-8 col-sm-9 col-lg-10 row" for='expression{{ e.id }}'>
-													
-													<div class="col-2 col-md-1 py-0 text-right">
-														<input type='checkbox' name='choice' class='choices{{ worksheet.id }} m-0' id='expression{{ e.id }}' value='{{ e.id }}'>
-													</div>
-													
-													<div class="col-10 col-md-11 py-0">
-														<label class="m-0" for='expression{{ e.id }}'>
-															{% if e.has_audio%}
-																<i  class="icon fa fa-volume-up"></i>
-															{% endif %}
-															{{ e.expression }}
-														</label>
-													</div>
-													
-												</div>
-												
-												<div class="col-4 col-sm-3 col-lg-2 pt-2 m-0">
-													<div class="m-0 p-0 progress border {{ e.border_style }}" data-toggle="tooltip" data-placement="top" title="{{ e.practice_score }}">
-														<div class="m-0 p-0 progress-bar {{ e.bar_style }}" role="progressbar" style="width: {{ e.practice_score }}%" aria-valuenow="{{ e.practice_score }}" aria-valuemin="0" aria-valuemax="100"></div>
-													</div>
-												</div>
-												
-											</div>	
-											{% endfor %}
-										</div>
-										
-									</div>
-								</td>
-		
-							</tr>
-							{% endfor %}
-						</tbody>
-						{% include 'ComSemApp/tablesorter_footer.html'%}
-					</table>
-				{% else %}
-					<p>No worksheets available</p>
-				{% endif %}
+				<p>Hover over a bar to see your actual score. The more you practice an expression, the higher your score
+					will get!</p>
+				<p></p>
+				<div class="form-group pl-4">
+					<div class="form-check radio radio-primary">
+						<input class="form-check-input form-control" type="radio" name="audio-choice" id="use-audio"
+							value="1" checked>
+						<label class="form-check-label" for="use-audio">
+							Use audio expressions - expressions with a <i class="icon fa fa-volume-up"></i> icon next to them will include audio practice
+					in the sheet
+						</label>
+					</div>
+					<div class="form-check radio radio-primary">
+						<input class="form-check-input form-control" type="radio" name="audio-choice" id="no-audio"
+							value="0">
+						<label class="form-check-label" for="no-audio">
+							Exclude audio expressions
+						</label>
+					</div>
 				</div>
-				
-			</div>
-			
-		</div>
-	</form> 
-	
-	<script>
-		// AF - track number of expressions selected 
-		let checkCount = 0;
-		let expressions_selected = false;
-		let checkboxes = $("input[type=checkbox]");
-		let worksheets = $(".addall");
-		
-		let wdata = initializeWorksheetCounts(worksheets);
-		
-		$( document ).ready(function() {
-			// AF - expand the first worksheet to show checkboxes
-			$(".icon",".show-icon").first().toggleClass("fa-plus");
-			$(".icon",".show-icon").first().toggleClass("fa-minus");
-			$(".worksheet-content").first().addClass("show");
-			
-			// AF - toggle +/- as the user clicks
-			$(".show-icon").click(function() {
-				$(".icon", this).toggleClass("fa-plus");
-				$(".icon", this).toggleClass("fa-minus");
-			});
-			
-			countBoxes();
-			
-			// AF - enable/disable start button whenever a checkbox value
-			//		is changed.
-			$("input[type=checkbox]").change(function() {
-				countBoxes();
-			});
-			
-			// For some reason this only works with a delay
-			setTimeout(setFilterNames, 100);
-			
-			$(".addall").click( function() {
-				$(this).tooltip('hide')
-				let expressions = $("." + this.id);
-				let checkval;
-				if (this.value === "add") {
-					checkval = true;
-					this.value = "remove";
-					$(this).html('<i  class="fa fa-times"></i>');
-					$(this).removeClass('btn-primary');
-					$(this).addClass('btn-danger');
-					$(this).attr("data-original-title", "Remove All");
-				}  else {
-					checkval = false;
-					this.value = "add";
-					$(this).html('<i  class="fa fa-check"></i>');
-					$(this).addClass('btn-primary');
-					$(this).removeClass('btn-danger');
-					$(this).attr("data-original-title", "Add All");
-				}
-				
-				for (let j = 0; j < expressions.length; j++) {
-					expressions[j].checked = checkval;
-				};
-				
-				countBoxes();
-			});
-		});
-		
-		// AF - check if there are boxes checked, and set the start-review
-		//		button's appearance/function appropriately.
-		function countBoxes() {
-			checkCount = 0;
-			
-			for (let j = 0; j < worksheets.length; j++) {
-				let choices = wdata[worksheets[j].id];
-				let wcount = 0;
-				for (let k = 0; k < choices.length; k++) {
-					cval = (choices[k].checked === true ? 1 : 0)
-					checkCount += cval;
-					wcount += cval;
-				}
-				
-				// If any expressions are selected, change button to remove
-				if (wcount > 0) {
-					worksheets[j].value = "remove";
-					$(worksheets[j]).html('<i  class="fa fa-times"></i>');
-					$(worksheets[j]).removeClass('btn-primary');
-					$(worksheets[j]).addClass('btn-danger');
-					$(worksheets[j]).attr("data-original-title", "Remove All");
 
-					// If no expressions are selected, change button to add.
-				} else {
-					worksheets[j].value = "add";
-					$(worksheets[j]).html('<i  class="fa fa-check"></i>');
-					$(worksheets[j]).addClass('btn-primary');
-					$(worksheets[j]).removeClass('btn-danger');
-					$(worksheets[j]).attr("data-original-title", "Add All");
-				}
+				{% if worksheets %}
+				<table class="table table-hover tablesorter reviewsheet-table header-fixed">
+					<thead>
+						<tr>
+							<th class="w-75">Worksheet</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for worksheet in worksheets %}
+						<!--this is what expands and collapses the worksheet vhl-->
+						<tr>
+							<td>
+								<div class="container">
+
+									<div class="row">
+
+										<div data-toggle="collapse" data-target='#worksheet{{ worksheet.id}}'
+											class="col-8 col-sm-9 col-lg-10 row clickable show-icon d-flex align-items-center">
+											<div class="col-2 col-md-1 py-0 text-right">
+												<i class="icon fa fa-plus"></i>
+											</div>
+											<div class="col-10 col-md-11 py-0">
+												<div class="col-12">
+													<h4 class="pt-2"><strong>{{ worksheet.topic }}</strong></h4>
+												</div>
+												<div class="col-12 pt-2"><em>{{ worksheet.date.date }}</em></div>
+											</div>
+										</div>
+										<div class="col-4 col-sm-3 col-lg-2">
+											<button type='button' class="btn btn-primary btn-sm w-100 addall"
+												data-toggle="tooltip" data-placement="top" title="Add All" value="add"
+												id='choices{{ worksheet.id }}'><i class="fa fa-check"></i></button>
+										</div>
+
+									</div>
+
+									<div id='worksheet{{ worksheet.id }}' class="py-2 worksheet-content collapse"
+										value=0>
+										{% for e in worksheet.expression_list %}
+										<hr class="w-100">
+
+										<div class="row expression-display">
+
+											<div class="col-8 col-sm-9 col-lg-10 row" for='expression{{ e.id }}'>
+
+												<div class="col-2 col-md-1 py-0 text-right">
+													<input type='checkbox' name='choice'
+														class='choices{{ worksheet.id }} m-0' id='expression{{ e.id }}'
+														value='{{ e.id }}'>
+												</div>
+
+												<div class="col-10 col-md-11 py-0">
+													<label class="m-0" for='expression{{ e.id }}'>
+														{% if e.has_audio%}
+														<i class="icon fa fa-volume-up"></i>
+														{% endif %}
+														{{ e.expression }}
+													</label>
+												</div>
+
+											</div>
+
+											<div class="col-4 col-sm-3 col-lg-2 pt-2 m-0">
+												<div class="m-0 p-0 progress border {{ e.border_style }}"
+													data-toggle="tooltip" data-placement="top"
+													title="{{ e.practice_score }}">
+													<div class="m-0 p-0 progress-bar {{ e.bar_style }}"
+														role="progressbar" style="width: {{ e.practice_score }}%"
+														aria-valuenow="{{ e.practice_score }}" aria-valuemin="0"
+														aria-valuemax="100"></div>
+												</div>
+											</div>
+
+										</div>
+										{% endfor %}
+									</div>
+
+								</div>
+							</td>
+
+						</tr>
+						{% endfor %}
+					</tbody>
+					{% include 'ComSemApp/tablesorter_footer.html'%}
+				</table>
+				{% else %}
+				<p>No worksheets available</p>
+				{% endif %}
+			</div>
+
+		</div>
+
+	</div>
+</form>
+
+<script>
+	// AF - track number of expressions selected 
+	let checkCount = 0;
+	let expressions_selected = false;
+	let checkboxes = $("input[type=checkbox]");
+	let worksheets = $(".addall");
+
+	let wdata = initializeWorksheetCounts(worksheets);
+
+	$(document).ready(function () {
+		// AF - expand the first worksheet to show checkboxes
+		$(".icon", ".show-icon").first().toggleClass("fa-plus");
+		$(".icon", ".show-icon").first().toggleClass("fa-minus");
+		$(".worksheet-content").first().addClass("show");
+
+		// AF - toggle +/- as the user clicks
+		$(".show-icon").click(function () {
+			$(".icon", this).toggleClass("fa-plus");
+			$(".icon", this).toggleClass("fa-minus");
+		});
+
+		countBoxes();
+
+		// AF - enable/disable start button whenever a checkbox value
+		//		is changed.
+		$("input[type=checkbox]").change(function () {
+			countBoxes();
+		});
+
+		// For some reason this only works with a delay
+		setTimeout(setFilterNames, 100);
+
+		$(".addall").click(function () {
+			$(this).tooltip('hide')
+			let expressions = $("." + this.id);
+			let checkval;
+			if (this.value === "add") {
+				checkval = true;
+				this.value = "remove";
+				$(this).html('<i  class="fa fa-times"></i>');
+				$(this).removeClass('btn-primary');
+				$(this).addClass('btn-danger');
+				$(this).attr("data-original-title", "Remove All");
+			} else {
+				checkval = false;
+				this.value = "add";
+				$(this).html('<i  class="fa fa-check"></i>');
+				$(this).addClass('btn-primary');
+				$(this).removeClass('btn-danger');
+				$(this).attr("data-original-title", "Add All");
 			}
-			
-			if (checkCount > 0 && !expressions_selected) {
-				// if there are selections, enable
-				$("#start-review").removeClass("btn-disabled");
-				$("#start-review").attr("disabled", false);
-				$("#start-review").addClass("btn-success");
-				$("#start-review").css("pointer-events", "all");
-				$("#span-review").tooltip("disable");
-				expressions_selected = true;
-			} else if (checkCount == 0 && expressions_selected) {
-				// if there are no selections, disable
-				$("#start-review").addClass("btn-disabled");
-				$("#start-review").attr("disabled", true);
-				$("#start-review").removeClass("btn-success");
-				$("#start-review").css("pointer-events", "none");
-				$("#span-review").tooltip("enable");
-				expressions_selected = false;
+
+			for (let j = 0; j < expressions.length; j++) {
+				expressions[j].checked = checkval;
+			};
+
+			countBoxes();
+		});
+	});
+
+	// AF - check if there are boxes checked, and set the start-review
+	//		button's appearance/function appropriately.
+	function countBoxes() {
+		checkCount = 0;
+
+		for (let j = 0; j < worksheets.length; j++) {
+			let choices = wdata[worksheets[j].id];
+			let wcount = 0;
+			for (let k = 0; k < choices.length; k++) {
+				cval = (choices[k].checked === true ? 1 : 0)
+				checkCount += cval;
+				wcount += cval;
+			}
+
+			// If any expressions are selected, change button to remove
+			if (wcount > 0) {
+				worksheets[j].value = "remove";
+				$(worksheets[j]).html('<i  class="fa fa-times"></i>');
+				$(worksheets[j]).removeClass('btn-primary');
+				$(worksheets[j]).addClass('btn-danger');
+				$(worksheets[j]).attr("data-original-title", "Remove All");
+
+				// If no expressions are selected, change button to add.
+			} else {
+				worksheets[j].value = "add";
+				$(worksheets[j]).html('<i  class="fa fa-check"></i>');
+				$(worksheets[j]).addClass('btn-primary');
+				$(worksheets[j]).removeClass('btn-danger');
+				$(worksheets[j]).attr("data-original-title", "Add All");
 			}
 		}
-		
-		// AF - add placeholder text to tablesorter-filter objects
-		function setFilterNames () {
-			$(".tablesorter-filter").first().attr("placeholder", "Search Topic");
-			$(".tablesorter-filter").last().attr("placeholder", "Search Date");
+
+		if (checkCount > 0 && !expressions_selected) {
+			// if there are selections, enable
+			$("#start-review").removeClass("btn-disabled");
+			$("#start-review").attr("disabled", false);
+			$("#start-review").addClass("btn-success");
+			$("#start-review").css("pointer-events", "all");
+			$("#span-review").tooltip("disable");
+			expressions_selected = true;
+		} else if (checkCount == 0 && expressions_selected) {
+			// if there are no selections, disable
+			$("#start-review").addClass("btn-disabled");
+			$("#start-review").attr("disabled", true);
+			$("#start-review").removeClass("btn-success");
+			$("#start-review").css("pointer-events", "none");
+			$("#span-review").tooltip("enable");
+			expressions_selected = false;
 		}
-		
-		// AF - create wdata obejct associating addall button ids with their corrresponding
-		//		checkbox sets.
-		function initializeWorksheetCounts(addallButtons) {
-			let wdata = {};
-			for (let j = 0; j < addallButtons.length; j++) {
-				wdata[addallButtons[j].id] = $("." + addallButtons[j].id);
-			}
-			return (wdata);
+	}
+
+	// AF - add placeholder text to tablesorter-filter objects
+	function setFilterNames() {
+		$(".tablesorter-filter").first().attr("placeholder", "Search Topic");
+		$(".tablesorter-filter").last().attr("placeholder", "Search Date");
+	}
+
+	// AF - create wdata obejct associating addall button ids with their corrresponding
+	//		checkbox sets.
+	function initializeWorksheetCounts(addallButtons) {
+		let wdata = {};
+		for (let j = 0; j < addallButtons.length; j++) {
+			wdata[addallButtons[j].id] = $("." + addallButtons[j].id);
 		}
-		
-	</script>
-	
-	{% endblock %}
-	
+		return (wdata);
+	}
+</script>
+
+{% endblock %}
