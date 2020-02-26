@@ -415,18 +415,41 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
             
             # list all correct and incorrect responses (original expression + attempt)
             a_correct = [x for x in e.attempts if x.correct]
-            a_incorrect = [x for x in e.attempts if not x.correct] + [e]
-
-            correct_item = a_correct[random.randint(0, len(a_correct) - 1)]
-            incorrect_item = a_incorrect[random.randint(0, len(a_incorrect) - 1)]
             
-            selected = [(correct_item, 'right'), (incorrect_item, 'wrong')][random.randint(0, 1)]
+            # REMOVED FOR PRESENTATION
+            # a_incorrect = [x for x in e.attempts if not x.correct] + [e]
+            a_incorrect = [x for x in e.attempts if not x.correct]
+
+            #REMOVE PRESESNTATAION
+            
+            
+                
+            if len(a_correct) == 0:
+                selected = (a_incorrect[0], 'wrong')
+            elif len(a_incorrect) == 0:
+                selected = (a_correct[0], 'right')
+            else:
+                if len(a_correct) == 1:
+                    correct_item = a_correct[0]
+                else:
+                    correct_item = a_correct[random.randint(0, len(a_correct) - 1)]
+                
+                if len(a_incorrect) == 1:
+                    incorrect_item  = a_incorrect[0]
+                else:
+                    incorrect_item = a_incorrect[random.randint(0, len(a_incorrect) - 1)]
+                selected = [(correct_item, 'right'), (incorrect_item, 'wrong')][random.randint(0, 1)]
+            
+            
             expression_data = {'id':e.id, 'original': e.expression, 'answer': selected[1]}
+            
             # Choose between audio and text
             if e == selected[0]:
                 print("EXPRESSION")
                 expression_data['term'] = selected[0].expression
                 expression_data['type'] = 'TEXT'
+                
+            # REMOVED FOR PRESENTATION
             # elif selected[0].audio and random.randint(0, 1) == 1:
             elif selected[0].audio:
                 print("AUDIO")

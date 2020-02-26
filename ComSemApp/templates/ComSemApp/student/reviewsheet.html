@@ -61,6 +61,10 @@
 					<!-- button display cycles same as secs -->
 					<button class='btn btn-success btn-lg sec w-100 start' id='begin-review'>BEGIN REVIEW</button>
 
+					<button class="btn btn-disabled btn-lg sec ec w-100 play-audio" value="right">RIGHT</button>
+					<button class="btn btn-disabled btn-lg sec ec w-100 play-audio" value="skipped">SKIP</button>
+					<button class="btn btn-disabled btn-lg sec ec w-100 play-audio" value="wrong">WRONG</button>
+
 					<button class="btn btn-primary btn-lg sec ec review-response w-100 show-expression" value="right">RIGHT</button>
 					<button class="btn btn-warning btn-lg sec ec review-response w-100 show-expression" value="skipped">SKIP</button>
 					<button class="btn btn-danger btn-lg sec ec review-response w-100 show-expression" value="wrong">WRONG</button>
@@ -78,7 +82,7 @@
 <script>
 	// AF - set to 10.0 for production!
 	//const MAX_TIME = 10.0;
-	const MAX_TIME = 100.0;
+	const MAX_TIME = 10.0;
 
 	let review_data = {{ review_data | safe }};
 
@@ -198,16 +202,17 @@
 			setTimeout(function() {
 				audio_ob.play();
 				// begin interval 0.5s after audio is done playing.
+				console.log("Delaying for: ", audio_ob.duration );
 				setTimeout(function() {
 					$("#expression-term").html("<i  class='icon fa fa-volume-up fa-lg'></i>");
 					change_container("show-expression");
 					start_time_interval();
-				}, (audio_ob.duration * 1000) + 500);
+				//}, (audio_ob.duration * 1000) + 500);
+				}, 5500);
 			}, 500);
 			
 
 		} else {
-			console.log("NO AUDIO")
 			$("#expression-term").html(exp_ob['term']);
 			change_container("show-expression");
 			start_time_interval();
