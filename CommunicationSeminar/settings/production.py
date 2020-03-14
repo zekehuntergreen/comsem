@@ -228,7 +228,7 @@ LOGGING = {
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-STATIC_ROOT  =   os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 #  Add configuration for static files storage using whitenoise
@@ -251,3 +251,5 @@ if LIVE:
     }
 
     DEFAULT_FILE_STORAGE = 'CommunicationSeminar.storage_backends.MediaStorage'
+
+RECAPCHA_SECRET_KEY = env_get('RECAPCHA_SECRET_KEY')

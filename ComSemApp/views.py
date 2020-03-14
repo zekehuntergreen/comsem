@@ -1,6 +1,9 @@
+import requests
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
@@ -22,9 +25,20 @@ class About(FormView):
     success_url = reverse_lazy("about")
 
     def form_valid(self, form):
-        form.send_email()
-        messages.success(self.request, 'Your request has been sent successfully! '
-                                  'We will contact you shortly to set up an account.')
+        params = {
+            'secret': settings.RECAPCHA_SECRET_KEY,
+            'response': self.request._post['g-recaptcha-response'],
+        }
+        response = requests.post('https://www.google.com/recaptcha/api/siteverify', params)
+        response_json = response.json()
+        recaptcha_success = response_json.get('success')
+
+        if recaptcha_success:
+            form.send_email()
+            messages.success(self.request, 'Your request has been sent successfully! '
+                                    'We will contact you shortly to set up an account.')
+        else:
+            messages.error(self.request, 'There was a problem processing your request.')
         return super().form_valid(form)
 
 
