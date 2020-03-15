@@ -94,6 +94,7 @@ class WorksheetDetailView(TeacherWorksheetViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(WorksheetDetailView, self).get_context_data(**kwargs)
         context['submissions'] = self.worksheet.submissions.exclude(status="pending")
+        context['worksheets'] = self.course.get_visible_worksheets()
         return context
 
 
