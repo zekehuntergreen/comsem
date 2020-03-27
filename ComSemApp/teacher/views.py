@@ -138,8 +138,11 @@ class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
 
     def post(self, *args, **kwargs):
         worksheet = self.get_object()
-        worksheet.release()
-        return HttpResponse(status=204)
+        isValid = worksheet.release()
+        if isValid: # releases if true vhl
+            return HttpResponse(status=204)
+        else: # returns error message if false vhl
+            return HttpResponse(status=406, reason="worksheet cannot be empty")
 
 
 class WorksheetDeleteView(TeacherWorksheetViewMixin, DeleteView):

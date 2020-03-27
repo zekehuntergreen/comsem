@@ -187,10 +187,14 @@ class Worksheet(models.Model):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
 
     def release(self):
-        self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
-        self.save()
-        for expression in self.expressions.all():
-            pos_tag(expression)
+        if len(self.expressions.all()) == 0: # checks if there are expressions in worksheet vhl
+            return False
+        else: # if there are expressions save and release worksheet vhl
+            self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
+            self.save()
+            for expression in self.expressions.all():
+                pos_tag(expression)
+            return True
 
     def last_submission(self, student):
         last_submission = None
