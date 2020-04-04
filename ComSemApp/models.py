@@ -186,15 +186,16 @@ class Worksheet(models.Model):
     def released(self):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
 
-    def release(self):
-        if len(self.expressions.all()) == 0: # vhl checks if there are expressions in worksheet
-            return False
-        else: # vhl if there are expressions save and release worksheet
+    def release(self):   
+        if self.expressions.exists(): # vhl releases no empty worksheets
             self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
             self.save()
             for expression in self.expressions.all():
                 pos_tag(expression)
             return True
+        else: # vhl prevents empty worksheets from being released
+            return False
+
 
     def last_submission(self, student):
         last_submission = None
