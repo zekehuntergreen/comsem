@@ -187,9 +187,9 @@ class Worksheet(models.Model):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
 
     def release(self):
-        if len(self.expressions.all()) == 0: # checks if there are expressions in worksheet vhl
+        if len(self.expressions.all()) == 0: # vhl checks if there are expressions in worksheet
             return False
-        else: # if there are expressions save and release worksheet vhl
+        else: # vhl if there are expressions save and release worksheet
             self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
             self.save()
             for expression in self.expressions.all():
