@@ -244,17 +244,28 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
 
     def post(self, *args, **kwargs):
         submission = self.get_object()
-
+        
         all_correct = True
         # status of each attempt
-        for attempt in submission.attempts.all():
-            correct = self.request.POST.get(str(attempt.id), None) == '1'
-            attempt.correct = correct
+        for attempt in submission.attempts.all(): # added code to allow audio and text to be graded seperatly vhl
+            textCorrect = self.request.POST.get("T" + str(attempt.id), None) == '1' # get text
+            isAudio = (not (self.request.POST.get("A" + str(attempt.id), None) is None)) # checks for audio
+            audioCorrect = self.request.POST.get("A" + str(attempt.id), None) == '1' # gets audio
+            
+            
+            attempt.correct = textCorrect # marks text
+            if isAudio: # adds audio if necessary
+                attempt.audioCorrect = audioCorrect
+            else: # adds None if there is not audio present
+                attempt.audioCorrect = None
             attempt.save()
-
-            if not correct:
-                all_correct = False
-
+            if isAudio: # case for if there is audio
+                if (not textCorrect) or (not audioCorrect):
+                    all_correct = False
+            else: # case for text only
+                if (not textCorrect):
+                    all_correct = False
+                
         # handle status of the submission
         # TODO - use constants
         if all_correct:

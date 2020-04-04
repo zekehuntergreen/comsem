@@ -74,7 +74,10 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
         worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
 
         # TODO should this logic be in the worksheet model ?
-        for worksheet in worksheets:
+        for worksheet in worksheets: 
+            complete_submission = worksheet.complete_submission(self.student) # vhl checks for complete submissions.
+            complete_submission_status = 'complete' if complete_submission else "none"
+        
             last_submission = worksheet.last_submission(self.student)
             last_submission_status = last_submission.status if last_submission else "none"
             last_submission_id = last_submission.id if last_submission else 0
@@ -104,12 +107,18 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
                 "none": reverse("student:create_submission",
                             kwargs={'course_id': self.course.id, 'worksheet_id': worksheet.id}),
             }
-
+            
+            
+            # vhl checks for edge case where last submission is the not the complete attempt
+            if complete_submission_status == 'complete': 
+                last_submission_status = 'complete' 
+            
             worksheet.last_submission_status = last_submission_status
             worksheet.status_color = status_colors[last_submission_status]
             worksheet.button_text = button_texts[last_submission_status]
             worksheet.link_url = link_urls[last_submission_status]
-
+            
+            
         context['worksheets'] = worksheets
         return context
 
@@ -138,10 +147,10 @@ class SubmissionUpdateCreateMixin(UpdateView):
 
 class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixin):
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs): 
         # student can't create a submission if there is an updatable one.
         if StudentSubmission.objects.filter(student=self.student, worksheet=self.worksheet, status__in=['ungraded', 'complete']).exists():
-            messages.error(self.request, "You may not create a submission for this worksheet.")
+            messages.error(self.request, "You may not create a submission for this worksheet!!!.")
             return HttpResponseRedirect(reverse("student:course", kwargs={'course_id': self.course.id }))
         return super().get(request, *args, **kwargs)
 
@@ -284,8 +293,8 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
         expression_qset = Expression.objects.filter(expression_filters)
 
         for e in expression_qset:
-            print(e)
             e.last_submission = StudentSubmission.objects.filter(student=self.student, worksheet=e.worksheet).latest('date').date.date()
+            
             e.attempts = self.get_attempts(e)
             e.has_audio = False
             
@@ -337,12 +346,18 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
         # TODO should this logic be in the worksheet model ?
         for worksheet in worksheets:
             last_submission = worksheet.last_submission(self.student)
+            complete_submission = worksheet.complete_submission(self.student) # vhl checks for complete worksheets
+            complete_submission_status = "complete" if complete_submission else "none"
+    
             worksheet.last_submission_status = last_submission.status if last_submission else "none"
+            if complete_submission_status == 'complete': # vhl if there is a complete worksheet
+                worksheet.last_submission_status = 'complete'
             if worksheet.last_submission_status == 'complete':
                 worksheet.expression_list = self.get_expressions(worksheet, course_response_times)
 
-        # Only allow students to review completed worksheets (must have an answer)
+        # Only allow students to review completed worksheets (must have an answer)        
         context['worksheets'] =  [x for x in worksheets if x.last_submission_status == 'complete']
+
 
         return context
 
@@ -389,18 +404,19 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
             expression_object.attempts = self.get_attempts(expression_object)
             raw_expressions.append(expression_object)
         
-        review_data, audio_paths = self.make_review_questions(raw_expressions)
+        review_data, audio_paths = self.make_review_questions(raw_expressions, use_audio) # vhl added use_audio bookmark2
         context['review_data'] = json.dumps(review_data)
         context['audio_paths'] = audio_paths
         context['student_id'] = self.student.id
 
         return context
 
-    def make_review_questions(self, raw_expressions):
+    def make_review_questions(self, raw_expressions, use_audio):
         """ AF - Get expression data: expression ID, original expression, randomly selected term and answer 
         
         Arguments:
             raw_expressions {[list]} -- [A list of ]
+            use_audio True if user wants audio False otherwise
         
         Returns:
             [type] -- [description]
@@ -411,54 +427,65 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
         audio_paths = []
         
         
-        for e in raw_expressions:
-            
-            # list all correct and incorrect responses (original expression + attempt)
-            a_correct = [x for x in e.attempts if x.correct]
-            
-            # REMOVED FOR PRESENTATION
-            # a_incorrect = [x for x in e.attempts if not x.correct] + [e]
-            a_incorrect = [x for x in e.attempts if not x.correct]
-
-            #REMOVE PRESESNTATAION
+        for e in raw_expressions: 
             
             
+            a_correct = [] # vhl list of correct expressions
+            a_incorrect = [] # vhl list of incorrect expressions
+            
+                      
+            a_incorrect.append(e) # vhl adds original expression to incorrect
+    
+            for attempt in e.attempts: # vhl goes through all attempts
+                if use_audio and (attempt.audioCorrect is not None): # vhl check if attempt has audio and if user wants it
+                    if attempt.audioCorrect: # vhl is audio correct
+                        a_correct.append(attempt)
+                    else: # vhl audio incorrect
+                        a_incorrect.append(attempt)                                                                        
+                else: # vhl if user does not want audio or attempt lacks audio
+                    if attempt.correct is not None: # vhl prevents ungraded answers from getting on the review sheet
+                        if attempt.correct: # vhl text attempt is correct
+                            a_correct.append(attempt)
+                        else: # vhl text attempt is incorrect
+                            a_incorrect.append(attempt)
                 
-            if len(a_correct) == 0:
+            if len(a_correct) == 0:  # vhl if there is somehow no correct ansswer
                 selected = (a_incorrect[0], 'wrong')
-            elif len(a_incorrect) == 0:
+            elif len(a_incorrect) == 0: # vhl if there is no incorrect answer
                 selected = (a_correct[0], 'right')
-            else:
-                if len(a_correct) == 1:
+            else: 
+                if len(a_correct) == 1: # vhl if there is only 1 correct answer
                     correct_item = a_correct[0]
                 else:
+                    print(len(a_correct)) # vhl if there are multiple correct answers
                     correct_item = a_correct[random.randint(0, len(a_correct) - 1)]
                 
-                if len(a_incorrect) == 1:
-                    incorrect_item  = a_incorrect[0]
-                else:
+                if len(a_incorrect) == 1: # vhl if there is only 1 incorrect answer
+                    incorrect_item  = a_incorrect[0] 
+                else: # vhl if there are multiple incorrect answers
                     incorrect_item = a_incorrect[random.randint(0, len(a_incorrect) - 1)]
-                selected = [(correct_item, 'right'), (incorrect_item, 'wrong')][random.randint(0, 1)]
+                selected = [(correct_item, 'right'), (incorrect_item, 'wrong')][random.randint(0, 1)] # vhl randomly select a correct or incorrect question for the reviewsheet 
             
             
-            expression_data = {'id':e.id, 'original': e.expression, 'answer': selected[1]}
+            expression_data = {'id': e.id, 'original': e.expression, 'answer': selected[1]}
             
             # Choose between audio and text
-            if e == selected[0]:
+
+            if e == selected[0]: # vhl forces original expression to be text to prevent the instructors recording from being used.
                 print("EXPRESSION")
                 expression_data['term'] = selected[0].expression
                 expression_data['type'] = 'TEXT'
-                
-            # REMOVED FOR PRESENTATION
-            # elif selected[0].audio and random.randint(0, 1) == 1:
-            elif selected[0].audio:
+             
+                               
+            elif selected[0].audio and use_audio: # vhl made it so audio only shows up when users request it
+                # vhl case for if selected attempt has audio and user is looking for audio problems          
                 print("AUDIO")
                 expression_data['term'] = selected[0].reformulation_text
                 a_id = "%d_audio" % e.id
                 expression_data['audio_id'] = a_id
                 audio_paths.append((a_id, selected[0].audio))
                 expression_data['type'] = 'AUDIO'
-            else:
+            else: # vhl case for if a selected attempt has no audio or user does not want audio
                 print("ATTEMPT")
                 expression_data['term'] = selected[0].reformulation_text
                 expression_data['type'] = 'TEXT'

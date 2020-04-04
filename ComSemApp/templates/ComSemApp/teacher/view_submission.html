@@ -153,28 +153,56 @@
 							<!-- Assessment -->
 							<div class="row submissionRow">
 								<div class="col-12">
-									<strong>Assessment:</strong><br />
+									<strong>Assessment Text:</strong><br />
 
 									<div class="radio radio-primary form-check-inline">
+                                        <!--vhl text is correct T{{attempt.id}} means text attempt id-->
+                                        
+										<input type="radio" name="T{{ attempt.id}}" value="1" {% if attempt.correct %} checked{% endif %} id="textCorrect{{ forloop.counter }}">
 
-										<input type="radio" name="{{ attempt.id }}" value="1" {% if attempt.correct %} checked{% endif %} id="radioCorrect{{ forloop.counter }}">
-
-										<label for="radioCorrect{{ forloop.counter }}">
+										<label for="textCorrect{{ forloop.counter }}">
 											Correct
 										</label>
 
 									</div>
-
+                                    <!--vhl text is incorrect-->
 									<div class="radio radio-primary form-check-inline">
-										<input type="radio" name="{{ attempt.id }}"  value="0" {% if attempt.correct is False %} checked{% endif %} id="radioIncorrect{{ forloop.counter }}">
-										<label for="radioIncorrect{{ forloop.counter }}">
+										<input type="radio" name="T{{ attempt.id }}"  value="0" {% if attempt.correct is False %} checked{% endif %} id="textIncorrect{{ forloop.counter }}">
+										<label for="textIncorrect{{ forloop.counter }}">
 											Incorrect
 										</label>
 									</div>
 
 								</div>
 
-							</div>
+                            </div>
+                            
+                            {% if attempt.audio %} <!--vhl this shows up for audio-->
+                            <div class="row submissionRow">
+								<div class="col-12">
+									<strong>Assessment Audio:</strong><br />
+
+									<div class="radio radio-primary form-check-inline">
+                                        <!--vhl audio is correct-->
+										<input type="radio" name="A{{ attempt.id }}" value="1" {% if attempt.audioCorrect %} checked{% endif %} id="audioCorrect{{ forloop.counter }}"> <!--vhl A atttempt.id means audio attempt id-->
+
+										<label for="audioCorrect{{ forloop.counter }}">
+											Correct
+										</label>
+
+									</div>
+
+									<div class="radio radio-primary form-check-inline"> <!--vhl audio is incorrect-->
+										<input type="radio" name="A{{ attempt.id }}"  value="0" {% if attempt.audioCorrect is False %} checked{% endif %} id="audioIncorrect{{ forloop.counter }}">
+										<label for="audioIncorrect{{ forloop.counter }}">
+											Incorrect
+										</label>
+									</div>
+
+								</div>
+
+                            </div>
+                            {% endif %}
 
 						</div>
 						{% endfor %}

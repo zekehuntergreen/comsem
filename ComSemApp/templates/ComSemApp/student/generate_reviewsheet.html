@@ -57,7 +57,7 @@
 					</div>
 				</div>
 
-				{% if worksheets %}
+				{% if worksheets %} <!--table for worksheets vhl-->
 				<table class="table table-hover tablesorter reviewsheet-table header-fixed">
 					<thead>
 						<tr>
@@ -95,7 +95,7 @@
 
 									<div id='worksheet{{ worksheet.id }}' class="py-2 worksheet-content collapse"
 										value=0>
-										{% for e in worksheet.expression_list %}
+										{% for e in worksheet.expression_list %} 
 										<hr class="w-100">
 
 										<div class="row expression-display">

@@ -191,6 +191,12 @@ class Worksheet(models.Model):
         self.save()
         for expression in self.expressions.all():
             pos_tag(expression)
+            
+    def complete_submission(self, student): # vhl checks if any submissions are complete
+        complete_submission = None
+        if StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").exists():
+            complete_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").latest()
+        return complete_submission
 
     def last_submission(self, student):
         last_submission = None
@@ -258,7 +264,8 @@ class StudentAttempt(models.Model):
     student_submission = models.ForeignKey('StudentSubmission', related_name="attempts", on_delete=models.CASCADE)
     reformulation_text = models.TextField(blank=True, null=True)
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
-    correct = models.NullBooleanField(blank=True, null=True, default=None)
+    correct = models.NullBooleanField(blank=True, null=True, default=None) # marks if text is correct
+    audioCorrect = models.NullBooleanField(blank=True, null=True, default=None) # vhl marks if audio is correct
 
     def __str__(self):
         return " - ".join([str(self.student_submission), str(self.expression)])
@@ -287,7 +294,7 @@ class ReviewAttempt(models.Model):
 class Word(models.Model):
     form = models.CharField(max_length=255)
     tag = models.ForeignKey('Tag', on_delete=models.PROTECT)
-    # frequency = models.IntegerField(default=1)
+    frequency = models.IntegerField(default=1)
 
     def __str__(self):
         return self.form
