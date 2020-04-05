@@ -150,22 +150,5 @@
 
 <script src="{% static 'ComSemApp/js/edit_worksheet.js' %}" v="3"></script>
 
-<script>
 
-		$(".release_worksheet_button").on("click", function(e){
-			release_worksheet_url = "{% url 'teacher:worksheet_release' course_id=course.id worksheet_id=worksheet.id %}"
-			cs_confirm("Release Worksheet", "Are you sure you'd like to release this worksheet?\n", 'warning', "Yes, release it", release_worksheet);
-		});
-
-		var release_worksheet_url;
-		function release_worksheet(){
-			$.ajax({
-				type: "POST",
-				url: release_worksheet_url,
-			});
-		}
-
-
-
-	</script>
 {% endblock %}
