@@ -43,67 +43,6 @@
 
 					</div>
 
-					<div class="col-12 col-md-6">
-							<label for="display_original">My Students Will See</label>
-
-							<div class="checkbox checkbox-primary">
-								<input type="checkbox" id="display_original" name="display_original" {% if worksheet.display_original %}checked='checked'{% endif %}>
-								<label for="display_original">
-									Original Expression
-								</label>
-							</div>
-	
-							<div class="checkbox checkbox-primary">
-	
-								<input type="checkbox" id="display_reformulation_text" name="display_reformulation_text" {% if worksheet.display_reformulation_text %}checked='checked'{% endif %}>
-								<label for="display_reformulation_text">
-									Text Reformulation
-								</label>
-							</div>
-	
-							<!-- not yet implemented -->
-							<div class="checkbox checkbox-primary">
-	
-								<input type="checkbox" id="display_reformulation_audio" name="display_reformulation_audio" {% if worksheet.display_reformulation_audio %}checked='checked'{% endif %}>
-								<label for="display_reformulation_audio">
-									Audio Reformulation
-								</label>
-							</div>
-	
-							<div class="checkbox checkbox-primary">
-	
-								<div class="radio radio-primary form-check-inline">
-									<input type="radio" value="true" name="display_all_expressions" {% if worksheet.display_all_expressions %}checked='checked'{% endif %} id="allExpressionsYes">
-									<label for="allExpressionsYes"> All Expressions </label>
-								</div>
-	
-								<div class="radio radio-primary form-check-inline">
-									<input type="radio" value="false" name="display_all_expressions" {% if not worksheet.display_all_expressions %}checked='checked'{% endif %} id="allExpressionsNo">
-									<label for="allExpressionsNo"> Expressions Assigned to Them and All Do Expressions</label>
-								</div>
-	
-							</div>
-	
-							<script>
-								// handle worksheet preferences checkboxes - hide the expression inputs if unchecked
-								$(function(){
-									$('#display_reformulation_text, #display_reformulation_audio').on('change', function(){
-										var checked = $(this).prop('checked');
-										var id = $(this).attr('id');
-										if(checked){
-											$('#' + id + 'Row').show();
-										} else {
-											$('#' + id + 'Row').hide();
-										}
-									})
-								});
-	
-							</script>
-
-					</div>
-
-					</div>
-
 				</div>
 
 			</div>
@@ -150,22 +89,5 @@
 
 <script src="{% static 'ComSemApp/js/edit_worksheet.js' %}" v="3"></script>
 
-<script>
 
-		$(".release_worksheet_button").on("click", function(e){
-			release_worksheet_url = "{% url 'teacher:worksheet_release' course_id=course.id worksheet_id=worksheet.id %}"
-			cs_confirm("Release Worksheet", "Are you sure you'd like to release this worksheet?\n", 'warning', "Yes, release it", release_worksheet);
-		});
-
-		var release_worksheet_url;
-		function release_worksheet(){
-			$.ajax({
-				type: "POST",
-				url: release_worksheet_url,
-			});
-		}
-
-
-
-	</script>
 {% endblock %}
