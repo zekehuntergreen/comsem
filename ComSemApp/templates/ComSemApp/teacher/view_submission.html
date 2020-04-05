@@ -177,14 +177,14 @@
 
                             </div>
                             
-                            {% if attempt.audio %} <!--vhl this shows up for audio-->
+                            {% if attempt.audio %} <!--vhl this shows up if there is audio to grade-->
                             <div class="row submissionRow">
 								<div class="col-12">
-									<strong>Assessment Audio:</strong><br />
+									<strong>Assessment Audio:</strong><br/>
 
 									<div class="radio radio-primary form-check-inline">
                                         <!--vhl audio is correct-->
-										<input type="radio" name="A{{ attempt.id }}" value="1" {% if attempt.audioCorrect %} checked{% endif %} id="audioCorrect{{ forloop.counter }}"> <!--vhl A atttempt.id means audio attempt id-->
+										<input type="radio" name="A{{ attempt.id }}" value="1" {% if attempt.audioCorrect %} checked{% endif %} id="audioCorrect{{ forloop.counter }}"> <!--vhl A attempt.id means audio attempt id-->
 
 										<label for="audioCorrect{{ forloop.counter }}">
 											Correct

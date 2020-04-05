@@ -404,7 +404,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
             expression_object.attempts = self.get_attempts(expression_object)
             raw_expressions.append(expression_object)
         
-        review_data, audio_paths = self.make_review_questions(raw_expressions, use_audio) # vhl added use_audio bookmark2
+        review_data, audio_paths = self.make_review_questions(raw_expressions, use_audio) # vhl added use_audio
         context['review_data'] = json.dumps(review_data)
         context['audio_paths'] = audio_paths
         context['student_id'] = self.student.id
@@ -415,7 +415,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
         """ AF - Get expression data: expression ID, original expression, randomly selected term and answer 
         
         Arguments:
-            raw_expressions {[list]} -- [A list of ]
+            raw_expressions {[list]} -- [A list of expressions]
             use_audio True if user wants audio False otherwise
         
         Returns:
@@ -423,8 +423,8 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
         """
         import random
         
-        reviewdata = []
-        audio_paths = []
+        review_data = []
+        audio_paths = [] 
         
         
         for e in raw_expressions: 
@@ -490,9 +490,9 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
                 expression_data['term'] = selected[0].reformulation_text
                 expression_data['type'] = 'TEXT'
 
-            reviewdata.append(expression_data)
+            review_data.append(expression_data)
             
-        return reviewdata, audio_paths
+        return review_data, audio_paths
 
 class ReviewsheetGetView(ReviewsheetView):
     def get(self, request, *args, **kwargs):
