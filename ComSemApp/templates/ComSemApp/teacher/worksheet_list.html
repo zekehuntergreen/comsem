@@ -23,7 +23,10 @@
             <td>
                 {% if worksheet.released %}
                     <div class="row">
-                        <a href="{% url 'teacher:worksheet_detail' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Review</a>
+                        <a href="{% url 'teacher:worksheet_detail' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Review</a>&NonBreakingSpace;
+                        
+                        <a href="{% url 'teacher:worksheet_released_update' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
+                    
                     </div>
                 {% else %}
                     <div class="row">

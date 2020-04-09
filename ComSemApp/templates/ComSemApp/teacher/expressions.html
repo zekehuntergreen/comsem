@@ -1,3 +1,4 @@
+
 {% if expressions %}
 <table class='table table-hover'>
     <thead>
@@ -32,9 +33,13 @@
                 <button class='btn btn-sm btn-outline-primary editExpression' url="{% url 'teacher:expression_update' course_id=course.id worksheet_id=worksheet.id expression_id=expression.id %}">
                     <i class='fa fa-pencil-square-o'></i>
                 </button>
+                
+                {% if not worksheet.released %}
                 <button class='btn btn-sm btn-outline-danger deleteExpression' url="{% url 'teacher:expression_delete' course_id=course.id worksheet_id=worksheet.id expression_id=expression.id %}">
                     <i class='fa fa-trash-o'></i>
                 </button>
+                {% endif %}
+            
             </td>
         </tr>
         {% endfor %}
@@ -43,13 +48,12 @@
 
 <script>
     $(function(){
-        // bind edit and delete buttons to their functions
+        // bind edit button to its function
         $('.editExpression').on('click', function(e){
             $('#expressionsTableContainer tr').removeClass('cs-active');
             $(this).parents('tr').addClass('cs-active');
             populateEditor($(this).attr('url'));
         });
-
         $('.deleteExpression').on('click', function(e){
             var delete_url = $(this).attr('url')
             delete_expression = function(){
@@ -60,9 +64,10 @@
             }
             cs_confirm("Delete Course Type", "Are you sure you'd like to delete this expression?", "error", "Delete", delete_expression)
         });
+
     })
 </script>
 
 {% else %}
-<p>No expressions have been created for this worksheet yet.</p>
+<p>No expressions have been created for this worksheet.</p>
 {% endif %}

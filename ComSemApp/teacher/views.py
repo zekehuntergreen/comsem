@@ -129,6 +129,19 @@ class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
     def get_success_url(self):
         return reverse("teacher:course", kwargs={'course_id': self.course.id })
 
+# new view class for released worksheets being edited DF
+class WorksheetReleasedUpdateView(TeacherWorksheetViewMixin, UpdateView):
+    model = Worksheet
+    fields = ["topic", "display_original", "display_reformulation_text",
+                "display_reformulation_audio", "display_all_expressions"]
+    template_name = "ComSemApp/teacher/edit_released_worksheet.html" #edit_worksheet.html -> edit_released_worksheet.html
+    context_object_name = 'worksheet'
+
+    def get_object(self):
+        return self.worksheet
+
+    def get_success_url(self):
+        return reverse("teacher:course", kwargs={'course_id': self.course.id })
 
 class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
     model = Worksheet
@@ -247,7 +260,7 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
         
         all_correct = True
         # status of each attempt
-        for attempt in submission.attempts.all(): # added code to allow audio and text to be graded seperatly vhl
+        for attempt in submission.attempts.all(): # added code to allow audio and text to be graded separatly vhl
             text_correct = self.request.POST.get("T" + str(attempt.id), None) == '1' # get text
             is_audio = (not (self.request.POST.get("A" + str(attempt.id), None) is None)) # checks for audio
             audio_correct = self.request.POST.get("A" + str(attempt.id), None) == '1' # gets audio
@@ -255,9 +268,9 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
             
             attempt.correct = text_correct # marks text
             if is_audio: # adds audio if necessary
-                attempt.audio_correct = audio_correct
+                attempt.audioCorrect = audio_correct
             else: # adds None if there is not audio present
-                attempt.audio_correct = None
+                attempt.audioCorrect = None
             attempt.save()
             if is_audio: # case for if there is audio
                 if (not text_correct) or (not audio_correct):
