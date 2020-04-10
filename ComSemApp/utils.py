@@ -1,9 +1,10 @@
 import nltk
 from nltk.data import load
 
+
 def pos_tag(expression):
     from ComSemApp.models import Tag, Word, SequentialWords
-    nltk.data.path.append("/nltk_data");
+    nltk.data.path.append("/nltk_data")
     nltk.download('punkt')
     nltk.download('averaged_perceptron_tagger')
 

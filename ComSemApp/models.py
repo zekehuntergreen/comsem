@@ -36,7 +36,7 @@ class Student(models.Model):
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
-        return ", ".join([str(self.user.last_name), self.user.first_name])
+        return ", ".join([self.user.last_name, self.user.first_name])
 
     class Meta:
         ordering = ('user__last_name','user__first_name')
@@ -175,12 +175,9 @@ class Worksheet(models.Model):
     def __str__(self):
         return str(self.id)
 
-    # what is the number of this worksheet
     def get_number(self):
-        worksheets = Worksheet.objects.filter(course=self.course)
-        for index, worksheet in enumerate(worksheets):
-            if worksheet == self:
-                return index + 1
+        siblings = list(Worksheet.objects.filter(course=self.course))
+        return siblings.index(self) + 1
 
     @property
     def released(self):
@@ -215,6 +212,9 @@ class Expression(models.Model):
     def __str__(self):
         return self.expression
 
+    def get_number(self):
+        siblings = list(Expression.objects.filter(worksheet=self.worksheet))
+        return siblings.index(self) + 1
 
 
 

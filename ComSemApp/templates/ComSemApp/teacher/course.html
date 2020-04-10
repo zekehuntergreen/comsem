@@ -17,6 +17,9 @@
 		<!-- course info -->
 		<div class="col-lg-5 col-md-5 col-sm-4">
 			{% include 'ComSemApp/course_details.html' %}
+			<a type="button" class="btn btn-primary btn-lg btn-block" href="{% url 'teacher:download_course_csv' course_id=course.id %}">
+				Download All Sentences
+			</a>
 		</div>
 
 		<!-- course students -->
