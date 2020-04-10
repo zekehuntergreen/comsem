@@ -93,12 +93,12 @@ class DownloadCourseCSV(TeacherCourseViewMixin, View):
             for expression in expressions:
                 self._write_expression_row(writer, expression)
             if expressions:
-                writer.writerow(['', '', '', '', ''])
+                writer.writerow(['', '', '', ''])
 
         # With All of the AllDo sentences just once at the end, ordered by Worksheet and sentence.
         expressions = Expression.objects.filter(all_do=True, worksheet__in=worksheets).order_by('worksheet__date')
         if expressions:
-            writer.writerow(['ALL-DO', '', '', '', ''])
+            writer.writerow(['ALL-DO', '', '', ''])
         for expression in expressions:
             self._write_expression_row(writer, expression, all_do=True)
 
@@ -111,7 +111,6 @@ class DownloadCourseCSV(TeacherCourseViewMixin, View):
         row = [
             f"{worksheet_number}",
             f"{expression_number}",
-            "✔️" if all_do else "",
             "" if all_do else str(expression.student),
             f"{expression}"
         ]
