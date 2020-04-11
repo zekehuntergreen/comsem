@@ -53,6 +53,7 @@
             $('#expressionsTableContainer tr').removeClass('cs-active');
             $(this).parents('tr').addClass('cs-active');
             populateEditor($(this).attr('url'));
+            audioReformulationBlob = null; // clears reformulation
         });
         $('.deleteExpression').on('click', function(e){
             var delete_url = $(this).attr('url')

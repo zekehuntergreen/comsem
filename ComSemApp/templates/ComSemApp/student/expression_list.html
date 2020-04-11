@@ -50,6 +50,7 @@
             $('#expressionsTableContainer tr').removeClass('cs-active');
             $(this).parents('tr').addClass('cs-active');
             populateEditor($(this).attr('url'));
+            audioReformulationBlob = null; // clears reformulation
         });
     })
 </script>
