@@ -36,7 +36,7 @@
         {% endif %}
     </div>
 
-    <div class="row">
+    <div class="row" id="select_student">
         <div class="col-12">
             <div class="form-group">
                 <label for="selectstudent">Student: </label>
@@ -117,6 +117,15 @@
 </div>
 
 <script>
+
+function hide_select_student(){
+    var x = document.getElementById("select_student");
+    x.style.display="none"
+}
+{% if worksheet.released %}
+    hide_select_student();
+{% endif %}
+
 
 $("#saveExpression").click(function(e){
     e.preventDefault()
