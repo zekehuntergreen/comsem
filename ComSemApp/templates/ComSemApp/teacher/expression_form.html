@@ -118,11 +118,11 @@
 
 <script>
 
-function hide_select_student(){
+function hide_select_student(){ // hides student selection
     var x = document.getElementById("select_student");
     x.style.display="none"
 }
-{% if worksheet.released %}
+{% if worksheet.released %} // prevents teachers from reassigning the expression if the worksheet is released
     hide_select_student();
 {% endif %}
 
