@@ -273,7 +273,6 @@ class StudentAttempt(models.Model):
 class Word(models.Model):
     form = models.CharField(max_length=255)
     tag = models.ForeignKey('Tag', on_delete=models.PROTECT)
-    # frequency = models.IntegerField(default=1)
 
     def __str__(self):
         return self.form
