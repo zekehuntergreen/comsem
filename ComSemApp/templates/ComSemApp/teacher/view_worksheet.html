@@ -83,6 +83,7 @@
 						<thead>
 							<tr>
 								<th>#</th>
+								<th>All-Do</th>
 								<th>Student</th>
 								<th>Expression</th>
 							</tr>
@@ -92,10 +93,15 @@
 								<tr>
 									<td>{{ forloop.counter }}</td>
 									<td>
+										{% if expression.all_do %}
+											<i class='fa fa-check'></i>
+										{% endif %}
+									</td>
+									<td>
 										{% if expression.student %}
 											{{ expression.student }}
 										{% else %}
-											<b>All-Do</b>
+											<b></b>anon.</b>
 										{% endif %}
 									</td>
 									<td>

@@ -7,9 +7,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db import connection
 
-import nltk
-from nltk.data import load
-
 import json
 from ComSemApp.models import *
 

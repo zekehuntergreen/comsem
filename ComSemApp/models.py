@@ -176,7 +176,7 @@ class Worksheet(models.Model):
         return str(self.id)
 
     def get_number(self):
-        siblings = list(Worksheet.objects.filter(course=self.course))
+        siblings = list(self.course.get_visible_worksheets())
         return siblings.index(self) + 1
 
     @property
@@ -273,7 +273,6 @@ class StudentAttempt(models.Model):
 class Word(models.Model):
     form = models.CharField(max_length=255)
     tag = models.ForeignKey('Tag', on_delete=models.PROTECT)
-    # frequency = models.IntegerField(default=1)
 
     def __str__(self):
         return self.form
