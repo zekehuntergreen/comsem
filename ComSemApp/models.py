@@ -176,7 +176,7 @@ class Worksheet(models.Model):
         return str(self.id)
 
     def get_number(self):
-        siblings = list(Worksheet.objects.filter(course=self.course))
+        siblings = list(self.course.get_visible_worksheets())
         return siblings.index(self) + 1
 
     @property

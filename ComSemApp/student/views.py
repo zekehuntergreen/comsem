@@ -70,7 +70,7 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
-        worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
+        worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED).order_by('-date')
 
         # TODO should this logic be in the worksheet model ?
         for worksheet in worksheets:
