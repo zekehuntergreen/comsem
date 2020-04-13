@@ -123,7 +123,7 @@ class WorksheetListView(TeacherCourseViewMixin, ListView):
     context_object_name = 'worksheets'
 
     def get_queryset(self):
-        return self.course.get_visible_worksheets()
+        return self.course.get_visible_worksheets().order_by('-date')
 
 
 class WorksheetDetailView(TeacherWorksheetViewMixin, DetailView):
