@@ -99,6 +99,13 @@
 			$(function(){
 				$('input,select,textarea').addClass('form-control form-control-sm')
 			});
+			$(function(){
+				$('input[name="contact-type"]').on('change', function(){
+					div_id = $(this).attr("data-toggle")
+					$("div.contact-type-div").hide()
+					$("#" + div_id).show()
+				})
+			})
 		</script>
 
 		{% if messages %}
