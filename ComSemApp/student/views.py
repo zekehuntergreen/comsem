@@ -208,6 +208,7 @@ class AttemptCreateView(StudentSubmissionViewMixin, CreateView):
         attempt = form.save(commit=False)
         attempt.student_submission = self.submission
         attempt.expression = expression
+        attempt.error_type = "t1" # vhl set ml opinion
         attempt.save()
         return JsonResponse({}, status=200)
 
@@ -232,6 +233,8 @@ class AttemptUpdateView(StudentSubmissionViewMixin, UpdateView):
 
     def form_valid(self, form):
         attempt = form.save()
+        attempt.error_type = "t2" # vhl update ml opinion
+        attempt.save()
         if 'delete_audio' in form.data:
             attempt.audio = None
             attempt.save()

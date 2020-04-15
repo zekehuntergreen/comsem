@@ -259,6 +259,7 @@ class StudentAttempt(models.Model):
     reformulation_text = models.TextField(blank=True, null=True)
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
     correct = models.NullBooleanField(blank=True, null=True, default=None)
+    error_type = models.TextField(blank=True, null=True, default=None)
 
     def __str__(self):
         return " - ".join([str(self.student_submission), str(self.expression)])
