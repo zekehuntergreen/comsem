@@ -544,8 +544,8 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
                       
             a_incorrect.append(e) # vhl adds original expression to incorrect
             for attempt in e.attempts: # vhl goes through all attempts
-                if use_audio and (attempt.audioCorrect is not None): # vhl check if attempt has audio and if user wants it
-                    if attempt.audioCorrect: # vhl is audio correct
+                if use_audio and (attempt.audio_correct is not None): # vhl check if attempt has audio and if user wants it
+                    if attempt.audio_correct: # vhl is audio correct
                         a_correct.append(attempt)
                     else: # vhl audio incorrect
                         a_incorrect.append(attempt)                                                                        

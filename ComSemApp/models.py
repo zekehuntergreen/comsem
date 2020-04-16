@@ -265,7 +265,7 @@ class StudentAttempt(models.Model):
     reformulation_text = models.TextField(blank=True, null=True)
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
     correct = models.NullBooleanField(blank=True, null=True, default=None) # marks if text is correct
-    audioCorrect = models.NullBooleanField(blank=True, null=True, default=None) # vhl marks if audio is correct
+    audio_correct = models.NullBooleanField(blank=True, null=True, default=None) # vhl marks if audio is correct
 
     def __str__(self):
         return " - ".join([str(self.student_submission), str(self.expression)])

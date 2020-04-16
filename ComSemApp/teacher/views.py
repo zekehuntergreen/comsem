@@ -255,9 +255,9 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
             
             attempt.correct = text_correct # marks text
             if is_audio: # adds audio if necessary
-                attempt.audioCorrect = audio_correct
+                attempt.audio_correct = audio_correct
             else: # adds None if there is not audio present
-                attempt.audioCorrect = None
+                attempt.audio_correct = None
             attempt.save()
             if is_audio: # case for if there is audio
                 if (not text_correct) or (not audio_correct):

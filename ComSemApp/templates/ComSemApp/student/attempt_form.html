@@ -78,7 +78,7 @@
 {% if attempt.audio %}
 <script>
     $(function(){
-        $('#recordingslist').html("<p>{{ attempt.audio.url }}</p><audio controls id='audioElement' src='" + "{{ attempt.audio.url }}" + "' type='audio/mpeg'></audio>");
+        $('#recordingslist').html("<audio controls id='audioElement' src='" + "{{ attempt.audio.url }}" + "' type='audio/mpeg'></audio>");
         $('#deleteRecordingButton').show();
     })
 </script>
