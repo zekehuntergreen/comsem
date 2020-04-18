@@ -119,7 +119,7 @@
 					tag = "{{ message.tags }}";
 					{% endif %}
 					swal({
-						title: "Success",
+						title: tag == "error" ? "Error" : "Success",
 						text: "{{ message}}",
 						type: tag,
 						showCancelButton: false,
