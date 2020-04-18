@@ -181,8 +181,11 @@ class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
 
     def post(self, *args, **kwargs):
         worksheet = self.get_object()
-        worksheet.release()
-        return HttpResponse(status=204)
+        is_valid = worksheet.release()
+        if is_valid: # vhl release if worksheet is not empty
+            return HttpResponse(status=204)
+        else: # vhl returns error message if worksheet is empty
+            return HttpResponse(status=406, reason="worksheet cannot be empty")
 
 
 class WorksheetDeleteView(TeacherWorksheetViewMixin, DeleteView):
