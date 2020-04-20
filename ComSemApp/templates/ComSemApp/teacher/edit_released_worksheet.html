@@ -14,7 +14,7 @@
 			<div class="page-title-box">
 
 				<h4 class="page-title">
-					{% if not worksheet.id %}New Worksheet{% else %}Edit Worksheet{{ worksheet.number }}{% endif %}
+					Edit Worksheet
                     <small>{{ course }}</small>
 				</h4>
                 <a href="{% url 'teacher:course' course.id %}" name='' class='btn btn-sm btn-success float-right release_worksheet_button'>Release Edits</a>
