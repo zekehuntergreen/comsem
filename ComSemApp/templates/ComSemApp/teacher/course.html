@@ -93,7 +93,7 @@
 				$(".release_worksheet_button").on("click", function(e){
 					$worksheet_row = $(this).parents('tr')
 					release_worksheet_url = $worksheet_row.attr('release_url')
-					cs_confirm("Release Worksheet", "Are you sure you'd like to release this worksheet?\nIf so, you will no longer be able to delete it.", 'warning', "Yes, release it", release_worksheet);
+					cs_confirm("Release Worksheet", "Are you sure you'd like to release this worksheet?\nIf so, you will no longer be able to delete it, create new expressions, or reassign or delete existing ones.", 'warning', "Yes, release it", release_worksheet);
 				});
 			})
 		}
