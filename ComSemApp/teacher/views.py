@@ -24,6 +24,12 @@ from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewM
 import json, math, datetime, os, csv
 from ComSemApp.models import *
 
+import pickle
+import tensorflow
+from tensorflow import keras
+from tensorflow.python.keras.preprocessing.text import Tokenizer
+from tensorflow.python.keras.preprocessing.sequence import pad_sequences
+
 
 class TeacherViewMixin(RoleViewMixin):
 
@@ -283,11 +289,44 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
 
     def get_object(self):
         submission_id = self.kwargs.get('submission_id', None)
+        submission = get_object_or_404(StudentSubmission, id=submission_id, worksheet=self.worksheet)
+        
+        # loading tokenizer
+        with open('ComSemApp/ML/tokenizer.pickle', 'rb') as handle:
+            tokenizer = pickle.load(handle)
+        # loading neural network
+        new_model = tensorflow.keras.models.load_model('ComSemApp/ML/pickled_binary_nn')
+        
+        for attempt in submission.attempts.all():
+            
+            classifier = "contains no error"
+        
+            # example input text
+            text = attempt.reformulation_text
+            # text must be placed in an array in order to be manipulated by tokenzier
+            text_array = [text]
+            #tokenize text
+            tokens = tokenizer.texts_to_sequences(text_array)
+            #add padding to text to compare the text properly
+            tokens_pad = pad_sequences(tokens,maxlen=39, padding='pre', truncating='pre')
+            tokens_pad.shape
+
+            # less than 0.5 means it contains no error, greater than 0.5 means it does contain sv error
+            if new_model.predict(tokens_pad)[0][0] > 0.5:
+                classifier = "contains subject verb agreement error"    
+            attempt.error_type = classifier # vhl update ml error type
+            attempt.save()
+        
+               
+        return submission 
+
+    def get_submission(self):
+        submission_id = self.kwargs.get('submission_id', None)
         return get_object_or_404(StudentSubmission, id=submission_id, worksheet=self.worksheet)
 
     def post(self, *args, **kwargs):
-        submission = self.get_object()
-
+        #submission = self.get_object()
+        submission = self.get_submission()
         all_correct = True
         # status of each attempt
         for attempt in submission.attempts.all():
