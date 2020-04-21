@@ -314,8 +314,6 @@
 
 			$(this).prop("disabled",true);
 
-
-
 			if ($("#word1").val() !== "") {
 				collectData($("#word1").val());
 			} else {
@@ -368,6 +366,67 @@
 			$('#searchResults').show().html("<div class='row float-middle'>No sentences found</div>").load("{% url 'corpus:search_results' %}", data);
 			$(this).prop("disabled",false);
 		});
+	});
+
+	//DF
+	//Fix pressing "enter" bug clearing search bars
+	$("#word1,#word2").on('keypress',function(e){
+		if(e.which === 13){ //13 = "return" or "enter"
+
+			e.preventDefault();
+			searchCriteria = [];
+
+			$(this).prop("disabled",true);
+
+			if ($("#word1").val() !== "") {
+				collectData($("#word1").val());
+			} else {
+				$(this).prop("disabled",false);
+				return;
+			}
+
+			var sequential_search;
+
+			if ($('#newOffset').val() !== "none") {
+				appendCriterion('offset', parseInt($('#newOffset').val()), []);
+				sequential_search = '1';
+			} else {
+				sequential_search = '0';
+			}
+			if ($("#word2").val() !== ""){
+				if ($("#word2").val() == "CC"   || $("#word2").val() == "CD" ||
+					$("#word2").val() == "DT"   || $("#word2").val() == "EX" ||
+					$("#word2").val() == "FW"   || $("#word2").val() == "IN" ||
+					$("#word2").val() == "JJ"   || $("#word2").val() == "JJR" ||
+					$("#word2").val() == "JJS"  || $("#word2").val() == "LS" ||
+					$("#word2").val() == "MD"   || $("#word2").val() == "NN" ||
+					$("#word2").val() == "NNS"  || $("#word2").val() == "NNP" ||
+					$("#word2").val() == "NNPS" || $("#word2").val() == "PDT" ||
+					$("#word2").val() == "POS"  || $("#word2").val() == "PRP" ||
+					$("#word2").val() == "PRP$" || $("#word2").val() == "RB" ||
+					$("#word2").val() == "RBR"  || $("#word2").val() == "RBS" ||
+					$("#word2").val() == "RP"   || $("#word2").val() == "SYM" ||
+					$("#word2").val() == "TO"   || $("#word2").val() == "UH" ||
+					$("#word2").val() == "VB"   || $("#word2").val() == "VBD" ||
+					$("#word2").val() == "VBG"  || $("#word2").val() == "VBN" ||
+					$("#word2").val() == "VBP"  || $("#word2").val() == "VBZ" ||
+					$("#word2").val() == "WDT"  || $("#word2").val() == "WP" ||
+					$("#word2").val() == "WP$"  || $("#word2").val() == "WRB" )
+				{
+					collectTags();
+				}else{
+					collectData($("#word2").val());
+				}
+			}
+
+			var data = {
+				'searchCriteria': $('#searchCriteria').val(),
+				'searchType': sequential_search,
+			}
+			$('#searchResults').show().html("<div class='row float-middle'>No sentences found</div>").load("{% url 'corpus:search_results' %}", data);
+			$(this).prop("disabled",false);
+		}//end if
+
 	});
 
 </script>
