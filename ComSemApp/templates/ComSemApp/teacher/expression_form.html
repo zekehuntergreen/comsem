@@ -20,6 +20,8 @@
             </h4>
 
         </div>
+        <!--if worksheet is not released do not add the all do checkbox to the expression form - T.M.-->
+        {% if not worksheet.released %}
         <div class="col-4">
             <div class="checkbox checkbox-primary">
                 <input type="checkbox" id="all_do" name="all_do" {% if object.all_do %}checked{% endif %}>
@@ -28,9 +30,13 @@
                 </label>
             </div>
         </div>
+        {% else %}
+        <input type="hidden" id="all_do" name="all_do" {% if object.all_do %}checked{% endif %}> 
+        <!-- vhl will preserve all_do integrity -->
+        {% endif %}
     </div>
 
-    <div class="row">
+    <div class="row" id="select_student">
         <div class="col-12">
             <div class="form-group">
                 <label for="selectstudent">Student: </label>
@@ -81,7 +87,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="row" id="display_reformulation_audioRow">
         {% include 'ComSemApp/audio_recording.html' %}
     </div>
@@ -99,7 +105,11 @@
     <div class="row">
         <div class="col-12 text-center">
             <div class="btn-group" role="group">
+                {% if not worksheet.released %}
                 <button type="button" id="saveExpression"  name="SaveExpression" class="btn btn-outline-success">Save Expression</button>
+                {% else %}
+                <button type="button" id="saveExpression"  name="SaveExpression" class="btn btn-outline-success">Save Edits</button>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -107,6 +117,15 @@
 </div>
 
 <script>
+
+function hide_select_student(){ // hides student selection
+    var x = document.getElementById("select_student");
+    x.style.display="none"
+}
+{% if worksheet.released %} // prevents teachers from reassigning the expression if the worksheet is released
+    hide_select_student();
+{% endif %}
+
 
 $("#saveExpression").click(function(e){
     e.preventDefault()
@@ -156,5 +175,6 @@ $("#saveExpression").click(function(e){
 
     // clear editor
     $("#ExpressionEditor").slideUp();
+    audioReformulationBlob = null; // clears reformulation
 });
 </script>

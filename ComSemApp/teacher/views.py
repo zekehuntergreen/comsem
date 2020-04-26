@@ -24,6 +24,11 @@ from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewM
 import json, math, datetime, os
 from ComSemApp.models import *
 
+import pickle
+import tensorflow
+from tensorflow import keras
+from tensorflow.python.keras.preprocessing.text import Tokenizer
+from tensorflow.python.keras.preprocessing.sequence import pad_sequences
 
 class TeacherViewMixin(RoleViewMixin):
 
@@ -129,6 +134,20 @@ class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
     def get_success_url(self):
         return reverse("teacher:course", kwargs={'course_id': self.course.id })
 
+# new view class for released worksheets being edited DF
+class WorksheetReleasedUpdateView(TeacherWorksheetViewMixin, UpdateView):
+    model = Worksheet
+    fields = ["topic", "display_original", "display_reformulation_text",
+                "display_reformulation_audio", "display_all_expressions"]
+    template_name = "ComSemApp/teacher/edit_released_worksheet.html" #edit_worksheet.html -> edit_released_worksheet.html
+    context_object_name = 'worksheet'
+
+    def get_object(self):
+        return self.worksheet
+
+    def get_success_url(self):
+        return reverse("teacher:course", kwargs={'course_id': self.course.id })
+
 
 class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
     model = Worksheet
@@ -138,8 +157,11 @@ class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
 
     def post(self, *args, **kwargs):
         worksheet = self.get_object()
-        worksheet.release()
-        return HttpResponse(status=204)
+        is_valid = worksheet.release()
+        if is_valid: # vhl release if worksheet is not empty
+            return HttpResponse(status=204)
+        else: # vhl returns error message if worksheet is empty
+            return HttpResponse(status=406, reason="worksheet cannot be empty")
 
 
 class WorksheetDeleteView(TeacherWorksheetViewMixin, DeleteView):
@@ -240,10 +262,121 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
 
     def get_object(self):
         submission_id = self.kwargs.get('submission_id', None)
+        submission = get_object_or_404(StudentSubmission, id=submission_id, worksheet=self.worksheet)
+
+        with open('ComSemApp/ML/tokenizer.pickle', 'rb') as handle:
+            tokenizer_sv = pickle.load(handle)
+
+        new_model_sv = keras.models.load_model('ComSemApp/ML/pickled_binary_nn')
+
+
+        with open('ComSemApp/ML/tense_tokenizer.pickle', 'rb') as handle:
+            tokenizer_tense = pickle.load(handle)
+
+        #load tense error binary neural network
+        new_model_tense = keras.models.load_model('ComSemApp/ML/pickled_tense_nn')
+
+
+        # open noun phrase tokenizer
+        with open('ComSemApp/ML/np_tokenizer.pickle', 'rb') as handle:
+            tokenizer_np = pickle.load(handle)
+        # load noun phrase binary neural network
+        new_model_np = keras.models.load_model('ComSemApp/ML/pickled_np_nn')
+
+
+        for attempt in submission.attempts.all():
+            sv_classifier = 0
+            tense_classifier = 0
+            noun_phrase_classifier = 0
+            final_classifier = ""
+
+            # example input text
+            text = attempt.reformulation_text
+
+            # text must be placed in an array in order to be manipulated by tokenzier
+            text_array = [text]
+            print("\n")
+            print(text)
+
+            #tokenize text
+            tokens_sv = tokenizer_sv.texts_to_sequences(text_array)
+
+            #add padding to text to compare the text properly
+            tokens_pad_sv = pad_sequences(tokens_sv,maxlen=39,
+                                       padding='pre', truncating='pre')
+            tokens_pad_sv.shape
+
+            #print example of confidence that there is a sv agreement error in text
+            print(new_model_sv.predict(tokens_pad_sv)[0][0])
+
+            # less than 0.5 means it contains no error, greater than 0.5 means it does contain sv error
+            if new_model_sv.predict(tokens_pad_sv)[0][0] > 0.5:
+                sv_classifier =  new_model_sv.predict(tokens_pad_sv)[0][0]
+
+            #print the sv classifier
+            print("subject verb agreement error confidence ",sv_classifier)
+
+
+
+            tokens_tense = tokenizer_tense.texts_to_sequences(text_array)
+
+            #add padding to text to compare the text properly
+            tokens_pad_tense = pad_sequences(tokens_tense,maxlen=39,
+                                       padding='pre', truncating='pre')
+            tokens_pad_tense.shape
+
+            #print example of confidence that there is a sv agreement error in text
+            print(new_model_tense.predict(tokens_pad_tense)[0][0])
+
+            # less than 0.5 means it contains no error, greater than 0.5 means it does contain sv error
+            if new_model_tense.predict(tokens_pad_tense)[0][0] > 0.5:
+                tense_classifier =  new_model_tense.predict(tokens_pad_tense)[0][0]
+
+            #print the sv classifier
+            print("subject tense error confidence ", tense_classifier)
+
+
+            tokens_np = tokenizer_np.texts_to_sequences(text_array)
+
+            #add padding to text to compare the text properly
+            tokens_pad_np = pad_sequences(tokens_np,maxlen=46,
+                                       padding='pre', truncating='pre')
+            tokens_pad_np.shape
+
+            #print example of confidence that there is a sv agreement error in text
+            print(new_model_np.predict(tokens_pad_np)[0][0])
+
+            # less than 0.5 means it contains no error, greater than 0.5 means it does contain sv error
+            if new_model_np.predict(tokens_pad_np)[0][0] > 0.5:
+                noun_phrase_classifier =  new_model_np.predict(tokens_pad_np)[0][0]
+
+            #print the noun phrase classifier
+            print("noun phrase confidence ", noun_phrase_classifier)
+
+            # compare confidence of each classifier and determine which has the highest confidence value
+            if (sv_classifier > 0.5):
+               final_classifier += "Chance of sv: " + str(sv_classifier) + " "
+
+            if (tense_classifier > 0.5):
+               final_classifier += "Chance of tense: " + str(tense_classifier) + " "
+
+            if (noun_phrase_classifier > 0.5):
+               final_classifier += "Chance of np: " + str(noun_phrase_classifier)
+
+            if (len(final_classifier) == 0):
+                final_classifier = "No errors have been detected"
+
+            attempt.error_type = final_classifier # vhl update ml error type
+            attempt.save()
+
+        return submission 
+
+    def get_submission(self):
+        submission_id = self.kwargs.get('submission_id', None)
         return get_object_or_404(StudentSubmission, id=submission_id, worksheet=self.worksheet)
 
     def post(self, *args, **kwargs):
-        submission = self.get_object()
+        submission = self.get_submission()
         
         all_correct = True
         # status of each attempt

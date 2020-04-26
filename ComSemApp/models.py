@@ -187,12 +187,16 @@ class Worksheet(models.Model):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
 
     def release(self):
-        self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
-        self.save()
-        for expression in self.expressions.all():
-            pos_tag(expression)
+        if self.expressions.exists(): # vhl releases no empty worksheets
+            self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
+            self.save()
+            for expression in self.expressions.all():
+                pos_tag(expression)
+            return True
+        else: # vhl prevents empty worksheets from being released
+            return False
             
-    def complete_submission(self, student): # vhl checks if any submissions are complete
+    def complete_submission(self, student): # vhl checks if any submissions are complete might bookmark
         complete_submission = None
         if StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").exists():
             complete_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").latest()
@@ -266,6 +270,7 @@ class StudentAttempt(models.Model):
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
     correct = models.NullBooleanField(blank=True, null=True, default=None) # marks if text is correct
     audio_correct = models.NullBooleanField(blank=True, null=True, default=None) # vhl marks if audio is correct
+    error_type = models.TextField(blank=True, null=True, default=None) # vhl holds ML predictions
 
     def __str__(self):
         return " - ".join([str(self.student_submission), str(self.expression)])

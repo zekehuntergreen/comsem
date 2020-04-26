@@ -10,6 +10,11 @@ urlpatterns = [
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/list/$', views.WorksheetListView.as_view(), name='worksheet_list'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/$', views.WorksheetDetailView.as_view(), name='worksheet_detail'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/update/$', views.WorksheetUpdateView.as_view(), name='worksheet_update'),
+    
+    # new worksheet url: name=worksheet_released_update, views.WokrsheetReleasedUpdateView.as_view() DF
+    url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/update_released/$', views.WorksheetReleasedUpdateView.as_view(), name='worksheet_released_update'),
+
+    
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/release/$', views.WorksheetReleaseView.as_view(), name='worksheet_release'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/delete/$', views.WorksheetDeleteView.as_view(), name='worksheet_delete'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/expressions/$', views.ExpressionListView.as_view(), name='expressions'),

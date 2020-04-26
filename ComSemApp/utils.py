@@ -1,5 +1,6 @@
 import nltk
 from nltk.data import load
+import tensorflow
 
 def pos_tag(expression):
     from ComSemApp.models import Tag, Word, SequentialWords
@@ -16,9 +17,9 @@ def pos_tag(expression):
     for word, tag in tagged:
         # tags
         dictionary_tag, created = Tag.objects.get_or_create(tag=tag)
-        #words
+        # words
         dictionary_word, created = Word.objects.get_or_create(form=word, tag=dictionary_tag)
-        #sequential words
+        # sequential words
         SequentialWords.objects.create(
             expression = expression,
             word = dictionary_word,
