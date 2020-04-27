@@ -355,13 +355,13 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
 
             # compare confidence of each classifier and determine which has the highest confidence value
             if (sv_classifier > 0.5):
-               final_classifier += "Chance of sv: " + str(sv_classifier) + " "
+               final_classifier += "Chance of SV: " + "{:.2%}".format(sv_classifier) + " "
 
             if (tense_classifier > 0.5):
-               final_classifier += "Chance of tense: " + str(tense_classifier) + " "
+               final_classifier += "Chance of Tense: " + "{:.2%}".format(tense_classifier) + " "
 
             if (noun_phrase_classifier > 0.5):
-               final_classifier += "Chance of np: " + str(noun_phrase_classifier)
+               final_classifier += "Chance of NP: " + "{:.2%}".format(noun_phrase_classifier)
 
             if (len(final_classifier) == 0):
                 final_classifier = "No errors have been detected"
