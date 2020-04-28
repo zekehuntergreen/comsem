@@ -159,7 +159,7 @@ class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixi
         return submission
         
     
-    def in_current_attempts(self, expression): 
+    def in_current_attempts(self, expression): # vhl checks if expression is in current submission
         try:
             sattempt = StudentAttempt.objects.get(student_submission=self.get_object(), expression=expression)
         except:
@@ -167,7 +167,7 @@ class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixi
         return True
     
         
-    def get_attempts(self, expression): 
+    def get_attempts(self, expression): # vhl gets all attempts for an expression
         submissions = StudentSubmission.objects.filter(student=self.student, worksheet=expression.worksheet)
 
         attempts = []
@@ -181,10 +181,8 @@ class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixi
         return attempts
     
     def form_valid(self, form): # vhl makes sure that students do not skip problems
-        current_submission = self.get_object() # get the current submission
-        worksheet = current_submission.worksheet # get the current worksheet
+        worksheet = self.get_object().worksheet # get the current worksheet
         submissions = StudentSubmission.objects.filter(student=self.student, worksheet=worksheet)     
-        
         
         expression_filters = Q(worksheet=worksheet) # gets expressions
         if not worksheet.display_all_expressions:
@@ -195,21 +193,19 @@ class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixi
             e.attempts = self.get_attempts(e)
             
             is_correct = False # boolean for if there is a correct attempt for this expression
-            for attempt in e.attempts: # vhl checks if you have answered this expression correctly 
-                if attempt.correct is not None: # checks if you got a text right 
-                    if attempt.correct: 
-                        if attempt.audio_correct is not None: # checks if you got an audio right
-                            if attempt.audio_correct:
-                                is_correct = True                               
-                        else: # no audio present
-                            is_correct = True     
-                                                            
-                   
-            if not is_correct and not self.in_current_attempts(e): # if there is no correct answer in a previous attempt checks if you attempted to answer the question in the current attempt.
-                messages.error(self.request, "Submission incomplete")
+            
+            for attempt in e.attempts: # checks if you have answered this expression correctly                 
+                if attempt.correct: # checks if text is correct
+                    if attempt.audio_correct is not None: # checks if audio is present
+                        if attempt.audio_correct: # case if both audio and text are correct
+                            is_correct = True                               
+                    else: # case if text is correct and there is no audio
+                        is_correct = True         
+            
+            if not is_correct and not self.in_current_attempts(e): # If there is no correct answer in a previous attempt checks if you attempted to answer the question in the current attempt.
+                messages.error(self.request, "Submission Incomplete") # If you did not you get this message
                 return super().form_invalid(form)
-                
-                           
+                                   
         self.object.status = 'ungraded'
         self.object.save()
         messages.success(self.request, "Submission successful")
@@ -379,28 +375,31 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
             for f in e.raw_figs:
                 exp_data[f].append(e.raw_figs[f])
         
+        #mins = { x:min([y for y in exp_data[x] if y >= 0]) for x in exp_data}
+        #ranges = { x:max([y for y in exp_data[x] if y >= 0 ]) - min([y for y in exp_data[x] if y >= 0]) for x in exp_data }
+        # The previous two lines ran into an empty argument error wit min() and ranges would sometimes end up as 0
+        # causing a divide by zero error later on. This was a quick fix near the end of the year so it migh tneed to be relooked at
         mins = {}
         ranges = {}
         
         for x in exp_data:
-            check = False # vhl checks is there is a y > 0 otherwise you will get an error on new worksheets where there is none
+            check = False # vhl checks is there is a y > 0 otherwise you will get an error where the min function has not arguments
             for y in exp_data[x]:
                 if y >= 0:
                     check = True
                     break
                                              
-            if check:
+            if check: # if there is an appropriate min
                 mins[x] = min([y for y in exp_data[x] if y >= 0]) 
                 ranges[x] = max([y for y in exp_data[x] if y >= 0]) - min([y for y in exp_data[x] if y >= 0])
                 if ranges[x] == 0:
                     ranges[x] = 1 # vhl I set this to 1 but only because it was dividing by 0
-            else:
+            else: # else set to default values to avoid divide by 0 errors
                 mins[x] = 0
                 ranges[x] = 1
                      
-        #mins = { x:min([y for y in exp_data[x] if y >= 0]) for x in exp_data}
-        #ranges = { x:max([y for y in exp_data[x] if y >= 0 ]) - min([y for y in exp_data[x] if y >= 0]) for x in exp_data }
-        print('---------------------------------------------------------------------')
+        
+        #print('---------------------------------------------------------------------')
         for e in expression_qset:
             # e.norm_figs = {x:(e.raw_figs[x] - range_mins[x]['min']) / range_mins[x]['range'] if range_mins[x]['range'] > 0 else 0 for x in e.raw_figs }
             e.norm_figs = {}
@@ -518,23 +517,24 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
             
         #mins = { x: min([y for y in exp_data[x] if y >= 0]) for x in exp_data}
         #ranges = { x:max([y for y in exp_data[x] if y >= 0]) - min([y for y in exp_data[x] if y >= 0]) for x in exp_data }
-        
+        # The previous two lines ran into an empty argument error wit min() and ranges would sometimes end up as 0
+        # causing a divide by zero error later on. This was a quick fix near the end of the year so it migh tneed to be relooked at
         mins = {}
         ranges = {}
         
-        for x in exp_data:
+        for x in exp_data: 
             check = False # vhl checks is there is a y > 0 otherwise you will get an error on new worksheets where there is none
             for y in exp_data[x]:
-                if y >= 0:
-                    check = True;
+                if y >= 0: # if there is a y > 0 then min will not have empty arguments
+                    check = True
                     break
                                              
-            if check:
+            if check: 
                 mins[x] = min([y for y in exp_data[x] if y >= 0]) 
                 ranges[x] = max([y for y in exp_data[x] if y >= 0]) - min([y for y in exp_data[x] if y >= 0])
                 if ranges[x] == 0:
-                    ranges[x] = 1 # there was a divide by 0 error here
-            else:
+                    ranges[x] = 1 # there was a divide by 0 error
+            else: # default values
                 mins[x] = 0
                 ranges[x] = 1
         
@@ -549,7 +549,7 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
                 e.norm_figs['rt'] = (1 if e.raw_figs['rt'] == mins['rt'] else 1 - (e.raw_figs['rt'] - mins['rt']) / ranges['rt']) * WEIGHTS['rt']
                 e.norm_figs['pct_correct'] = (0 if e.raw_figs['pct_correct'] == mins['pct_correct'] else (e.raw_figs['pct_correct'] - mins['pct_correct']) / ranges['pct_correct']) * WEIGHTS['pct_correct']
                 e.practice_score = int(sum(e.norm_figs.values()) * 100)
-                print(e.expression, e.practice_score)
+                #print(e.expression, e.practice_score)
 
         # Only allow students to review completed worksheets (must have an answer)        
         context['worksheets'] =  completed
@@ -576,7 +576,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
             try:
                 sattempt = StudentAttempt.objects.get(student_submission=submission, expression=expression)
                 attempts.append(sattempt)
-                print("HEREE: ", sattempt)
+                #print("HEREE: ", sattempt)
             except:
                 pass
         
@@ -593,7 +593,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
         
         expression_ids = dict(self.request.GET)['choice']
         use_audio = dict(self.request.GET)['audio-choice'][0] == '1'
-        print("AUDIO - ", use_audio)
+        #print("AUDIO - ", use_audio)
         raw_expressions = []
         for expression_id in expression_ids:
             expression_object = get_object_or_404(Expression, pk=expression_id)
@@ -601,7 +601,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
             expression_object.attempts = self.get_attempts(expression_object)
             raw_expressions.append(expression_object)
         
-        review_data, audio_paths = self.make_review_questions(raw_expressions, use_audio) # vhl added use_audio
+        review_data, audio_paths = self.make_review_questions(raw_expressions, use_audio) # vhl makes reviewsheet questions
         context['review_data'] = json.dumps(review_data)
         context['audio_paths'] = audio_paths
         context['student_id'] = self.student.id
@@ -650,7 +650,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
                 if len(a_correct) == 1: # vhl if there is only 1 correct answer
                     correct_item = a_correct[0]
                 else:
-                    print(len(a_correct)) # vhl if there are multiple correct answers
+                    # vhl if there are multiple correct answers
                     correct_item = a_correct[random.randint(0, len(a_correct) - 1)]
                 
                 if len(a_incorrect) == 1: # vhl if there is only 1 incorrect answer
@@ -666,21 +666,21 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
             # Choose between audio and text
 
             if e == selected[0]: # vhl forces original expression to be text to prevent the instructors recording from being used.
-                print("EXPRESSION")
+                #print("EXPRESSION")
                 expression_data['term'] = selected[0].expression
                 expression_data['type'] = 'TEXT'
              
                                
             elif selected[0].audio and use_audio: # vhl made it so audio only shows up when users request it
                 # vhl case for if selected attempt has audio and user is looking for audio problems          
-                print("AUDIO")
+                #print("AUDIO")
                 expression_data['term'] = selected[0].reformulation_text
                 a_id = "%d_audio" % e.id
                 expression_data['audio_id'] = a_id
                 audio_paths.append((a_id, selected[0].audio))
                 expression_data['type'] = 'AUDIO'
             else: # vhl case for if a selected attempt has no audio or user does not want audio
-                print("ATTEMPT")
+                #print("ATTEMPT")
                 expression_data['term'] = selected[0].reformulation_text
                 expression_data['type'] = 'TEXT'
 
@@ -691,7 +691,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
 class ReviewsheetGetView(ReviewsheetView):
     def get(self, request, *args, **kwargs):
         # student can't create a submission if there is an updatable one.
-        print(request.GET)
+        #print(request.GET)
         if 'choice' in request.GET:
             return super().get(self, request, *args, **kwargs)
         else:
