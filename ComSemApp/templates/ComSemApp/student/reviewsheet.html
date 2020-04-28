@@ -223,12 +223,23 @@
     function display_results() {
         // check is displayed if a student answered correctly and x is displayed if they are incorrect or skipped
         for(i = 0; i < current_question; i++){ // displays original incorrect expression and term
+            
             if (review_data[i]['correct'] === true){ // checks if student is correct
                 // displays correct is student is correct
-                $("#result_body").append(`<tr><td>${review_data[i]['term']}</td><td class="text-center">${review_data[i]['answer'].toUpperCase()}</td><td class="text-center"><i class=" fa fa-check-circle btn-outline-primary"></i></td></tr>`); 
+                if (review_data[i]['type'] === 'AUDIO'){ // displays icon if audio is present
+                    $("#result_body").append(`<tr><td><i class="icon fa fa-volume-up"></i> ${review_data[i]['term']}</td><td class="text-center">${review_data[i]['answer'].toUpperCase()}</td><td class="text-center"><i class=" fa fa-check-circle btn-outline-primary"></i></td></tr>`); 
+                
+                } else { // not audio
+                    $("#result_body").append(`<tr><td>${review_data[i]['term']}</td><td class="text-center">${review_data[i]['answer'].toUpperCase()}</td><td class="text-center"><i class=" fa fa-check-circle btn-outline-primary"></i></td></tr>`); 
+                }
             } else {
+         
                 // displays incorrect if student is incorrect
-                $("#result_body").append(`<tr><td>${review_data[i]['term']}</td><td class="text-center">${review_data[i]['answer'].toUpperCase()}</td><td class="text-center"><i class="fa fa-times-circle btn-outline-danger"></i></td></tr>`);
+                if (review_data[i]['type'] === 'AUDIO'){
+                    $("#result_body").append(`<tr><td><i class="icon fa fa-volume-up"></i> ${review_data[i]['term']}</td><td class="text-center">${review_data[i]['answer'].toUpperCase()}</td><td class="text-center"><i class="fa fa-times-circle btn-outline-danger"></i></td></tr>`);
+                } else {
+                    $("#result_body").append(`<tr><td>${review_data[i]['term']}</td><td class="text-center">${review_data[i]['answer'].toUpperCase()}</td><td class="text-center"><i class="fa fa-times-circle btn-outline-danger"></i></td></tr>`);
+                }
             }
         }
     }
