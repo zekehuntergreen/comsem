@@ -287,36 +287,39 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
     template_name = "ComSemApp/teacher/view_submission.html"
     context_object_name = "submission"
 
-    def get_object(self):
+        
+    def get_object(self): # gets submission object and runs it through neural net
         submission_id = self.kwargs.get('submission_id', None)
         submission = get_object_or_404(StudentSubmission, id=submission_id, worksheet=self.worksheet)
-        
+
+        # open subject verb tokenizer
         with open('ComSemApp/ML/tokenizer.pickle', 'rb') as handle:
             tokenizer_sv = pickle.load(handle)
-        
+    
+        # load subject verb error binary neural network
         new_model_sv = keras.models.load_model('ComSemApp/ML/pickled_binary_nn')
-        
-        
+
+        # open tense tokenizer
         with open('ComSemApp/ML/tense_tokenizer.pickle', 'rb') as handle:
             tokenizer_tense = pickle.load(handle)
 
-        #load tense error binary neural network
+        # load tense error binary neural network
         new_model_tense = keras.models.load_model('ComSemApp/ML/pickled_tense_nn')
-        
-        
+
+
         # open noun phrase tokenizer
         with open('ComSemApp/ML/np_tokenizer.pickle', 'rb') as handle:
             tokenizer_np = pickle.load(handle)
         # load noun phrase binary neural network
         new_model_np = keras.models.load_model('ComSemApp/ML/pickled_np_nn')
-        
-        
+
+
         for attempt in submission.attempts.all():
-            sv_classifier = 0
-            tense_classifier = 0
+            sv_classifier = 0 
+            tense_classifier = 0 
             noun_phrase_classifier = 0
             final_classifier = ""
-            
+
             # example input text
             text = attempt.reformulation_text
 
@@ -324,126 +327,82 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
             text_array = [text]
             print("\n")
             print(text)
-            
-            #tokenize text
+
+            # tokenize text
             tokens_sv = tokenizer_sv.texts_to_sequences(text_array)
 
-            #add padding to text to compare the text properly
-            tokens_pad_sv = pad_sequences(tokens_sv,maxlen=39,
-                                       padding='pre', truncating='pre')
+            # add padding to text to compare the text properly
+            tokens_pad_sv = pad_sequences(tokens_sv,maxlen=39, padding='pre', truncating='pre')
             tokens_pad_sv.shape
 
-            #print example of confidence that there is a sv agreement error in text
+            # print example of confidence that there is a sv agreement error in text
             print(new_model_sv.predict(tokens_pad_sv)[0][0])
 
             # less than 0.5 means it contains no error, greater than 0.5 means it does contain sv error
             if new_model_sv.predict(tokens_pad_sv)[0][0] > 0.5:
                 sv_classifier =  new_model_sv.predict(tokens_pad_sv)[0][0]
-            
-            #print the sv classifier
-            print("subject verb agreement error confidence ",sv_classifier)
-            
-            
-            
+
+            # print the sv classifier
+            print("subject verb agreement error confidence ", sv_classifier)
+
+
+            # tokenize text
             tokens_tense = tokenizer_tense.texts_to_sequences(text_array)
 
-            #add padding to text to compare the text properly
-            tokens_pad_tense = pad_sequences(tokens_tense,maxlen=39,
-                                       padding='pre', truncating='pre')
+            # add padding to text to compare the text properly
+            tokens_pad_tense = pad_sequences(tokens_tense,maxlen=39, padding='pre', truncating='pre')
             tokens_pad_tense.shape
 
-            #print example of confidence that there is a sv agreement error in text
+            #print example of confidence that there is a tense error in text
             print(new_model_tense.predict(tokens_pad_tense)[0][0])
 
-            # less than 0.5 means it contains no error, greater than 0.5 means it does contain sv error
+            # less than 0.5 means it contains no error, greater than 0.5 means it does contain a tense error
             if new_model_tense.predict(tokens_pad_tense)[0][0] > 0.5:
                 tense_classifier =  new_model_tense.predict(tokens_pad_tense)[0][0]
 
-            #print the sv classifier
-            print("subject tense error confidence ",tense_classifier)
-            
-                        
+            # print the tense classifier
+            print("subject tense error confidence ", tense_classifier)
+
+            # tokenize text
             tokens_np = tokenizer_np.texts_to_sequences(text_array)
 
-            #add padding to text to compare the text properly
-            tokens_pad_np = pad_sequences(tokens_np,maxlen=46,
-                                       padding='pre', truncating='pre')
+            # add padding to text to compare the text properly
+            tokens_pad_np = pad_sequences(tokens_np,maxlen=46, padding='pre', truncating='pre')
             tokens_pad_np.shape
 
-            #print example of confidence that there is a sv agreement error in text
+            # print example of confidence that there is a np agreement error in text
             print(new_model_np.predict(tokens_pad_np)[0][0])
 
-            # less than 0.5 means it contains no error, greater than 0.5 means it does contain sv error
+            # less than 0.5 means it contains no error, greater than 0.5 means it does contain np error
             if new_model_np.predict(tokens_pad_np)[0][0] > 0.5:
                 noun_phrase_classifier =  new_model_np.predict(tokens_pad_np)[0][0]
-                
-            #print the noun phrase classifier
+
+            # print the noun phrase classifier
             print("noun phrase confidence ", noun_phrase_classifier)
-            
+
             # compare confidence of each classifier and determine which has the highest confidence value
-            """
-            if (sv_classifier > tense_classifier) and (sv_classifier > noun_phrase_classifier):
-               final_classifier = "this sentence has a subject verb agreement error"
-            
-            elif (tense_classifier > sv_classifier) and (tense_classifier > noun_phrase_classifier):
-               final_classifier = "this sentence has a tense error"
-            elif (noun_phrase_classifier > sv_classifier) and (noun_phrase_classifier > tense_classifier):
-               final_classifier = "this sentence has a noun phrase error"
-            """ 
-            
             if (sv_classifier > 0.5):
-               final_classifier += "Chance of sv: " + str(sv_classifier) + " "
-            
+               final_classifier += "Chance of SV: " + "{:.2%}".format(sv_classifier) + " "
+
             if (tense_classifier > 0.5):
-               final_classifier += "Chance of tense: " + str(tense_classifier) + " "
-            
+               final_classifier += "Chance of Tense: " + "{:.2%}".format(tense_classifier) + " "
+
             if (noun_phrase_classifier > 0.5):
-               final_classifier += "Chance of np: " + str(noun_phrase_classifier)
-               
-            if (len(final_classifier) == 0):
+               final_classifier += "Chance of NP: " + "{:.2%}".format(noun_phrase_classifier)
+
+            if (len(final_classifier) == 0): # if final_classifier has a len of 0 no errors where detected
                 final_classifier = "No errors have been detected"
-            
-                
-               
+
             attempt.error_type = final_classifier # vhl update ml error type
             attempt.save()
-            
-        """
-        # loading tokenizer
-        with open('ComSemApp/ML/tokenizer.pickle', 'rb') as handle:
-            tokenizer = pickle.load(handle)
-        # loading neural network
-        new_model = tensorflow.keras.models.load_model('ComSemApp/ML/pickled_binary_nn')
-        
-        for attempt in submission.attempts.all():
-            
-            classifier = "contains no error"
-        
-            # example input text
-            text = attempt.reformulation_text
-            # text must be placed in an array in order to be manipulated by tokenzier
-            text_array = [text]
-            #tokenize text
-            tokens = tokenizer.texts_to_sequences(text_array)
-            #add padding to text to compare the text properly
-            tokens_pad = pad_sequences(tokens,maxlen=39, padding='pre', truncating='pre')
-            tokens_pad.shape
 
-            # less than 0.5 means it contains no error, greater than 0.5 means it does contain sv error
-            if new_model.predict(tokens_pad)[0][0] > 0.5:
-                classifier = "contains subject verb agreement error"    
-            attempt.error_type = classifier # vhl update ml error type
-            attempt.save()
-        """
-               
         return submission 
-
-    def get_submission(self):
+          
+    def get_submission(self): # gets the object without running the ML
         submission_id = self.kwargs.get('submission_id', None)
         return get_object_or_404(StudentSubmission, id=submission_id, worksheet=self.worksheet)
 
-    def post(self, *args, **kwargs):
-        #submission = self.get_object()
+    def post(self, *args, **kwargs): # vhl determines whether a student submission is complete after a teacher grades it
         submission = self.get_submission()
         all_correct = True
         # status of each attempt
