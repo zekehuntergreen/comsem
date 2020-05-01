@@ -288,27 +288,6 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
         submission_id = self.kwargs.get('submission_id', None)
         return get_object_or_404(StudentSubmission, id=submission_id, worksheet=self.worksheet)
         
-        
-        """
-                    
-            text_correct = self.request.POST.get("T" + str(attempt.id), None) == '1' # get text
-            audio_correct = self.request.POST.get("A" + str(attempt.id), None) == '1' # gets audio
-            
-            attempt.correct = text_correct # marks text
-            if attempt.audio: # adds audio correct if there is audio
-                attempt.audio_correct = audio_correct
-            else: # adds None if there is not audio present
-                attempt.audio_correct = None
-                            
-            attempt.save()
-            if attempt.audio: # case for if there is audio
-                if (not text_correct) or (not audio_correct):
-                    all_correct = False
-            else: # case for text only
-                if (not text_correct):
-                    all_correct = False
-        """
-        
 
     def post(self, *args, **kwargs):
         submission = self.get_object()
@@ -320,9 +299,9 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
             audio_correct = self.request.POST.get("A" + str(attempt.id), None) == '1' # gets audio
             
             attempt.correct = text_correct # marks text
-            if attempt.audio: # adds audio if necessary
+            if attempt.audio: # sets audio correct if there is audio
                 attempt.audio_correct = audio_correct
-            else: # adds None if there is not audio present
+            else: # sets audio_correct to None if there is no audio
                 attempt.audio_correct = None
                 
             attempt.save()
