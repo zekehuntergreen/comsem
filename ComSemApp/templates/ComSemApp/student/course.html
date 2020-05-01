@@ -34,7 +34,7 @@
 					{% for worksheet in worksheets %}
 
 					<tr id="worksheet-{{ worksheet.id }}">
-						<td>{{ forloop.counter }}</td>
+						<td>{{ worksheet.get_number }}</td>
 						<td>{{ worksheet.date }}</td>
 						<td>{{ worksheet.topic }}</td>
 						<td>

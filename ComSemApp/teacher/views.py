@@ -21,7 +21,7 @@ from django.conf import settings
 from ComSemApp.teacher import constants
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin
 
-import json, math, datetime, os
+import json, math, datetime, os, csv
 from ComSemApp.models import *
 
 
@@ -75,13 +75,55 @@ class CourseDetailView(TeacherCourseViewMixin, DetailView):
         return self.course
 
 
+class DownloadCourseCSV(TeacherCourseViewMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        # Create the HttpResponse object with the appropriate CSV header.
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="{self.course}.csv"'
+
+        writer = csv.writer(response)
+        students = self.course.students.all()
+        worksheets = self.course.worksheets.all()
+        writer.writerow(['Worksheet Number', 'Expression Number', 'All Do', 'Student', 'Sentence'])
+
+        # All non-AllDo sentences, ordered by student, then worksheet, then expression
+        for student in students:
+            expressions = Expression.objects.filter(student=student, worksheet__in=worksheets, all_do=False).order_by('worksheet__date')
+            for expression in expressions:
+                self._write_expression_row(writer, expression)
+            if expressions:
+                writer.writerow(['', '', '', ''])
+
+        # With All of the AllDo sentences just once at the end, ordered by Worksheet and sentence.
+        expressions = Expression.objects.filter(all_do=True, worksheet__in=worksheets).order_by('worksheet__date')
+        if expressions:
+            writer.writerow(['ALL-DO', '', '', ''])
+        for expression in expressions:
+            self._write_expression_row(writer, expression, all_do=True)
+
+        return response
+
+    def _write_expression_row(self, writer, expression, all_do=False):
+        worksheet = expression.worksheet
+        worksheet_number = worksheet.get_number()
+        expression_number = expression.get_number()
+        row = [
+            f"{worksheet_number}",
+            f"{expression_number}",
+            "" if all_do else str(expression.student),
+            f"{expression}"
+        ]
+        writer.writerow(row)
+
+
 class WorksheetListView(TeacherCourseViewMixin, ListView):
     model = Worksheet
     template_name = 'ComSemApp/teacher/worksheet_list.html'
     context_object_name = 'worksheets'
 
     def get_queryset(self):
-        return self.course.get_visible_worksheets()
+        return self.course.get_visible_worksheets().order_by('-date')
 
 
 class WorksheetDetailView(TeacherWorksheetViewMixin, DetailView):
@@ -94,6 +136,7 @@ class WorksheetDetailView(TeacherWorksheetViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(WorksheetDetailView, self).get_context_data(**kwargs)
         context['submissions'] = self.worksheet.submissions.exclude(status="pending")
+        context['worksheets'] = self.course.get_visible_worksheets()
         return context
 
 
@@ -105,7 +148,7 @@ class WorksheetCreateView(TeacherCourseViewMixin, UpdateView):
 
     # technically an UpdateView since a worksheet object with status PENDING is created in the get_object method
     def get_object(self):
-        worksheet, created = Worksheet.objects.get_or_create_pending(self.teacher, self.course)
+        worksheet, _ = Worksheet.objects.get_or_create_pending(self.teacher, self.course)
         return worksheet
 
     def form_valid(self, form):
@@ -138,8 +181,11 @@ class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
 
     def post(self, *args, **kwargs):
         worksheet = self.get_object()
-        worksheet.release()
-        return HttpResponse(status=204)
+        is_valid = worksheet.release()
+        if is_valid: # vhl release if worksheet is not empty
+            return HttpResponse(status=204)
+        else: # vhl returns error message if worksheet is empty
+            return HttpResponse(status=406, reason="worksheet cannot be empty")
 
 
 class WorksheetDeleteView(TeacherWorksheetViewMixin, DeleteView):

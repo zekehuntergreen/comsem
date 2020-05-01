@@ -18,4 +18,5 @@ app-messages/*
 # local dev settings module
 local_dev.py
 
-*.vscode
+# vscode settings
+.vscode/*

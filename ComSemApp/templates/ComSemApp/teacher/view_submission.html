@@ -97,7 +97,19 @@
 						{% for attempt in submission.attempts.all %}
 						<div class="tab-pane {% if forloop.first %}active{% endif %}" id="s-{{ forloop.counter }}">
 
-							<!-- original expression  -->
+							<!-- all do -->
+							<div class="row submissionRow" style="margin-top: 0px;">
+								<div class="col-12">
+									<strong>All-Do: </strong>
+									{% if attempt.expression.all_do %}
+										<i class='fa fa-check'></i>
+									{% else %}
+										<i class='fa fa-times'></i>
+									{% endif %}
+								</div>
+							</div>
+
+							<!-- original expression -->
 							<div class="row submissionRow" style="margin-top: 0px;">
 								<div class="col-12">
 									<strong>Original Expression: </strong>
@@ -134,7 +146,7 @@
 
 								<div class="col-6">
 									<strong>Student Reformulation: </strong>
-									{{  attempt.reformulation_text }}
+									{{ attempt.reformulation_text }}
 								</div>
 
 								{% if attempt.audio %}

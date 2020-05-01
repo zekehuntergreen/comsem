@@ -423,23 +423,3 @@ class TeacherDisactivateView(DisactivateUserMixin):
 class StudentDisactivateView(DisactivateUserMixin):
     success_url = reverse_lazy("administrator:students")
     model = Student
-
-
-class CourseTypeDeleteView(NoConfirmDeleteMixin):
-    success_url = reverse_lazy("administrator:course_types")
-    model = CourseType
-
-
-class SessionTypeDeleteView(NoConfirmDeleteMixin):
-    success_url = reverse_lazy("administrator:session_types")
-    model = SessionType
-
-
-class CourseDeleteView(NoConfirmDeleteMixin):
-    success_url = reverse_lazy("administrator:courses")
-    model = Course
-
-
-class SessionDeleteView(NoConfirmDeleteMixin):
-    success_url = reverse_lazy("administrator:sessions")
-    model = Session

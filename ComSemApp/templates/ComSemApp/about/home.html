@@ -84,29 +84,59 @@
 
 			<div class="row">
 				<div class="col-sm-10 mx-auto">
-					<div class="feature-detail">
-						<h2 class="title fadeIn animated wow" data-wow-delay=".1s">Sign Up</h2>
-						<p class="sub fadeIn animated wow" data-wow-delay=".2s">
-							If you are a teacher or administrator and would like to use Communications Seminar, please fill out the form below and send us a message. <br />
-							Someone will contact you to set up an account.
-						</p>
 
-						<form method="post">
-							{% csrf_token %}
-							<div class="row" style="margin-top: 5em">
-								<div class="col-8 mx-auto">
-									{% include 'ComSemApp/form_contents.html' %}
-								</div>
+					<div class="row">
+						<div class="col-sm-12">
+							<h2 class="title fadeIn animated wow" data-wow-delay=".1s">Sign Up</h2>
+							<p> I am a </p>
+							<div class="btn-group btn-group-toggle" data-toggle="buttons">
+								<label class="btn btn-primary">
+									<input type="radio" name="contact-type" id="contact-student-radio" data-toggle="contact-student" autocomplete="off" checked> student
+								</label>
+								<label class="btn btn-primary">
+									<input type="radio" name="contact-type" id="contact-teacher-admin-radio" data-toggle="contact-teacher-admin" autocomplete="off"> teacher or administrator
+								</label>
 							</div>
+						</div>
+					</div>
 
-							<br />
-
-							<div class="row mt-4">
-								<div class="col-8 mx-auto">
-									<button class="btn btn-primary btn-rounded w-lg animated fadeInDown wow" data-wow-delay=".4s" type="submit">Submit</button>
-								</div>
+					<div class="row">
+						<div class="col-sm-12">
+							<div class="feature-detail contact-type-div" id='contact-student' style='display: none'>
+								<br>
+								<p>
+									If you are a student at a school which is signed up to use Communications Seminar, you may have received an email containing instructions to log in. 
+									If you haven't, please contact your school's administrator and ask them to help you set your an account.
+								</p>
 							</div>
-						</form>
+		
+							<div class="feature-detail contact-type-div" id='contact-teacher-admin' style='display: none'>
+								<br>
+								<p>
+									If you are a teacher or administrator and would like to use Communications Seminar, please fill out the form below and send us a message. <br />
+									Someone will contact you to set up an account.
+								</p>
+								
+								<form method="post">
+									{% csrf_token %}
+									<div class="row" style="margin-top: 5em">
+										<div class="col-8 mx-auto">
+											{% include 'ComSemApp/form_contents.html' %}
+											<div class="g-recaptcha" data-sitekey="6Ld_SuEUAAAAAI_-RgnQbFVfAy9mrhzwq9xZcQrH"></div>
+										</div>
+									</div>
+									
+									<br />
+									
+									<div class="row mt-4">
+										<div class="col-8 mx-auto">
+											<button class="btn btn-primary btn-rounded w-lg animated fadeInDown wow" data-wow-delay=".4s" type="submit">Submit</button>
+										</div>
+									</div>
+								</form>
+								<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+							</div>
+						</div>
 					</div>
 				</div>
 
@@ -114,5 +144,16 @@
 		</div>
 	</section>
 	<!-- END SIGNUP -->
+
+	<style>
+		/* stop signup section from being strangely small */
+		html, body
+		{
+			height: 100%;
+		}
+		#signup {
+			min-height: 100%;
+		}
+	</style>
 
 {% endblock %}

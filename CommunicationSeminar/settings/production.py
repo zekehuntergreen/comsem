@@ -39,16 +39,17 @@ SECRET_KEY = env_get('SECRET_KEY', "c7so+hqfe+a_9i9*##vgl!k-xb^)nin&o-ev*^t@ipq6
 DEBUG = env_get_bool("DEBUG", True)
 LIVE = env_get_bool("LIVE", False)
 
-ZEKES_EMAIL = 'zekehuntergreen@gmail.com'
-JAMES_EMAIL = 'hunter@gonzaga.edu'
-ADMINS = [('Zeke Hunter-Green', ZEKES_EMAIL)]
-CONTACT_FORM_RECIPIENTS = [ZEKES_EMAIL, JAMES_EMAIL]
-SIGNUP_FORM_RECIPIENTS = [ZEKES_EMAIL, JAMES_EMAIL]
+ZEKE_EMAIL = env_get("ZEKE_EMAIL", 'info@comsem.net')
+JAMES_EMAIL = env_get("JAMES_EMAIL", 'info@comsem.net')
+ADMINS = [('Zeke Hunter-Green', ZEKE_EMAIL)]
+CONTACT_FORM_RECIPIENTS = [ZEKE_EMAIL, JAMES_EMAIL]
+SIGNUP_FORM_RECIPIENTS = [ZEKE_EMAIL, JAMES_EMAIL]
 
 
 ALLOWED_HOSTS = [
     'comsem.herokuapp.com',
     'localhost',
+    '127.0.0.1',
     '.comsem.net',
 ]
 
@@ -228,7 +229,7 @@ LOGGING = {
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-STATIC_ROOT  =   os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 #  Add configuration for static files storage using whitenoise
@@ -251,3 +252,5 @@ if LIVE:
     }
 
     DEFAULT_FILE_STORAGE = 'CommunicationSeminar.storage_backends.MediaStorage'
+
+RECAPCHA_SECRET_KEY = env_get('RECAPCHA_SECRET_KEY')

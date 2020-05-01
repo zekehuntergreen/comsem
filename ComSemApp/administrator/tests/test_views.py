@@ -1,3 +1,4 @@
+from unittest import skip
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.core import mail
@@ -71,6 +72,7 @@ class AdminTestCase(object):
         response = self.client.post(update_url, self.get_data())
         self.assertRedirects(response, self.list_url)
 
+    @skip
     def test_delete_view(self):
         obj = self.create_object()
         self.assertEqual(self.obj.objects.count(), 1)

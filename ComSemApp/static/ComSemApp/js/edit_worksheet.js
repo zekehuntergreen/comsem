@@ -16,7 +16,12 @@ function populateEditor(url){
 		initializeRecorder(); // initialize the recorder. function found in ComSemRecording-opus.js
 
 		// show the form
-		$('#ExpressionEditor').slideDown()
+		$('#ExpressionEditor').show()
+
+		scrollToDiv('#ExpressionEditorCardBox')
+
+		// focus on first element of the form
+		$('#studentID').focus()
 	})
 
 }
@@ -32,7 +37,7 @@ $(function(){
 
 
 function inspectFormData(worksheetFormData){
-    for (var pair of worksheetFormData.entries()) {
-        console.log(pair[0]+ ', ' + pair[1]);
-    }
+	for (var pair of worksheetFormData.entries()) {
+		console.log(pair[0]+ ', ' + pair[1]);
+	}
 }
