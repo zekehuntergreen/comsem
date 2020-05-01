@@ -183,6 +183,12 @@ class Worksheet(models.Model):
     def released(self):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
 
+    def complete_submission(self, student): # vhl checks if any submissions are complete
+        complete_submission = None
+        if StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").exists():
+            complete_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").latest()
+        return complete_submission
+
     def release(self):   
         if self.expressions.exists(): # vhl releases no empty worksheets
             self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
@@ -263,7 +269,8 @@ class StudentAttempt(models.Model):
     student_submission = models.ForeignKey('StudentSubmission', related_name="attempts", on_delete=models.CASCADE)
     reformulation_text = models.TextField(blank=True, null=True)
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
-    correct = models.NullBooleanField(blank=True, null=True, default=None)
+    correct = models.NullBooleanField(blank=True, null=True, default=None) # marks if text is correct
+    audio_correct = models.NullBooleanField(blank=True, null=True, default=None) # vhl marks if audio is correct
 
     def __str__(self):
         return " - ".join([str(self.student_submission), str(self.expression)])
@@ -271,6 +278,19 @@ class StudentAttempt(models.Model):
     class Meta:
         verbose_name = "Student Attempt"
         unique_together = ("student_submission", "expression")
+
+class ReviewAttempt(models.Model):
+    expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
+    student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)
+    correct = models.BooleanField(default=None)
+    response_time = models.FloatField()
+
+    def __str__(self):
+        return "%d - %5s - %s" % (self.id, str(self.correct), self.expression)
+
+    class Meta:
+        verbose_name = "Review Attempt"
 
 
 # WORDS, SEQUENTIAL WORDS, TAG
