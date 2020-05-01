@@ -1,6 +1,6 @@
 body {
 	padding: 0 !important;
-	font-size: 16px !important; /* changes font size vhl */
+	font-size: 16px !important;
 }
 
 /* copy table-hover's highlighting for programmatic highlighting*/
@@ -56,7 +56,7 @@ i.ion-sm {
 }
 
 
-/*make button text wrap vhl*/
+/*make button text wrap*/
 .btn {
     white-space:normal !important;
     word-break: normal;
