@@ -276,7 +276,6 @@ class StudentAttempt(models.Model):
 
 class ReviewAttempt(models.Model):
     expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
-    course = models.ForeignKey('Course', on_delete=models.CASCADE)
     student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
     correct = models.BooleanField(default=None)
