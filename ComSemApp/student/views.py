@@ -496,7 +496,8 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
         WEIGHTS = {"attempts":0.1, "days_since_review":0.2,  "rt":0.2, "pct_correct":0.5} #a static that we can change later if we want to add adjustable weights
         context = super(ReviewsheetGeneratorView, self).get_context_data(**kwargs)
         worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
-        course_response_times = [x.response_time for x in ReviewAttempt.objects.filter(student=self.student, course=self.course, correct=True)]
+        course_response_times = [x.response_time for x in ReviewAttempt.objects.filter(
+                    student=self.student, expression__worksheet__course=self.course, correct=True)]
         exp_data = {"attempts":[], "days_since_review":[],  "rt":[], "pct_correct":[]}
         
         # TODO should this logic be in the worksheet model ?
@@ -701,7 +702,7 @@ class ReviewsheetGetView(ReviewsheetView):
 class ReviewAttemptCreateView(ReviewsheetView, CreateView):
     model = ReviewAttempt
     template_name = "ComSemApp/student/reviewsheet.html"
-    fields = ["expression", "course", "student", "correct", "response_time"]
+    fields = ["expression", "student", "correct", "response_time"]
 
     def get_context_data(self, **kwargs):
         context = super(ReviewAttemptCreateView, self).get_context_data(**kwargs)
