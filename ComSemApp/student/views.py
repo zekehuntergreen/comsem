@@ -157,55 +157,8 @@ class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixi
     def get_object(self):
         submission, created = StudentSubmission.objects.get_or_create_pending(self.student, self.worksheet)
         return submission
-        
-    
-    def in_current_attempts(self, expression): # vhl checks if expression is in current submission
-        try:
-            sattempt = StudentAttempt.objects.get(student_submission=self.get_object(), expression=expression)
-        except:
-            return False
-        return True
-    
-        
-    def get_attempts(self, expression): # vhl gets all attempts for an expression
-        submissions = StudentSubmission.objects.filter(student=self.student, worksheet=expression.worksheet)
 
-        attempts = []
-        for submission in submissions:
-            try:
-                sattempt = StudentAttempt.objects.get(student_submission=submission, expression=expression)
-                attempts.append(sattempt)
-            except:
-                pass
-
-        return attempts
-    
-    def form_valid(self, form): # vhl makes sure that students do not skip problems
-        worksheet = self.get_object().worksheet # get the current worksheet
-        submissions = StudentSubmission.objects.filter(student=self.student, worksheet=worksheet)     
-        
-        expression_filters = Q(worksheet=worksheet) # gets expressions
-        if not worksheet.display_all_expressions:
-            expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
-
-        expression_qset = Expression.objects.filter(expression_filters) 
-        for e in expression_qset: # goes through expressions looking if they need to be answered
-            e.attempts = self.get_attempts(e)
-            
-            is_correct = False # boolean for if there is a correct attempt for this expression
-            
-            for attempt in e.attempts: # checks if you have answered this expression correctly                 
-                if attempt.correct: # checks if text is correct
-                    if attempt.audio_correct is not None: # checks if audio is present
-                        if attempt.audio_correct: # case if both audio and text are correct
-                            is_correct = True                               
-                    else: # case if text is correct and there is no audio
-                        is_correct = True         
-            
-            if not is_correct and not self.in_current_attempts(e): # If there is no correct answer in a previous attempt checks if you attempted to answer the question in the current attempt.
-                messages.error(self.request, "Submission Incomplete") # If you did not you get this message
-                return super().form_invalid(form)
-                                   
+    def form_valid(self, form):
         self.object.status = 'ungraded'
         self.object.save()
         messages.success(self.request, "Submission successful")
