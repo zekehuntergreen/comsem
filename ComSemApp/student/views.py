@@ -627,8 +627,8 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
                 expression_data['term'] = selected[0].expression
                 expression_data['type'] = 'TEXT'
 
-
-            elif selected[0].audio and use_audio: # vhl made it so audio only shows up when users request it
+            elif selected[0].audio and use_audio and selected[0].audio_correct is not None: # vhl made it so audio only shows up when users request it and audio has been graded correctly
+                # Last conditional is for audio expressions graded before audio_correct was in models.
                 # vhl case for if selected attempt has audio and user is looking for audio problems          
                 #print("AUDIO")
                 expression_data['term'] = selected[0].reformulation_text
