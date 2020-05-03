@@ -52,17 +52,17 @@
                                         {% endif %}
                                     </td>
                                     <td> <!-- displays whether responses are correct or incorrect -->
-                                        {% if attempt.correct == None %} 
+                                        {% if attempt.text_correct == None %} 
                                             -
                                         {% elif attempt.audio_correct == None %}<!-- text only responses vhl-->
                                             
-                                            {% if attempt.correct %}
+                                            {% if attempt.text_correct %}
                                                 <i class="fa fa-check"></i>
                                             {% else %}
                                                 <i class="fa fa-times"></i>
                                             {% endif %}
                                         {% else %} <!-- text and audio responses vhl-->
-                                            {% if attempt.correct and attempt.audio_correct%}
+                                            {% if attempt.text_correct and attempt.audio_correct%}
                                                 <i class="fa fa-check"></i>
                                             {% else %}
                                                 <i class="fa fa-times"></i>

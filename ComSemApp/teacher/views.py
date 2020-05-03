@@ -299,7 +299,7 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
             audio_correct = self.request.POST.get("A" + str(attempt.id), None) == '1' # gets audio
             
             
-            attempt.correct = text_correct # marks text
+            attempt.text_correct = text_correct # marks text
             if is_audio: # adds audio if necessary
                 attempt.audio_correct = audio_correct
             else: # adds None if there is not audio present

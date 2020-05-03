@@ -269,8 +269,8 @@ class StudentAttempt(models.Model):
     student_submission = models.ForeignKey('StudentSubmission', related_name="attempts", on_delete=models.CASCADE)
     reformulation_text = models.TextField(blank=True, null=True)
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
-    correct = models.NullBooleanField(blank=True, null=True, default=None) # marks if text is correct
-    audio_correct = models.NullBooleanField(blank=True, null=True, default=None) # vhl marks if audio is correct
+    text_correct = models.NullBooleanField(blank=True, null=True, default=None)
+    audio_correct = models.NullBooleanField(blank=True, null=True, default=None)
 
     def __str__(self):
         return " - ".join([str(self.student_submission), str(self.expression)])
