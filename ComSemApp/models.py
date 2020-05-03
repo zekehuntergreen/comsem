@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.db.models import Q
 
 from ComSemApp.teacher import constants as teacher_constants
 
@@ -259,6 +260,20 @@ class StudentSubmission(models.Model):
             if submission == self:
                 return index + 1
 
+    def get_required_expressions(self):
+        expression_filters = Q(worksheet=self.worksheet)
+        if not self.worksheet.display_all_expressions:
+            expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
+
+        incomplete_submissions = StudentSubmission.objects.filter(student=self.student, worksheet=self.worksheet, status='incomplete')
+        if incomplete_submissions.exists():
+            latest_incomplete_submission = incomplete_submissions.latest()
+            lastest_submission_incorrect_attempts = latest_incomplete_submission.attempts.filter(Q(text_correct=False) | Q(audio_correct=False))
+            lastest_submission_incorrect_expression_ids = [a.expression.id for a in lastest_submission_incorrect_attempts]
+            expression_filters &= Q(id__in=lastest_submission_incorrect_expression_ids)
+
+        return Expression.objects.filter(expression_filters)
+
     class Meta:
         verbose_name = "Student Submission"
         get_latest_by = "date"
@@ -269,8 +284,8 @@ class StudentAttempt(models.Model):
     student_submission = models.ForeignKey('StudentSubmission', related_name="attempts", on_delete=models.CASCADE)
     reformulation_text = models.TextField(blank=True, null=True)
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
-    correct = models.NullBooleanField(blank=True, null=True, default=None) # marks if text is correct
-    audio_correct = models.NullBooleanField(blank=True, null=True, default=None) # vhl marks if audio is correct
+    text_correct = models.NullBooleanField(blank=True, null=True, default=None)
+    audio_correct = models.NullBooleanField(blank=True, null=True, default=None)
 
     def __str__(self):
         return " - ".join([str(self.student_submission), str(self.expression)])
@@ -278,6 +293,7 @@ class StudentAttempt(models.Model):
     class Meta:
         verbose_name = "Student Attempt"
         unique_together = ("student_submission", "expression")
+
 
 class ReviewAttempt(models.Model):
     expression = models.ForeignKey('Expression', on_delete=models.CASCADE)

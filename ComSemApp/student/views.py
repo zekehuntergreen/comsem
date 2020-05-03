@@ -155,10 +155,15 @@ class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixi
         return super().get(request, *args, **kwargs)
 
     def get_object(self):
-        submission, created = StudentSubmission.objects.get_or_create_pending(self.student, self.worksheet)
+        submission, _ = StudentSubmission.objects.get_or_create_pending(self.student, self.worksheet)
         return submission
 
     def form_valid(self, form):
+        required_expressions = self.object.get_required_expressions()
+        attempts = self.object.attempts.all()
+        if attempts.count() < required_expressions.count():
+            messages.warning(self.request, "Please create an attempt for each expression")
+            return super().form_invalid(form)
         self.object.status = 'ungraded'
         self.object.save()
         messages.success(self.request, "Submission successful")
@@ -181,10 +186,7 @@ class ExpressionListView(StudentSubmissionViewMixin, ListView):
     template_name = "ComSemApp/student/expression_list.html"
 
     def get_queryset(self):
-        expression_filters = Q(worksheet=self.worksheet)
-        if not self.worksheet.display_all_expressions:
-            expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
-        expressions = Expression.objects.filter(expression_filters)
+        expressions = self.submission.get_required_expressions()
         for expression in expressions:
             attempt = None
             attempts = StudentAttempt.objects.filter(student_submission=self.submission, expression=expression)
@@ -304,7 +306,7 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
                     e.has_audio = True
             
             # AF - gets the number of attempts it took for the student to get the expression correct
-            attempt_factor = len([x for x in e.attempts if not x.correct]) + 1
+            attempt_factor = len([x for x in e.attempts if not x.text_correct]) + 1
             
             # AF - gets the reviews
             past_correct_review = ReviewAttempt.objects.filter(expression=e.id, correct=True)
@@ -409,7 +411,7 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
                     e.has_audio = True
             
             # AF - gets the number of attempts it took for the student to get the expression correct
-            attempt_factor = len([x for x in e.attempts if not x.correct]) + 1
+            attempt_factor = len([x for x in e.attempts if not x.text_correct]) + 1
             
             # AF - gets the reviews
             past_correct_review = ReviewAttempt.objects.filter(expression=e.id, correct=True)
@@ -510,6 +512,7 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
         
         return context
 
+
 class ReviewsheetView(StudentCourseViewMixin, DetailView):
     # SHOULD THIS BE INHERETING ^^? 
     # Only using it since I want to keep non-central page elements the same (sidebar/header/footer)
@@ -573,26 +576,25 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
             [type] -- [description]
         """
         import random
-        
+
         review_data = []
         audio_paths = [] 
-        
-        
+
+
         for e in raw_expressions: 
-                      
             a_correct = [] # vhl list of correct expressions
             a_incorrect = [] # vhl list of incorrect expressions
-                              
+
             a_incorrect.append(e) # vhl adds original expression to incorrect
             for attempt in e.attempts: # vhl goes through all attempts
                 if use_audio and (attempt.audio_correct is not None): # vhl check if attempt has audio and if user wants it
                     if attempt.audio_correct: # vhl is audio correct
                         a_correct.append(attempt)
                     else: # vhl audio incorrect
-                        a_incorrect.append(attempt)                                                                        
+                        a_incorrect.append(attempt)
                 else: # vhl if user does not want audio or attempt lacks audio
-                    if attempt.correct is not None: # vhl prevents ungraded answers from getting on the review sheet
-                        if attempt.correct: # vhl text attempt is correct
+                    if attempt.text_correct is not None: # vhl prevents ungraded answers from getting on the review sheet
+                        if attempt.text_correct: # vhl text attempt is correct
                             a_correct.append(attempt)
                         else: # vhl text attempt is incorrect
                             a_incorrect.append(attempt)
@@ -613,18 +615,19 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
                     incorrect_item = a_incorrect[random.randint(0, len(a_incorrect) - 1)]
                     
                 selected = [(correct_item, 'right'), (incorrect_item, 'wrong')][random.randint(0, 1)] # vhl randomly select a correct or incorrect question for the reviewsheet 
-            
-            
+
+
+
             expression_data = {'id': e.id, 'original': e.expression, 'answer': selected[1]}
-            
+
             # Choose between audio and text
 
             if e == selected[0]: # vhl forces original expression to be text to prevent the instructors recording from being used.
                 #print("EXPRESSION")
                 expression_data['term'] = selected[0].expression
                 expression_data['type'] = 'TEXT'
-             
-                               
+
+
             elif selected[0].audio and use_audio: # vhl made it so audio only shows up when users request it
                 # vhl case for if selected attempt has audio and user is looking for audio problems          
                 #print("AUDIO")
@@ -639,8 +642,9 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
                 expression_data['type'] = 'TEXT'
 
             review_data.append(expression_data)
-            
+
         return review_data, audio_paths
+
 
 class ReviewsheetGetView(ReviewsheetView):
     def get(self, request, *args, **kwargs):
@@ -651,6 +655,7 @@ class ReviewsheetGetView(ReviewsheetView):
         else:
             messages.error(self.request, "You must select at least one expression to generate a worksheet")
             return HttpResponseRedirect(reverse("student:generate_reviewsheet", kwargs={'course_id': self.course.id }))
+
 
 class ReviewAttemptCreateView(ReviewsheetView, CreateView):
     model = ReviewAttempt
