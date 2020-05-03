@@ -170,7 +170,7 @@
 									<div class="radio radio-primary form-check-inline">
                                         <!--vhl text is correct T{{attempt.id}} means text attempt id-->
                                         
-										<input type="radio" name="T{{ attempt.id}}" value="1" {% if attempt.correct %} checked{% endif %} id="textCorrect{{ forloop.counter }}">
+										<input type="radio" name="T{{ attempt.id}}" value="1" {% if attempt.text_correct %} checked{% endif %} id="textCorrect{{ forloop.counter }}">
 
 										<label for="textCorrect{{ forloop.counter }}">
 											Correct
@@ -179,7 +179,7 @@
 									</div>
                                     <!--vhl text is incorrect-->
 									<div class="radio radio-primary form-check-inline">
-										<input type="radio" name="T{{ attempt.id }}"  value="0" {% if attempt.correct is False %} checked{% endif %} id="textIncorrect{{ forloop.counter }}">
+										<input type="radio" name="T{{ attempt.id }}"  value="0" {% if attempt.text_correct is False %} checked{% endif %} id="textIncorrect{{ forloop.counter }}">
 										<label for="textIncorrect{{ forloop.counter }}">
 											Incorrect
 										</label>
