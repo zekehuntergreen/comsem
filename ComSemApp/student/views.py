@@ -159,6 +159,11 @@ class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixi
         return submission
 
     def form_valid(self, form):
+        required_expressions = StudentSubmission.objects.get_required_expressions(self.student, self.worksheet)
+        attempts = self.object.attempts.all()
+        if attempts.count() < required_expressions.count():
+            messages.warning(self.request, "Please create an attempt for each expression")
+            return super().form_invalid(form)
         self.object.status = 'ungraded'
         self.object.save()
         messages.success(self.request, "Submission successful")
@@ -181,10 +186,7 @@ class ExpressionListView(StudentSubmissionViewMixin, ListView):
     template_name = "ComSemApp/student/expression_list.html"
 
     def get_queryset(self):
-        expression_filters = Q(worksheet=self.worksheet)
-        if not self.worksheet.display_all_expressions:
-            expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
-        expressions = Expression.objects.filter(expression_filters)
+        expressions = StudentSubmission.objects.get_required_expressions(self.student, self.worksheet)
         for expression in expressions:
             attempt = None
             attempts = StudentAttempt.objects.filter(student_submission=self.submission, expression=expression)
@@ -510,6 +512,7 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
         
         return context
 
+
 class ReviewsheetView(StudentCourseViewMixin, DetailView):
     # SHOULD THIS BE INHERETING ^^? 
     # Only using it since I want to keep non-central page elements the same (sidebar/header/footer)
@@ -642,6 +645,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
 
         return review_data, audio_paths
 
+
 class ReviewsheetGetView(ReviewsheetView):
     def get(self, request, *args, **kwargs):
         # student can't create a submission if there is an updatable one.
@@ -651,6 +655,7 @@ class ReviewsheetGetView(ReviewsheetView):
         else:
             messages.error(self.request, "You must select at least one expression to generate a worksheet")
             return HttpResponseRedirect(reverse("student:generate_reviewsheet", kwargs={'course_id': self.course.id }))
+
 
 class ReviewAttemptCreateView(ReviewsheetView, CreateView):
     model = ReviewAttempt
