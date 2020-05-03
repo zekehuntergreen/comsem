@@ -155,11 +155,11 @@ class SubmissionCreateView(StudentWorksheetViewMixin, SubmissionUpdateCreateMixi
         return super().get(request, *args, **kwargs)
 
     def get_object(self):
-        submission, created = StudentSubmission.objects.get_or_create_pending(self.student, self.worksheet)
+        submission, _ = StudentSubmission.objects.get_or_create_pending(self.student, self.worksheet)
         return submission
 
     def form_valid(self, form):
-        required_expressions = StudentSubmission.objects.get_required_expressions(self.student, self.worksheet)
+        required_expressions = self.object.get_required_expressions()
         attempts = self.object.attempts.all()
         if attempts.count() < required_expressions.count():
             messages.warning(self.request, "Please create an attempt for each expression")
@@ -186,7 +186,7 @@ class ExpressionListView(StudentSubmissionViewMixin, ListView):
     template_name = "ComSemApp/student/expression_list.html"
 
     def get_queryset(self):
-        expressions = StudentSubmission.objects.get_required_expressions(self.student, self.worksheet)
+        expressions = self.submission.get_required_expressions()
         for expression in expressions:
             attempt = None
             attempts = StudentAttempt.objects.filter(student_submission=self.submission, expression=expression)

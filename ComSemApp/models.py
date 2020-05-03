@@ -238,20 +238,6 @@ class StudentSubmissionManager(models.Manager):
         return StudentSubmission.objects.get_or_create(student=student,
                 worksheet=worksheet, status='pending')
 
-    def get_required_expressions(self, student, worksheet):
-        expression_filters = Q(worksheet=worksheet)
-        if not worksheet.display_all_expressions:
-            expression_filters &= (Q(student=student) | Q(student=None) | Q(all_do=True))
-
-        incomplete_submissions = StudentSubmission.objects.filter(student=student, worksheet=worksheet, status='incomplete')
-        if incomplete_submissions.exists():
-            latest_incomplete_submission = incomplete_submissions.latest()
-            lastest_submission_incorrect_attempts = latest_incomplete_submission.attempts.filter(Q(text_correct=False) | Q(audio_correct=False))
-            lastest_submission_incorrect_expression_ids = [a.expression.id for a in lastest_submission_incorrect_attempts]
-            expression_filters &= Q(id__in=lastest_submission_incorrect_expression_ids)
-
-        return Expression.objects.filter(expression_filters)
-
 
 class StudentSubmission(models.Model):
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
@@ -273,6 +259,20 @@ class StudentSubmission(models.Model):
         for index, submission in enumerate(submissions):
             if submission == self:
                 return index + 1
+
+    def get_required_expressions(self):
+        expression_filters = Q(worksheet=self.worksheet)
+        if not self.worksheet.display_all_expressions:
+            expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
+
+        incomplete_submissions = StudentSubmission.objects.filter(student=self.student, worksheet=self.worksheet, status='incomplete')
+        if incomplete_submissions.exists():
+            latest_incomplete_submission = incomplete_submissions.latest()
+            lastest_submission_incorrect_attempts = latest_incomplete_submission.attempts.filter(Q(text_correct=False) | Q(audio_correct=False))
+            lastest_submission_incorrect_expression_ids = [a.expression.id for a in lastest_submission_incorrect_attempts]
+            expression_filters &= Q(id__in=lastest_submission_incorrect_expression_ids)
+
+        return Expression.objects.filter(expression_filters)
 
     class Meta:
         verbose_name = "Student Submission"
