@@ -1,0 +1,93 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<!-- page head -->
+<form method="POST" id="editWorksheetForm">
+	{% csrf_token %}
+
+	<!-- Page-Title -->
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="page-title-box">
+
+				<h4 class="page-title">
+					Edit Worksheet
+                    <small>{{ course }}</small>
+				</h4>
+                <a href="{% url 'teacher:course' course.id %}" name='' class='btn btn-sm btn-success float-right release_worksheet_button'>Back To Courses</a>
+				
+
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+
+	{% include 'ComSemApp/recording_alerts.html' %}
+
+	<div class="row">
+
+		<div class="col-12">
+
+			<div class="card-box">
+				<h4 class="m-t-0 header-title"><b>Worksheet Info</b></h4>
+
+				<div class="row">
+
+					<div class="col-12 col-md-6">
+
+
+						<label for="topic">Topic: {{ worksheet.topic|default_if_none:'' }}</label>
+
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+</form>
+
+
+<div class="row">
+
+	<!-- expressions -->
+	<div class="col-sm-12 col-md-6">
+		<div class="card-box">
+
+			<div class="row">
+				<div class="col-md-6">
+					<h4 class="m-t-0 header-title"><b>Expressions</b></h4>
+				</div>
+			</div>
+
+			<div id="expressionsTableContainer" style="max-height:600px;overflow-y:scroll"></div>
+
+		</div>
+	</div>
+
+	<!-- expression editor -->
+	<div class="col-sm-12 col-md-6">
+		<div class="card-box">
+			<h4 class="m-t-0 header-title"><b>Expression Editor</b></h4>
+
+			<div id="expression_form"></div>
+
+		</div>
+	</div>
+
+</div>
+
+<script>
+	expression_create_url = "{% url 'teacher:expression_create' course_id=course.id worksheet_id=worksheet.id %}";
+	expression_list_url = "{% url 'teacher:expressions' course_id=course.id worksheet_id=worksheet.id %}";
+	encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
+</script>
+
+<script src="{% static 'ComSemApp/js/edit_worksheet.js' %}" v="3"></script>
+
+
+{% endblock %}
