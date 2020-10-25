@@ -89,14 +89,21 @@ class DownloadCourseCSV(TeacherCourseViewMixin, View):
 
         # All non-AllDo sentences, ordered by student, then worksheet, then expression
         for student in students:
-            expressions = Expression.objects.filter(student=student, worksheet__in=worksheets, all_do=False).order_by('worksheet__date')
+            expressions = Expression.objects.filter(
+                student=student,
+                worksheet__in=worksheets,
+                all_do=False
+            ).order_by('worksheet__date')
             for expression in expressions:
                 self._write_expression_row(writer, expression)
             if expressions:
                 writer.writerow(['', '', '', ''])
 
         # With All of the AllDo sentences just once at the end, ordered by Worksheet and sentence.
-        expressions = Expression.objects.filter(all_do=True, worksheet__in=worksheets).order_by('worksheet__date')
+        expressions = Expression.objects.filter(
+            all_do=True,
+            worksheet__in=worksheets
+        ).order_by('worksheet__date')
         if expressions:
             writer.writerow(['ALL-DO', '', '', ''])
         for expression in expressions:
