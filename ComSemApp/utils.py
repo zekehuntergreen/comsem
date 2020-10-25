@@ -1,9 +1,18 @@
+import ssl
 import nltk
-from nltk.data import load
+
 
 def pos_tag(expression):
     from ComSemApp.models import Tag, Word, SequentialWords
-    nltk.data.path.append("/nltk_data");
+    nltk.data.path.append("/nltk_data")
+
+    try:
+        _create_unverified_https_context = ssl._create_unverified_context
+    except AttributeError:
+        pass
+    else:
+        ssl._create_default_https_context = _create_unverified_https_context
+
     nltk.download('punkt')
     nltk.download('averaged_perceptron_tagger')
 
@@ -15,9 +24,9 @@ def pos_tag(expression):
     word_position = 0
     for word, tag in tagged:
         # tags
-        dictionary_tag, created = Tag.objects.get_or_create(tag=tag)
+        dictionary_tag, _ = Tag.objects.get_or_create(tag=tag)
         #words
-        dictionary_word, created = Word.objects.get_or_create(form=word, tag=dictionary_tag)
+        dictionary_word, _ = Word.objects.get_or_create(form=word, tag=dictionary_tag)
         #sequential words
         SequentialWords.objects.create(
             expression = expression,

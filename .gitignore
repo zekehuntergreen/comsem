@@ -5,7 +5,7 @@ __pycache__/
 .DS_Store
 
 # ignore statics
-static/*
+
 
 # ignore efs directory
 efs/*
@@ -17,3 +17,6 @@ app-messages/*
 
 # local dev settings module
 local_dev.py
+
+# vscode settings
+.vscode/*

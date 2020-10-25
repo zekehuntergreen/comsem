@@ -4,17 +4,22 @@
 
 <div class="row">
 
-	<div class="col-md-12 col-lg-3">
+	<div class="col-md-12 col-xl-3">
 		{% include 'ComSemApp/course_details.html' %}
+		{% if worksheets %} <!-- prevents students from practicing if there are no worksheets -->
+			<div class="card-box"> <!--Button that takes students to a review sheet generator-->
+				<a href="{% url 'student:generate_reviewsheet' course.id  %}" class="btn btn-lg btn-success w-100"><i  class="icon fa fa-refresh"></i>   Practice</a>
+			</div>
+		{% endif %}
 	</div>
 
-	<div class="col-md-12 col-lg-9">
+	<div class="col-md-12 col-xl-9">
 
 		<div class="card-box">
 
 			<h4 class="header-title m-t-0 m-b-20">Worksheets</h4>
 
-			{% if worksheets %}
+			{% if worksheets %} <!--if worksheets are in the table-->
 			<table class="table table-hover tablesorter">
 				<thead>
 					<tr>
@@ -25,11 +30,11 @@
 						<th></th>
 					</tr>
 				</thead>
-				<tbody>
+				<tbody> <!--displays current worksheets-->
 					{% for worksheet in worksheets %}
 
 					<tr id="worksheet-{{ worksheet.id }}">
-						<td>{{ forloop.counter }}</td>
+						<td>{{ worksheet.get_number }}</td>
 						<td>{{ worksheet.date }}</td>
 						<td>{{ worksheet.topic }}</td>
 						<td>
@@ -43,7 +48,7 @@
 				</tbody>
 				{% include 'ComSemApp/tablesorter_footer.html'%}
 			</table>
-			{% else %}
+			{% else %} <!-- message displays if no worksheets are available-->
 				<p>No worksheets available</p>
 			{% endif %}
 		</div>

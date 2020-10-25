@@ -36,7 +36,7 @@
 		<script src="{% static "ComSemApp/tablesorter/addons/pager/jquery.tablesorter.pager.js" %}"></script>
 
 
-		<script src="{% static "ComSemApp/Minton/js/modernizr.min.js"  %}"></script>
+		<script src="{% static "ComSemApp/Minton/js/modernizr.min.js" %}"></script>
 
 		<!-- js cookies -->
 		<script src="{% static "ComSemApp/js/js-cookie/src/js.cookie.js" %}"></script>
@@ -67,6 +67,55 @@
 
 
 	<script>
+		function setCookie(name,value,days) {
+			var expires = "";
+			if (days) {
+				var date = new Date();
+				date.setTime(date.getTime() + (days*24*60*60*1000));
+				expires = "; expires=" + date.toUTCString();
+			}
+			document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+		}
+		function getCookie(name) {
+			var nameEQ = name + "=";
+			var ca = document.cookie.split(';');
+			for(var i=0;i < ca.length;i++) {
+				var c = ca[i];
+				while (c.charAt(0)==' ') c = c.substring(1,c.length);
+				if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+			}
+			return null;
+		}
+
+		function browserWarning(){
+			// warn user that recording won't work if they aren't using chrome or firefox
+			// TODO should be using feature detection rather than browser detection
+			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent
+			var isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+			var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+			var browserWarningShown = getCookie("browserWarningShown")
+			if (!isChrome && !isFirefox && !browserWarningShown){
+				swal({
+					title: "Unsupported Browser Detected",
+					text: "It looks like you're using a web browser that might not support audio recording on ComSem. \n" +
+							"For best results, please use the latest version of Chrome.",
+					type: "warning",
+					showCancelButton: false,
+					confirmButtonClass: 'btn-sm btn-warning',
+					confirmButtonText: 'Ok',
+					closeOnConfirm: true
+				});
+				setCookie("browserWarningShown", true, 1)
+			}
+		}
+
+		function scrollToDiv(element){
+			element = element.replace("link", "");
+			$('html,body').unbind().animate({
+				scrollTop: $(element).offset().top - 70 // height of top nav bar
+			},'fast');
+		};
+
 		function cs_confirm(title, text, type, button_text, on_confirm){
 			switch(type) {
 				case 'warning':
@@ -138,6 +187,8 @@
 
 		$(function(){
 			initialize_tablesorter()
+			// warn user that audio recording might not work if browser != chrome 
+			setTimeout("browserWarning()", 1000);
 		})
 
 	</script>

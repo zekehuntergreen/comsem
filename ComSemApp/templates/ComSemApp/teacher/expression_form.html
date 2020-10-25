@@ -87,7 +87,7 @@
             </div>
         </div>
     </div>
-
+    
     <div class="row" id="display_reformulation_audioRow">
         {% include 'ComSemApp/audio_recording.html' %}
     </div>
@@ -176,5 +176,10 @@ $("#saveExpression").click(function(e){
     // clear editor
     $("#ExpressionEditor").slideUp();
     audioReformulationBlob = null; // clears reformulation
+
+    {% if not worksheet.released %}
+    // fresh create expression form
+    populateEditor(expression_create_url);
+    {% endif %}
 });
 </script>

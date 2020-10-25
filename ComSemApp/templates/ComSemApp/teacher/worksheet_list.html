@@ -14,7 +14,7 @@
         <tr worksheet_id="{{ worksheet.id }}"
             release_url="{% url 'teacher:worksheet_release' course_id=course.id worksheet_id=worksheet.id %}"
             delete_url="{% url 'teacher:worksheet_delete' course_id=course.id worksheet_id=worksheet.id %}">
-            <td>{{ forloop.counter }}</td>
+            <td>{{ worksheet.get_number }}</td>
             <td>{{ worksheet.date }}</td>
             <td>{{ worksheet.topic }}</td>
             <td>
