@@ -172,6 +172,19 @@ class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
     def get_success_url(self):
         return reverse("teacher:course", kwargs={'course_id': self.course.id })
 
+# new view class for released worksheets being edited DF
+class WorksheetReleasedUpdateView(TeacherWorksheetViewMixin, UpdateView):
+    model = Worksheet
+    fields = ["topic", "display_original", "display_reformulation_text",
+                "display_reformulation_audio", "display_all_expressions"]
+    template_name = "ComSemApp/teacher/edit_released_worksheet.html" #edit_worksheet.html -> edit_released_worksheet.html
+    context_object_name = 'worksheet'
+
+    def get_object(self):
+        return self.worksheet
+
+    def get_success_url(self):
+        return reverse("teacher:course", kwargs={'course_id': self.course.id })
 
 class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
     model = Worksheet
