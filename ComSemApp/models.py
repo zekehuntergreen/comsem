@@ -178,7 +178,7 @@ class Worksheet(models.Model):
 
     def get_number(self):
         siblings = list(self.course.get_visible_worksheets())
-        return siblings.index(self) + 1
+        return siblings.index(self) + 1 if self in siblings else 0
 
     @property
     def released(self):
@@ -226,7 +226,7 @@ class Expression(models.Model):
 
     def get_number(self):
         siblings = list(Expression.objects.filter(worksheet=self.worksheet))
-        return siblings.index(self) + 1
+        return siblings.index(self) + 1 if self in siblings else 0
 
 
 
