@@ -6,6 +6,4 @@ WORKSHEET_STATUS_CHOICES = (
     (WORKSHEET_STATUS_PENDING, 'Pending'),
     (WORKSHEET_STATUS_UNRELEASED, 'Unreleased'),
     (WORKSHEET_STATUS_RELEASED, 'Released'),
-    
-    
 )

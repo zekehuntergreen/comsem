@@ -49,6 +49,7 @@ SIGNUP_FORM_RECIPIENTS = [ZEKES_EMAIL, JAMES_EMAIL]
 ALLOWED_HOSTS = [
     'comsem.herokuapp.com',
     'localhost',
+    '127.0.0.1',
     '.comsem.net',
 ]
 
