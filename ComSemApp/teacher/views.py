@@ -95,14 +95,21 @@ class DownloadCourseCSV(TeacherCourseViewMixin, View):
 
         # All non-AllDo sentences, ordered by student, then worksheet, then expression
         for student in students:
-            expressions = Expression.objects.filter(student=student, worksheet__in=worksheets, all_do=False).order_by('worksheet__date')
+            expressions = Expression.objects.filter(
+                student=student,
+                worksheet__in=worksheets,
+                all_do=False
+            ).order_by('worksheet__date')
             for expression in expressions:
                 self._write_expression_row(writer, expression)
             if expressions:
                 writer.writerow(['', '', '', ''])
 
         # With All of the AllDo sentences just once at the end, ordered by Worksheet and sentence.
-        expressions = Expression.objects.filter(all_do=True, worksheet__in=worksheets).order_by('worksheet__date')
+        expressions = Expression.objects.filter(
+            all_do=True,
+            worksheet__in=worksheets
+        ).order_by('worksheet__date')
         if expressions:
             writer.writerow(['ALL-DO', '', '', ''])
         for expression in expressions:
@@ -178,6 +185,19 @@ class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
     def get_success_url(self):
         return reverse("teacher:course", kwargs={'course_id': self.course.id })
 
+# new view class for released worksheets being edited DF
+class WorksheetReleasedUpdateView(TeacherWorksheetViewMixin, UpdateView):
+    model = Worksheet
+    fields = ["topic", "display_original", "display_reformulation_text",
+                "display_reformulation_audio", "display_all_expressions"]
+    template_name = "ComSemApp/teacher/edit_released_worksheet.html" #edit_worksheet.html -> edit_released_worksheet.html
+    context_object_name = 'worksheet'
+
+    def get_object(self):
+        return self.worksheet
+
+    def get_success_url(self):
+        return reverse("teacher:course", kwargs={'course_id': self.course.id })
 
 class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
     model = Worksheet
@@ -187,8 +207,11 @@ class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
 
     def post(self, *args, **kwargs):
         worksheet = self.get_object()
-        worksheet.release()
-        return HttpResponse(status=204)
+        is_valid = worksheet.release()
+        if is_valid: # vhl release if worksheet is not empty
+            return HttpResponse(status=204)
+        else: # vhl returns error message if worksheet is empty
+            return HttpResponse(status=406, reason="worksheet cannot be empty")
 
 
 class WorksheetDeleteView(TeacherWorksheetViewMixin, DeleteView):
@@ -406,14 +429,24 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
         submission = self.get_submission()
         all_correct = True
         # status of each attempt
-        for attempt in submission.attempts.all():
-            correct = self.request.POST.get(str(attempt.id), None) == '1'
-            attempt.correct = correct
+        for attempt in submission.attempts.all(): # added code to allow audio and text to be graded seperatly vhl
+            text_correct = self.request.POST.get("T" + str(attempt.id), None) == '1' # get text
+            audio_correct = self.request.POST.get("A" + str(attempt.id), None) == '1' # gets audio
+
+            attempt.text_correct = text_correct # marks text
+            if attempt.audio: # sets audio correct if there is audio
+                attempt.audio_correct = audio_correct
+            else: # sets audio_correct to None if there is no audio
+                attempt.audio_correct = None
+                
             attempt.save()
-
-            if not correct:
-                all_correct = False
-
+            if attempt.audio: # case for if there is audio
+                if (not text_correct) or (not audio_correct):
+                    all_correct = False
+            else: # case for text only
+                if (not text_correct):
+                    all_correct = False
+                
         # handle status of the submission
         # TODO - use constants
         if all_correct:

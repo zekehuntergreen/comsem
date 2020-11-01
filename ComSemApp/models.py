@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.db.models import Q
 
 from ComSemApp.teacher import constants as teacher_constants
 
@@ -177,17 +178,28 @@ class Worksheet(models.Model):
 
     def get_number(self):
         siblings = list(self.course.get_visible_worksheets())
-        return siblings.index(self) + 1
+        return siblings.index(self) + 1 if self in siblings else 0
 
     @property
     def released(self):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
 
-    def release(self):
-        self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
-        self.save()
-        for expression in self.expressions.all():
-            pos_tag(expression)
+    def complete_submission(self, student): # vhl checks if any submissions are complete
+        complete_submission = None
+        if StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").exists():
+            complete_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").latest()
+        return complete_submission
+
+    def release(self):   
+        if self.expressions.exists(): # vhl releases no empty worksheets
+            self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
+            self.save()
+            for expression in self.expressions.all():
+                pos_tag(expression)
+            return True
+        else: # vhl prevents empty worksheets from being released
+            return False
+
 
     def last_submission(self, student):
         last_submission = None
@@ -214,7 +226,7 @@ class Expression(models.Model):
 
     def get_number(self):
         siblings = list(Expression.objects.filter(worksheet=self.worksheet))
-        return siblings.index(self) + 1
+        return siblings.index(self) + 1 if self in siblings else 0
 
 
 
@@ -248,6 +260,20 @@ class StudentSubmission(models.Model):
             if submission == self:
                 return index + 1
 
+    def get_required_expressions(self):
+        expression_filters = Q(worksheet=self.worksheet)
+        if not self.worksheet.display_all_expressions:
+            expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
+
+        incomplete_submissions = StudentSubmission.objects.filter(student=self.student, worksheet=self.worksheet, status='incomplete')
+        if incomplete_submissions.exists():
+            latest_incomplete_submission = incomplete_submissions.latest()
+            lastest_submission_incorrect_attempts = latest_incomplete_submission.attempts.filter(Q(text_correct=False) | Q(audio_correct=False))
+            lastest_submission_incorrect_expression_ids = [a.expression.id for a in lastest_submission_incorrect_attempts]
+            expression_filters &= Q(id__in=lastest_submission_incorrect_expression_ids)
+
+        return Expression.objects.filter(expression_filters)
+
     class Meta:
         verbose_name = "Student Submission"
         get_latest_by = "date"
@@ -258,7 +284,8 @@ class StudentAttempt(models.Model):
     student_submission = models.ForeignKey('StudentSubmission', related_name="attempts", on_delete=models.CASCADE)
     reformulation_text = models.TextField(blank=True, null=True)
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
-    correct = models.NullBooleanField(blank=True, null=True, default=None)
+    text_correct = models.NullBooleanField(blank=True, null=True, default=None)
+    audio_correct = models.NullBooleanField(blank=True, null=True, default=None)
     error_type = models.TextField(blank=True, null=True, default=None)
 
     def __str__(self):
@@ -267,6 +294,20 @@ class StudentAttempt(models.Model):
     class Meta:
         verbose_name = "Student Attempt"
         unique_together = ("student_submission", "expression")
+
+
+class ReviewAttempt(models.Model):
+    expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
+    student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)
+    correct = models.BooleanField(default=None)
+    response_time = models.FloatField()
+
+    def __str__(self):
+        return "%d - %5s - %s" % (self.id, str(self.correct), self.expression)
+
+    class Meta:
+        verbose_name = "Review Attempt"
 
 
 # WORDS, SEQUENTIAL WORDS, TAG

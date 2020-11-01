@@ -19,38 +19,41 @@ from ComSemApp.administrator.forms import SignupForm, ContactForm
 # and should be reorganized and tested
 
 
-class About(FormView):
-    template_name = 'ComSemApp/about/home.html'
-    form_class = SignupForm
-    success_url = reverse_lazy("about")
+class RecaptchaFormView(FormView):
+    success_message = None
 
-    def form_valid(self, form):
+    def _verify_recaptcha(self):
         params = {
             'secret': settings.RECAPCHA_SECRET_KEY,
             'response': self.request._post['g-recaptcha-response'],
         }
         response = requests.post('https://www.google.com/recaptcha/api/siteverify', params)
         response_json = response.json()
-        recaptcha_success = response_json.get('success')
+        return response_json.get('success')
 
+    def form_valid(self, form):
+        recaptcha_success = self._verify_recaptcha()
         if recaptcha_success:
             form.send_email()
-            messages.success(self.request, 'Your request has been sent successfully! '
-                                    'We will contact you shortly to set up an account.')
+            messages.success(self.request, self.success_message)
         else:
             messages.error(self.request, 'There was a problem processing your request.')
         return super().form_valid(form)
 
 
-class Contact(FormView):
+class About(RecaptchaFormView):
+    template_name = 'ComSemApp/about/home.html'
+    form_class = SignupForm
+    success_url = reverse_lazy("about")
+    success_message = ('Your request has been sent successfully! '
+                        'We will contact you shortly to set up an account.')
+
+
+class Contact(RecaptchaFormView):
     template_name = 'ComSemApp/about/contact.html'
     form_class = ContactForm
     success_url = reverse_lazy("about")
-
-    def form_valid(self, form):
-        form.send_email()
-        messages.success(self.request, 'Your message has been sent successfully!')
-        return super().form_valid(form)
+    success_message = ('Your message has been sent successfully!')
 
 
 class AboutTeacher(TemplateView):

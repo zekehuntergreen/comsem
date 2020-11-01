@@ -43,13 +43,16 @@
 						ComSem
 					</a>
 				</p>
-				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
+				<!-- hamburger buttons -DF -->
+				<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarsHamburger" aria-controls="navbarsHamburger"
+				aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
 
-				<div class="collapse navbar-collapse" id="navbarsExample">
+				<div class="collapse navbar-collapse" id="navbarsHamburger">
 					<ul class="navbar-nav ml-auto">
-						<li class="nav-item">
+						<li class="nav-item active">
 							<a class="nav-link" href="{% url 'about' %}#how-it-works">About</a>
 						</li>
 						<li class="nav-item">
@@ -65,7 +68,6 @@
 							<a class="nav-link" href="{% url 'login' %}">Login</a>
 						</li>
 					</ul>
-
 				</div>
 			</div>
 		</nav>
@@ -117,7 +119,7 @@
 					tag = "{{ message.tags }}";
 					{% endif %}
 					swal({
-						title: "Success",
+						title: tag == "error" ? "Error" : "Success",
 						text: "{{ message}}",
 						type: tag,
 						showCancelButton: false,
