@@ -1,5 +1,6 @@
 import ssl
 import nltk
+import tensorflow
 
 
 def pos_tag(expression):
