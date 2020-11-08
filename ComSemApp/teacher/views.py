@@ -185,7 +185,7 @@ class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
     def get_success_url(self):
         return reverse("teacher:course", kwargs={'course_id': self.course.id })
 
-# new view class for released worksheets being edited DF
+
 class WorksheetReleasedUpdateView(TeacherWorksheetViewMixin, UpdateView):
     model = Worksheet
     fields = ["topic", "display_original", "display_reformulation_text",
@@ -198,6 +198,7 @@ class WorksheetReleasedUpdateView(TeacherWorksheetViewMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("teacher:course", kwargs={'course_id': self.course.id })
+
 
 class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
     model = Worksheet
@@ -316,26 +317,22 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
         submission = get_object_or_404(StudentSubmission, id=submission_id, worksheet=self.worksheet)
 
         # open subject verb tokenizer
-        with open('ComSemApp/ML/tokenizer.pickle', 'rb') as handle:
-            tokenizer_sv = pickle.load(handle)
+        tokenizer_sv = load_tokenizer("SV", 'ComSemApp/ML/tokenizer.pickle')
     
         # load subject verb error binary neural network
-        new_model_sv = keras.models.load_model('ComSemApp/ML/pickled_binary_nn')
+        new_model_sv = load_ml_model("SV", 'ComSemApp/ML/pickled_binary_nn')
 
         # open tense tokenizer
-        with open('ComSemApp/ML/tense_tokenizer.pickle', 'rb') as handle:
-            tokenizer_tense = pickle.load(handle)
+        tokenizer_tense = load_tokenizer("TENSE", 'ComSemApp/ML/tense_tokenizer.pickle')
 
         # load tense error binary neural network
-        new_model_tense = keras.models.load_model('ComSemApp/ML/pickled_tense_nn')
-
+        new_model_tense = load_ml_model("TENSE", 'ComSemApp/ML/pickled_tense_nn')
 
         # open noun phrase tokenizer
-        with open('ComSemApp/ML/np_tokenizer.pickle', 'rb') as handle:
-            tokenizer_np = pickle.load(handle)
-        # load noun phrase binary neural network
-        new_model_np = keras.models.load_model('ComSemApp/ML/pickled_np_nn')
+        tokenizer_np = load_tokenizer("NP", 'ComSemApp/ML/np_tokenizer.pickle')
 
+        # load noun phrase binary neural network
+        new_model_np = load_ml_model("NP", 'ComSemApp/ML/pickled_np_nn')
 
         for attempt in submission.attempts.all():
             sv_classifier = 0 
@@ -348,8 +345,6 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
 
             # text must be placed in an array in order to be manipulated by tokenzier
             text_array = [text]
-            print("\n")
-            print(text)
 
             # tokenize text
             tokens_sv = tokenizer_sv.texts_to_sequences(text_array)
@@ -358,16 +353,9 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
             tokens_pad_sv = pad_sequences(tokens_sv,maxlen=39, padding='pre', truncating='pre')
             tokens_pad_sv.shape
 
-            # print example of confidence that there is a sv agreement error in text
-            print(new_model_sv.predict(tokens_pad_sv)[0][0])
-
             # less than 0.5 means it contains no error, greater than 0.5 means it does contain sv error
             if new_model_sv.predict(tokens_pad_sv)[0][0] > 0.5:
                 sv_classifier =  new_model_sv.predict(tokens_pad_sv)[0][0]
-
-            # print the sv classifier
-            print("subject verb agreement error confidence ", sv_classifier)
-
 
             # tokenize text
             tokens_tense = tokenizer_tense.texts_to_sequences(text_array)
@@ -376,32 +364,20 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
             tokens_pad_tense = pad_sequences(tokens_tense,maxlen=39, padding='pre', truncating='pre')
             tokens_pad_tense.shape
 
-            #print example of confidence that there is a tense error in text
-            print(new_model_tense.predict(tokens_pad_tense)[0][0])
-
             # less than 0.5 means it contains no error, greater than 0.5 means it does contain a tense error
             if new_model_tense.predict(tokens_pad_tense)[0][0] > 0.5:
                 tense_classifier =  new_model_tense.predict(tokens_pad_tense)[0][0]
-
-            # print the tense classifier
-            print("subject tense error confidence ", tense_classifier)
 
             # tokenize text
             tokens_np = tokenizer_np.texts_to_sequences(text_array)
 
             # add padding to text to compare the text properly
-            tokens_pad_np = pad_sequences(tokens_np,maxlen=46, padding='pre', truncating='pre')
+            tokens_pad_np = pad_sequences(tokens_np, maxlen=46, padding='pre', truncating='pre')
             tokens_pad_np.shape
-
-            # print example of confidence that there is a np agreement error in text
-            print(new_model_np.predict(tokens_pad_np)[0][0])
 
             # less than 0.5 means it contains no error, greater than 0.5 means it does contain np error
             if new_model_np.predict(tokens_pad_np)[0][0] > 0.5:
                 noun_phrase_classifier =  new_model_np.predict(tokens_pad_np)[0][0]
-
-            # print the noun phrase classifier
-            print("noun phrase confidence ", noun_phrase_classifier)
 
             # compare confidence of each classifier and determine which has the highest confidence value
             if (sv_classifier > 0.5):
@@ -458,6 +434,32 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
 
         messages.success(self.request, 'Assessment saved ', 'success')
         return redirect('teacher:worksheet_detail', self.course.id, self.worksheet.id)
+
+
+ML_MODELS = {
+    "TENSE": None,
+    "SV": None,
+    "NP": None,
+}
+
+TOKENIZERS = {
+    "TENSE": None,
+    "SV": None,
+    "NP": None,
+}
+
+
+def load_ml_model(model_type, location):
+    if not ML_MODELS[model_type]:
+        ML_MODELS[model_type] = keras.models.load_model(location)
+    return ML_MODELS[model_type]
+
+
+def load_tokenizer(tokenizer_type, location):
+    if not TOKENIZERS[tokenizer_type]:
+        with open(location, 'rb') as handle:
+            TOKENIZERS[tokenizer_type] = pickle.load(handle)
+    return TOKENIZERS[tokenizer_type]
 
 
 def delete_file(url):
