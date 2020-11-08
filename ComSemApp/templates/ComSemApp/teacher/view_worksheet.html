@@ -148,7 +148,7 @@
 								<span class="badge badge-{% if submission.status == 'complete' %}success{% elif submission.status == 'ungraded' %}warning{% else %}danger{% endif %}">{{ submission.status }}</span>
 							</td>
 							<td>
-								<a href="{% url 'teacher:submission' course.id worksheet.id submission.id %}" class='btn btn-sm btn-outline-primary submit-btn' onClick="linkFunction()">View Submission</a>
+								<a href="{% url 'teacher:submission' course.id worksheet.id submission.id %}" class='btn btn-sm btn-outline-primary'>View Submission</a>
 							</td>
 						</tr>
 					{% endfor %}
@@ -163,12 +163,5 @@
 
 	</div>
 </div>
-<script>
-function linkFunction(){ // vhl prevents users from triggering the ML to many times.
-    let buttonList = document.getElementsByClassName("submit-btn");
-    for(let i = 0; i < buttonList.length; i++){
-        buttonList[i].style.visibility = 'hidden';
-    } 
-}
-</script>
+
 {% endblock %}
