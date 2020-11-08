@@ -12,3 +12,4 @@ gunicorn==19.9.0
 django-storages==1.7.1
 boto3==1.9.171
 requests==2.23.0
+tensorflow==2.3.1
