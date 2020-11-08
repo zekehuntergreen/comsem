@@ -4,6 +4,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.core.validators import MinValueValidator
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db.models import Q
 
@@ -30,7 +31,7 @@ def audio_directory_path(directory, instance):
 # STUDENTS, TEACHERS, ADMINS
 
 class Student(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     institution = models.ForeignKey('Institution', on_delete=models.CASCADE)
     country = models.ForeignKey('Country', on_delete=models.SET_NULL, blank=True, null=True)
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, blank=True, null=True)
@@ -60,7 +61,7 @@ class Country(models.Model):
 
 
 class Teacher(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     institution = models.ManyToManyField('Institution') # allow teachers to belong to multiple institutions
 
     def __str__(self):
@@ -68,7 +69,7 @@ class Teacher(models.Model):
 
 
 class Admin(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     institution = models.ForeignKey('Institution', on_delete=models.CASCADE)
 
     def __str__(self):
@@ -285,7 +286,6 @@ class StudentAttempt(models.Model):
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
     text_correct = models.NullBooleanField(blank=True, null=True, default=None)
     audio_correct = models.NullBooleanField(blank=True, null=True, default=None)
-    error_type = models.TextField(blank=True, null=True, default=None)
 
     def __str__(self):
         return " - ".join([str(self.student_submission), str(self.expression)])
