@@ -1,0 +1,79 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% load static %}
+
+{% block content %}
+
+
+<!-- TODO: edit URL stuff -->
+<form action="{% url 'teacher:annotate_sentences' course.id worksheet.id %}" method="POST">
+	{% csrf_token %}
+
+	<input hidden name='studentSubmissionID' value="<?=$studentSubmissionID?>" />
+	<input hidden name='worksheetID' value="<?=$worksheetID?>" />
+
+	<!-- Page-Title -->
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="page-title-box">
+				<h4 class="page-title">Annotate Sentences</h4>
+				<button class="btn btn-success float-right" type="submit">Submit Annontations</button>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="row">
+		<div class="col-md-12">
+
+			<div class="card-box">
+
+				<h4 class="header-title m-t-0 m-b-30">Expressions</h4>
+
+
+
+				<!-- EXPRESSIONS -->
+				<div class="tabs-vertical-env">
+					<ul class="nav tabs-vertical">
+                        <!-- TODO: replace with only expressions -->
+						{% for expression in worksheet.expressions.all %}
+						<li class="nav-item">
+							<a href="#s-{{ forloop.counter }}" class="nav-link {% if forloop.first %}active{% endif %}" data-toggle="tab" aria-expanded="{% if forloop.first %}true{% endif %}">
+								Expression {{ forloop.counter }}
+							</a>
+						</li>
+						{% endfor %}
+					</ul>
+
+					<div class="tab-content" style="width: 100%">
+						{% for expression in worksheet.expressions.all %}
+						<div class="tab-pane {% if forloop.first %}active{% endif %}" id="s-{{ forloop.counter }}">
+
+							
+
+							<!-- original expression -->
+							<div class="row submissionRow" style="margin-top: 0px;">
+								<div class="col-12">
+									{{ expression.expression }}
+								</div>
+							</div>
+                            
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+</form>
+
+<style>
+.submissionRow{
+	margin: 20px auto;
+}
+</style>
+
+{% endblock %}

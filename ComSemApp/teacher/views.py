@@ -66,7 +66,7 @@ class CourseListView(TeacherViewMixin, ListView):
         context['teacher_view'] = True
         return context
 
-
+# Hello, Rob
 class CourseDetailView(TeacherCourseViewMixin, DetailView):
     context_object_name = 'course'
     template_name = "ComSemApp/teacher/course.html"
@@ -298,6 +298,19 @@ class ExpressionDeleteView(TeacherWorksheetViewMixin, DeleteView):
             delete_file(audio.url)
         expression.delete()
         return HttpResponse(status=204)
+
+
+class AnnotationView(TeacherWorksheetViewMixin, UpdateView):
+    template_name = "ComSemApp/teacher/error_annotation.html"
+    model = Worksheet
+    fields = []
+    context_object_name = 'worksheet'
+
+    def get_object(self):
+        return self.worksheet
+
+    def get_queryset(self):
+        return Expression.objects.filter(worksheet=self.worksheet)
 
 
 class SubmissionView(TeacherWorksheetViewMixin, DetailView):

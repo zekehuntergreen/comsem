@@ -26,6 +26,8 @@
                         <a href="{% url 'teacher:worksheet_detail' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Review</a>&NonBreakingSpace;
                         
                         <a href="{% url 'teacher:worksheet_released_update' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
+
+                        <a href="{% url 'teacher:annotate_sentences' course.id worksheet.id %}" class="btn btn-sm btn-outline-primary">Annotate</a>
                     
                     </div>
                 {% else %}
