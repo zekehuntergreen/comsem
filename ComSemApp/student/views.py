@@ -17,6 +17,7 @@ from ComSemApp.teacher import constants as teacher_constants
 
 from ComSemApp.models import *
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin, SubmissionViewMixin
+import speech_recognition as sr
 
 
 class StudentViewMixin(RoleViewMixin):
@@ -673,3 +674,35 @@ class ReviewAttemptCreateView(ReviewsheetView, CreateView):
     def form_valid(self, form):
         form.save()
         return JsonResponse({}, status=200)
+
+def transcribe(request):
+    if request.method == 'POST': 
+        file = request.FILES['audioBlob']
+        
+        with open("./in_file.ogg", "wb") as in_file:
+            in_file.write(file.read())
+
+        from pydub import AudioSegment
+        # print("0===========================================")
+
+        audio = AudioSegment.from_file("./in_file.ogg", format="ogg")
+        print("1===========================================")
+        file_handle = audio.export("./out_file.wav", format="wav")
+
+        # Call STT
+        r = sr.Recognizer()
+
+        # print("2===========================================")
+
+        audio_file = "out_file.wav"
+        with sr.AudioFile(audio_file) as source:
+            audio = r.listen(source)
+            try:
+                print('converting audio to text...')
+                text = r.recognize_google(audio)
+                print(text)
+                return HttpResponse(text)
+            except Exception:
+                print("======================ERROR======================")
+                # print()
+                return HttpResponse("")

@@ -59,6 +59,7 @@ function initializeRecorder(){
 
 	recorder.addEventListener( "dataAvailable", function(e){
 		var dataBlob = new Blob( [e.detail], { type: 'audio/ogg' } );
+		var copyBlob = new Blob( [e.detail], { type: 'audio/wav' } );
 		audioReformulationBlob = dataBlob; // save the current blob
 		var fileName = new Date().toISOString() + ".opus";
 		var url = URL.createObjectURL( dataBlob );
@@ -77,6 +78,42 @@ function initializeRecorder(){
 		li.appendChild(link);
 		li.appendChild(audio);
 
+		//TODO: This is where the call to the python script needs to be placed
+		screenLogger('Audio is ready');
+ 
+		// This is where we make the ajax call to the transcribe python function
+		var text = "Placeholder text";
+ 
+ 
+		// Place the audioBlob into a FormData to be passed through ajax
+		var data = new FormData();
+		data.append('audioBlob', copyBlob);
+		//data.append('text', text);
+ 
+ 
+		console.log(data.get('audioBlob'))
+ 
+		$.ajax({
+			url: '{% url "transcribe_call/" %}',
+			type: "POST",
+			data: data,
+			processData: false,
+			contentType: false,
+			success: function callback(response) {
+				resultText(response);
+			}
+		});
+ 
+		//zekehuntergreen@gmail.com
+		x = document.getElementById("reformulation");
+ 
+		/*if (x != null) {
+			x.value = "Working progress";
+			screenLogger(x.value);
+		} else {
+			screenLogger("teacherReformulation is null")
+		}*/
+
 		// recordingslist.appendChild(li);
 
 		// changed in order to allow only one recording at a time:
@@ -93,6 +130,24 @@ function screenLogger(text, data) {
 	// log.innerHTML += "\n" + text + " " + (data || '');
 	// use console log instead
 	console.log( text + " " + (data || '') )
+}
+
+	
+function resultText(response) {
+	x = document.getElementById("reformulation");
+	y = document.getElementById("CorrectedExpr");
+ 
+	if (x != null) {
+		x.value = response;
+		screenLogger(x.value);
+	}
+	else if (y != null){
+		y.value = response;
+		screenLogger(y.value);
+	} 
+	else {
+		screenLogger("document element is null")
+	}
 }
 
 
