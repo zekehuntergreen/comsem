@@ -216,6 +216,15 @@
                             </div>
                             {% endif %}
 
+
+							<!-- ag written feedback component -->
+							<div class="row submissionRow">
+								<div class="col-12">
+									<strong>Feedback:</strong><br/>
+									<textarea class="form-control" name='F{{ attempt.id }}' id="feedback{{ forloop.counter }}">{{ attempt.feedback }}</textarea>
+								</div>
+                            </div>
+
 						</div>
 						{% endfor %}
 					</div>

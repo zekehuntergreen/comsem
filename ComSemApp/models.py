@@ -286,6 +286,7 @@ class StudentAttempt(models.Model):
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
     text_correct = models.NullBooleanField(blank=True, null=True, default=None)
     audio_correct = models.NullBooleanField(blank=True, null=True, default=None)
+    feedback = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return " - ".join([str(self.student_submission), str(self.expression)])
