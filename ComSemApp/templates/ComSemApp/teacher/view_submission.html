@@ -221,7 +221,7 @@
 							<div class="row submissionRow">
 								<div class="col-12">
 									<strong>Feedback:</strong><br/>
-									<textarea class="form-control" name='F{{ attempt.id }}' id="feedback{{ forloop.counter }}">{{ attempt.feedback }}</textarea>
+									<textarea class="form-control" name='F{{ attempt.id }}' id="feedback{{ forloop.counter }}">{{ attempt.feedback|default_if_none:'' }}</textarea>
 								</div>
                             </div>
 

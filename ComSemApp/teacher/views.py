@@ -318,7 +318,6 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
             text_correct = self.request.POST.get("T" + str(attempt.id), None) == '1' # get text
             audio_correct = self.request.POST.get("A" + str(attempt.id), None) == '1' # gets audio
             text_feedback = self.request.POST.get("F" + str(attempt.id), None)
-            print(text_feedback)
 
             attempt.feedback = text_feedback
             attempt.text_correct = text_correct # marks text

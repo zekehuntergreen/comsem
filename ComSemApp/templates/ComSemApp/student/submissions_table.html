@@ -34,6 +34,7 @@
                                 <th>Reformulation Text</th>
                                 <th>Reformulation Audio</th>
                                 <th>Correct</th>
+                                <th>Feedback</th>
                             </thead>
                             <tbody>
                                 {% for attempt in submission.attempts.all %}
@@ -71,6 +72,7 @@
                                              
                                         {% endif %}
                                     </td>
+                                    <td>{{ attempt.feedback }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
