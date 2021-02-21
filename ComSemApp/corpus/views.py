@@ -23,7 +23,6 @@ def corpus_search(request):
 def error_search(request):
     tags = Tag.objects.all()
     template = loader.get_template('ComSemApp/corpus/error_corpus.html')
-    # return HttpResponse(request)
     return HttpResponse(template.render({'tags': tags, 'offsetRange':[i for i in range(-8,8+1)]}, request))
 
 
