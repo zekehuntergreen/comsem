@@ -392,7 +392,8 @@ def transcribe(request):
                 print('converting audio to text...')
                 text = r.recognize_google(audio)
                 print(text)
-                return HttpResponse(text)
+                #capitalize sentence and add a period at the end of a expression
+                return HttpResponse(text.capitalize() + ".")
             except Exception:
                 print("======================ERROR======================")
                 # print()
