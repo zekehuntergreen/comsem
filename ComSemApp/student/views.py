@@ -715,7 +715,7 @@ def transcribe(request):
                 print('converting audio to text...')
                 text = r.recognize_google(audio)
                 print(text)
-                return HttpResponse(text)
+                return HttpResponse(text.capitalize() + ".")
             except Exception:
                 print("======================ERROR======================")
                 # print()
