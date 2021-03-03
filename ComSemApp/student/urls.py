@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^course/(?P<course_id>[0-9]+)/reviewsheet/$', views.ReviewsheetGetView.as_view(), name='create_reviewsheet'),
     url(r'^course/(?P<course_id>[0-9]+)/reviewsheet/$', views.ReviewsheetView.as_view(), name='reviewsheet'),
     url(r'^course/(?P<course_id>[0-9]+)/reviewsheet/save$', views.ReviewAttemptCreateView.as_view(), name='save_reviewsheet'),
+    url('transcribe_call/', views.transcribe),
 ]
