@@ -16,5 +16,75 @@
     </div>
 </div>
 
+<!-- search criteria -->
+<form class="csSpacer" method="POST" id="SubmitSearchForm">
+    <input type="hidden" name="searchCriteria" id="searchCriteria" />
+    <div class="row">
+        <!-- left most column -->
+        <div class="col-lg-4">
+
+            <!-- Space for user to enter the first word, mandatory -->
+            <div class="form-group">
+                <label for="word1">Enter an Error Type</label>
+                <input type="text" class="form-control input-sm" id="word1" name="word1"
+                    placeholder="Type a error to search">
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-6">
+                    <h4 class="m-b-10 header-title">
+                        Selector
+                    </h4>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 nicescroll" id="DynamicField1" name="DynamicField1">
+                    <p>Please enter a Error Type.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- middle column -->
+        <div class="col-lg-4">
+            <div class="form-group">
+                <label for="word2">Enter an Error Sub-Category (Optional)</label>
+                <input type="text" class="form-control input-sm" id="word2" name="word2"
+                    placeholder="Type an error sub-category (optional)">
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-6">
+                    <h4 class="m-b-10 header-title">
+                        Selector
+                    </h4>
+                </div>
+            </div>
+            <div class="row" style="max-height: 400px; overflow-y: scroll;">
+                <div class="col-12 nicescroll" id="DynamicField2" name="DynamicField2">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <!-- search area -->
+
+        <div class="row">
+            <div class="col-6">
+                <button class="btn btn-sm btn-outline-success" name="clearForm" id="clearForm">
+                    <span>Clear <i class="ti-angle-left"></i></span>
+                </button>
+            </div>
+            <div class="col-6">
+                <!-- submit button -->
+                <button class="btn btn-sm btn-outline-success pull-right" type="submit">
+                    <span>Search <i class="ti-angle-right"></i></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</form>
+
 
 {% endblock %}
