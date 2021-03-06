@@ -192,8 +192,8 @@ LOGIN_REDIRECT_URL = '/initiate_roles/'
 if LIVE:
     EMAIL_HOST = env_get('EMAIL_HOST', 'smtp.sendgrid.net')
     EMAIL_PORT = env_get('EMAIL_PORT', 587)
-    EMAIL_HOST_USER = env_get('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = env_get('EMAIL_HOST_PASSWORD')
+    EMAIL_HOST_USER = 'apikey'
+    EMAIL_HOST_PASSWORD = env_get('SENDGRID_API_KEY')
     EMAIL_USE_TLS = env_get('EMAIL_USE_TLS', True)
     DEFAULT_FROM_EMAIL = env_get('DEFAULT_FROM_EMAIL', 'ComSem <noreply@comsem.net>')
 else:
