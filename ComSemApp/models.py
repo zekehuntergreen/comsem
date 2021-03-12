@@ -354,6 +354,7 @@ class Tag(models.Model):
 # Error tagging
 class ErrorCategory(models.Model):
     category = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
 
 
 class ErrorSubcategory(models.Model):
@@ -363,7 +364,7 @@ class ErrorSubcategory(models.Model):
 
 class ExpressionErrors(models.Model):
     category = models.ForeignKey("ErrorCategory", on_delete=models.CASCADE)
-    subcategory = models.ForeignKey("ErrorSubcategory", on_delete=models.CASCADE)
+    subcategory = models.ForeignKey("ErrorSubcategory", on_delete=models.CASCADE, null=True)
     expression = models.ForeignKey("Expression", on_delete=models.CASCADE)
-    start_index = models.IntegerField(validators=[MinValueValidator(0)])
-    end_index = models.IntegerField()
+    start_index = models.IntegerField(validators=[MinValueValidator(0)], null=True)
+    end_index = models.IntegerField(null=True)
