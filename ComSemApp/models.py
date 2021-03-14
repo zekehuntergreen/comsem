@@ -39,6 +39,17 @@ class Student(models.Model):
     def __str__(self):
         return ", ".join([self.user.last_name, self.user.first_name])
 
+    #gets the number of expressions that a student completed 
+    #completed is defined by submitted by student and reviewed by teacher
+    #edited by: Jalen Tacsiat
+    def get_number_of_expressions(self):
+        expressions = StudentSubmission.objects.filter(student = self.id, status = "complete")
+        return expressions.count()
+
+    def get_last_worksheet_number(self):
+        number = Worksheet.objects.last_submission(student = self.id)
+        return number
+    
     class Meta:
         ordering = ('user__last_name','user__first_name')
 

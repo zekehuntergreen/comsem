@@ -2,6 +2,8 @@
 <thead>
 	<tr>
 		<th>Name</th>
+		<th>Number of Sentences</th>
+		<th>Last Worksheet</th>
 	</tr>
 </thead>
 
@@ -9,6 +11,8 @@
 	{% for student in course.students.all %}
 	<tr>
 		<td>{{ student }}</td>
+		<td>{{ student.get_number_of_expressions }}</td>
+		<td>{{ student.get_last_worksheet}}</td>
 	</tr>
 	{% endfor %}
 </tbody>
