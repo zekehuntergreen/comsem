@@ -20,13 +20,6 @@ def corpus_search(request):
 
 
 @login_required
-def error_search(request):
-    tags = Tag.objects.all()
-    template = loader.get_template('ComSemApp/corpus/error_corpus.html')
-    return HttpResponse(template.render({'tags': tags, 'offsetRange':[i for i in range(-8,8+1)]}, request))
-
-
-@login_required
 def populate_word_tag(request):
     val = request.POST.get('val', None).strip()
     search_type = request.POST.get('type', None)
@@ -139,3 +132,36 @@ def build_query(search_criteria, sequential_search):
             query += " and SW.position <= (derived2.position + " + str(abs(offset)) + ") and derived2.position < SW.position"
 
     return query
+
+
+@login_required
+def error_search(request):
+    tags = Tag.objects.all()
+    errors = ErrorCategory.objects.all()
+    print(errors)
+    template = loader.get_template('ComSemApp/corpus/error_search.html')
+    return HttpResponse(template.render({'tags': tags, 'errors': errors, 'offsetRange':[i for i in range(-8,8+1)]}, request))
+
+
+# # Error Subcategories
+# @login_required
+# def index_errors(request):
+#     errors = ErrorCategory.objects.all()
+#     print(errors)
+#     return render(request, 'error_corpus.html', {'errors': errors})
+
+@login_required
+def get_error_subs(request):
+    error_type = request.GET['err']
+    print("ajax country_name {}").format(error_type)
+
+    result_set = []
+    all_subcategories = []
+    answer = str(error_type[1:-1])
+    selected_error = ErrorCategory.objects.get(category=answer)
+    print("selected error type {}").format(selected_error)
+    all_subcategories = selected_error.errorsubcategory_set.all()
+    for subs in all_subcategories:
+        print("city name {}").format(subs.subcategory)
+        result_set.append({'name': subs.subcategory})
+    return HttpResponse(json.dumps(result_set), mimetype='application/json', content_type='application/json')
