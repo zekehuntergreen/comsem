@@ -22,6 +22,10 @@ select.input-sm{
 	height: 30px !important;
 }
 
+select.er-corpus{
+	height: 100px i !important;
+}
+
 .table th {
 	border-top: none !important;
 }

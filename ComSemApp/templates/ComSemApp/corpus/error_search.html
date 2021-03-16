@@ -26,9 +26,9 @@
             <!-- Space for user to enter the first word, mandatory -->
             <div class="form-group">
                 <label for="word1">Enter an Error Type</label>
-                <select class="form-control input-sm" id="word1" name="word1">
+                <select class="form-control" id="word1" name="word1">
                     {% for item in errors %}
-                    <option value="{{ item.name }}"> {{ item.name }} </option>
+                    <option value="{{ item.category }}" title="{{ item.description }}"> {{ item.category }} </option>
                     {% endfor %}
                 </select>
             </div>
@@ -42,7 +42,7 @@
 
             <div class="row">
                 <div class="col-12 nicescroll" id="DynamicField1" name="DynamicField1">
-                    <p>Please enter a Error Type.</p>
+                    <p>Please enter an Error Type.</p>
                 </div>
             </div>
         </div>
@@ -51,8 +51,8 @@
         <div class="col-lg-4">
             <div class="form-group">
                 <label for="word2">Enter an Error Sub-Category (Optional)</label>
-                <select class="form-control input-sm" id="word2" name="word2">
-
+                <select class="form-control" id="word2" name="word2">
+                    <option>----------</option>
                 </select>
             </div>
             <div class="row">
@@ -103,13 +103,31 @@
             var error_name = optionSelected.text();
 
             data = { 'err': error_name };
-            ajax('/get_error_subs', data, function (result) {
-                console.log(result);
-                for (var i = result.length - 1; i >= 0; i--) {
-                    $("#word2").append('<option>' + result[i].name + '</option>');
-                };
+            $.ajax({
+                url: '{% url "corpus:get_error_sub" %}',
+                data: data,
+                success: function (result) {
+                    removeOptions(document.getElementById('word2'));
+                    $("#word2").append('<option>' + "----------" + '</option>');
+                    for (var i = result.length - 1; i >= 0; i--) {
+                        $("#word2").append('<option>' + result[i].name + '</option>');
+                    };
+                }
             });
         });
+    });
+
+
+    function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for (i = L; i >= 0; i--) {
+            selectElement.remove(i);
+        }
+    }
+
+    $("SubmitSearchForm").submit(function (e) {
+        e.preventDefault();
+        console.log("Search");
     });
 
 </script>
