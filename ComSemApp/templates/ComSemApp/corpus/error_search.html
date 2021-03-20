@@ -74,13 +74,9 @@
             <br><br><br>
             <div class="row">
                 <div class="col-6">
-                    <button class="btn btn-sm btn-outline-success" name="clearForm" id="clearForm">
-                        <span>Clear <i class="ti-angle-left"></i></span>
-                    </button>
-                </div>
-                <div class="col-6">
                     <!-- submit button -->
-                    <button class="btn btn-sm btn-outline-success pull-right" type="submit">
+                    <button class="btn btn-sm btn-outline-success pull-right" name="searchForm" id="searchForm"
+                        type="submit">
                         <span>Search <i class="ti-angle-right"></i></span>
                     </button>
                 </div>
@@ -90,6 +86,15 @@
 
 
 </form>
+
+<!-- results -->
+<br />
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-box" id="searchResults" style="display: none"></div>
+    </div>
+</div>
 
 
 <script>
@@ -105,30 +110,36 @@
             data = { 'err': error_name };
             $.ajax({
                 url: '{% url "corpus:get_error_sub" %}',
+                type: "GET",
                 data: data,
                 success: function (result) {
                     removeOptions(document.getElementById('word2'));
-                    $("#word2").append('<option>' + "----------" + '</option>');
                     for (var i = result.length - 1; i >= 0; i--) {
                         $("#word2").append('<option>' + result[i].name + '</option>');
                     };
                 }
             });
         });
-    });
 
+        $("#SubmitSearchForm").submit(function (e) {
+            e.preventDefault();
+            console.log("Search");
+
+            $(this).prop("disabled", true);
+
+
+            //TODO: Alter views.py functions to fit needs of error searching
+            // $('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load("{% url 'corpus:search_results' %}", data);
+            $(this).prop("disabled", false);
+        });
+    });
 
     function removeOptions(selectElement) {
         var i, L = selectElement.options.length - 1;
-        for (i = L; i >= 0; i--) {
+        for (i = L; i >= 1; i--) {
             selectElement.remove(i);
         }
     }
-
-    $("SubmitSearchForm").submit(function (e) {
-        e.preventDefault();
-        console.log("Search");
-    });
 
 </script>
 
