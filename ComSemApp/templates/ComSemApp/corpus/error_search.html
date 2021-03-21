@@ -98,7 +98,15 @@
 
 
 <script>
+    // Holds search data that is sent to Django to determine sentences to pull 
+    // from the corpus
     var searchCriteria = [];
+
+    function collectData(id) {
+        var err_data = document.getElementById(id).value;
+        searchCriteria.push({ err_name: err_data });
+        $('#searchCriteria').val(JSON.stringify(searchCriteria));
+    }
 
     $(document).ready(function () {
         console.log("Page ready");
@@ -123,13 +131,22 @@
 
         $("#SubmitSearchForm").submit(function (e) {
             e.preventDefault();
-            console.log("Search");
+
+            searchCriteria = [];
 
             $(this).prop("disabled", true);
 
+            collectData("word1");
 
+            if ($("#word2").val() !== "----------") {
+                collectData("word2");
+            } else {
+                console.log("no sub-category selected");
+            }
+
+            var data = { 'searchCriteria': $('#searchCriteria').val() };
             //TODO: Alter views.py functions to fit needs of error searching
-            // $('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load("{% url 'corpus:search_results' %}", data);
+            $('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load("{% url 'corpus:error_search_results' %}", data);
             $(this).prop("disabled", false);
         });
     });

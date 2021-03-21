@@ -59,6 +59,8 @@ def search_results(request):
     sequential_search = request.POST.get('searchType') == '1'
     search_criteria = request.POST.get('searchCriteria', None)
 
+    print(type(search_criteria))
+
     if not search_criteria:
         return HttpResponse('No search criteria provided', status=401)
 
@@ -172,11 +174,7 @@ def error_search_results(request):
 
     search_criteria = json.loads(search_criteria)
 
-    for item in search_criteria:
-        if item['type'] == 'word' and " " in item['val'].rstrip().lstrip():
-            return HttpResponse('Invalid input: one word only per entry')
-
-    query = build_query(search_criteria, sequential_search)
+    query = build_error_query(search_criteria)
 
     with connection.cursor() as cursor:
         expression_ids = []
@@ -184,67 +182,39 @@ def error_search_results(request):
         for row in cursor.fetchall():
             expression_ids.append(row[0])
 
-    # grab the information we want about the expressions
+    # # grab the information we want about the expressions
     expressions = Expression.objects.filter(id__in=expression_ids)
 
     context = {
         'expressions': expressions,
-        'sequential_search': sequential_search,
         'search_criteria': search_criteria,
     }
-    template = loader.get_template('ComSemApp/corpus/search_results.html')
+    template = loader.get_template(
+        'ComSemApp/corpus/error_search_results.html')
     return HttpResponse(template.render(context, request))
 
 # This query builder makes the following assumptions about the search criteria:
 # there is one word, either a tag or a second word, and there may be an offset.
 
 
-def build_error_query(search_criteria, sequential_search):
+def build_error_query(search_criteria):
     words = []
-    tags = []
-    offset = 0
     for item in search_criteria:
-        if item['type'] == 'word':
-            words.append(item)
-        elif item['type'] == 'tag':
-            tags.append(item)
-        elif item['type'] == 'offset' and sequential_search == True:
-            offset = item['val']
+        words.append(item['err_name'])
 
-    if len(words) == 0:
-        return ""
+    query = "SELECT EE.expression_id, EE.category_id, EE.subcategory_id"
+    query += " FROM comsemapp_expressionerrors as EE"
+    query += " JOIN comsemapp_errorcategory as EC ON (EE.category_id = EC.id)"
+    query += " JOIN comsemapp_errorsubcategory as ES ON (EE.subcategory_id = ES.id)"
 
-    query = "SELECT SW.expression_id"
-    if sequential_search:
-        query += ", SW.position"
-    query += " FROM ComSemApp_sequentialwords as SW"
+    err_category = words[0]
+    query += " WHERE EC.category=\"" + err_category + "\""
 
-    if len(words) > 1 or len(tags) > 0:
-        query += ", (SELECT SW2.expression_id"
-        if sequential_search:
-            query += ", SW2.position"
-        query += " from ComSemApp_sequentialwords as SW2"
-        if len(tags) > 0:
-            query += ", ComSemApp_word as W where W.tag_id in (" + ','.join(
-                [str(id) for id in tags[0]['id_list']])
-            query += ") and SW2.word_id = W.id"
-        else:
-            query += " where SW2.word_id in (" + ','.join(
-                [str(id) for id in words[1]['id_list']])
-            query += ")"
-        query += ") as derived2"
-    query += " where SW.word_id in (" + \
-        ','.join([str(id) for id in words[0]['id_list']])
-    query += ")"
+    if len(words) == 2:
+        err_subcategory = words[1]
+        query += " AND ES.subcategory=\"" + err_subcategory + "\""
 
-    if len(words) > 1 or len(tags) > 0:
-        query += " and SW.expression_id = derived2.expression_id"
-
-        if offset > 0:
-            query += " and derived2.position <= (SW.position + " + str(
-                offset) + ") and SW.position < derived2.position"
-        elif offset < 0:
-            query += " and SW.position <= (derived2.position + " + str(
-                abs(offset)) + ") and derived2.position < SW.position"
+    print(query)
+    query += ";"
 
     return query

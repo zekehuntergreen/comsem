@@ -1,0 +1,39 @@
+<h4>
+	<!-- {% for criterion in search_criteria %}
+
+		{% if criterion.type == 'tag' %}
+			<i>{{ criterion.val }}</i>
+		{% elif criterion.type == 'word' %}
+			{{ criterion.val }}
+		{% elif criterion.type == 'offset' %}
+			<i>offset {{ criterion.val }}</i>
+		{% endif %}
+
+		{% if not forloop.last %}
+			+
+		{% endif %}
+
+	{% endfor %} -->
+	<small class="float-right">{{ expressions|length }}</small>
+</h4>
+
+<table class="table">
+	<thead>
+		<tr>
+			<th>Expression</th>
+			<!-- <th>Context</th> -->
+			<!-- <th>Level</th> -->
+			<!-- <th>Native Language</th> -->
+		</tr>
+	</thead>
+	<tbody>
+		{% for expression in expressions %}
+		<tr>
+			<td>{{ expression.expression }}</td>
+			<!-- <td>{{ expression.context_vocabulary|default:"" }}</td> -->
+			<!-- <td>{{ expression }}</td> -->
+			<!-- <td>{{ expression.student.language }}</td> -->
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
