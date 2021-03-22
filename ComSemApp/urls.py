@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^teacher/', include('ComSemApp.teacher.urls', namespace='teacher')),
     url(r'^student/', include('ComSemApp.student.urls', namespace='student')),
     url(r'^corpus/', include('ComSemApp.corpus.urls', namespace='corpus')),
+    url(r'^annotation/', include('ComSemApp.annotation.urls', namespace='annotation')),
 ]
