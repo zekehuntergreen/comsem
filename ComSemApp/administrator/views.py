@@ -1,6 +1,7 @@
 import re
 
 from django.db.transaction import atomic
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -143,8 +144,7 @@ class CourseListView(AdminViewMixin, ListView):
     template_name = 'ComSemApp/admin/course_list.html'
 
     def get_queryset(self):
-        course_types = CourseType.objects.filter(institution=self.institution)
-        return Course.objects.filter(course_type__in=course_types)
+        return Course.objects.filter(course_type__institution=self.institution).annotate(Count("students"))
 
 
 class CourseTypeListView(AdminViewMixin, ListView):
