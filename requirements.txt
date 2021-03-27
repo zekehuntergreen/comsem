@@ -12,3 +12,5 @@ gunicorn==19.9.0
 django-storages==1.7.1
 boto3==1.9.171
 requests==2.23.0
+SpeechRecognition==3.8.1
+pydub==0.24.1
