@@ -680,43 +680,4 @@ class ReviewAttemptCreateView(ReviewsheetView, CreateView):
         form.save()
         return JsonResponse({}, status=200)
 
-#transcribes the audio received from ajax call in ComSemRecording-opus.js
-#written by Nate Kirsch and Jalen Tacsiat
-def transcribe(request):
-    if request.method == 'POST': 
-        #gets the files 
-        file = request.FILES['audioBlob']
-        
-        #writes to an ogg file (ogg is an audio file format)
-        with open("./in_file.ogg", "wb") as in_file:
-            in_file.write(file.read())
 
-        #pydub is needed to change an ogg file to a wav file
-        from pydub import AudioSegment
-        # print("0===========================================")
-
-        audio = AudioSegment.from_file("./in_file.ogg", format="ogg")
-        print("1===========================================")
-        file_handle = audio.export("./out_file.wav", format="wav")
-
-        # Call STT
-        #r is an object of an import "speech_recognition" declared at the top
-        r = sr.Recognizer()
-
-        # print("2===========================================")
-
-        #create a .wav file
-        #transribe the wav file
-        #IMPORTANT!!! THIS CAN ONLY TRANSCRIBE .wav files
-        audio_file = "out_file.wav"
-        with sr.AudioFile(audio_file) as source:
-            audio = r.listen(source)
-            try:
-                print('converting audio to text...')
-                text = r.recognize_google(audio)
-                print(text)
-                return HttpResponse(text.capitalize() + ".")
-            except Exception:
-                print("======================ERROR======================")
-                # print()
-                return HttpResponse("")
