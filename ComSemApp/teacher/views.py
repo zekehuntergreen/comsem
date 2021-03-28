@@ -39,6 +39,12 @@ class TeacherViewMixin(RoleViewMixin):
             return False
         return courses.first()
 
+    def get_context_data(self, **kwargs):
+        context = super(TeacherViewMixin, self).get_context_data(**kwargs)
+        # TODO show each of the user's institutions if they have more than one
+        context['institution'] = self.institution.first()
+        return context
+
 
 class TeacherCourseViewMixin(TeacherViewMixin, CourseViewMixin):
 

@@ -60,7 +60,11 @@ class RoleViewMixin(LoginRequiredMixin, UserPassesTestMixin):
             messages.error(self.request, invalid_submission_string)
             return self._get_invalid_submission_redirect()
 
-
+    def get_context_data(self, **kwargs):
+        # needed to show the user's institution name in the nav bar
+        context = super(RoleViewMixin, self).get_context_data(**kwargs)
+        context['institution'] = self.institution
+        return context
 
 
 class CourseViewMixin(object):
