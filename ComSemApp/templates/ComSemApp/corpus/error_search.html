@@ -1,3 +1,19 @@
+<!--
+ error_search_results.html
+ 
+ This html template is the main page the user clicks into as a Teacher or Administrator. 
+ When they are searching through the database for error annotated phrases and expressions
+ to use in any way they want.
+   
+ Changes:
+		Nate Kirsch (03/15/21):	
+            Created file based off of corpus_search.html but modified the search process
+            to include chained dropdown boxes so that the user cannot incorrectly search
+            for error categories/subcategories that do not exist
+
+-->
+
+
 {% extends 'ComSemApp/sidebar.html' %}
 
 {% block content %}
@@ -23,16 +39,18 @@
         <!-- left most column -->
         <div class="col-lg-4">
 
-            <!-- Space for user to enter the first word, mandatory -->
+            <!-- Space for user to enter the error category, mandatory -->
             <div class="form-group">
                 <label for="word1">Enter an Error Type</label>
+                <!-- Select box is used to display limited options -->
                 <select class="form-control" id="word1" name="word1">
+                    <!-- errors is populated on page loading function in corpus:views.py -->
                     {% for item in errors %}
                     <option value="{{ item.category }}" title="{{ item.description }}"> {{ item.category }} </option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="row">
+            <!-- <div class="row">
                 <div class="col-sm-12 col-md-6">
                     <h4 class="m-b-10 header-title">
                         Selector
@@ -44,18 +62,21 @@
                 <div class="col-12 nicescroll" id="DynamicField1" name="DynamicField1">
                     <p>Please enter an Error Type.</p>
                 </div>
-            </div>
+            </div> -->
         </div>
 
         <!-- middle column -->
         <div class="col-lg-4">
+            <!-- Space for user to enter the error sub-category, not-mandatory -->
             <div class="form-group">
                 <label for="word2">Enter an Error Sub-Category (Optional)</label>
+                <!-- The second select option that is chained to the first -->
                 <select class="form-control" id="word2" name="word2">
+                    <!-- the default is dashed line in case of no sub-categories -->
                     <option>----------</option>
                 </select>
             </div>
-            <div class="row">
+            <!-- <div class="row">
                 <div class="col-sm-12 col-md-6">
                     <h4 class="m-b-10 header-title">
                         Selector
@@ -66,7 +87,7 @@
                 <div class="col-12 nicescroll" id="DynamicField2" name="DynamicField2">
 
                 </div>
-            </div>
+            </div> -->
         </div>
 
         <div class="col-lg-3">
@@ -83,8 +104,8 @@
             </div>
         </div>
     </div>
-
-
+    <br />
+    <br />
 </form>
 
 <!-- results -->
@@ -102,15 +123,39 @@
     // from the corpus
     var searchCriteria = [];
 
+    // collectData is passed in the element ID that it is trying to pull data from, 
+    // in this case, the ID of the select element. The data value is then pushed to
+    // searchCriteria as a KV pair 
     function collectData(id) {
         var err_data = document.getElementById(id).value;
-        searchCriteria.push({ err_name: err_data });
+        var type;
+        if (id == "word1") {
+            type = "category";
+        } else if (id == "word2") {
+            type = "subcategory";
+        }
+        appendCriterion(type, err_data);
+    }
+
+
+    function appendCriterion(type, val) {
+        searchCriteria.push({
+            type: type,
+            val: val,
+        });
         $('#searchCriteria').val(JSON.stringify(searchCriteria));
     }
 
+    // document ready listener that when activated creates:
+    //      - a word listener for word1 select box.
+    //      - a submit button click listener
     $(document).ready(function () {
         console.log("Page ready");
+
+        // When the first select box is changed, we need to update the
+        // options available in the second select option
         $('select#word1').change(function () {
+            // Get the value from the error select box
             var optionSelected = $(this).find("option:selected");
             var valueSelected = optionSelected.val();
             var error_name = optionSelected.text();
@@ -121,7 +166,9 @@
                 type: "GET",
                 data: data,
                 success: function (result) {
+                    // On success, clear options already populating the sub-category box
                     removeOptions(document.getElementById('word2'));
+                    // Populate the sub-category drop down
                     for (var i = result.length - 1; i >= 0; i--) {
                         $("#word2").append('<option>' + result[i].name + '</option>');
                     };
@@ -129,28 +176,30 @@
             });
         });
 
+        // On the search button being clicked, get both values in the select items
         $("#SubmitSearchForm").submit(function (e) {
             e.preventDefault();
 
+            // Clear any old search
             searchCriteria = [];
 
+            // Probably disables the page from being changed mid search? (not really sure)
             $(this).prop("disabled", true);
 
             collectData("word1");
 
+            // Only collect the subcategory if there is one explicitly chosen
             if ($("#word2").val() !== "----------") {
                 collectData("word2");
-            } else {
-                console.log("no sub-category selected");
             }
 
             var data = { 'searchCriteria': $('#searchCriteria').val() };
-            //TODO: Alter views.py functions to fit needs of error searching
             $('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load("{% url 'corpus:error_search_results' %}", data);
             $(this).prop("disabled", false);
         });
     });
 
+    // Function to clear every select option up to the last one. This keeps "----------" always as an option
     function removeOptions(selectElement) {
         var i, L = selectElement.options.length - 1;
         for (i = L; i >= 1; i--) {

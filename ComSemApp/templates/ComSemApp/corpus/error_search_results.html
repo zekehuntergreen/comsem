@@ -1,19 +1,28 @@
+<!--
+ error_search_results.html
+ This html page loads the results 
+   
+ Changes:
+		Nate Kirsch (03/20/21):	Created file based off of search_results.html to show data pulled from
+								the Error Corpus specified search.
+
+-->
+
 <h4>
-	<!-- {% for criterion in search_criteria %}
+	{% for criterion in search_criteria %}
 
-		{% if criterion.type == 'tag' %}
-			<i>{{ criterion.val }}</i>
-		{% elif criterion.type == 'word' %}
-			{{ criterion.val }}
-		{% elif criterion.type == 'offset' %}
-			<i>offset {{ criterion.val }}</i>
-		{% endif %}
+	{% if criterion.type == 'category' %}
+	<i>{{ criterion.val }}</i>
+	{% elif criterion.type == 'subcategory' %}
+	<i>{{ criterion.val }}</i>
+	{% endif %}
 
-		{% if not forloop.last %}
-			+
-		{% endif %}
+	{% if not forloop.last %}
+	<br>
+	{% endif %}
 
-	{% endfor %} -->
+	{% endfor %}
+
 	<small class="float-right">{{ expressions|length }}</small>
 </h4>
 
@@ -21,18 +30,18 @@
 	<thead>
 		<tr>
 			<th>Expression</th>
-			<!-- <th>Context</th> -->
-			<!-- <th>Level</th> -->
+			<th>Category</th>
+			<th>Sub-Category</th>
 			<!-- <th>Native Language</th> -->
 		</tr>
 	</thead>
 	<tbody>
 		{% for expression in expressions %}
 		<tr>
-			<td>{{ expression.expression }}</td>
-			<!-- <td>{{ expression.context_vocabulary|default:"" }}</td> -->
-			<!-- <td>{{ expression }}</td> -->
-			<!-- <td>{{ expression.student.language }}</td> -->
+			<td>{{ expression.0 }}</td>
+			<td>{{ expression.1|default:"" }}</td>
+			<td>{{ expression.2|default:"" }}</td>
+			<!-- <td>{{ expression.0.student.language }}</td> -->
 		</tr>
 		{% endfor %}
 	</tbody>

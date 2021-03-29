@@ -1,3 +1,17 @@
+#
+# corpus: views.py
+#
+# This file used for assorted views calls made from or for tasks regarding the search/error corpus
+#
+# Changes:
+#		Nate Kirsch (03/15/21):
+#           Implemented error_search and subcategories defs so that the chaiend dropdowns properly
+#           populate from the data available in the database
+#		Nate Kirsch (03/20/21):
+#           Implemented the error_search_results and build_error_query defs to pull expressions
+#           from the database based on the selected error and sub-category
+#
+
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
@@ -89,6 +103,7 @@ def search_results(request):
     template = loader.get_template('ComSemApp/corpus/search_results.html')
     return HttpResponse(template.render(context, request))
 
+
 # This query builder makes the following assumptions about the search criteria:
 # there is one word, either a tag or a second word, and there may be an offset.
 
@@ -144,6 +159,9 @@ def build_query(search_criteria, sequential_search):
     return query
 
 
+# Called when the Error Corpus page is initially being loaded
+# On loading, grabs every error category to populate error dropdown as soon as the page loads
+
 @login_required
 def error_search(request):
     tags = Tag.objects.all()
@@ -151,6 +169,9 @@ def error_search(request):
     template = loader.get_template('ComSemApp/corpus/error_search.html')
     return HttpResponse(template.render({'tags': tags, 'errors': errors, 'offsetRange': [i for i in range(-8, 8+1)]}, request))
 
+
+# Ajax called whenever the user selects a new category from the category dropdown.
+# Returns every associated sub-category.
 
 @login_required
 def subcategories(request):
@@ -165,6 +186,10 @@ def subcategories(request):
     return HttpResponse(json.dumps(result_set), content_type='application/json')
 
 
+# A request is made to search, so using the criteria passed into us, we'll call and make a query
+# and use it in a database search
+
+
 @login_required
 def error_search_results(request):
     search_criteria = request.POST.get('searchCriteria', None)
@@ -177,13 +202,11 @@ def error_search_results(request):
     query = build_error_query(search_criteria)
 
     with connection.cursor() as cursor:
-        expression_ids = []
+        expressions = []
+
         cursor.execute(query)
         for row in cursor.fetchall():
-            expression_ids.append(row[0])
-
-    # # grab the information we want about the expressions
-    expressions = Expression.objects.filter(id__in=expression_ids)
+            expressions.append(row)
 
     context = {
         'expressions': expressions,
@@ -193,17 +216,20 @@ def error_search_results(request):
         'ComSemApp/corpus/error_search_results.html')
     return HttpResponse(template.render(context, request))
 
+
 # This query builder makes the following assumptions about the search criteria:
-# there is one word, either a tag or a second word, and there may be an offset.
+# there is a provided array of pairs that will include a category and might
+# include a sub-category.
 
 
 def build_error_query(search_criteria):
     words = []
     for item in search_criteria:
-        words.append(item['err_name'])
+        words.append(item['val'])
 
-    query = "SELECT EE.expression_id, EE.category_id, EE.subcategory_id"
-    query += " FROM comsemapp_expressionerrors as EE"
+    query = "SELECT E.expression, EC.category, ES.subcategory"
+    query += " FROM comsemapp_expression as E"
+    query += " JOIN comsemapp_expressionerrors as EE ON (E.id = EE.expression_id)"
     query += " JOIN comsemapp_errorcategory as EC ON (EE.category_id = EC.id)"
     query += " JOIN comsemapp_errorsubcategory as ES ON (EE.subcategory_id = ES.id)"
 
@@ -214,7 +240,5 @@ def build_error_query(search_criteria):
         err_subcategory = words[1]
         query += " AND ES.subcategory=\"" + err_subcategory + "\""
 
-    print(query)
     query += ";"
-
     return query
