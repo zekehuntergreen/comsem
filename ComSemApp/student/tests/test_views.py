@@ -26,8 +26,7 @@ class TestCredentials(BaseTestCase):
     def test_logged_in_not_student_fail(self):
         self.client.login(username=self.teacher.user.username, password=self.password)
         response = self.client.get(self.student_home_url)
-        # TODO: should we be doing something else here? 404? redirect to student home?
-        self.assertRedirects(response, '%s?next=%s' % (self.loggin_url, self.student_home_url))
+        self.assertEqual(response.status_code, 403)
 
     def test_logged_in_student_success(self):
         self.client.login(username=self.student.user.username, password=self.password)
@@ -239,7 +238,7 @@ class TestAttemptCreateView(TestSubmissionsMixin):
         reformulation_text = "this is the reformulation text!"
         post_data = {
             "reformulation_text": reformulation_text,
-            "audio": None,
+            # "audio": None,
             # TODO: test this !
         }
         response = self.client.post(reverse("student:create_attempt",
@@ -271,7 +270,7 @@ class TestAttemptUpdateView(TestSubmissionsMixin):
         reformulation_text = "this is the UPDATED reformulation text!"
         post_data = {
             "reformulation_text": reformulation_text,
-            "audio": None,
+            # "audio": None,
             # TODO: test this !
         }
         response = self.client.post(reverse("student:update_attempt",
