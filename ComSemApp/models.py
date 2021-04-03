@@ -39,9 +39,6 @@ class Student(models.Model):
     def __str__(self):
         return ", ".join([self.user.last_name, self.user.first_name])
 
-    class Meta:
-        ordering = ('user__last_name','user__first_name')
-
 
 class Language(models.Model):
     language = models.CharField(max_length=255)
@@ -107,9 +104,6 @@ class Course(models.Model):
     def get_visible_worksheets(self):
         return self.worksheets.exclude(status=teacher_constants.WORKSHEET_STATUS_PENDING)
 
-    class Meta:
-        ordering = ('-session__start_date',)
-
 
 class CourseType(models.Model):
     institution = models.ForeignKey('Institution', on_delete=models.CASCADE)
@@ -130,9 +124,6 @@ class Session(models.Model):
 
     def __str__(self):
         return " - ".join([str(self.session_type), str(self.start_date)])
-
-    class Meta:
-        ordering = ['-start_date']
 
 
 class SessionType(models.Model):
@@ -206,9 +197,6 @@ class Worksheet(models.Model):
         if StudentSubmission.objects.filter(worksheet_id=self.id, student=student).exists():
             last_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student).latest()
         return last_submission
-
-    class Meta:
-        ordering = ['date']
 
 
 class Expression(models.Model):
