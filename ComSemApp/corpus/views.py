@@ -10,6 +10,9 @@
 #		Nate Kirsch (03/20/21):
 #           Implemented the error_search_results and build_error_query defs to pull expressions
 #           from the database based on the selected error and sub-category
+#       Nate Kirsch (04/14/21):
+#           Updated the Error query to specifically get the expression object and it's associated
+#           language based on the error category and sub-category provided. No more duplicates.
 #
 
 from django.shortcuts import render
@@ -198,15 +201,25 @@ def error_search_results(request):
         return HttpResponse('No search criteria provided', status=401)
 
     search_criteria = json.loads(search_criteria)
-
     query = build_error_query(search_criteria)
 
+    # the query returns results in order: exp_id, cat_id, sub_id, lang_id
     with connection.cursor() as cursor:
         expressions = []
 
         cursor.execute(query)
         for row in cursor.fetchall():
-            expressions.append(row)
+            expression = Expression.objects.get(id=row[0])
+            category = ErrorCategory.objects.get(id=row[1])
+            subcategory = ErrorSubcategory.objects.get(id=row[2])
+            # If the student is not associated with a language, set a None object
+            try:
+                language = Language.objects.get(id=row[3])
+            except Language.DoesNotExist:
+                language = None
+
+            # Pass the expression info back in a tuple
+            expressions.append((expression, category, subcategory, language))
 
     context = {
         'expressions': expressions,
@@ -227,12 +240,15 @@ def build_error_query(search_criteria):
     for item in search_criteria:
         words.append(item['val'])
 
-    query = "SELECT E.expression, EC.category, ES.subcategory"
-    query += " FROM comsemapp_expression as E"
-    query += " JOIN comsemapp_expressionerrors as EE ON (E.id = EE.expression_id)"
-    query += " JOIN comsemapp_errorcategory as EC ON (EE.category_id = EC.id)"
-    query += " JOIN comsemapp_errorsubcategory as ES ON (EE.subcategory_id = ES.id)"
+    query = "SELECT DISTINCT E.id, EC.id, ES.id, L.id"
+    query += " FROM communicationseminardjango.comsemapp_expressionerrors AS EE"
+    query += " JOIN communicationseminardjango.comsemapp_errorcategory AS EC ON (EC.id = EE.category_id)"
+    query += " JOIN communicationseminardjango.comsemapp_errorsubcategory AS ES ON (ES.id = EE.subcategory_id)"
+    query += " JOIN communicationseminardjango.comsemapp_expression AS E ON (E.id = EE.expression_id)"
+    query += " JOIN communicationseminardjango.comsemapp_student AS S ON (E.student_id = S.id)"
+    query += " LEFT JOIN communicationseminardjango.comsemapp_language AS L ON (S.language_id = L.id)"
 
+    # The search condition is based on the category and subcategory provided
     err_category = words[0]
     query += " WHERE EC.category=\"" + err_category + "\""
 
