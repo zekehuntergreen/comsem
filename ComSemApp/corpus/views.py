@@ -182,7 +182,9 @@ def subcategories(request):
     result_set = []
     all_subcategories = []
     answer = str(error_type[1:-1])
+    # Get the ErrorCategory object based on the name passed in
     selected_error = ErrorCategory.objects.get(category=answer)
+    # Get every subcategory based on the error name
     all_subcategories = selected_error.errorsubcategory_set.all()
     for subs in all_subcategories:
         result_set.append({'name': subs.subcategory})
