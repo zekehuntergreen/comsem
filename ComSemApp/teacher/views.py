@@ -300,11 +300,12 @@ class ExpressionDeleteView(TeacherWorksheetViewMixin, DeleteView):
         return HttpResponse(status=204)
 
 
-class AnnotationView(TeacherWorksheetViewMixin, UpdateView):
+class AnnotationView(TeacherWorksheetViewMixin, CreateView):
     template_name = "ComSemApp/teacher/error_annotation.html"
-    model = Worksheet
+    model = ExpressionErrors
     fields = []
-    context_object_name = 'worksheet'
+    context_object_name = 'errors'
+    errors = ErrorCategory.objects.all()
 
     def get_object(self):
         return self.worksheet
@@ -363,3 +364,28 @@ def delete_file(url):
         os.remove(url)
     except FileNotFoundError:
         pass
+
+
+# error annotation drop down boxes
+@login_required
+def error_cat_search(request):
+    errors = ErrorCategory.objects.all()
+    result_set = []
+    for category in errors:
+        result_set.append(category.category)
+
+    return HttpResponse(json.dumps(result_set), content_type='application/json')
+
+@login_required
+def subcategories(request):
+    error_type = request.GET['err']
+    result_set = []
+    all_subcategories = []
+    answer = str(error_type)
+    print("searching for: " + answer)
+    selected_error = ErrorCategory.objects.get(category=answer)
+    print("subcats for: " + answer)
+    all_subcategories = selected_error.errorsubcategory_set.all()
+    for subs in all_subcategories:
+        result_set.append({'name': subs.subcategory})
+    return HttpResponse(json.dumps(result_set), content_type='application/json')

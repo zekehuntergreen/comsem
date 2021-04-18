@@ -1,0 +1,92 @@
+
+
+<div class="tab-pane {% if forloop.first %}active{% endif %}" id="s-{{ forloop.counter }}">
+    <!-- original expression -->
+    <div class="row submissionRow" style="margin-top: 0px;">
+        <div class="col-12">
+            {{ expression.expression }}
+        </div>
+    </div>
+
+    <!-- search criteria -->
+    <input type="hidden" name="searchCriteria" id="searchCriteria" />
+    <div class="row">
+        <!-- left most column -->
+        <div class="col-lg-4">
+            <!-- Space for user to enter the first word, mandatory -->
+            <div class="form-group">
+                <label for="word1">Enter an Error Type</label>
+                <select class="form-control" id="word1{{ forloop.counter }}" name="word1">
+                    <option>----------</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- middle column -->
+        <div class="col-lg-4">
+            <div class="form-group">
+                <label for="word2">Enter an Error Sub-Category (Optional)</label>
+                <select class="form-control" id="word2{{ forloop.counter }}" name="word2">
+                    <option>----------</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <!-- search area -->
+            <br><br><br>
+            <div class="row">
+                <div class="col-6">
+                    <!-- submit button -->
+                    <button class="btn btn-sm btn-outline-success pull-right" name="searchForm" id="searchForm"
+                        type="submit">
+                        <span>Submit <i class="ti-angle-right"></i></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+	$(document).ready(function () {
+		$.ajax({
+			url: '{% url "teacher:error_cat_search" %}',
+			type: "GET",
+			success: function (result) {
+				removeOptions(document.getElementById('word1{{ forloop.counter }}'));
+				for (var i = result.length - 1; i >= 0; i--) {
+					$("#word1{{ forloop.counter }}").append('<option>' + result[i] + '</option>');
+				};
+            }
+		});
+	});
+
+	$('select#word1{{ forloop.counter }}').change(function () {
+        var optionSelected = $(this).find("option:selected");
+        var valueSelected = optionSelected.val();
+        var error_name = optionSelected.text();
+
+        data = { 'err': error_name };
+        $.ajax({
+            url: '{% url "teacher:get_error_sub" %}',
+            type: "GET",
+            data: data,
+            success: function (result) {
+                removeOptions(document.getElementById('word2{{ forloop.counter }}'));
+                for (var i = result.length - 1; i >= 0; i--) {
+                    $("#word2{{ forloop.counter }}").append('<option>' + result[i].name + '</option>');
+                };
+            }
+        });
+	});
+
+    function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for (i = L; i >= 1; i--) {
+            selectElement.remove(i);
+        }
+    }
+
+</script>

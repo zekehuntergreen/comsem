@@ -339,7 +339,7 @@ class SequentialWords(models.Model):
 
 # upenn tagset
 class Tag(models.Model):
-    tag = models.CharField(max_length=255)
+    tag = models.CharField(max_length=255)  
     type = models.CharField(max_length=255, blank=True, null=True)
     description = models.CharField(max_length=255, blank=True, null=True)
 
@@ -351,20 +351,20 @@ class Tag(models.Model):
         return SequentialWords.objects.filter(word__in=words).count()
 
 
-# Error tagging
+# Error tagging - AG
 class ErrorCategory(models.Model):
-    category = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
+    category = models.CharField(max_length=255)     # error category
+    description = models.CharField(max_length=255)  # description of category
 
 
 class ErrorSubcategory(models.Model):
-    subcategory = models.CharField(max_length=255)
-    parent_category = models.ForeignKey('ErrorCategory', on_delete=models.CASCADE)
+    subcategory = models.CharField(max_length=255)  # error subcategory
+    parent_category = models.ForeignKey('ErrorCategory', on_delete=models.CASCADE) # parent category
 
 
 class ExpressionErrors(models.Model):
-    category = models.ForeignKey("ErrorCategory", on_delete=models.CASCADE)
+    category = models.ForeignKey("ErrorCategory", on_delete=models.CASCADE) 
     subcategory = models.ForeignKey("ErrorSubcategory", on_delete=models.CASCADE, null=True)
     expression = models.ForeignKey("Expression", on_delete=models.CASCADE)
-    start_index = models.IntegerField(validators=[MinValueValidator(0)], null=True)
-    end_index = models.IntegerField(null=True)
+    start_index = models.IntegerField(validators=[MinValueValidator(0)], null=True)     # start index of the error
+    end_index = models.IntegerField(null=True)          # ending index of the error

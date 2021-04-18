@@ -24,5 +24,8 @@ urlpatterns = [
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/expression/(?P<expression_id>[0-9]+)/delete/$', views.ExpressionDeleteView.as_view(), name='expression_delete'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/submission/(?P<submission_id>[0-9]+)/$', views.SubmissionView.as_view(), name='submission'),
 
+    url('get_error_sub/', views.subcategories, name='get_error_sub'),
+    url('error_cat_search/', views.error_cat_search, name='error_cat_search'),
+
     url(r'^corpus/search$', corpus_views.corpus_search, name='corpus_search'),
 ]

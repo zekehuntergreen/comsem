@@ -48,26 +48,13 @@
 
 					<div class="tab-content" style="width: 100%">
 						{% for expression in worksheet.expressions.all %}
-						<div class="tab-pane {% if forloop.first %}active{% endif %}" id="s-{{ forloop.counter }}">
-
-							
-
-							<!-- original expression -->
-							<div class="row submissionRow" style="margin-top: 0px;">
-								<div class="col-12">
-									{{ expression.expression }}
-								</div>
-							</div>
-                            
-						</div>
+							{% include 'ComSemApp/teacher/expression_annotate.html' %}
 						{% endfor %}
 					</div>
 				</div>
-
 			</div>
 		</div>
 	</div>
-
 </form>
 
 <style>
@@ -75,5 +62,10 @@
 	margin: 20px auto;
 }
 </style>
+
+
+
+
+
 
 {% endblock %}

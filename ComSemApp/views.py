@@ -90,23 +90,3 @@ def initiate_roles(request):
     if Student.objects.filter(user=request.user).exists():
         return redirect('/student/')
 
-
-# error annotation drop down boxes
-@login_required
-def error_search(request):
-    tags = Tag.object.all()
-    errors = ErrorCategory.objects.all()
-    template = loader.get_template('ComSemApp') # TODO: we do not have a template yet
-    return HttpResponse(template.render({'tags': tags, 'errors': errors, 'offsetRange': [i for i in range(-8, 8+i)]}, request))
-
-@login_required
-def subcategories(request):
-    error_type = request.GET['err']
-    result_set = []
-    all_subcategories = []
-    answer = str(error_type[1:-1])
-    selected_error = ErrorCategory.objects.get(category=answer)
-    all_subcategories = selected_error.errorsubcategory_set.all()
-    for subs in all_subcategories:
-        result_set.append({'name': subs.subcategory})
-    return HttpResponse(json.dumps(result_set), content_type='application/json')
