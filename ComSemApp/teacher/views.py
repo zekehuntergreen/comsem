@@ -317,9 +317,9 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
         for attempt in submission.attempts.all(): # added code to allow audio and text to be graded seperatly vhl
             text_correct = self.request.POST.get("T" + str(attempt.id), None) == '1' # get text
             audio_correct = self.request.POST.get("A" + str(attempt.id), None) == '1' # gets audio
-            text_feedback = self.request.POST.get("F" + str(attempt.id), None)
+            text_feedback = self.request.POST.get("F" + str(attempt.id), None)      # added to grab teacher text feedback - ag
 
-            attempt.feedback = text_feedback
+            attempt.feedback = text_feedback    # sets feedback
             attempt.text_correct = text_correct # marks text
             if attempt.audio: # sets audio correct if there is audio
                 attempt.audio_correct = audio_correct
