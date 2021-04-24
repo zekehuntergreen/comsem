@@ -18,6 +18,9 @@ urlpatterns = [
         views.WorksheetDetailView.as_view(), name='worksheet_detail'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/update/$',
         views.WorksheetUpdateView.as_view(), name='worksheet_update'),
+    url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/annotate/$',
+        views.AnnotationView.as_view(), name='annotate_sentences'),
+
 
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/update_released/$',
         views.WorksheetReleasedUpdateView.as_view(), name='worksheet_released_update'),
@@ -36,6 +39,9 @@ urlpatterns = [
         views.ExpressionDeleteView.as_view(), name='expression_delete'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/submission/(?P<submission_id>[0-9]+)/$',
         views.SubmissionView.as_view(), name='submission'),
+
+    url('get_error_sub/', views.subcategories, name='get_error_sub'),
+    url('error_cat_search/', views.error_cat_search, name='error_cat_search'),
 
     url(r'^corpus/search$', corpus_views.corpus_search, name='corpus_search'),
     url('transcribe_call/', utils.transcribe),

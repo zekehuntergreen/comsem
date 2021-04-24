@@ -1,7 +1,7 @@
-#views.py
-#classes for student page in comsem
-#Changes:
-#Nate Kirsch (2/1/21): Added transribe function
+# views.py
+# classes for student page in comsem
+# Changes:
+# Nate Kirsch (2/1/21): Added transribe function
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import View
@@ -26,7 +26,11 @@ from django.conf import settings
 from ComSemApp.teacher import constants
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin
 
-import json, math, datetime, os, csv
+import json
+import math
+import datetime
+import os
+import csv
 from ComSemApp.models import *
 
 
@@ -39,7 +43,8 @@ class TeacherViewMixin(RoleViewMixin):
         self.teacher = self.role_obj
 
     def _check_valid_course(self, course_id):
-        courses = Course.objects.filter(teachers=self.request.user.teacher, id=course_id)
+        courses = Course.objects.filter(
+            teachers=self.request.user.teacher, id=course_id)
         if not courses.exists():
             return False
         return courses.first()
@@ -71,6 +76,8 @@ class CourseListView(TeacherViewMixin, ListView):
         context['teacher_view'] = True
         return context
 
+# Hello, Rob
+
 
 class CourseDetailView(TeacherCourseViewMixin, DetailView):
     context_object_name = 'course'
@@ -90,7 +97,8 @@ class DownloadCourseCSV(TeacherCourseViewMixin, View):
         writer = csv.writer(response)
         students = self.course.students.all()
         worksheets = self.course.worksheets.all()
-        writer.writerow(['Worksheet Number', 'Expression Number', 'All Do', 'Student', 'Sentence'])
+        writer.writerow(['Worksheet Number', 'Expression Number',
+                         'All Do', 'Student', 'Sentence'])
 
         # All non-AllDo sentences, ordered by student, then worksheet, then expression
         for student in students:
@@ -147,7 +155,8 @@ class WorksheetDetailView(TeacherWorksheetViewMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(WorksheetDetailView, self).get_context_data(**kwargs)
-        context['submissions'] = self.worksheet.submissions.exclude(status="pending")
+        context['submissions'] = self.worksheet.submissions.exclude(
+            status="pending")
         context['worksheets'] = self.course.get_visible_worksheets()
         return context
 
@@ -155,26 +164,27 @@ class WorksheetDetailView(TeacherWorksheetViewMixin, DetailView):
 class WorksheetCreateView(TeacherCourseViewMixin, UpdateView):
     model = Worksheet
     fields = ["topic", "display_original", "display_reformulation_text",
-                "display_reformulation_audio", "display_all_expressions"]
+              "display_reformulation_audio", "display_all_expressions"]
     template_name = "ComSemApp/teacher/edit_worksheet.html"
 
     # technically an UpdateView since a worksheet object with status PENDING is created in the get_object method
     def get_object(self):
-        worksheet, _ = Worksheet.objects.get_or_create_pending(self.teacher, self.course)
+        worksheet, _ = Worksheet.objects.get_or_create_pending(
+            self.teacher, self.course)
         return worksheet
 
     def form_valid(self, form):
         self.object.status = constants.WORKSHEET_STATUS_UNRELEASED
-        return super(WorksheetCreateView,self).form_valid(form)
+        return super(WorksheetCreateView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse("teacher:course", kwargs={'course_id': self.course.id })
+        return reverse("teacher:course", kwargs={'course_id': self.course.id})
 
 
 class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
     model = Worksheet
     fields = ["topic", "display_original", "display_reformulation_text",
-                "display_reformulation_audio", "display_all_expressions"]
+              "display_reformulation_audio", "display_all_expressions"]
     template_name = "ComSemApp/teacher/edit_worksheet.html"
     context_object_name = 'worksheet'
 
@@ -182,21 +192,25 @@ class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
         return self.worksheet
 
     def get_success_url(self):
-        return reverse("teacher:course", kwargs={'course_id': self.course.id })
+        return reverse("teacher:course", kwargs={'course_id': self.course.id})
 
 # new view class for released worksheets being edited DF
+
+
 class WorksheetReleasedUpdateView(TeacherWorksheetViewMixin, UpdateView):
     model = Worksheet
     fields = ["topic", "display_original", "display_reformulation_text",
-                "display_reformulation_audio", "display_all_expressions"]
-    template_name = "ComSemApp/teacher/edit_released_worksheet.html" #edit_worksheet.html -> edit_released_worksheet.html
+              "display_reformulation_audio", "display_all_expressions"]
+    # edit_worksheet.html -> edit_released_worksheet.html
+    template_name = "ComSemApp/teacher/edit_released_worksheet.html"
     context_object_name = 'worksheet'
 
     def get_object(self):
         return self.worksheet
 
     def get_success_url(self):
-        return reverse("teacher:course", kwargs={'course_id': self.course.id })
+        return reverse("teacher:course", kwargs={'course_id': self.course.id})
+
 
 class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
     model = Worksheet
@@ -207,9 +221,9 @@ class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
     def post(self, *args, **kwargs):
         worksheet = self.get_object()
         is_valid = worksheet.release()
-        if is_valid: # vhl release if worksheet is not empty
+        if is_valid:  # vhl release if worksheet is not empty
             return HttpResponse(status=204)
-        else: # vhl returns error message if worksheet is empty
+        else:  # vhl returns error message if worksheet is empty
             return HttpResponse(status=406, reason="worksheet cannot be empty")
 
 
@@ -238,7 +252,7 @@ class ExpressionCreateView(TeacherWorksheetViewMixin, CreateView):
     model = Expression
     template_name = "ComSemApp/teacher/expression_form.html"
     fields = ["expression", "student", "all_do", "pronunciation", "context_vocabulary",
-                "reformulation_text", "audio"]
+              "reformulation_text", "audio"]
 
     def form_invalid(self, form):
         response = super().form_invalid(form)
@@ -255,11 +269,12 @@ class ExpressionUpdateView(TeacherWorksheetViewMixin, UpdateView):
     model = Expression
     template_name = "ComSemApp/teacher/expression_form.html"
     fields = ["expression", "student", "all_do", "pronunciation", "context_vocabulary",
-                "reformulation_text", "audio"]
+              "reformulation_text", "audio"]
 
     def get_object(self):
         expression_id = self.kwargs.get('expression_id', None)
-        expressions = Expression.objects.filter(id=expression_id, worksheet=self.worksheet)
+        expressions = Expression.objects.filter(
+            id=expression_id, worksheet=self.worksheet)
         if not expressions.exists():
             # only ajax right now
             response = JsonResponse({"error": 'Invalid Expression ID.'})
@@ -286,7 +301,8 @@ class ExpressionDeleteView(TeacherWorksheetViewMixin, DeleteView):
 
     def get_object(self):
         expression_id = self.kwargs.get('expression_id', None)
-        expressions = Expression.objects.filter(id=expression_id, worksheet=self.worksheet)
+        expressions = Expression.objects.filter(
+            id=expression_id, worksheet=self.worksheet)
         if not expressions.exists():
             # only ajax right now
             response = JsonResponse({"error": 'Invalid Expression ID.'})
@@ -305,6 +321,20 @@ class ExpressionDeleteView(TeacherWorksheetViewMixin, DeleteView):
         return HttpResponse(status=204)
 
 
+class AnnotationView(TeacherWorksheetViewMixin, CreateView):
+    template_name = "ComSemApp/teacher/error_annotation.html"
+    model = ExpressionErrors
+    fields = []
+    context_object_name = 'errors'
+    errors = ErrorCategory.objects.all()
+
+    def get_object(self):
+        return self.worksheet
+
+    def get_queryset(self):
+        return Expression.objects.filter(worksheet=self.worksheet)
+
+
 class SubmissionView(TeacherWorksheetViewMixin, DetailView):
     template_name = "ComSemApp/teacher/view_submission.html"
     context_object_name = "submission"
@@ -312,33 +342,34 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
     def get_object(self):
         submission_id = self.kwargs.get('submission_id', None)
         return get_object_or_404(StudentSubmission, id=submission_id, worksheet=self.worksheet)
-        
 
     def post(self, *args, **kwargs):
         submission = self.get_object()
-        
+
         all_correct = True
         # status of each attempt
-        for attempt in submission.attempts.all(): # added code to allow audio and text to be graded seperatly vhl
-            text_correct = self.request.POST.get("T" + str(attempt.id), None) == '1' # get text
-            audio_correct = self.request.POST.get("A" + str(attempt.id), None) == '1' # gets audio
+        for attempt in submission.attempts.all():  # added code to allow audio and text to be graded seperatly vhl
+            text_correct = self.request.POST.get(
+                "T" + str(attempt.id), None) == '1'  # get text
+            audio_correct = self.request.POST.get(
+                "A" + str(attempt.id), None) == '1'  # gets audio
             text_feedback = self.request.POST.get("F" + str(attempt.id), None)
 
             attempt.feedback = text_feedback
-            attempt.text_correct = text_correct # marks text
-            if attempt.audio: # sets audio correct if there is audio
+            attempt.text_correct = text_correct  # marks text
+            if attempt.audio:  # sets audio correct if there is audio
                 attempt.audio_correct = audio_correct
-            else: # sets audio_correct to None if there is no audio
+            else:  # sets audio_correct to None if there is no audio
                 attempt.audio_correct = None
-                
+
             attempt.save()
-            if attempt.audio: # case for if there is audio
+            if attempt.audio:  # case for if there is audio
                 if (not text_correct) or (not audio_correct):
                     all_correct = False
-            else: # case for text only
+            else:  # case for text only
                 if (not text_correct):
                     all_correct = False
-                
+
         # handle status of the submission
         # TODO - use constants
         if all_correct:
@@ -359,3 +390,27 @@ def delete_file(url):
         pass
 
 
+# error annotation drop down boxes
+@login_required
+def error_cat_search(request):
+    errors = ErrorCategory.objects.all()
+    result_set = []
+    for category in errors:
+        result_set.append(category.category)
+
+    return HttpResponse(json.dumps(result_set), content_type='application/json')
+
+
+@login_required
+def subcategories(request):
+    error_type = request.GET['err']
+    result_set = []
+    all_subcategories = []
+    answer = str(error_type)
+    print("searching for: " + answer)
+    selected_error = ErrorCategory.objects.get(category=answer)
+    print("subcats for: " + answer)
+    all_subcategories = selected_error.errorsubcategory_set.all()
+    for subs in all_subcategories:
+        result_set.append({'name': subs.subcategory})
+    return HttpResponse(json.dumps(result_set), content_type='application/json')

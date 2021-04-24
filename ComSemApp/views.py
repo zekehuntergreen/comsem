@@ -89,3 +89,4 @@ def initiate_roles(request):
 
     if Student.objects.filter(user=request.user).exists():
         return redirect('/student/')
+
