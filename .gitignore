@@ -20,3 +20,7 @@ local_dev.py
 
 # vscode settings
 .vscode/*
+
+# transcription files
+in_file.ogg
+out_file.wav
