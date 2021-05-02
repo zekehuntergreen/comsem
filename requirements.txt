@@ -1,3 +1,12 @@
+/**
+ * requirements.txt
+ * This file contains all the libraries and extensions for ComSem
+ *  
+ * Changes:
+ * 		Joseph Torii (05/02):   Reviewing documentation 
+ */
+
+
 Django==2.2
 django-appconf==1.0.2
 django-bootstrap3-datetimepicker-2==2.5.0
