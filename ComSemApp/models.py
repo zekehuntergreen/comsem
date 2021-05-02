@@ -1,3 +1,11 @@
+################################################################################
+# models.py
+# This file contains all the models for ComSem
+#  
+# Changes:
+# 		Joseph Torii (05/02):   Reviewing documentation 
+################################################################################
+
 import datetime, uuid
 
 from django.db import models
@@ -25,8 +33,6 @@ STUDENT_SUBMISSION_STATUSES = [('pending', 'pending'), ('ungraded', 'ungraded'),
 def audio_directory_path(directory, instance):
     return "reformulations/" + str(uuid.uuid4()) + ".ogg"
 
-
-# TODO : Split these models into admin, teacher, student, corpus apps
 
 # STUDENTS, TEACHERS, ADMINS
 
@@ -146,8 +152,6 @@ class SessionType(models.Model):
 
     class Meta:
         verbose_name = "Session Type"
-
-
 
 
 # WORKSHEETS, EXPRESSIONS
