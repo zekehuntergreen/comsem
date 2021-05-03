@@ -1,3 +1,11 @@
+##############################################################################
+# utils.py
+# This file is included in pages that use the Speech-to-Text feature of ComSem.
+#
+# Changes:
+# 		Joseph Torii (05/02):   Reviewing documentation 
+##############################################################################
+
 import ssl
 import nltk
 import speech_recognition as sr
@@ -42,31 +50,32 @@ def pos_tag(expression):
 
 def transcribe(request):
     if request.method == 'POST': 
-        #gets the files
+        # gets the files
         file = request.FILES['audioBlob']
         
-        #tempfile.mkstemp returns a tuple containing an OS level handle
-        #and absolute path of the temp file
+        # tempfile.mkstemp returns a tuple containing an OS level handle
+        # and absolute path of the temp file
         in_file_handle, temp_in_path = tempfile.mkstemp(suffix=".ogg")
         out_file_handle, temp_out_path = tempfile.mkstemp(suffix=".wav")
         with open(temp_in_path, 'wb') as temp_in:
             temp_in.write(file.read())
             
-        #pydub is needed to change an ogg file to a wav file
+        # pydub is needed to change an ogg file to a wav file
         
         audio = AudioSegment.from_file(temp_in_path, format="ogg")
         audio.export(temp_out_path, format="wav")
 
         # Call STT
-        #r is an object of an import "speech_recognition" declared at the top
+        # r is an object of an import "speech_recognition" declared at the top
         r = sr.Recognizer()
 
-        #create a .wav file
-        #transribe the wav file
-        #IMPORTANT!!! THIS CAN ONLY TRANSCRIBE .wav files
+        # create a .wav file
+        # transribe the wav file
+        # IMPORTANT!!! THIS CAN ONLY TRANSCRIBE .wav files
         audio_file = temp_out_path
         with sr.AudioFile(audio_file) as source:
             audio = r.listen(source)
+            
             try:
                 print('converting audio to text...')
                 text = r.recognize_google(audio)
@@ -74,8 +83,9 @@ def transcribe(request):
                 #closes the temp files
                 os.close(in_file_handle)
                 os.close(out_file_handle)
-                #capitalize sentence and add a period at the end of a expression
+                # capitalize sentence and add a period at the end of a expression
                 return HttpResponse(text.capitalize() + ".")
+            
             except Exception:
                 print("======================ERROR======================")
                 #closes the temp files
