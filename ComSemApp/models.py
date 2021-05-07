@@ -2,7 +2,8 @@
 models.py
 General models.py for ComSem website
 Changes:
-  Nate Kirsch (3/23): 
+  Nate Kirsch (3/23):
+    Copied models from Error-annotation
 """
 
 import datetime
@@ -34,8 +35,6 @@ STUDENT_SUBMISSION_STATUSES = [('pending', 'pending'), (
 def audio_directory_path(directory, instance):
     return "reformulations/" + str(uuid.uuid4()) + ".ogg"
 
-
-# TODO : Split these models into admin, teacher, student, corpus apps
 
 # STUDENTS, TEACHERS, ADMINS
 

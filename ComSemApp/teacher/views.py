@@ -1,7 +1,9 @@
 # views.py
 # classes for student page in comsem
+#
 # Changes:
-# Nate Kirsch (2/1/21): Added transribe function
+#   Nate Kirsch (2/1/21):
+#       Added transribe function
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import View

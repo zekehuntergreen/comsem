@@ -9,6 +9,7 @@
  *		Jalen Tacsiat (02/11):	Changed the resultText function to work on the associated 
  *								Student and teacher pages
  *		Nate Kirsch (02/20):	Cleaned up useless code and added relevent comments
+ * 		Joseph Torii (05/02):   Adding more documentation 
  */
 
 
@@ -116,8 +117,6 @@ function initializeRecorder() {
 
 		x = document.getElementById("reformulation");
 
-		// recordingslist.appendChild(li);
-
 		// changed in order to allow only one recording at a time:
 		$('#recordingslist').html(audio);
 		$('#deleteRecordingButton').attr('disabled', false);
@@ -129,10 +128,9 @@ function initializeRecorder() {
 }
 
 function screenLogger(text, data) {
-	// log.innerHTML += "\n" + text + " " + (data || '');
-	// use console log instead
 	console.log(text + " " + (data || ''))
 }
+
 
 /**
  * resultText is called from within the ajax call in the "dataAvailable" listener when there is
@@ -140,7 +138,7 @@ function screenLogger(text, data) {
  * @param {*} response is the sentence that the user has just recorded
  */
 function resultText(response) {
-	// We need to check which page the user is accessing
+	// Checking which page the user is accessing
 	x = document.getElementById("reformulation");
 	y = document.getElementById("CorrectedExpr");
 
