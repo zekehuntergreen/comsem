@@ -26,8 +26,7 @@ class TestCredentials(BaseTestCase):
     def test_logged_in_not_admin_fail(self):
         self.client.login(username=self.teacher.user.username, password=self.password)
         response = self.client.get(self.teacher_list_url)
-        # TODO: should we be doing something else here? 404? redirect to teacher home?
-        self.assertRedirects(response, '%s?next=%s' % (self.loggin_url, self.teacher_list_url))
+        self.assertEqual(response.status_code, 403)
 
     def test_logged_in_admin_success(self):
         self.client.login(username=self.admin.user.username, password=self.password)

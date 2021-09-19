@@ -25,5 +25,4 @@ urlpatterns = [
 
     url(r'^corpus/search$', corpus_views.corpus_search, name='corpus_search'),
     url('transcribe_call/', utils.transcribe),
-
 ]

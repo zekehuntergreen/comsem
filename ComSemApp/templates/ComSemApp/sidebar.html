@@ -18,7 +18,7 @@
 					</a>
 					<a href="{% url 'contact' %}" class="logo">
 						<i class="mdi mdi-beta" data-toggle="tooltip" data-placement="bottom"
-						   title="ComSem is still in its beta version.
+							title="ComSem is still in its beta version.
 						If you spot a bug or have questions or suggestions for the site, click here to let us know!"></i>
 					</a>
 				</div>
@@ -153,8 +153,12 @@
 			<div class="sidebar-inner slimscrollleft">
 				<!--- Divider -->
 				<div id="sidebar-menu">
-					{% if current_role == "admin" %}
 					<ul>
+						<li class="menu-title">
+							<b>{{ institution.name }}</b>
+						</li>
+
+						{% if current_role == "admin" %}
 						<li>
 							<a href="{% url 'administrator:students' %}">
 								<i class="ion-person ion"></i>
@@ -203,9 +207,9 @@
 								<!-- <li><a href="url 'corpus_stats' ">Statistics</a></li> -->
 							</ul>
 						</li>
-					</ul>
-					{% elif current_role == "teacher" %}
-					<ul>
+						
+						{% elif current_role == "teacher" %}
+
 						<li>
 							<a href="{% url 'teacher:courses' %}">
 								<i class="ti-blackboard"></i>
@@ -223,17 +227,17 @@
 								<!-- <li><a href="url 'corpus_stats' ">Statistics</a></li> -->
 							</ul>
 						</li>
-					</ul>
-					{% elif current_role == "student" %}
-					<ul>
+
+						{% elif current_role == "student" %}
+
 						<li>
 							<a href="{% url 'student:courses' %}">
 								<i class="ti-blackboard"></i>
 								<span>Courses</span>
 							</a>
 						</li>
+						{% endif %}
 					</ul>
-					{% endif %}
 				</div>
 				<div class="clearfix"></div>
 			</div>

@@ -1,8 +1,3 @@
-#views.py
-#classes for student page in comsem
-#Changes:
-#Jalen Tacsiat (2/12/21): Added transribe function
-
 import json
 import os
 
@@ -678,5 +673,3 @@ class ReviewAttemptCreateView(ReviewsheetView, CreateView):
     def form_valid(self, form):
         form.save()
         return JsonResponse({}, status=200)
-
-
