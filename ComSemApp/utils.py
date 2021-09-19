@@ -67,16 +67,13 @@ def transcribe(request):
         audio_file = temp_out_path
         with sr.AudioFile(audio_file) as source:
             audio = r.listen(source)
-            
             try:
-                print('converting audio to text...')
                 text = r.recognize_google(audio)
-                print(text)
                 #closes the temp files
                 os.close(in_file_handle)
                 os.close(out_file_handle)
-                # capitalize sentence and add a period at the end of a expression
-                return HttpResponse(text.capitalize() + ".")
+                # capitalize sentence
+                return HttpResponse(text.capitalize())
             
             except Exception:
                 os.close(in_file_handle)

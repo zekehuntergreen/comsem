@@ -15,3 +15,5 @@ requests==2.23.0
 SpeechRecognition==3.8.1
 pydub==0.24.1
 temp==2020.7.2
+SpeechRecognition==3.8.1
+pydub==0.25.1
