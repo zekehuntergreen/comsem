@@ -93,7 +93,7 @@ function initializeRecorder() {
 
 		// The ajax call to transcribe the recorded audio is made
 		$.ajax({
-			url: '{% url "transcribe_call/" %}',
+			url: $('#audioUrl').val(),
 			type: "POST",
 			data: data,
 			processData: false,

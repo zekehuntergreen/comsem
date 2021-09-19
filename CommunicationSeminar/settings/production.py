@@ -209,22 +209,15 @@ if LIVE:
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'loggers': {
-        # Silence SuspiciousOperation.DisallowedHost exception ('Invalid
-        # HTTP_HOST' header messages). Set the handler to 'null' so we don't
-        # get those annoying emails.
-        'django.security.DisallowedHost': {
-            'handlers': ['null'],
-            'level': 'CRITICAL',
-            'propagate': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
         },
     },
-    'handlers': {
-        'null': {
-            'level': 'DEBUG',
-            'class': 'logging.NullHandler',
-        },
-    }
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
 }
 
 # Static files (CSS, JavaScript, Images)
