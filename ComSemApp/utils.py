@@ -1,11 +1,3 @@
-##############################################################################
-# utils.py
-# This file is included in pages that use the Speech-to-Text feature of ComSem.
-#
-# Changes:
-# 		Joseph Torii (05/02):   Reviewing documentation 
-##############################################################################
-
 import ssl
 import nltk
 import speech_recognition as sr
@@ -87,8 +79,6 @@ def transcribe(request):
                 return HttpResponse(text.capitalize() + ".")
             
             except Exception:
-                print("======================ERROR======================")
-                #closes the temp files
                 os.close(in_file_handle)
                 os.close(out_file_handle)
                 return HttpResponse("")

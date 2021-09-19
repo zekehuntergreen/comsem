@@ -1,11 +1,3 @@
-################################################################################
-# models.py
-# This file contains all the models for ComSem
-#  
-# Changes:
-# 		Joseph Torii (05/02):   Reviewing documentation 
-################################################################################
-
 import datetime, uuid
 
 from django.db import models
@@ -34,6 +26,7 @@ def audio_directory_path(directory, instance):
     return "reformulations/" + str(uuid.uuid4()) + ".ogg"
 
 
+# TODO : Split these models into admin, teacher, student, corpus apps
 # STUDENTS, TEACHERS, ADMINS
 
 class Student(models.Model):

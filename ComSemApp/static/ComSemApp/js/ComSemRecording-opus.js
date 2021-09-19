@@ -1,19 +1,8 @@
 /**
- * ComSemRecording-opus
  * This file is included in pages that need to access, save, or record
- * any audio files in ComSem
- *  
- * Changes:
- *		Nate Kirsch (02/09):	Implemented the ajax call within "dataavailable" listener, as 
- *								well as the resultText function
- *		Jalen Tacsiat (02/11):	Changed the resultText function to work on the associated 
- *								Student and teacher pages
- *		Nate Kirsch (02/20):	Cleaned up useless code and added relevent comments
- * 		Joseph Torii (05/02):   Adding more documentation 
+ * any audio files in ComSem.
+ * Include in pages that need to record / save / access audio files
  */
-
-
-// include in pages that need to record / save / access audio files!
 
 var audioReformulationBlob;
 
