@@ -27,7 +27,6 @@ def audio_directory_path(directory, instance):
 
 
 # TODO : Split these models into admin, teacher, student, corpus apps
-
 # STUDENTS, TEACHERS, ADMINS
 
 class Student(models.Model):
@@ -146,8 +145,6 @@ class SessionType(models.Model):
 
     class Meta:
         verbose_name = "Session Type"
-
-
 
 
 # WORKSHEETS, EXPRESSIONS

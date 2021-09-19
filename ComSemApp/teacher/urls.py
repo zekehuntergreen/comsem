@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from ComSemApp.teacher import views
 from ComSemApp.corpus import views as corpus_views
+from ComSemApp import utils
 
 app_name = 'teacher'
 urlpatterns = [
@@ -23,4 +24,5 @@ urlpatterns = [
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/submission/(?P<submission_id>[0-9]+)/$', views.SubmissionView.as_view(), name='submission'),
 
     url(r'^corpus/search$', corpus_views.corpus_search, name='corpus_search'),
+    url('transcribe_call/', utils.transcribe),
 ]
