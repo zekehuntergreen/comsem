@@ -1,6 +1,5 @@
 from django.conf.urls import url
 from ComSemApp.student import views
-from ComSemApp import utils
 
 app_name = 'student'
 urlpatterns = [
@@ -16,5 +15,4 @@ urlpatterns = [
     url(r'^course/(?P<course_id>[0-9]+)/reviewsheet/$', views.ReviewsheetGetView.as_view(), name='create_reviewsheet'),
     url(r'^course/(?P<course_id>[0-9]+)/reviewsheet/$', views.ReviewsheetView.as_view(), name='reviewsheet'),
     url(r'^course/(?P<course_id>[0-9]+)/reviewsheet/save$', views.ReviewAttemptCreateView.as_view(), name='save_reviewsheet'),
-    url('transcribe_call/', utils.transcribe),
 ]
