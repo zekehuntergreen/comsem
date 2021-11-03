@@ -2,6 +2,7 @@ import datetime, uuid
 
 from django.db import models
 from django.conf import settings
+from django.db.models.expressions import F
 from django.utils import timezone
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
@@ -167,6 +168,7 @@ class Worksheet(models.Model):
     display_reformulation_text = models.BooleanField(default=True)
     display_reformulation_audio = models.BooleanField(default=True)
     display_all_expressions = models.BooleanField(default=False)
+    run_through_model = models.BooleanField(default=False)
 
     objects = WorksheetManager()
 

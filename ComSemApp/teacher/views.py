@@ -156,7 +156,7 @@ class WorksheetDetailView(TeacherWorksheetViewMixin, DetailView):
 class WorksheetCreateView(TeacherCourseViewMixin, UpdateView):
     model = Worksheet
     fields = ["topic", "display_original", "display_reformulation_text",
-                "display_reformulation_audio", "display_all_expressions"]
+                "display_reformulation_audio", "display_all_expressions", "run_through_model"]
     template_name = "ComSemApp/teacher/edit_worksheet.html"
 
     # technically an UpdateView since a worksheet object with status PENDING is created in the get_object method
@@ -175,7 +175,7 @@ class WorksheetCreateView(TeacherCourseViewMixin, UpdateView):
 class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
     model = Worksheet
     fields = ["topic", "display_original", "display_reformulation_text",
-                "display_reformulation_audio", "display_all_expressions"]
+                "display_reformulation_audio", "display_all_expressions", "run_through_model"]
     template_name = "ComSemApp/teacher/edit_worksheet.html"
     context_object_name = 'worksheet'
 
@@ -189,7 +189,7 @@ class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
 class WorksheetReleasedUpdateView(TeacherWorksheetViewMixin, UpdateView):
     model = Worksheet
     fields = ["topic", "display_original", "display_reformulation_text",
-                "display_reformulation_audio", "display_all_expressions"]
+                "display_reformulation_audio", "display_all_expressions", "run_through_model"]
     template_name = "ComSemApp/teacher/edit_released_worksheet.html" #edit_worksheet.html -> edit_released_worksheet.html
     context_object_name = 'worksheet'
 
