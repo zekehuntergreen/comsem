@@ -59,6 +59,18 @@
     {% endif %}
 {% endif %}
 
+<!-- hints display -->
+{% if worksheet.display_hints %}
+    <div class="row" style="background-color: lightblue;">
+        <div class="col-12">
+            <details>
+                <summary>Show Hint(s):</summary>
+                <p>This is a hint.</p>
+            </details>
+        </div>
+    </div>
+{% endif %}
+
 <!-- correction -->
 <div class="row">
     <div class="col-12">

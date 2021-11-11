@@ -167,6 +167,7 @@ class Worksheet(models.Model):
     display_reformulation_text = models.BooleanField(default=True)
     display_reformulation_audio = models.BooleanField(default=True)
     display_all_expressions = models.BooleanField(default=False)
+    display_hints = models.BooleanField(default=False)
 
     objects = WorksheetManager()
 
