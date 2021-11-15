@@ -26,8 +26,7 @@ class TestCredentials(BaseTestCase):
     def test_logged_in_not_teacher_fail(self):
         self.client.login(username=self.student.user.username, password=self.password)
         response = self.client.get(self.teacher_home_url)
-        # TODO: should we be doing something else here? 404? redirect to teacher home?
-        self.assertRedirects(response, '%s?next=%s' % (self.loggin_url, self.teacher_home_url))
+        self.assertEqual(response.status_code, 403)
 
     def test_logged_in_teacher_success(self):
         self.client.login(username=self.teacher.user.username, password=self.password)
@@ -213,12 +212,23 @@ class TestWorksheetReleaseView(TestTeacherMixin):
         self.worksheet = self.db_create_worksheet(course=self.course)
 
     def test_post_success(self):
+        self.db_create_expression(worksheet=self.worksheet)
+
         self.assertEqual(self.worksheet.status, WORKSHEET_STATUS_UNRELEASED)
         response = self.client.post(reverse("teacher:worksheet_release",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.worksheet.id}))
         self.assertEqual(response.status_code, 204)
         self.worksheet.refresh_from_db()
         self.assertEqual(self.worksheet.status, WORKSHEET_STATUS_RELEASED)
+
+    def test_cannot_release_empty_worksheet(self):
+        self.assertEqual(self.worksheet.status, WORKSHEET_STATUS_UNRELEASED)
+        response = self.client.post(reverse("teacher:worksheet_release",
+                kwargs={'course_id': self.course.id, 'worksheet_id': self.worksheet.id}))
+        self.assertEqual(response.reason_phrase, "Worksheet cannot be empty")
+        self.assertEqual(response.status_code, 406)
+        self.worksheet.refresh_from_db()
+        self.assertEqual(self.worksheet.status, WORKSHEET_STATUS_UNRELEASED)
 
 
 class TestWorksheetDeleteView(TestTeacherMixin):
@@ -274,7 +284,7 @@ class TestExpressionCreateView(TestTeacherMixin):
             "pronunciation": "P",
             "context_vocabulary": "C",
             "reformulation_text": "R",
-            "audio": None,
+            # "audio": None,
             # TODO test audio upload
         }
         response = self.client.post(reverse("teacher:expression_create",
@@ -314,7 +324,7 @@ class TestExpressionUpdateView(TestTeacherMixin):
             "pronunciation": "P",
             "context_vocabulary": "C",
             "reformulation_text": "R",
-            "audio": None,
+            # "audio": None,
             # TODO test audio upload
         }
         response = self.client.post(reverse("teacher:expression_update",
@@ -370,8 +380,8 @@ class TestSubmissionView(TestTeacherMixin):
         self.assertEqual(self.submission.status, "ungraded")
         # mark incomplete
         post_data = {
-            self.attempt_1.id: "1",
-            self.attempt_2.id: "0",
+            "T" + str(self.attempt_1.id): "1",
+            "T" + str(self.attempt_2.id): "0",
         }
         response = self.client.post(reverse("teacher:submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.worksheet.id, 'submission_id': self.submission.id}), data=post_data)
@@ -382,8 +392,8 @@ class TestSubmissionView(TestTeacherMixin):
 
         # mark complete
         post_data = {
-            self.attempt_1.id: "1",
-            self.attempt_2.id: "1",
+            "T" + str(self.attempt_1.id): "1",
+            "T" + str(self.attempt_2.id): "1",
         }
         response = self.client.post(reverse("teacher:submission",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.worksheet.id, 'submission_id': self.submission.id}), data=post_data)

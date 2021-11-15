@@ -39,6 +39,12 @@ class TeacherViewMixin(RoleViewMixin):
             return False
         return courses.first()
 
+    def get_context_data(self, **kwargs):
+        context = super(TeacherViewMixin, self).get_context_data(**kwargs)
+        # TODO show each of the user's institutions if they have more than one
+        context['institution'] = self.institution.first()
+        return context
+
 
 class TeacherCourseViewMixin(TeacherViewMixin, CourseViewMixin):
 
@@ -202,10 +208,9 @@ class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
     def post(self, *args, **kwargs):
         worksheet = self.get_object()
         is_valid = worksheet.release()
-        if is_valid: # vhl release if worksheet is not empty
+        if is_valid:
             return HttpResponse(status=204)
-        else: # vhl returns error message if worksheet is empty
-            return HttpResponse(status=406, reason="worksheet cannot be empty")
+        return HttpResponse(status=406, reason="Worksheet cannot be empty")
 
 
 class WorksheetDeleteView(TeacherWorksheetViewMixin, DeleteView):
@@ -314,7 +319,7 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
         
         all_correct = True
         # status of each attempt
-        for attempt in submission.attempts.all(): # added code to allow audio and text to be graded seperatly vhl
+        for attempt in submission.attempts.all():
             text_correct = self.request.POST.get("T" + str(attempt.id), None) == '1' # get text
             audio_correct = self.request.POST.get("A" + str(attempt.id), None) == '1' # gets audio
 
@@ -350,3 +355,5 @@ def delete_file(url):
         os.remove(url)
     except FileNotFoundError:
         pass
+
+
