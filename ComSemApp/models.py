@@ -252,7 +252,7 @@ class StudentSubmission(models.Model):
 
     # what is this submission number? how many times has the student made a submission for this worksheet
     def get_number(self):
-        submissions = StudentSubmission.objects.filter(worksheet=self.worksheet)
+        submissions = StudentSubmission.objects.filter(worksheet=self.worksheet, student=self.student)
         for index, submission in enumerate(submissions):
             if submission == self:
                 return index + 1
