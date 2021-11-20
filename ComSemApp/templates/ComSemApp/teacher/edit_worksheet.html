@@ -3,7 +3,6 @@
 {% load static %}
 
 {% block content %}
-
 <!-- page head -->
 <form method="POST" id="editWorksheetForm">
 	{% csrf_token %}
@@ -77,6 +76,9 @@
 							<label for="run_through_model">
 								Computer Generated Hints
 							</label>
+							<button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" data-html="true" title="Hints generated from ComSem's Grammar Error Predictor implemented using BERT">
+  								?
+							</button>
 						</div>
 
 						<div class="checkbox checkbox-primary">
