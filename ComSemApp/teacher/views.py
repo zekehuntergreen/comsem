@@ -165,7 +165,17 @@ class WorksheetCreateView(TeacherCourseViewMixin, UpdateView):
         return worksheet
 
     def form_valid(self, form):
-        self.object.status = constants.WORKSHEET_STATUS_UNRELEASED
+        if self.object.run_through_model:
+            self.object.status = constants.WORKSHEET_STATUS_PROCESSING
+            worksheet_id = self.object.id
+            print(worksheet_id)
+            expressions = Expression.objects.filter(worksheet_id=worksheet_id)
+            expression_list = list(expressions)
+            for expression in expression_list:
+                expression.hint = expression.generate_hints()
+                expression.save()
+        else:
+            self.object.status = constants.WORKSHEET_STATUS_UNRELEASED
         return super(WorksheetCreateView,self).form_valid(form)
 
     def get_success_url(self):

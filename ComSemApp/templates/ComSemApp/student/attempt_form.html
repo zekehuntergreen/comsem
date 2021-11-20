@@ -59,6 +59,28 @@
     {% endif %}
 {% endif %}
 
+<!-- hints display -->
+
+{% if worksheet.run_through_model %}
+
+    <div class="row" style="background-color: lightblue;">
+
+        <div class="col-13">
+
+            <details>
+
+                <summary>Show Hint(s):</summary>
+
+                <p>{{ expression.hint }}</p>
+
+            </details>
+
+        </div>
+
+    </div>
+
+{% endif %}
+
 <!-- correction -->
 <div class="row">
     <div class="col-12">
