@@ -18,7 +18,7 @@
             <td>{{ worksheet.date }}</td>
             <td>{{ worksheet.topic }}</td>
             <td>
-                <span class='badge badge-{% if worksheet.released %}success{% else %}warning{% endif %}'>{% if worksheet.released %}Released{% else %}Unreleased{% endif %}</span>
+                <span class='badge badge-{% if worksheet.released %}success{% elif worksheet.processing %}info{% else %}warning{% endif %}'>{% if worksheet.released %}Released{% elif worksheet.processing %}Processing{% else %}Unreleased{% endif %}</span>
             </td>
             <td>
                 {% if worksheet.released %}
@@ -32,6 +32,7 @@
                     <div class="row">
                         <a href="{% url 'teacher:worksheet_update' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
 
+                        <!-- {% if worksheet.processing %}disabled{% endif %} -->
                         <button type='button' name='' class='btn btn-sm btn-outline-success release_worksheet_button' style="margin-left: 10px;">Release</button>
 
                         <button type="button" class='btn btn-sm btn-outline-danger delete_worksheet_button' style="margin-left: 10px;">Delete</button>

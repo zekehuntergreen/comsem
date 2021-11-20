@@ -3,7 +3,6 @@
 {% load static %}
 
 {% block content %}
-
 <!-- page head -->
 <form method="POST" id="editWorksheetForm">
 	{% csrf_token %}
@@ -71,6 +70,18 @@
 								Audio Reformulation
 							</label>
 						</div>
+						
+						
+						<div class="checkbox checkbox-primary">
+							<input type="checkbox" id="run_through_model" name="run_through_model" {% if worksheet.run_through_model %}checked='checked'{% endif %}>
+							<label for="run_through_model">
+								Computer Generated Hints
+							</label>
+							<!-- Tooltip content will be modified in the future -->
+							<button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" data-html="true" title="Hints generated from ComSem's Grammar Error Predictor implemented using BERT">
+  								?
+							</button>
+						</div>
 
 						<div class="checkbox checkbox-primary">
 
@@ -100,6 +111,14 @@
 								})
 							});
 
+							//$(function(){
+							// 	$('#run_through_model').on('change', function(){
+							// 		var checked = $(this).prop('checked');
+							// 		if(checked){
+										
+							// 		}
+							// 	})
+							// });
 						</script>
 
 					</div>

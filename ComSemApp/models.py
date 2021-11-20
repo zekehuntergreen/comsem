@@ -2,6 +2,7 @@ import datetime, uuid
 
 from django.db import models
 from django.conf import settings
+from django.db.models.expressions import F
 from django.utils import timezone
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
@@ -9,6 +10,8 @@ from django.urls import reverse
 from django.db.models import Q
 
 from ComSemApp.teacher import constants as teacher_constants
+# currently imports the dummy model created in the BERT folder
+from ComSemApp.BERT.dummy_model import BERTModel
 
 from .utils import pos_tag
 
@@ -167,7 +170,7 @@ class Worksheet(models.Model):
     display_reformulation_text = models.BooleanField(default=True)
     display_reformulation_audio = models.BooleanField(default=True)
     display_all_expressions = models.BooleanField(default=False)
-    display_hints = models.BooleanField(default=False)
+    run_through_model = models.BooleanField(default=False)
 
     objects = WorksheetManager()
 
@@ -181,6 +184,10 @@ class Worksheet(models.Model):
     @property
     def released(self):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
+
+    @property
+    def processing(self):
+        return self.status == teacher_constants.WORKSHEET_STATUS_PROCESSING
 
     def complete_submission(self, student): # vhl checks if any submissions are complete
         complete_submission = None
@@ -218,6 +225,7 @@ class Expression(models.Model):
     context_vocabulary = models.CharField(max_length=255, blank=True, null=True)
     reformulation_text = models.TextField(blank=True, null=True)
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
+    hint = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.expression
@@ -225,6 +233,16 @@ class Expression(models.Model):
     def get_number(self):
         siblings = list(Expression.objects.filter(worksheet=self.worksheet))
         return siblings.index(self) + 1 if self in siblings else 0
+    
+    def generate_hints(self):
+        """Takes an expression and send it through the 
+            BERT model to get model-generated hints
+        """
+        BERT_model = BERTModel()
+        if Worksheet.run_through_model:
+            # print("is running")
+            BERT_model.in_queue.add_item(self.expression)
+            return BERT_model.giveHint()
 
 
 
