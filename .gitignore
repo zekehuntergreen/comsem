@@ -20,3 +20,5 @@ local_dev.py
 
 # vscode settings
 .vscode/*
+
+newrelic.ini
