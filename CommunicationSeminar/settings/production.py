@@ -229,12 +229,14 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'filters': {
+        #allows logging to run when debug mode if off
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
     'formatters': {
         'verbose': {
+            #formats logs to work better with Heroku logging 'Logplex'
             'format': ('%(asctime)s [%(process)d] [%(levelname)s] ' +
                        'pathname=%(pathname)s lineno=%(lineno)s ' +
                        'funcname=%(funcName)s %(message)s'),
