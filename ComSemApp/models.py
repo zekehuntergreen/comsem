@@ -34,7 +34,6 @@ def audio_directory_path(directory, instance):
 
 
 # TODO : Split these models into admin, teacher, student, corpus apps
-
 # STUDENTS, TEACHERS, ADMINS
 
 class Student(models.Model):
@@ -155,8 +154,6 @@ class SessionType(models.Model):
         verbose_name = "Session Type"
 
 
-
-
 # WORKSHEETS, EXPRESSIONS
 
 class WorksheetManager(models.Manager):
@@ -262,7 +259,7 @@ class StudentSubmission(models.Model):
 
     # what is this submission number? how many times has the student made a submission for this worksheet
     def get_number(self):
-        submissions = StudentSubmission.objects.filter(worksheet=self.worksheet)
+        submissions = StudentSubmission.objects.filter(worksheet=self.worksheet, student=self.student)
         for index, submission in enumerate(submissions):
             if submission == self:
                 return index + 1

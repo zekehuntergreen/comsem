@@ -1,18 +1,8 @@
 /**
- * ComSemRecording-opus
  * This file is included in pages that need to access, save, or record
- * any audio files in ComSem
- *  
- * Changes:
- *		Nate Kirsch (02/09):	Implemented the ajax call within "dataavailable" listener, as 
- *								well as the resultText function
- *		Jalen Tacsiat (02/11):	Changed the resultText function to work on the associated 
- *								Student and teacher pages
- *		Nate Kirsch (02/20):	Cleaned up useless code and added relevent comments
+ * any audio files in ComSem.
+ * Include in pages that need to record / save / access audio files
  */
-
-
-// include in pages that need to record / save / access audio files!
 
 var audioReformulationBlob;
 
@@ -103,7 +93,7 @@ function initializeRecorder() {
 
 		// The ajax call to transcribe the recorded audio is made
 		$.ajax({
-			url: '{% url "transcribe_call/" %}',
+			url: $('#audioUrl').val(),
 			type: "POST",
 			data: data,
 			processData: false,
@@ -116,8 +106,6 @@ function initializeRecorder() {
 
 		x = document.getElementById("reformulation");
 
-		// recordingslist.appendChild(li);
-
 		// changed in order to allow only one recording at a time:
 		$('#recordingslist').html(audio);
 		$('#deleteRecordingButton').attr('disabled', false);
@@ -129,8 +117,6 @@ function initializeRecorder() {
 }
 
 function screenLogger(text, data) {
-	// log.innerHTML += "\n" + text + " " + (data || '');
-	// use console log instead
 	console.log(text + " " + (data || ''))
 }
 

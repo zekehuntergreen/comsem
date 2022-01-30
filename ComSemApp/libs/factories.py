@@ -180,7 +180,6 @@ class Factory:
             "student_submission": submission,
             "reformulation_text": "reformulation_text",
             "audio": None,
-            "correct": None,
         }
         return StudentAttempt.objects.create(**defaults)
 

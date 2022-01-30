@@ -40,6 +40,12 @@ class TeacherViewMixin(RoleViewMixin):
             return False
         return courses.first()
 
+    def get_context_data(self, **kwargs):
+        context = super(TeacherViewMixin, self).get_context_data(**kwargs)
+        # TODO show each of the user's institutions if they have more than one
+        context['institution'] = self.institution.first()
+        return context
+
 
 class TeacherCourseViewMixin(TeacherViewMixin, CourseViewMixin):
 
@@ -203,10 +209,9 @@ class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
     def post(self, *args, **kwargs):
         worksheet = self.get_object()
         is_valid = worksheet.release()
-        if is_valid: # vhl release if worksheet is not empty
+        if is_valid:
             return HttpResponse(status=204)
-        else: # vhl returns error message if worksheet is empty
-            return HttpResponse(status=406, reason="worksheet cannot be empty")
+        return HttpResponse(status=406, reason="Worksheet cannot be empty")
 
 
 class WorksheetDeleteView(TeacherWorksheetViewMixin, DeleteView):
@@ -315,7 +320,7 @@ class SubmissionView(TeacherWorksheetViewMixin, DetailView):
         
         all_correct = True
         # status of each attempt
-        for attempt in submission.attempts.all(): # added code to allow audio and text to be graded seperatly vhl
+        for attempt in submission.attempts.all():
             text_correct = self.request.POST.get("T" + str(attempt.id), None) == '1' # get text
             audio_correct = self.request.POST.get("A" + str(attempt.id), None) == '1' # gets audio
 
@@ -351,35 +356,3 @@ def delete_file(url):
         os.remove(url)
     except FileNotFoundError:
         pass
-
-def transcribe(request):
-    if request.method == 'POST': 
-        file = request.FILES['audioBlob']
-        
-        with open("./in_file.ogg", "wb") as in_file:
-            in_file.write(file.read())
-
-        from pydub import AudioSegment
-        # print("0===========================================")
-
-        audio = AudioSegment.from_file("./in_file.ogg", format="ogg")
-        print("1===========================================")
-        file_handle = audio.export("./out_file.wav", format="wav")
-
-        # Call STT
-        r = sr.Recognizer()
-
-        # print("2===========================================")
-
-        audio_file = "out_file.wav"
-        with sr.AudioFile(audio_file) as source:
-            audio = r.listen(source)
-            try:
-                print('converting audio to text...')
-                text = r.recognize_google(audio)
-                print(text)
-                return HttpResponse(text)
-            except Exception:
-                print("======================ERROR======================")
-                # print()
-                return HttpResponse("")
