@@ -17,7 +17,6 @@ from django.utils.safestring import mark_safe
 from django.core.serializers import serialize
 from django.contrib import messages
 from django.conf import settings
-import speech_recognition as sr
 
 from ComSemApp.teacher import constants
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin
