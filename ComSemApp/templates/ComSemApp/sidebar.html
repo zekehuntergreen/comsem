@@ -1,6 +1,7 @@
 {% extends 'ComSemApp/base.html' %}
 
 {% block body %}
+
 <body class="fixed-left">
 
 	<!-- Begin page -->
@@ -83,7 +84,8 @@
 					</li> -->
 
 					<li class="list-inline-item dropdown notification-list">
-						<a class="nav-link dropdown-toggle waves-effect waves-light nav-user" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false" style="font-size:25px">
+						<a class="nav-link dropdown-toggle waves-effect waves-light nav-user" data-toggle="dropdown"
+							href="#" role="button" aria-haspopup="false" aria-expanded="false" style="font-size:25px">
 							<i class="ion-person" class="mt-4"></i>
 							<!-- <img src="assets/images/users/avatar-1.jpg" alt="user" class="rounded-circle"> -->
 						</a>
@@ -96,18 +98,18 @@
 							<div class="dropdown-divider"></div>
 
 							{% for role, url in available_roles.items %}
-								<a href="{{ url }}" class="dropdown-item notify-item" >
-									<span class="user_role">{{ role }}</span>
-								</a>
+							<a href="{{ url }}" class="dropdown-item notify-item">
+								<span class="user_role">{{ role }}</span>
+							</a>
 							{% endfor %}
 
 							<style>
-							.user_role {
-								margin-left: 28px;
-								text-transform: uppercase;
-								font-size: 12px;
-								font-weight: 700;
-							}
+								.user_role {
+									margin-left: 28px;
+									text-transform: uppercase;
+									font-size: 12px;
+									font-weight: 700;
+								}
 							</style>
 
 							<div class="dropdown-divider"></div>
@@ -132,7 +134,7 @@
 							<i class="mdi mdi-menu"></i>
 						</button>
 					</li>
-				<!-- <li class="hide-phone app-search">
+					<!-- <li class="hide-phone app-search">
 						<form role="search" class="">
 							<input type="text" placeholder="Search..." class="form-control">
 							<a href=""><i class="fa fa-search"></i></a>
@@ -203,8 +205,8 @@
 								<span class="menu-arrow"></span>
 							</a>
 							<ul class="list-unstyled">
-								<li><a href="{% url 'administrator:corpus_search' %}">Search</a></li>
-								<!-- <li><a href="url 'corpus_stats' ">Statistics</a></li> -->
+								<li><a href="{% url 'administrator:corpus_search' %}">Phrase Search</a></li>
+								<li><a href="{% url 'administrator:error_search' %}">Error Search</a></li>
 							</ul>
 						</li>
 						
@@ -223,8 +225,8 @@
 								<span class="menu-arrow"></span>
 							</a>
 							<ul class="list-unstyled">
-								<li><a href="{% url 'teacher:corpus_search' %}">Search</a></li>
-								<!-- <li><a href="url 'corpus_stats' ">Statistics</a></li> -->
+								<li><a href="{% url 'teacher:corpus_search' %}">Phrase Search</a></li>
+								<li><a href="{% url 'teacher:error_search' %}">Error Search</a></li>
 							</ul>
 						</li>
 
