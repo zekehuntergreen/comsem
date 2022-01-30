@@ -1,38 +1,4 @@
-<!--
- error_search_results.html
- This html page loads the results 
-   
- Changes:
-		Nate Kirsch (03/20/21):	
-			Created file based off of search_results.html to show data pulled from
-			the Error Corpus specified search.
-		Nate Kirsch (04/14/21): 
-			Changed the screen to display objects from tuple passed in. The
-			tuple contains:
-				0 - The expression
-				1 - The Error Category
-				2 - The Error Sub-Category
-				3 - The native language
 
--->
-
-<h4>
-	{% for criterion in search_criteria %}
-
-	{% if criterion.type == 'category' %}
-	<i>{{ criterion.val }}</i>
-	{% elif criterion.type == 'subcategory' %}
-	<i>{{ criterion.val }}</i>
-	{% endif %}
-
-	{% if not forloop.last %}
-	<br>
-	{% endif %}
-
-	{% endfor %}
-
-	<small class="float-right">{{ expressions|length }}</small>
-</h4>
 
 <table class="table">
 	<thead>
@@ -44,12 +10,12 @@
 		</tr>
 	</thead>
 	<tbody>
-		{% for expression in expressions %}
-		<tr>
-			<td>{{ expression.0.expression }}</td>
-			<td>{{ expression.1.category|default:"" }}</td>
-			<td>{{ expression.2.subcategory|default:"" }}</td>
-			<td>{{ expression.3.language|default:"None" }}</td>
+		{% for expression_error in errors %}
+		<tr data-expression-id"{{ expression_error.expression.id }}">
+			<td>{{ expression_error.expression.expression }}</td>
+			<td>{{ expression_error.category.category|default:"" }}</td>
+			<td>{{ expression_error.subcategory.subcategory|default:"" }}</td>
+			<td>{{ expression_error.expression.student.language|default:"None" }}</td>
 		</tr>
 		{% endfor %}
 	</tbody>

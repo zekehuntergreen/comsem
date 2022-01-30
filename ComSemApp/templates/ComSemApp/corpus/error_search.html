@@ -48,7 +48,7 @@
                 <select class="form-control" id="word1" name="word1">
                     <!-- errors is populated on page loading function in corpus:views.py -->
                     {% for item in errors %}
-                    <option value="{{ item.category }}" title="{{ item.description }}"> {{ item.category }} </option>
+                    <option data-id="{{ item.id }}" value="{{ item.category }}" title="{{ item.description }}">{{ item.category }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -96,48 +96,17 @@
 
 
 <script>
-    // Holds search data that is sent to Django to determine sentences to pull 
-    // from the corpus
-    var searchCriteria = [];
-
-    // collectData is passed in the element ID that it is trying to pull data from, 
-    // in this case, the ID of the select element. The data value is then pushed to
-    // searchCriteria as a KV pair 
-    function collectData(id) {
-        var err_data = document.getElementById(id).value;
-        var type;
-        if (id == "word1") {
-            type = "category";
-        } else if (id == "word2") {
-            type = "subcategory";
-        }
-        appendCriterion(type, err_data);
-    }
-
-
-    function appendCriterion(type, val) {
-        searchCriteria.push({
-            type: type,
-            val: val,
-        });
-        $('#searchCriteria').val(JSON.stringify(searchCriteria));
-    }
-
     // document ready listener that when activated creates:
     //      - a word listener for word1 select box.
     //      - a submit button click listener
     $(document).ready(function () {
-        console.log("Page ready");
-
-        // When the first select box is changed, we need to update the
-        // options available in the second select option
-        $('select#word1').change(function () {
+        function fetch_subcategories(){
             // Get the value from the error select box
-            var optionSelected = $(this).find("option:selected");
+            var optionSelected = $('select#word1').find("option:selected");
             var valueSelected = optionSelected.val();
-            var error_name = optionSelected.text();
+            var error_id = optionSelected.data('id');
 
-            data = { 'err': error_name };
+            data = { 'error-id': error_id };
             $.ajax({
                 url: '{% url "corpus:get_error_sub" %}',
                 type: "GET",
@@ -147,32 +116,28 @@
                     removeOptions(document.getElementById('word2'));
                     // Populate the sub-category drop down
                     for (var i = result.length - 1; i >= 0; i--) {
-                        $("#word2").append('<option>' + result[i].name + '</option>');
+                        $("#word2").append('<option data-id="' + result[i].id + '">' + result[i].name + '</option>');
                     };
                 }
             });
+        }
+        fetch_subcategories()
+        // When the first select box is changed, we need to update the
+        // options available in the second select option
+        $('select#word1').change(function () {
+            fetch_subcategories()
         });
 
         // On the search button being clicked, get both values in the select items
         $("#SubmitSearchForm").submit(function (e) {
             e.preventDefault();
+            
+            err_category_id = $("#word1").find("option:selected").data("id")
+            err_subcategory_id = $("#word2").find("option:selected").data("id")
 
-            // Clear any old search
-            searchCriteria = [];
-
-            // Probably disables the page from being changed mid search? (not really sure)
-            $(this).prop("disabled", true);
-
-            collectData("word1");
-
-            // Only collect the subcategory if there is one explicitly chosen
-            if ($("#word2").val() !== "----------") {
-                collectData("word2");
-            }
-
-            var data = { 'searchCriteria': $('#searchCriteria').val() };
+            var data = {category_id: err_category_id};
+            if (err_subcategory_id) data['subcategory_id'] = err_subcategory_id 
             $('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load("{% url 'corpus:error_search_results' %}", data);
-            $(this).prop("disabled", false);
         });
     });
 
