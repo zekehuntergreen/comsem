@@ -1,5 +1,4 @@
 from django.conf.urls import url
-from ComSemApp.administrator import views as administrator_views
 from ComSemApp.corpus import views
 
 app_name = 'corpus'

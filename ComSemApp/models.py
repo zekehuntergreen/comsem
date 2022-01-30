@@ -1,10 +1,3 @@
-"""
-models.py
-General models.py for ComSem website
-Changes:
-  Nate Kirsch (3/23): 
-"""
-
 import datetime, uuid
 
 from django.db import models
