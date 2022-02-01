@@ -1,0 +1,137 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% block content %}
+
+{% csrf_token %}
+
+<!-- Page-Title -->
+<div class="row">
+    <div class="col-sm-12">
+        <div class="page-title-box">
+            <h4 class="page-title">
+                Error Search
+            </h4>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+
+<!-- search criteria -->
+<form class="csSpacer" method="POST" id="SubmitSearchForm">
+    <input type="hidden" name="searchCriteria" id="searchCriteria" />
+    <div class="row">
+        <!-- left most column -->
+        <div class="col-lg-4">
+
+            <!-- Space for user to enter the error category, mandatory -->
+            <div class="form-group">
+                <label for="word1">Enter an Error Type</label>
+                <!-- Select box is used to display limited options -->
+                <select class="form-control" id="word1" name="word1">
+                    <!-- errors is populated on page loading function in corpus:views.py -->
+                    {% for item in errors %}
+                    <option data-id="{{ item.id }}" value="{{ item.category }}" title="{{ item.description }}">{{ item.category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- middle column -->
+        <div class="col-lg-4">
+            <!-- Space for user to enter the error sub-category, not-mandatory -->
+            <div class="form-group">
+                <label for="word2">Enter an Error Sub-Category (Optional)</label>
+                <!-- The second select option that is chained to the first -->
+                <select class="form-control" id="word2" name="word2">
+                    <!-- the default is dashed line in case of no sub-categories -->
+                    <option>----------</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <!-- search area -->
+            <br><br><br>
+            <div class="row">
+                <div class="col-6">
+                    <!-- submit button -->
+                    <button class="btn btn-sm btn-outline-success pull-right" name="searchForm" id="searchForm"
+                        type="submit">
+                        <span>Search <i class="ti-angle-right"></i></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <br />
+</form>
+
+<!-- results -->
+<br />
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-box" id="searchResults" style="display: none"></div>
+    </div>
+</div>
+
+
+<script>
+    // document ready listener that when activated creates:
+    //      - a word listener for word1 select box.
+    //      - a submit button click listener
+    $(document).ready(function () {
+        function fetch_subcategories(){
+            // Get the value from the error select box
+            var optionSelected = $('select#word1').find("option:selected");
+            var valueSelected = optionSelected.val();
+            var error_id = optionSelected.data('id');
+
+            data = { 'error-id': error_id };
+            $.ajax({
+                url: '{% url "corpus:get_error_sub" %}',
+                type: "GET",
+                data: data,
+                success: function (result) {
+                    // On success, clear options already populating the sub-category box
+                    removeOptions(document.getElementById('word2'));
+                    // Populate the sub-category drop down
+                    for (var i = result.length - 1; i >= 0; i--) {
+                        $("#word2").append('<option data-id="' + result[i].id + '">' + result[i].name + '</option>');
+                    };
+                }
+            });
+        }
+        fetch_subcategories()
+        // When the first select box is changed, we need to update the
+        // options available in the second select option
+        $('select#word1').change(function () {
+            fetch_subcategories()
+        });
+
+        // On the search button being clicked, get both values in the select items
+        $("#SubmitSearchForm").submit(function (e) {
+            e.preventDefault();
+            
+            err_category_id = $("#word1").find("option:selected").data("id")
+            err_subcategory_id = $("#word2").find("option:selected").data("id")
+
+            var data = {category_id: err_category_id};
+            if (err_subcategory_id) data['subcategory_id'] = err_subcategory_id 
+            $('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load("{% url 'corpus:error_search_results' %}", data);
+        });
+    });
+
+    // Function to clear every select option up to the last one. This keeps "----------" always as an option
+    function removeOptions(selectElement) {
+        var i, L = selectElement.options.length - 1;
+        for (i = L; i >= 1; i--) {
+            selectElement.remove(i);
+        }
+    }
+
+</script>
+
+
+{% endblock %}
