@@ -1,4 +1,5 @@
 from django.conf.urls import url
+from django.urls import path
 from ComSemApp.teacher import views
 from ComSemApp.corpus import views as corpus_views
 
@@ -13,7 +14,9 @@ urlpatterns = [
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/update/$', views.WorksheetUpdateView.as_view(), name='worksheet_update'),
 
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/update_released/$', views.WorksheetReleasedUpdateView.as_view(), name='worksheet_released_update'),
-    
+
+    url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/review_hints/$', views.ExpressionHintUpdateView.as_view(), name='expression_hint_review'),
+
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/release/$', views.WorksheetReleaseView.as_view(), name='worksheet_release'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/delete/$', views.WorksheetDeleteView.as_view(), name='worksheet_delete'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/expressions/$', views.ExpressionListView.as_view(), name='expressions'),

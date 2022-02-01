@@ -225,6 +225,15 @@ class Expression(models.Model):
     reformulation_text = models.TextField(blank=True, null=True)
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
     hint = models.TextField(null=True, blank=True)
+    include_on_worksheet = models.BooleanField(default=True)
+    hint_correct = models.BooleanField(default=True)
+    error_tag = models.CharField(choices=[
+        ('SV agr', 'Subject Verb Agreement'),
+        ('NP', 'Noun phrase'),
+        ('TSeq', 'Tense Sequence'),
+        ('SVC', 'Subject-verb-complement')
+    ], max_length=6)
+    
 
     def __str__(self):
         return self.expression

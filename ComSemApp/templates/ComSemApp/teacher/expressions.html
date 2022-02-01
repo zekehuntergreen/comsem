@@ -7,6 +7,7 @@
             <th>All-Do</th>
             <th>Student</th>
             <th>Expression</th>
+            <th>Hint</th>
             <th></th>
         </tr>
     </thead>
@@ -28,6 +29,9 @@
             </td>
             <td>
                 {{ expression.expression }}
+            </td>
+            <td>
+                {{expression.hint}}
             </td>
             <td>
                 <button class='btn btn-sm btn-outline-primary editExpression' url="{% url 'teacher:expression_update' course_id=course.id worksheet_id=worksheet.id expression_id=expression.id %}">

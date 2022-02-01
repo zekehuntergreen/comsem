@@ -1,5 +1,4 @@
 from ComSemApp.BERT.wait_queue import WaitQueue
-from ComSemApp.BERT.wait_queue import WaitQueue
 
 class BERTModel():
     def __init__(self) -> None:

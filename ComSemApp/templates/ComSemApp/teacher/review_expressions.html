@@ -1,0 +1,21 @@
+<form class="" method="post" name="expressionform">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    {% for form in formset %}
+        <h1>This is a new form</h1>
+        <div class="">
+            <h2>This is a new field in one of the forms </h2>
+            {{ form.hint }}
+            <div style="visibility: hidden;">{{form.id}}</div>
+        </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+<script>
+    function form_submit(){
+        document.forms['expressionform'].save(commit=False);
+        // document.forms['expressionform'].submit();
+        // window.opener.location.reload(true);
+        window.close();
+    }
+</script>

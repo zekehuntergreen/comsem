@@ -1,8 +1,13 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.forms.forms import Form
 from django.views.generic import View
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
+from django.forms import modelformset_factory
+from django.forms import ModelForm
+
+from django.views.generic.edit import FormView
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
@@ -17,6 +22,9 @@ from django.utils.safestring import mark_safe
 from django.core.serializers import serialize
 from django.contrib import messages
 from django.conf import settings
+
+from extra_views import ModelFormSetView
+from ComSemApp.forms import ExpressionHintFormset
 
 from ComSemApp.teacher import constants
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin
@@ -168,12 +176,13 @@ class WorksheetCreateView(TeacherCourseViewMixin, UpdateView):
         if self.object.run_through_model:
             self.object.status = constants.WORKSHEET_STATUS_PROCESSING
             worksheet_id = self.object.id
-            print(worksheet_id)
             expressions = Expression.objects.filter(worksheet_id=worksheet_id)
             expression_list = list(expressions)
             for expression in expression_list:
                 expression.hint = expression.generate_hints()
                 expression.save()
+            #TODO -- change worksheet status to unreleased after generate hints finish. It can just go here now since there is no time involved
+            self.object.status = constants.WORKSHEET_STATUS_UNRELEASED
         else:
             self.object.status = constants.WORKSHEET_STATUS_UNRELEASED
         return super(WorksheetCreateView,self).form_valid(form)
@@ -191,6 +200,21 @@ class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
 
     def get_object(self):
         return self.worksheet
+
+    def form_valid(self, form):
+        if self.object.run_through_model:
+            self.object.status = constants.WORKSHEET_STATUS_PROCESSING
+            worksheet_id = self.object.id
+            expressions = Expression.objects.filter(worksheet_id=worksheet_id)
+            expression_list = list(expressions)
+            for expression in expression_list:
+                expression.hint = expression.generate_hints()
+                expression.save()
+            #TODO -- change worksheet status to unreleased after generate hints finish. It can just go here now since there is no time involved
+            self.object.status = constants.WORKSHEET_STATUS_UNRELEASED
+        else:
+            self.object.status = constants.WORKSHEET_STATUS_UNRELEASED
+        return super(WorksheetUpdateView,self).form_valid(form)
 
     def get_success_url(self):
         return reverse("teacher:course", kwargs={'course_id': self.course.id })
@@ -233,7 +257,7 @@ class WorksheetDeleteView(TeacherWorksheetViewMixin, DeleteView):
         worksheet = self.get_object()
         worksheet.delete()
         return HttpResponse(status=204)
-
+    
 
 class ExpressionListView(TeacherWorksheetViewMixin, ListView):
     model = Expression
@@ -260,6 +284,45 @@ class ExpressionCreateView(TeacherWorksheetViewMixin, CreateView):
         expression.save()
         return JsonResponse({}, status=200)
 
+
+class ExpressionHintUpdateView(ModelFormSetView):
+    model = Expression
+    #form_class = ExpressionHintFormset
+    template_name = "ComSemApp/teacher/review_expressions.html"
+    factory_kwargs = {'extra': 0, 'max_num': None,
+                      'can_order': False, 'can_delete': False}
+    fields = ['hint']
+
+    def get_queryset(self):
+        return self.model.objects.filter(worksheet_id=self.kwargs['worksheet_id'])
+
+    #MUST CHANGE HOW COURSE ID IS OBTAINED !!!!!!
+    def get_success_url(self):
+        return reverse("teacher:course", kwargs={'course_id': self.kwargs['course_id']})
+
+    def formset_valid(self, formset):
+        """
+        If the formset is valid redirect to the supplied URL
+        """
+        for form in formset:
+            expression = form.save(commit=False)
+            expression.save()
+        messages.success(self.request, "Updated")
+        
+        return HttpResponse('<script type="text/javascript"> window.close(); window.reload();</script>')
+
+    def formset_invalid(self, formset):
+        """
+        If the formset is invalid, re-render the context data with the
+        data-filled formset and errors.
+        """
+        messages.error(self.request, "Error dummy")
+        return self.render_to_response(self.get_context_data(formset=formset))
+
+
+class ExpressionHintSuccessView(View):
+    model = Expression
+    template_name = "ComSemApp/teacher/review_expressions_success.html"
 
 class ExpressionUpdateView(TeacherWorksheetViewMixin, UpdateView):
     model = Expression
