@@ -232,7 +232,7 @@ class Expression(models.Model):
         ('NP', 'Noun phrase'),
         ('TSeq', 'Tense Sequence'),
         ('SVC', 'Subject-verb-complement')
-    ], max_length=6)
+    ], max_length=6, default='NP')
     
 
     def __str__(self):
