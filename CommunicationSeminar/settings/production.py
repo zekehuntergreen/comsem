@@ -206,18 +206,41 @@ if LIVE:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
+"""
+source: https://stackoverflow.com/questions/18920428/django-logging-on-heroku
+"""
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    'filters': {
+        #allows logging to run when debug mode if off
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'formatters': {
+        'verbose': {
+            #formats logs to work better with Heroku logging 'Logplex'
+            'format': ('%(asctime)s [%(process)d] [%(levelname)s] ' +
+                       'pathname=%(pathname)s lineno=%(lineno)s ' +
+                       'funcname=%(funcName)s %(message)s'),
+            'datefmt': '%Y-%m-%d %H:%M:%S'
         },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        }
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'WARNING',
-    },
+    'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        }
+    }
 }
 
 # Static files (CSS, JavaScript, Images)
