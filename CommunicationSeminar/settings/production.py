@@ -207,22 +207,6 @@ if LIVE:
     CSRF_COOKIE_SECURE = True
 
 """
-#old logging settings
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'WARNING',
-    },
-}
-"""
-"""
 source: https://stackoverflow.com/questions/18920428/django-logging-on-heroku
 """
 LOGGING = {
