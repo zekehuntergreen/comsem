@@ -1,0 +1,20 @@
+<table class="table">
+	<thead>
+		<tr>
+			<th>Expression</th>
+			<th>Category</th>
+			<th>Sub-Category</th>
+			<th>Native Language</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for expression_error in errors %}
+		<tr data-expression-id"{{ expression_error.expression.id }}">
+			<td>{{ expression_error.expression.expression }}</td>
+			<td>{{ expression_error.category.category|default:"" }}</td>
+			<td>{{ expression_error.subcategory.subcategory|default:"" }}</td>
+			<td>{{ expression_error.expression.student.language|default:"None" }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>

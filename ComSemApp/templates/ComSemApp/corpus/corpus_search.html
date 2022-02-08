@@ -18,105 +18,107 @@
 
 <!-- search criteria -->
 <form class="csSpacer" method="POST" id="SubmitSearchForm">
-<input type="hidden" name="searchCriteria" id="searchCriteria" />
-<div class="row">
-	<!-- left most column -->
-	<div class="col-lg-4">
+	<input type="hidden" name="searchCriteria" id="searchCriteria" />
+	<div class="row">
+		<!-- left most column -->
+		<div class="col-lg-4">
 
-		<!-- Space for user to enter the first word, mandatory -->
-		<div class="form-group">
+			<!-- Space for user to enter the first word, mandatory -->
+			<div class="form-group">
+				<label for="word1">Enter a Word</label>
+				<input type="text" class="form-control input-sm" id="word1" name="word1"
+					placeholder="Type a word to search">
+			</div>
+			<div class="row">
+				<div class="col-sm-12 col-md-6">
+					<h4 class="m-b-10 header-title">
+						Selector
+					</h4>
+				</div>
+				<div class="col-sm-12 col-md-6">
+					<a href="javascript:window.open('http://ucrel.lancs.ac.uk/claws7tags.html','width=700,height=650')"
+						target="_blank" class="text-muted m-b-10 font-13 float-right">About CLAWS7 Tagset</a>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-12 nicescroll" id="DynamicField1" name="DynamicField1">
+					<p>Please enter a word.</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- middle column -->
+		<div class="col-lg-4">
+			<div class="form-group">
+				<label for="word2">Enter a Second Word or Select a Tag (Optional)</label>
+				<input type="text" class="form-control input-sm" id="word2" name="word2"
+					placeholder="Type another word (optional)">
+			</div>
+			<div class="row">
+				<div class="col-sm-12 col-md-6">
+					<h4 class="m-b-10 header-title">
+						Selector
+					</h4>
+				</div>
+			</div>
+			<div class="row" style="max-height: 400px; overflow-y: scroll;">
+				<div class="col-12 nicescroll" id="DynamicField2" name="DynamicField2">
+
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-3">
+			<!-- user specifies offset for the corpus search -->
+			<label for="newOffset">Select Offset
+				<i class="fa fa-question-circle" style="cursor:pointer" onclick="$('#offset-info').slideToggle()"></i>
+			</label>
+
 			<br>
-			<label for="word1">Enter a Word</label>
-			<input type="text" class="form-control input-sm" id="word1" name="word1" placeholder="Type a word to search">
-		</div>
-		<div class="row">
-			<div class="col-sm-12 col-md-6">
-				<h4 class="m-b-10 header-title">
-					Selector
-				</h4>
-			</div>
-			<div class="col-sm-12 col-md-6">
-				<a href= "javascript:window.open('http://ucrel.lancs.ac.uk/claws7tags.html','width=700,height=650')" target="_blank" class="text-muted m-b-10 font-13 float-right">About CLAWS7 Tagset</a>
-			</div>
-		</div>
 
-		<div class="row">
-			<div class="col-12 nicescroll" id="DynamicField1" name="DynamicField1">
-				<p>Please enter a word.</p>
-			</div>
-        </div>
-	</div>
-
-	<!-- middle column -->
-	<div class="col-lg-4">
-		<div class="form-group">
-			<label for="word2">Enter a Second Word or Select a Tag (Optional)</label>
-			<input type="text" class="form-control input-sm" id="word2" name="word2" placeholder="Type another word (optional)">
-		</div>
-		<div class="row">
-			<div class="col-sm-12 col-md-6" >
-				<h4 class="m-b-10 header-title">
-					Selector
-				</h4>
-			</div>
-		</div>
-		<div class="row" style="max-height: 400px; overflow-y: scroll;">
-			<div class="col-12 nicescroll" id="DynamicField2" name="DynamicField2">
-
-			</div>
-        </div>
-	</div>
-
-	<div class="col-lg-3">
-		<!-- user specifies offset for the corpus search -->
-		<label for="newOffset">Select Offset
-			<i class="fa fa-question-circle" style="cursor:pointer" onclick="$('#offset-info').slideToggle()"></i>
-		</label>
-
-		<br>
-
-		<select id="newOffset" name="newOffset">
-			{% for i in offsetRange %}
+			<select id="newOffset" name="newOffset">
+				{% for i in offsetRange %}
 				{% if i == 0 %}
-					<option value="none" selected>none</option>
+				<option value="none" selected>none</option>
 				{% else %}
-					<option value="{{ i }}" >{{ i }}</option>
+				<option value="{{ i }}">{{ i }}</option>
 				{% endif %}
-			{% endfor %}
-		</select>
-		<br><br>
+				{% endfor %}
+			</select>
+			<br><br>
 
-		<div id="offset-info" style="display: none">
-			<p>
-				<b>Offset</b> determines how many spaces away from each other two words
-			can be in a sentence. For example, if you want to see "the" followed
-			by "king," you would set an offset of 1 (or -1 if "king" is entered for
-			the first word).
-			</p>
-			<p>
-				The offset indicates "up to and including," so for an offset value of 4,
-				two words may be shown together between 1 and 4 spaces away. Negative values
-				mean the second word will come first in the sentences.
-			</p>
+			<div id="offset-info" style="display: none">
+				<p>
+					<b>Offset</b> determines how many spaces away from each other two words
+					can be in a sentence. For example, if you want to see "the" followed
+					by "king," you would set an offset of 1 (or -1 if "king" is entered for
+					the first word).
+				</p>
+				<p>
+					The offset indicates "up to and including," so for an offset value of 4,
+					two words may be shown together between 1 and 4 spaces away. Negative values
+					mean the second word will come first in the sentences.
+				</p>
+			</div>
+
+			<div class="row">
+				<div class="col-6">
+					<button class="btn btn-sm btn-outline-success" name="clearForm" id="clearForm">
+						<span>Clear <i class="ti-angle-left"></i></span>
+					</button>
+				</div>
+				<div class="col-6">
+					<!-- submit button -->
+					<button class="btn btn-sm btn-outline-success pull-right" type="submit">
+						<span>Search <i class="ti-angle-right"></i></span>
+					</button>
+				</div>
+			</div>
 		</div>
 
-		<div class="row">
-			<div class="col-6">
-				<button class="btn btn-sm btn-outline-success" name="clearForm" id="clearForm">
-					<span>Clear <i class="ti-angle-left"></i></span>
-				</button>
-			</div>
-			<div class="col-6">
-				<!-- submit button -->
-				<button class="btn btn-sm btn-outline-success pull-right" type="submit">
-					<span>Search <i class="ti-angle-right"></i></span>
-				</button>
-			</div>
-		</div>
+
 	</div>
-
-
-</div>
 </form>
 
 <!-- results -->
@@ -124,7 +126,7 @@
 
 <div class="row">
 	<div class="col-md-12">
-        <div class="card-box" id="searchResults" style="display: none"></div>
+		<div class="card-box" id="searchResults" style="display: none"></div>
 	</div>
 </div>
 
@@ -141,7 +143,7 @@
 		var id_list = [];
 		var val = posTableWord;
 
-		$("input[name^='" + posTableWord + "_selector_checked']").each(function() {
+		$("input[name^='" + posTableWord + "_selector_checked']").each(function () {
 			if ($(this).is(':checked')) {
 				id_list.push($(this).val());
 			}
@@ -157,7 +159,7 @@
 		var id_list = [];
 		var val = "Tag";
 
-		$("input[name^='tag_selector_checked']").each(function() {
+		$("input[name^='tag_selector_checked']").each(function () {
 			if ($(this).is(':checked')) {
 				id_list.push($(this).val());
 			}
@@ -173,7 +175,7 @@
 	holding the search data that is a hold-over from Zeke Hunter-Green's version
 	of the Corpus interface.
 	*/
-	function appendCriterion(type, val, id_list){
+	function appendCriterion(type, val, id_list) {
 		searchCriteria.push({
 			type: type,
 			val: val,
@@ -190,11 +192,11 @@
 	*/
 	function selectAll(form) {
 		if ($("input[name^='" + form + "_checkAll']").is(':checked')) {
-			$("input[name^='" + form + "_selector_checked']").each(function() {
+			$("input[name^='" + form + "_selector_checked']").each(function () {
 				$(this).prop('checked', true);
 			});
 		} else {
-			$("input[name^='" + form + "_selector_checked']").each(function() {
+			$("input[name^='" + form + "_selector_checked']").each(function () {
 				$(this).prop('checked', false);
 			});
 		}
@@ -204,7 +206,7 @@
 	This function returns as a string the value in an HTML input above.
 	*/
 	function updateTextInput(val) {
-		document.getElementById('textInput').value=val; // Maybe change to "none" if val is 0?
+		document.getElementById('textInput').value = val; // Maybe change to "none" if val is 0?
 	};
 
 	/*
@@ -233,12 +235,12 @@
 				'output': 'html',
 			},
 
-			success: function(data){
+			success: function (data) {
 				$(resultField).html(data);
-				$('#' + val.toLowerCase() + '_checkAll').prop( "checked", true );
+				$('#' + val.toLowerCase() + '_checkAll').prop("checked", true);
 				selectAll(val.toLowerCase());
 			},
-			fail: function(xhr, textStatus, errorThrown) {
+			fail: function (xhr, textStatus, errorThrown) {
 				alert("Search Failed");
 			}
 		});
@@ -250,10 +252,10 @@
 	/*
 	Event listeners for components in this view.
 	*/
-	$(document).ready(function() {
+	$(document).ready(function () {
 
 		// user enters word in either box
-		$("#word1,#word2").on("keydown paste", function() {
+		$("#word1,#word2").on("keydown paste", function () {
 			if (progressTimeout) {
 				clearTimeout(progressTimeout);
 			}
@@ -268,7 +270,7 @@
 
 		// User hits the "Clear" button, word entries are set to empty and the
 		// offset is set to "none."
-		$('#clearForm').click(function() {
+		$('#clearForm').click(function () {
 			$("#word2").val("");
 			$("#word1").val("");
 			getWordPosTags("#word1", "#DynamicField1");
@@ -279,19 +281,19 @@
 		// user hits the "search" button, display corpus search results.
 		// For compatibility, the criteria must be of the form "word1 offset
 		// word2"
-		$("#SubmitSearchForm").submit(function(e){
+		$("#SubmitSearchForm").submit(function (e) {
 			e.preventDefault();
 
 			searchCriteria = [];
 
-			$(this).prop("disabled",true);
+			$(this).prop("disabled", true);
 
 
 
 			if ($("#word1").val() !== "") {
 				collectData($("#word1").val());
 			} else {
-				$(this).prop("disabled",false);
+				$(this).prop("disabled", false);
 				return;
 			}
 
@@ -315,7 +317,7 @@
 				'searchType': sequential_search,
 			}
 			$('#searchResults').show().html("<div class='row float-middle'>Loading...</div>").load("{% url 'corpus:search_results' %}", data);
-			$(this).prop("disabled",false);
+			$(this).prop("disabled", false);
 		});
 	});
 
