@@ -27,7 +27,6 @@ def audio_directory_path(directory, instance):
 
 
 # TODO : Split these models into admin, teacher, student, corpus apps
-
 # STUDENTS, TEACHERS, ADMINS
 
 class Student(models.Model):
@@ -139,8 +138,6 @@ class SessionType(models.Model):
         verbose_name = "Session Type"
 
 
-
-
 # WORKSHEETS, EXPRESSIONS
 
 class WorksheetManager(models.Manager):
@@ -243,7 +240,7 @@ class StudentSubmission(models.Model):
 
     # what is this submission number? how many times has the student made a submission for this worksheet
     def get_number(self):
-        submissions = StudentSubmission.objects.filter(worksheet=self.worksheet)
+        submissions = StudentSubmission.objects.filter(worksheet=self.worksheet, student=self.student)
         for index, submission in enumerate(submissions):
             if submission == self:
                 return index + 1
@@ -337,3 +334,29 @@ class Tag(models.Model):
     def frequency(self):
         words = Word.objects.filter(tag=self).all()
         return SequentialWords.objects.filter(word__in=words).count()
+
+
+# Error tagging
+class ErrorCategory(models.Model):
+    category = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    def __unicode__(self):
+            return u'%s' % (self.name)
+
+
+class ErrorSubcategory(models.Model):
+    subcategory = models.CharField(max_length=255)
+    parent_category = models.ForeignKey('ErrorCategory', on_delete=models.CASCADE)
+    def __unicode__(self):
+            return u'%s' % (self.name)
+
+
+class ExpressionErrors(models.Model):
+    category = models.ForeignKey("ErrorCategory", on_delete=models.CASCADE)
+    subcategory = models.ForeignKey("ErrorSubcategory", on_delete=models.CASCADE, null=True)
+    expression = models.ForeignKey("Expression", on_delete=models.CASCADE)
+    notes = models.CharField(max_length=255, null=True)
+    start_index = models.IntegerField(validators=[MinValueValidator(0)], null=True)
+    end_index = models.IntegerField(null=True)
+    # the user who tagged the error
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)

@@ -1,6 +1,7 @@
 from django.conf.urls import url, include
 
 from . import views
+from ComSemApp.utils import transcribe
 
 urlpatterns = [
     url(r'^$', views.About.as_view(), name='about'),
@@ -12,4 +13,5 @@ urlpatterns = [
     url(r'^teacher/', include('ComSemApp.teacher.urls', namespace='teacher')),
     url(r'^student/', include('ComSemApp.student.urls', namespace='student')),
     url(r'^corpus/', include('ComSemApp.corpus.urls', namespace='corpus')),
+    url(r'^transcribe_audio/', transcribe, name='transcribe_audio'),
 ]

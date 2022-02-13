@@ -34,4 +34,5 @@ urlpatterns = [
     url(r'^session_type/(?P<pk>[0-9]+)/$', views.SessionTypeUpdateView.as_view(), name='edit_session_type'),
 
     url(r'^corpus/search$', corpus_views.corpus_search, name='corpus_search'),
+    url(r'^corpus/error_search', corpus_views.error_search, name='error_search'),
 ]
