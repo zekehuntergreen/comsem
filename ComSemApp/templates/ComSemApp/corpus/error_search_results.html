@@ -1,3 +1,4 @@
+{% if errors %}
 <table class="table">
 	<thead>
 		<tr>
@@ -18,3 +19,6 @@
 		{% endfor %}
 	</tbody>
 </table>
+{% else %}
+<p>No results</p>
+{% endif %}

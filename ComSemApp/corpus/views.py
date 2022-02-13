@@ -2,9 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.template import loader
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import user_passes_test
 from django.db import connection
 
 import json
@@ -162,7 +160,6 @@ def error_search(request):
 def subcategories(request):
     error_id = request.GET['error-id']
     result_set = []
-    all_subcategories = []
     # Get the ErrorCategory object based on the name passed in
     selected_error = ErrorCategory.objects.get(id=error_id)
     # Get every subcategory based on the error name
@@ -185,11 +182,11 @@ def error_search_results(request):
         return HttpResponse('No search criteria provided', status=401)
     
 
-    args = {"category": category_id}
+    filter_params = {"category": category_id}
     if subcategory_id:
-        args["category"] = subcategory_id
+        filter_params["subcategory"] = subcategory_id
 
-    expression_errors = ExpressionErrors.objects.filter(**args)
+    expression_errors = ExpressionErrors.objects.filter(**filter_params)
 
     context = {
         'errors': expression_errors,
