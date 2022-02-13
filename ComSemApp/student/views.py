@@ -85,7 +85,7 @@ class CourseDetailView(StudentCourseViewMixin, DetailView):
             expression_filters = Q(worksheet=worksheet)
             if not worksheet.display_all_expressions:
                 expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True) | Q(worksheet=worksheet))
-                expressions = Expression.objects.filter(expression_filters)
+            expressions = Expression.objects.filter(expression_filters)
 
             complete_submission = worksheet.complete_submission(self.student) # vhl checks for complete submissions.
             complete_submission_status = 'complete' if complete_submission else "none"

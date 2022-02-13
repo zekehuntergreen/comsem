@@ -283,7 +283,6 @@ class UserMixin(AdminViewMixin, FormView):
         return self.render_to_response(self.get_context_data(form=user_form, obj_form=obj_form))
 
     def _send_email(self, user, password):
-        print("EMAIL SENT")
         link = "https://www.comsem.net"
         message = ("You have been invited to join Communications Seminar by an administrator for " + self.institution.name + ".\n"
                     "In order to log in, go to " + link + " and use \n"
