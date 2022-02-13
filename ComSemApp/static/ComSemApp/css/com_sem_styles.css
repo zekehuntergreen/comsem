@@ -1,5 +1,6 @@
 body {
 	padding: 0 !important;
+	font-size: 16px !important;
 }
 
 /* copy table-hover's highlighting for programmatic highlighting*/
@@ -21,6 +22,10 @@ select.input-sm{
 	height: 30px !important;
 }
 
+select.er-corpus{
+	height: 100px i !important;
+}
+
 .table th {
 	border-top: none !important;
 }
@@ -36,10 +41,13 @@ i.ion-sm {
 	font-size: 18px !important
 }
 
+
 /* make menu dropdown wider */
 .profile-dropdown {
 	width: 250px;
 }
+
+
 
 /* override bootrap theme for tablesorter tables in admin pages */
 .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) thead:not(.thead-inverse) .tablesorter-header, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.odd > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.tablesorter-hasChildRow.odd:hover ~ tr.tablesorter-hasChildRow.odd ~ .tablesorter-childRow.odd > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.even > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.tablesorter-hasChildRow.even:hover ~ tr.tablesorter-hasChildRow.even ~ .tablesorter-childRow.even > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) .tablesorter-filter-row, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.hover > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.odd:hover > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.even:hover > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.tablesorter-hasChildRow.odd:hover ~ .tablesorter-childRow.odd > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) > tbody > tr.tablesorter-hasChildRow.even:hover ~ .tablesorter-childRow.even > td, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) thead:not(.thead-inverse) .tablesorter-header, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) tfoot th, .cs-admin-table > .tablesorter-bootstrap:not(.table-inverse) tfoot td {
@@ -50,3 +58,12 @@ i.ion-sm {
 .select2-container-multi  ul.select2-choices {
 	background-color: #364049;
 }
+
+
+/*make button text wrap*/
+.btn {
+    white-space:normal !important;
+    word-break: normal;
+    word-wrap: break-word; 
+}
+

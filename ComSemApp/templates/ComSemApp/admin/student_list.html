@@ -44,6 +44,33 @@
 				{% endfor %}
 		{% endif %}
 		</div>
+		<br>
+		<div class="row">
+			<p>Create individual students or batch create by uploading a csv file.</p>
+			<p>
+				Please order the rows of the file in the following way: <b>firstname,lastname,email,username</b><br>
+				(e.g. <b>John, Doe, johndoe@gmail.com, johnsusername123</b>)<br>
+				We will generate a random password and send an email to the user containing their username and password.
+			</p>
+		</div>
+		<div class="row">
+			<form method="post" enctype="multipart/form-data">
+				{% csrf_token %}
+				<label class="btn btn-sm btn-outline-info pull-left" >
+					<input type="file" name="file" accept=".csv"/>
+				</label>
+				&nbsp;
+				<button class="btn btn-sm btn-outline-info" type="save">Upload</button>
+			</form>
+		</div>
+
+		<div>
+		{% if messages %}
+				{% for message in messages %}
+				<pre style="color: #98a6ad">{{ message }}</pre>
+				{% endfor %}
+		{% endif %}
+		</div>
 
 		{% if student_list %}
 		<div class="row mt-3 cs-admin-table">
@@ -76,6 +103,8 @@
 							<td class="text-right">
 								<a href="{% url 'administrator:edit_student' student.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
 
+								<button reset_password_url="{% url 'administrator:reset_student_password' pk=student.id %}" class='btn btn-sm btn-outline-warning reset_password_button {% if not student.user.email %}disabled{% endif %}' style="margin-left: 10px;">Reset Password</button>
+
 								<button delete_url="{% url 'administrator:disactivate_student' pk=student.id %}" class='btn btn-sm btn-outline-danger delete_button {% if not student.user.is_active %}disabled{% endif %}' style="margin-left: 10px;">Disactivate</button>
 							</td>
 						</tr>
@@ -100,6 +129,18 @@
 			e.preventDefault();
 			delete_url = $(this).attr('delete_url');
 			cs_confirm("Delete Student", "Are you sure you'd like to disactivate this student?", "error", "Delete", delete_obj)
+		});
+
+
+		var reset_password = function(){
+			window.location.href = reset_password_url;
+		}
+
+		$('.reset_password_button:not(.disabled)').click(function(e){
+			e.preventDefault();
+			reset_password_url = $(this).attr('reset_password_url');
+			cs_confirm(
+				"Reset Password", "Are you sure you'd like to reset this student's password? They will receive and email with their username and a randomly generated password.", "warning", "Reset", reset_password)
 		})
 	})
 	</script>

@@ -4,10 +4,8 @@ __pycache__/
 
 .DS_Store
 
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
+# ignore statics
+
 
 # ignore efs directory
 efs/*
@@ -15,4 +13,10 @@ efs/*
 # ignore sent email dir for tests
 app-messages/*
 
-CommunicationSeminar-7d*
+.idea/*
+
+# local dev settings module
+local_dev.py
+
+# vscode settings
+.vscode/*

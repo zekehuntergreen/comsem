@@ -21,6 +21,8 @@
             </h4>
 
         </div>
+        <!--if worksheet is not released do not add the all do checkbox to the expression form - T.M.-->
+        {% if not worksheet.released %}
         <div class="col-4">
             <div class="checkbox checkbox-primary">
                 <input type="checkbox" id="all_do" name="all_do" {% if object.all_do %}checked{% endif %}>
@@ -30,9 +32,13 @@
                 <button onclick="helpEditExpression()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
             </div>
         </div>
+        {% else %}
+        <input type="hidden" id="all_do" name="all_do" {% if object.all_do %}checked{% endif %}> 
+        <!-- vhl will preserve all_do integrity -->
+        {% endif %}
     </div>
 
-    <div class="row">
+    <div class="row" id="select_student">
         <div class="col-12">
             <div class="form-group">
                 <label for="selectstudent">Student: </label>
@@ -107,7 +113,11 @@
     <div class="row">
         <div class="col-12 text-center">
             <div class="btn-group" role="group">
-                <button type="studentIDbutton" id="saveExpression" name="SaveExpression" class="btn btn-outline-success">Save Expression</button>
+                {% if not worksheet.released %}
+                <button type="button" id="saveExpression"  name="SaveExpression" class="btn btn-outline-success">Save Expression</button>
+                {% else %}
+                <button type="button" id="saveExpression"  name="SaveExpression" class="btn btn-outline-success">Save Edits</button>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -115,15 +125,35 @@
 </div>
 
 <script>
-    // source: https://tutorialzine.com/2017/08/converting-from-speech-to-text-with-javascript
-    var SpeechRecognition;
-    var recognition;
-    var noteContent = '';
-    var speechSupport = false;
-    try {
-        SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        speechSupport = true;
+// source: https://tutorialzine.com/2017/08/converting-from-speech-to-text-with-javascript
+var SpeechRecognition;
+var recognition;
+var noteContent = '';
+var speechSupport = false;
+try {
+    SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    speechSupport = true;
+} catch(e) {
+    console.log(e)
+}
+
+function hide_select_student(){ // hides student selection
+    var x = document.getElementById("select_student");
+    x.style.display="none"
+}
+{% if worksheet.released %} // prevents teachers from reassigning the expression if the worksheet is released
+    hide_select_student();
+{% endif %}
+
+
+$("#saveExpression").click(function(e){
+    e.preventDefault()
+
+    if( $("#expression").val().trim() == "" ){
+        // must have a valid expression
+        alert("Please enter an expression")
+        return;
     }
     catch(e) {
         console.error(e);
@@ -239,6 +269,16 @@ function helpEditExpression(){
             element: $('#saveExpression'),
             content: 'Be sure to click here to SAVE your worksheet item.'
         },
-		]);
-	}
+	]);
+}
+
+    // clear editor
+    $("#ExpressionEditor").slideUp();
+    audioReformulationBlob = null; // clears reformulation
+
+    {% if not worksheet.released %}
+    // fresh create expression form
+    populateEditor(expression_create_url);
+    {% endif %}
+});
 </script>

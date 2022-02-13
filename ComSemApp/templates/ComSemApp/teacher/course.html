@@ -34,6 +34,9 @@
 					</div>
 				<div class="column2" id="chart_div"></div>
 			</div>
+			<a type="button" class="btn btn-primary btn-lg btn-block" href="{% url 'teacher:download_course_csv' course_id=course.id %}">
+				Download All Sentences
+			</a>
 		</div>
 
 		<!-- course students -->
@@ -124,7 +127,7 @@
 						<h4 class="m-t-0 header-title"><b>Worksheets</b></h4>
 					</div>
 					<div class="col-6">
-						<a id= "worksheet_create" href="{% url 'teacher:worksheet_create' course_id=course.id %}" class="btn btn-sm btn-outline-info float-right"><i class="fa fa-plus"></i></a>
+						<a  id= "worksheet_create" href="{% url 'teacher:worksheet_create' course_id=course.id %}" class="btn btn-sm btn-outline-info float-right"><b>Create Worksheet</b></a> 
 					</div>
 
 				</div>
@@ -157,10 +160,11 @@
 				$(".release_worksheet_button").on("click", function(e){
 					$worksheet_row = $(this).parents('tr')
 					release_worksheet_url = $worksheet_row.attr('release_url')
-					cs_confirm("Release Worksheet", "Are you sure you'd like to release this worksheet?\nIf so, you will no longer be able to edit or delete it.", 'warning', "Yes, release it", release_worksheet);
+					cs_confirm("Release Worksheet", "Are you sure you'd like to release this worksheet?\nIf so, you will no longer be able to delete it, create new expressions, or reassign or delete existing ones.", 'warning', "Yes, release it", release_worksheet);
 				});
 			})
 		}
+
 		drawWorksheets()
 
 		var $worksheet_row

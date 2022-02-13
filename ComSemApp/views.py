@@ -1,56 +1,63 @@
+import requests
+
 from django.shortcuts import render
-from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
-from django.template import loader
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.mail import send_mail
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import FormView
+from django.urls import reverse_lazy
 
 from .models import Admin, Teacher, Student
-from ComSemApp.administrator.forms import SignupForm
+from ComSemApp.administrator.forms import SignupForm, ContactForm
 
 # TODO - these are the sort of extra views that don't exactly fit into one of the existing "apps"
-# and should be reorganized
+# and should be reorganized and tested
 
-# home page
-def about(request):
-    if request.method == 'POST':
-        form = SignupForm(request.POST)
-        if form.is_valid():
-            # send a message to us
-            email = form.cleaned_data['email']
 
-            message = "Somebody has requested to join Communications Seminar!\nHere is their info:\n\n"
+class RecaptchaFormView(FormView):
+    success_message = None
 
-            for key in form.cleaned_data.keys():
-                if form.cleaned_data[key]:
-                    message += "\t" + key + ": " + form.cleaned_data[key] + "\n"
+    def _verify_recaptcha(self):
+        params = {
+            'secret': settings.RECAPCHA_SECRET_KEY,
+            'response': self.request._post['g-recaptcha-response'],
+        }
+        response = requests.post('https://www.google.com/recaptcha/api/siteverify', params)
+        response_json = response.json()
+        return response_json.get('success')
 
-            recipients = ['hunter@gonzaga.edu', 'zekehuntergreen@gmail.com']
-
-            send_mail("Request to join ComSem", message, email, recipients)
-
-            # send them a confirmation message ?
-
-            form = SignupForm() # clear the form
-
-            messages.success(request, 'Your request has been sent successfully! We will contact you shortly to set up an account.')
+    def form_valid(self, form):
+        recaptcha_success = self._verify_recaptcha()
+        if recaptcha_success:
+            form.send_email()
+            messages.success(self.request, self.success_message)
         else:
-            messages.error(request, 'Please correct the above error.')
-    else:
-        form = SignupForm()
+            messages.error(self.request, 'There was a problem processing your request.')
+        return super().form_valid(form)
 
-    return render(request, 'ComSemApp/about/home.html', {
-        'form': form,
-    })
+
+class About(RecaptchaFormView):
+    template_name = 'ComSemApp/about/home.html'
+    form_class = SignupForm
+    success_url = reverse_lazy("about")
+    success_message = ('Your request has been sent successfully! '
+                        'We will contact you shortly to set up an account.')
+
+
+class Contact(RecaptchaFormView):
+    template_name = 'ComSemApp/about/contact.html'
+    form_class = ContactForm
+    success_url = reverse_lazy("about")
+    success_message = ('Your message has been sent successfully!')
 
 
 class AboutTeacher(TemplateView):
     template_name = "ComSemApp/about/teacher.html"
-
 
 
 def change_password(request):

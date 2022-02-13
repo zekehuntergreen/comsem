@@ -38,8 +38,6 @@
 							</td>
 							<td class="text-right">
 								<a href="{% url 'administrator:edit_session_type' session_type.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
-
-								<button delete_url="{% url 'administrator:delete_session_type' pk=session_type.id %}" class='btn btn-sm btn-outline-danger delete_button' style="margin-left: 10px;">Delete</button>
 							</td>
 						</tr>
 					{% endfor %}
@@ -52,20 +50,5 @@
 			<h4>No session types have been created yet.</h4>
 		{% endif %}
 	</div>
-
-	<script>
-	var delete_url;
-	$(function(){
-		var delete_obj = function(){
-			window.location.href = delete_url;
-		}
-
-		$('.delete_button').click(function(e){
-			e.preventDefault();
-			delete_url = $(this).attr('delete_url');
-			cs_confirm("Delete Session Type", "Are you sure you'd like to delete this session type? This action will automatically delete all sessions and courses with the session type!", "error", "Delete", delete_obj)
-		})
-	})
-	</script>
 
 {% endblock %}

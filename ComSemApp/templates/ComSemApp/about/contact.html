@@ -1,0 +1,45 @@
+{% extends 'ComSemApp/about/base.html' %}
+
+{% block content %}
+
+	<section class="section bg-gray" id="signup">
+		<div class="container">
+
+			<div class="row">
+				<div class="col-sm-10 mx-auto">
+					<div class="feature-detail">
+						<h2 class="title fadeIn animated wow" data-wow-delay=".1s">Contact Us</h2>
+						<p class="sub fadeIn animated wow" data-wow-delay=".2s">
+							If you have questions or suggestions for the site,
+							please let us know by filling out the form below.<br>
+							Since ComSem is still in its beta version, we also appreciate feedback about any bugs found
+							on the site!
+						</p>
+
+						<form method="post">
+							{% csrf_token %}
+							<div class="row" style="margin-top: 5em">
+								<div class="col-8 mx-auto">
+									{% include 'ComSemApp/form_contents.html' %}
+									<div class="g-recaptcha" data-sitekey="6Ld_SuEUAAAAAI_-RgnQbFVfAy9mrhzwq9xZcQrH"></div>
+								</div>
+							</div>
+
+							<br />
+
+							<div class="row mt-4">
+								<div class="col-8 mx-auto">
+									<button class="btn btn-primary btn-rounded w-lg animated fadeInDown wow"
+											data-wow-delay=".4s" type="submit">Submit</button>
+								</div>
+							</div>
+						</form>
+						<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</section>
+
+{% endblock %}

@@ -14,7 +14,7 @@
 
 
 <div class="row">
-	<div class="col-sm-4">
+	<div class="col-sm-6">
 		<!-- Worksheet Info -->
 		<div class="portlet">
 
@@ -47,10 +47,19 @@
 				</div>
 
 			</div>
-		</div>
+        </div>
+        {% if worksheets %}
+        <div class="portlet">
+            <div class="portlet-heading portlet-default">
+                <h4 class="portlet-title m-t-0 header-title"><b>Other Course Worksheets</b></h4>
+            </div>
+            <br>
+            {% include 'ComSemApp/teacher/course_worksheets_shortcut.html'%}
+        </div>
+        {% endif %}
 	</div>
 
-    <div class="col-sm-8">
+    <div class="col-sm-6">
 
         <!-- Worksheet contents -->
         <div class="portlet" style="min-height:400pxs;max-height-400px; overflow-y:scroll">
@@ -74,6 +83,7 @@
 						<thead>
 							<tr>
 								<th>#</th>
+								<th>All-Do</th>
 								<th>Student</th>
 								<th>Expression</th>
 							</tr>
@@ -83,10 +93,15 @@
 								<tr>
 									<td>{{ forloop.counter }}</td>
 									<td>
+										{% if expression.all_do %}
+											<i class='fa fa-check'></i>
+										{% endif %}
+									</td>
+									<td>
 										{% if expression.student %}
 											{{ expression.student }}
 										{% else %}
-											<b>All-Do</b>
+											<b></b>anon.</b>
 										{% endif %}
 									</td>
 									<td>
@@ -117,24 +132,24 @@
 				<thead>
 					<tr>
 						<th>Student</th>
-						<th>Attempt Number</th>
-						<th>Date</th>
 						<th>Status</th>
 						<th></th>
+						<th>Attempt Number</th>
+						<th>Date</th>
 					</tr>
 				</thead>
 				<tbody>
 					{% for submission in submissions %}
 						<tr>
 							<td>{{ submission.student }}</td>
-							<td>{{ submission.get_number }}</td>
-							<td>{{ submission.date }}</td>
 							<td>
 								<span class="badge badge-{% if submission.status == 'complete' %}success{% elif submission.status == 'ungraded' %}warning{% else %}danger{% endif %}">{{ submission.status }}</span>
 							</td>
 							<td>
 								<a href="{% url 'teacher:submission' course.id worksheet.id submission.id %}" class='btn btn-sm btn-outline-primary'>View Submission</a>
 							</td>
+							<td>{{ submission.get_number }}</td>
+							<td>{{ submission.date }}</td>
 						</tr>
 					{% endfor %}
 				</tbody>

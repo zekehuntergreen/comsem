@@ -8,7 +8,8 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<title>Communication Seminar</title>
+		<title>Communications Seminar</title>
+		<link rel="shortcut icon" href="{% static 'ComSemApp/images/favicon.ico' %}">
 
 		<link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500' rel='stylesheet' type='text/css'>
 		<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
@@ -42,14 +43,23 @@
 						ComSem
 					</a>
 				</p>
-				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
+				<!-- hamburger buttons -DF -->
+				<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarsHamburger" aria-controls="navbarsHamburger"
+				aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
 
-				<div class="collapse navbar-collapse" id="navbarsExample">
+				<div class="collapse navbar-collapse" id="navbarsHamburger">
 					<ul class="navbar-nav ml-auto">
-						<li class="nav-item">
+						<li class="nav-item active">
 							<a class="nav-link" href="{% url 'about' %}#how-it-works">About</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'error_recognition:welcome' %}">Error Recognition</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'contact' %}">Contact</a>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" href="{% url 'about' %}#signup">Sign Up</a>
@@ -58,7 +68,6 @@
 							<a class="nav-link" href="{% url 'login' %}">Login</a>
 						</li>
 					</ul>
-
 				</div>
 			</div>
 		</nav>
@@ -92,6 +101,13 @@
 			$(function(){
 				$('input,select,textarea').addClass('form-control form-control-sm')
 			});
+			$(function(){
+				$('input[name="contact-type"]').on('change', function(){
+					div_id = $(this).attr("data-toggle")
+					$("div.contact-type-div").hide()
+					$("#" + div_id).show()
+				})
+			})
 		</script>
 
 		{% if messages %}
@@ -103,7 +119,7 @@
 					tag = "{{ message.tags }}";
 					{% endif %}
 					swal({
-						title: "Success",
+						title: tag == "error" ? "Error" : "Success",
 						text: "{{ message}}",
 						type: tag,
 						showCancelButton: false,
@@ -124,6 +140,10 @@
 		.pretty-link,  .pretty-link:hover{
 			text-decoration: none;
 			color: inherit;
+		}
+		.section {
+			padding-top: 80px;
+			padding-bottom: 80px;
 		}
 		</style>
 

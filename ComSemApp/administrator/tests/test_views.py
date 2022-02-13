@@ -1,3 +1,4 @@
+from unittest import skip
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.core import mail
@@ -25,8 +26,7 @@ class TestCredentials(BaseTestCase):
     def test_logged_in_not_admin_fail(self):
         self.client.login(username=self.teacher.user.username, password=self.password)
         response = self.client.get(self.teacher_list_url)
-        # TODO: should we be doing something else here? 404? redirect to teacher home?
-        self.assertRedirects(response, '%s?next=%s' % (self.loggin_url, self.teacher_list_url))
+        self.assertEqual(response.status_code, 403)
 
     def test_logged_in_admin_success(self):
         self.client.login(username=self.admin.user.username, password=self.password)
@@ -71,6 +71,7 @@ class AdminTestCase(object):
         response = self.client.post(update_url, self.get_data())
         self.assertRedirects(response, self.list_url)
 
+    @skip
     def test_delete_view(self):
         obj = self.create_object()
         self.assertEqual(self.obj.objects.count(), 1)

@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.db.models import Q
 
 from ComSemApp.teacher import constants as teacher_constants
 
@@ -26,7 +27,6 @@ def audio_directory_path(directory, instance):
 
 
 # TODO : Split these models into admin, teacher, student, corpus apps
-
 # STUDENTS, TEACHERS, ADMINS
 
 class Student(models.Model):
@@ -36,7 +36,7 @@ class Student(models.Model):
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
-        return ", ".join([str(self.user.last_name), self.user.first_name])
+        return ", ".join([self.user.last_name, self.user.first_name])
 
     class Meta:
         ordering = ('user__last_name','user__first_name')
@@ -147,8 +147,6 @@ class SessionType(models.Model):
         verbose_name = "Session Type"
 
 
-
-
 # WORKSHEETS, EXPRESSIONS
 
 class WorksheetManager(models.Manager):
@@ -175,22 +173,30 @@ class Worksheet(models.Model):
     def __str__(self):
         return str(self.id)
 
-    # what is the number of this worksheet
     def get_number(self):
-        worksheets = Worksheet.objects.filter(course=self.course)
-        for index, worksheet in enumerate(worksheets):
-            if worksheet == self:
-                return index + 1
+        siblings = list(self.course.get_visible_worksheets())
+        return siblings.index(self) + 1 if self in siblings else 0
 
     @property
     def released(self):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
 
-    def release(self):
-        self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
-        self.save()
-        for expression in self.expressions.all():
-            pos_tag(expression)
+    def complete_submission(self, student): # vhl checks if any submissions are complete
+        complete_submission = None
+        if StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").exists():
+            complete_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").latest()
+        return complete_submission
+
+    def release(self):   
+        if self.expressions.exists(): # vhl releases no empty worksheets
+            self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
+            self.save()
+            for expression in self.expressions.all():
+                pos_tag(expression)
+            return True
+        else: # vhl prevents empty worksheets from being released
+            return False
+
 
     def last_submission(self, student):
         last_submission = None
@@ -215,6 +221,9 @@ class Expression(models.Model):
     def __str__(self):
         return self.expression
 
+    def get_number(self):
+        siblings = list(Expression.objects.filter(worksheet=self.worksheet))
+        return siblings.index(self) + 1 if self in siblings else 0
 
 
 
@@ -243,10 +252,24 @@ class StudentSubmission(models.Model):
 
     # what is this submission number? how many times has the student made a submission for this worksheet
     def get_number(self):
-        submissions = StudentSubmission.objects.filter(worksheet=self.worksheet)
+        submissions = StudentSubmission.objects.filter(worksheet=self.worksheet, student=self.student)
         for index, submission in enumerate(submissions):
             if submission == self:
                 return index + 1
+
+    def get_required_expressions(self):
+        expression_filters = Q(worksheet=self.worksheet)
+        if not self.worksheet.display_all_expressions:
+            expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
+
+        incomplete_submissions = StudentSubmission.objects.filter(student=self.student, worksheet=self.worksheet, status='incomplete')
+        if incomplete_submissions.exists():
+            latest_incomplete_submission = incomplete_submissions.latest()
+            lastest_submission_incorrect_attempts = latest_incomplete_submission.attempts.filter(Q(text_correct=False) | Q(audio_correct=False))
+            lastest_submission_incorrect_expression_ids = [a.expression.id for a in lastest_submission_incorrect_attempts]
+            expression_filters &= Q(id__in=lastest_submission_incorrect_expression_ids)
+
+        return Expression.objects.filter(expression_filters)
 
     class Meta:
         verbose_name = "Student Submission"
@@ -258,7 +281,8 @@ class StudentAttempt(models.Model):
     student_submission = models.ForeignKey('StudentSubmission', related_name="attempts", on_delete=models.CASCADE)
     reformulation_text = models.TextField(blank=True, null=True)
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
-    correct = models.NullBooleanField(blank=True, null=True, default=None)
+    text_correct = models.NullBooleanField(blank=True, null=True, default=None)
+    audio_correct = models.NullBooleanField(blank=True, null=True, default=None)
 
     def __str__(self):
         return " - ".join([str(self.student_submission), str(self.expression)])
@@ -268,12 +292,25 @@ class StudentAttempt(models.Model):
         unique_together = ("student_submission", "expression")
 
 
+class ReviewAttempt(models.Model):
+    expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
+    student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)
+    correct = models.BooleanField(default=None)
+    response_time = models.FloatField()
+
+    def __str__(self):
+        return "%d - %5s - %s" % (self.id, str(self.correct), self.expression)
+
+    class Meta:
+        verbose_name = "Review Attempt"
+
+
 # WORDS, SEQUENTIAL WORDS, TAG
 
 class Word(models.Model):
     form = models.CharField(max_length=255)
     tag = models.ForeignKey('Tag', on_delete=models.PROTECT)
-    # frequency = models.IntegerField(default=1)
 
     def __str__(self):
         return self.form
@@ -309,3 +346,29 @@ class Tag(models.Model):
     def frequency(self):
         words = Word.objects.filter(tag=self).all()
         return SequentialWords.objects.filter(word__in=words).count()
+
+
+# Error tagging
+class ErrorCategory(models.Model):
+    category = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    def __unicode__(self):
+            return u'%s' % (self.name)
+
+
+class ErrorSubcategory(models.Model):
+    subcategory = models.CharField(max_length=255)
+    parent_category = models.ForeignKey('ErrorCategory', on_delete=models.CASCADE)
+    def __unicode__(self):
+            return u'%s' % (self.name)
+
+
+class ExpressionErrors(models.Model):
+    category = models.ForeignKey("ErrorCategory", on_delete=models.CASCADE)
+    subcategory = models.ForeignKey("ErrorSubcategory", on_delete=models.CASCADE, null=True)
+    expression = models.ForeignKey("Expression", on_delete=models.CASCADE)
+    notes = models.CharField(max_length=255, null=True)
+    start_index = models.IntegerField(validators=[MinValueValidator(0)], null=True)
+    end_index = models.IntegerField(null=True)
+    # the user who tagged the error
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
