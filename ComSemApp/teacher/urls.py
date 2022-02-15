@@ -10,6 +10,8 @@ urlpatterns = [
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/create/$', views.WorksheetCreateView.as_view(), name='worksheet_create'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/list/$', views.WorksheetListView.as_view(), name='worksheet_list'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/$', views.WorksheetDetailView.as_view(), name='worksheet_detail'),
+    url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/analyze/$', views.AnalyzeWorksheetView.as_view(), name='worksheet_analyze'),
+    url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/expression/(?P<expression_id>[0-9]+)/analyze/$', views.AnalyzeExpressionView.as_view(), name='analyze_expression'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/update/$', views.WorksheetUpdateView.as_view(), name='worksheet_update'),
 
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/update_released/$', views.WorksheetReleasedUpdateView.as_view(), name='worksheet_released_update'),

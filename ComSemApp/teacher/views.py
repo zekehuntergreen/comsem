@@ -225,6 +225,38 @@ class WorksheetDeleteView(TeacherWorksheetViewMixin, DeleteView):
         return HttpResponse(status=204)
 
 
+class AnalyzeWorksheetView(TeacherWorksheetViewMixin, DetailView):
+    template_name = "ComSemApp/teacher/analyze_worksheet.html"
+    context_object_name = 'worksheet'
+
+    def get_object(self):
+        return self.worksheet
+
+
+class AnalyzeExpressionView(TeacherWorksheetViewMixin, UpdateView):
+    model = ExpressionErrors
+    fields = ["category"]
+    template_name = "ComSemApp/teacher/analyze_expression.html"
+    context_object_name = 'error'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        expression_id = self.kwargs.get('expression_id', None)
+        expression = Expression.objects.filter(id=expression_id, worksheet=self.worksheet).first()
+        context["expression"] = expression
+        return context
+
+    def get_object(self):
+        expression_id = self.kwargs.get('expression_id', None)
+        expression = Expression.objects.filter(id=expression_id, worksheet=self.worksheet)
+        if not expression.exists():
+            # only ajax right now
+            response = JsonResponse({"error": 'Invalid Expression ID.'})
+            response.status_code = 403
+            return response
+        error = ExpressionErrors.objects.filter(expression=expression.first())
+        return error.first()
+
 class ExpressionListView(TeacherWorksheetViewMixin, ListView):
     model = Expression
     template_name = "ComSemApp/teacher/expressions.html"
