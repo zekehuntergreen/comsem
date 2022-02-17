@@ -64,7 +64,7 @@ def search_results(request):
 
     for item in search_criteria:
         if item['type'] == 'word' and " " in item['val'].rstrip().lstrip():
-            return HttpResponse('Invalid input: one word only per entry');
+            return HttpResponse('Invalid input: one word only per entry')
 
     query = build_query(search_criteria, sequential_search)
 

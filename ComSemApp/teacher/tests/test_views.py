@@ -203,6 +203,19 @@ class TestWorksheetUpdateView(TestTeacherMixin):
         self.assertEqual(worksheet.display_all_expressions, False)
 
 
+class TestBERTTeacherInterface(TestTeacherMixin):
+    def setUp(self):
+        super(TestBERTTeacherInterface, self).setUp()
+        #setup course, add teacher, and add worksheet within course
+        self.course = self.db_create_course()
+        self.course.teachers.add(self.teacher)
+    
+    def test_something(self):
+        worksheet = self.db_create_worksheet(course=self.course, run_through_model=True)
+        self.db_create_expression(worksheet=worksheet)
+        self.assertEqual(worksheet.status, WORKSHEET_STATUS_UNRELEASED)
+        
+
 class TestWorksheetReleaseView(TestTeacherMixin):
 
     def setUp(self):

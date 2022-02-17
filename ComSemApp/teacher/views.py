@@ -1,30 +1,28 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.forms.forms import Form
+
+#from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import View
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
-from django.forms import modelformset_factory
 from django.forms import ModelForm
+from django import forms
 
-from django.views.generic.edit import FormView
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import Prefetch
+#from django.contrib.auth.decorators import login_required, user_passes_test
+#from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.db.models.query import QuerySet
-from django.utils.safestring import mark_safe
-from django.core.serializers import serialize
+#from django.utils.safestring import mark_safe
+#from django.core.serializers import serialize
 from django.contrib import messages
-from django.conf import settings
+#from django.conf import settings
 
 from extra_views import ModelFormSetView
-from ComSemApp.forms import ExpressionHintFormset
 
 from ComSemApp.teacher import constants
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin
@@ -284,19 +282,37 @@ class ExpressionCreateView(TeacherWorksheetViewMixin, CreateView):
         expression.save()
         return JsonResponse({}, status=200)
 
+class ExpressionUpdateForm(ModelForm):
+    hint = forms.CharField(widget=forms.Textarea(attrs={'cols': 30, 'rows': 5}))
+    #error_tag = forms.CharField(widget=forms.ChoiceWidget(attrs={'class':'form-control'}))
+    class Meta:
+        model = Expression
+        fields = ['hint', 'hint_correct', 'include_on_worksheet', 'error_tag']
 
 class ExpressionHintUpdateView(ModelFormSetView):
     model = Expression
-    #form_class = ExpressionHintFormset
+    form_class = ExpressionUpdateForm
     template_name = "ComSemApp/teacher/review_expressions.html"
     factory_kwargs = {'extra': 0, 'max_num': None,
                       'can_order': False, 'can_delete': False}
-    fields = ['hint']
+    fields = ['hint', 'hint_correct', 'include_on_worksheet', 'error_tag']
+    context_object_name = 'expressions'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query_set = self.get_queryset()
+        expression_list =[]
+        for item in query_set:
+            expression_list.append(item.expression)
+        context['expressions'] = expression_list
+        # context['tags'] = ['Subject Verb Agreement', 'Noun phrase', 'Tense Sequence',
+        # 'Subject-verb-complement']
+        #error = ErrorCategory.object.all() -- imported from models needs to be done after fixing merge issue 
+        return context
 
     def get_queryset(self):
         return self.model.objects.filter(worksheet_id=self.kwargs['worksheet_id'])
 
-    #MUST CHANGE HOW COURSE ID IS OBTAINED !!!!!!
     def get_success_url(self):
         return reverse("teacher:course", kwargs={'course_id': self.kwargs['course_id']})
 
@@ -309,7 +325,7 @@ class ExpressionHintUpdateView(ModelFormSetView):
             expression.save()
         messages.success(self.request, "Updated")
         
-        return HttpResponse('<script type="text/javascript"> window.close(); window.reload();</script>')
+        return HttpResponse('<script type="text/javascript"> window.close(); window.opener.location.reload();</script>')
 
     def formset_invalid(self, formset):
         """
@@ -319,10 +335,6 @@ class ExpressionHintUpdateView(ModelFormSetView):
         messages.error(self.request, "Error dummy")
         return self.render_to_response(self.get_context_data(formset=formset))
 
-
-class ExpressionHintSuccessView(View):
-    model = Expression
-    template_name = "ComSemApp/teacher/review_expressions_success.html"
 
 class ExpressionUpdateView(TeacherWorksheetViewMixin, UpdateView):
     model = Expression

@@ -1,3 +1,4 @@
+from typing import Tuple
 import uuid
 
 from django.utils import timezone
@@ -125,6 +126,7 @@ class Factory:
             "display_reformulation_text": kwargs.get("display_reformulation_text", True),
             "display_reformulation_audio": kwargs.get("display_reformulation_audio", True),
             "display_all_expressions": kwargs.get("display_all_expressions", True),
+            "run_through_model": kwargs.get("run_through_model", False),
         }
         return Worksheet.objects.create(**defaults)
 
@@ -146,6 +148,10 @@ class Factory:
             "context_vocabulary": "C",
             "reformulation_text": "R",
             "audio": None,
+            "hint": None,
+            "error_tag": "NP",
+            "hint_correct": True,
+            "include_on_worksheet": True,
         }
         return Expression.objects.create(**defaults)
 
@@ -180,6 +186,7 @@ class Factory:
             "student_submission": submission,
             "reformulation_text": "reformulation_text",
             "audio": None,
+            "hint": None,
         }
         return StudentAttempt.objects.create(**defaults)
 

@@ -1,8 +1,10 @@
 import datetime, uuid
+from turtle import window_width
 
 from django.db import models
 from django.conf import settings
 from django.db.models.expressions import F
+from django.forms import widgets
 from django.utils import timezone
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
@@ -224,7 +226,7 @@ class Expression(models.Model):
     context_vocabulary = models.CharField(max_length=255, blank=True, null=True)
     reformulation_text = models.TextField(blank=True, null=True)
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
-    hint = models.TextField(null=True, blank=True)
+    hint = models.CharField(null=True, blank=True, max_length=100)
     include_on_worksheet = models.BooleanField(default=True)
     hint_correct = models.BooleanField(default=True)
     error_tag = models.CharField(choices=[

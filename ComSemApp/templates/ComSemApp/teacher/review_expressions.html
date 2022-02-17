@@ -1,21 +1,71 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="form_style.css">
+
+<h4 class="m-t-0 header-title">Reviewing Hints</h4>
 <form class="" method="post" name="expressionform">
     {% csrf_token %}
     {{ formset.management_form }}
-    {% for form in formset %}
-        <h1>This is a new form</h1>
-        <div class="">
-            <h2>This is a new field in one of the forms </h2>
-            {{ form.hint }}
-            <div style="visibility: hidden;">{{form.id}}</div>
-        </div>
+    {% for expression in expressions %}
+        {% for form in formset %}
+            <div>
+                {%if forloop.counter == forloop.parentloop.counter%}
+                    <table>
+                        <tr>
+                            <td>
+                                <div>{{forloop.counter}}.&nbsp;&nbsp;</div>
+                            </td>
+                            <td><div name="expression_div" style="width: fit-content; max-height: fit-content;">{{ expression }}</div></td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td> <label for="hint_div">Hint:</label> <div name="hint_div" style="resize: none;">{{ form.hint }}&nbsp;</div> </td>
+                            <td>
+                                <label for="correct_div">&nbsp;&nbsp;&nbsp;Is the hint correct?</label>
+                                <div name="correct_div">&nbsp;&nbsp;&nbsp;{{ form.hint_correct}}</div>
+                            </td>
+                            <td>
+                                <label for="include_div">&nbsp;&nbsp;&nbsp;Include hint on worksheet?</label>
+                                <div name="include_div">&nbsp;&nbsp;&nbsp;{{ form.include_on_worksheet}}</div>
+                            </td>
+                            <td>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label for="error_tag_div">&nbsp;&nbsp;&nbsp;Error Tag</label>
+                                            <div name="error_tag_div">
+                                                <!-- <select class="form-control">
+                                                     for item in errors
+                                                        option value = item.category
+                                                    {% for tag in tags%}
+                                                        
+                                                        <option value="{{tag}}">{{tag}}</option>
+                                                      
+                                                    {%endfor%}
+                                                </select>   -->
+                                                {{form.error_tag}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                    </table>
+
+                {%endif%}
+            
+                <div style="visibility: hidden;">{{form.id}}</div>
+            </div>
+        {% endfor %}
     {% endfor %}
+    <div>&nbsp;</div>
     <button type="submit" class="btn btn-primary">Save</button>
 </form>
-<script>
-    function form_submit(){
-        document.forms['expressionform'].save(commit=False);
-        // document.forms['expressionform'].submit();
-        // window.opener.location.reload(true);
-        window.close();
-    }
-</script>
+{% endblock %}
