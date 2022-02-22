@@ -120,14 +120,13 @@ function screenLogger(text, data) {
 	console.log(text + " " + (data || ''))
 }
 
-
 /**
  * resultText is called from within the ajax call in the "dataAvailable" listener when there is
  * a response from the python transcribe function
  * @param {*} response is the sentence that the user has just recorded
  */
 function resultText(response) {
-	// Checking which page the user is accessing
+	// We need to check which page the user is accessing
 	x = document.getElementById("reformulation");
 	y = document.getElementById("CorrectedExpr");
 

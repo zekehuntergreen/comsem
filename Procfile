@@ -1,2 +1,2 @@
 release: python manage.py migrate
-web: gunicorn CommunicationSeminar.wsgi --log-file -
+web: newrelic-admin run-program gunicorn CommunicationSeminar.wsgi --log-file -

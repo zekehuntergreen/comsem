@@ -440,5 +440,3 @@ def delete_file(url):
         os.remove(url)
     except FileNotFoundError:
         pass
-
-
