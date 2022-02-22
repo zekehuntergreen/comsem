@@ -370,3 +370,5 @@ class ExpressionErrors(models.Model):
     notes = models.CharField(max_length=255, null=True)
     start_index = models.IntegerField(validators=[MinValueValidator(0)], null=True)
     end_index = models.IntegerField(null=True)
+    # the user who tagged the error
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
