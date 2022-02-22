@@ -67,7 +67,7 @@
 
         <div class="col-13">
 
-            <details>
+            <details id="show_hints">
 
                 <summary>Show Hint(s):</summary>
 
@@ -155,5 +155,9 @@ $("#saveAttempt").click(function(e){
 
     clearEditor()
     audioReformulationBlob = null; // clears reformulation
+});
+
+$("#show_hints").click(function(e){
+    // insert on click function, which hopefully can save something in a database
 });
 </script>
