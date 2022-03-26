@@ -189,6 +189,10 @@ class Worksheet(models.Model):
     @property
     def processing(self):
         return self.status == teacher_constants.WORKSHEET_STATUS_PROCESSING
+    
+    @property
+    def review(self):
+        return self.status == teacher_constants.WORKSHEET_STATUS_REVIEW
 
     def complete_submission(self, student): # vhl checks if any submissions are complete
         complete_submission = None
@@ -235,7 +239,7 @@ class Expression(models.Model):
         ('TSeq', 'Tense Sequence'),
         ('SVC', 'Subject-verb-complement')
     ], max_length=6, default='NP')
-    
+    hint_viewed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.expression
@@ -244,12 +248,11 @@ class Expression(models.Model):
         siblings = list(Expression.objects.filter(worksheet=self.worksheet))
         return siblings.index(self) + 1 if self in siblings else 0
     
-    def generate_hints(self):
-        BERT_model = BERTModel()
-        if Worksheet.run_through_model:
-            print("is running")
-            BERT_model.in_queue.add_item(self.expression)
-            return BERT_model.giveHint()
+    # def generate_hints(self):
+    #     
+    #     if Worksheet.run_through_model:
+    #         BERT_model.in_queue.add_item(self.expression)
+    #         return BERT_model.giveHint()
 
 
 

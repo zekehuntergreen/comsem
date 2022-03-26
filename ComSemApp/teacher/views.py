@@ -26,6 +26,7 @@ from extra_views import ModelFormSetView
 
 from ComSemApp.teacher import constants
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin
+from ComSemApp.BERT.dummy_model import BERTModel
 
 import json, math, datetime, os, csv
 from ComSemApp.models import *
@@ -176,11 +177,13 @@ class WorksheetCreateView(TeacherCourseViewMixin, UpdateView):
             worksheet_id = self.object.id
             expressions = Expression.objects.filter(worksheet_id=worksheet_id)
             expression_list = list(expressions)
-            for expression in expression_list:
-                expression.hint = expression.generate_hints()
-                expression.save()
-            #TODO -- change worksheet status to unreleased after generate hints finish. It can just go here now since there is no time involved
-            self.object.status = constants.WORKSHEET_STATUS_UNRELEASED
+            constants.BERT_MODEL.generateHints(expression_list, worksheet_id)
+            # for expression in expression_list:
+            #     expression.hint = expression.generate_hints()
+            #     expression.save()
+            
+            #somehow, after generate hints is finished, change status to Ready for Review
+            self.object.status = constants.WORKSHEET_STATUS_REVIEW
         else:
             self.object.status = constants.WORKSHEET_STATUS_UNRELEASED
         return super(WorksheetCreateView,self).form_valid(form)
@@ -205,11 +208,12 @@ class WorksheetUpdateView(TeacherWorksheetViewMixin, UpdateView):
             worksheet_id = self.object.id
             expressions = Expression.objects.filter(worksheet_id=worksheet_id)
             expression_list = list(expressions)
-            for expression in expression_list:
-                expression.hint = expression.generate_hints()
-                expression.save()
+            constants.BERT_MODEL.generateHints(expression_list, worksheet_id)
+            # for expression in expression_list:
+            #     expression.hint = expression.generate_hints()
+            #     expression.save()
             #TODO -- change worksheet status to unreleased after generate hints finish. It can just go here now since there is no time involved
-            self.object.status = constants.WORKSHEET_STATUS_UNRELEASED
+            self.object.status = constants.WORKSHEET_STATUS_REVIEW
         else:
             self.object.status = constants.WORKSHEET_STATUS_UNRELEASED
         return super(WorksheetUpdateView,self).form_valid(form)
@@ -307,7 +311,7 @@ class ExpressionHintUpdateView(ModelFormSetView):
         context['expressions'] = expression_list
         # context['tags'] = ['Subject Verb Agreement', 'Noun phrase', 'Tense Sequence',
         # 'Subject-verb-complement']
-        #error = ErrorCategory.object.all() -- imported from models needs to be done after fixing merge issue 
+        error = ErrorCategory.object.all() #-- imported from models needs to be done after fixing merge issue 
         return context
 
     def get_queryset(self):
@@ -324,7 +328,11 @@ class ExpressionHintUpdateView(ModelFormSetView):
             expression = form.save(commit=False)
             expression.save()
         messages.success(self.request, "Updated")
-        
+        worksheet_id = self.kwargs['worksheet_id']
+        worksheet_set = Worksheet.objects.filter(id=worksheet_id)
+        for worksheet in worksheet_set:
+            worksheet.status = constants.WORKSHEET_STATUS_UNRELEASED
+            worksheet.save()
         return HttpResponse('<script type="text/javascript"> window.close(); window.opener.location.reload();</script>')
 
     def formset_invalid(self, formset):

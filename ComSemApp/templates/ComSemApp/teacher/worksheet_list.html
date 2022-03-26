@@ -20,7 +20,7 @@
             <td>{{ worksheet.date }}</td>
             <td>{{ worksheet.topic }}</td>
             <td>
-                <span class='badge badge-{% if worksheet.released %}success{% elif worksheet.processing %}info{% else %}warning{% endif %}'>{% if worksheet.released %}Released{% elif worksheet.processing %}Processing{% else %}Unreleased{% endif %}</span>
+                <span class='badge badge-{% if worksheet.released %}success{% elif worksheet.processing %}info{% else %}warning{% endif %}'>{% if worksheet.released %}Released{% elif worksheet.processing %}Processing{% elif worksheet.review %}Ready for Review{% else %}Unreleased{% endif %}</span>
             </td>
             <td>
                 {% if worksheet.released %}
@@ -35,10 +35,10 @@
                         <a href="{% url 'teacher:worksheet_update' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
                         
                             
-                        <a href="{% url 'teacher:expression_hint_review' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary' style="margin-left: 10px;" onclick="window.open(this.href, 'newwindow', 'width=1000,height=1000'); return false;">Review Hints</a>
+                        <a href="{% url 'teacher:expression_hint_review' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary' style="margin-left: 10px;" onclick="window.open(this.href, 'newwindow', 'width=1000,height=1000'); return false;"{% if not worksheet.review %}disabled{% endif %}>Review Hints</a>
                         
 
-                        <button type='button' name='' class='btn btn-sm btn-outline-success release_worksheet_button' style="margin-left: 10px;" {% if worksheet.processing %}disabled{% endif %}>Release</button>
+                        <button type='button' name='' class='btn btn-sm btn-outline-success release_worksheet_button' style="margin-left: 10px;" {% if worksheet.processing or worksheet.review %}disabled{% endif %}>Release</button>
 
                         <button type="button" class='btn btn-sm btn-outline-danger delete_worksheet_button' style="margin-left: 10px;">Delete</button>
                     </div>
@@ -46,7 +46,7 @@
                     <div class="row">
                         <a href="{% url 'teacher:worksheet_update' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
 
-                        <button type='button' name='' class='btn btn-sm btn-outline-success release_worksheet_button' style="margin-left: 10px;" {% if worksheet.processing %}disabled{% endif %}>Release</button>
+                        <button type='button' name='' class='btn btn-sm btn-outline-success release_worksheet_button' style="margin-left: 10px;" {% if worksheet.processing or worksheet.review %}disabled{% endif %}>Release</button>
 
                         <button type="button" class='btn btn-sm btn-outline-danger delete_worksheet_button' style="margin-left: 10px;">Delete</button>
                     </div>

@@ -11,7 +11,7 @@
         <tr worksheet_id="{{ worksheet.id }}">
             <td>{{ worksheet.topic }}</td>
             <td>
-                <span class='badge badge-{% if worksheet.released %}success{% else %}warning{% endif %}'>{% if worksheet.released %}Released{% else %}Unreleased{% endif %}</span>
+                <span class='badge badge-{% if worksheet.released %}success{% else %}warning{% endif %}'>{% if worksheet.released %}Released{% elif worksheet.processing%}Processing{% elif worksheet.review%}Ready for Review{% else %}Unreleased{% endif %}</span>
             </td>
             <td>
                 {% if worksheet.released %}

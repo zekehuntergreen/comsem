@@ -157,7 +157,25 @@ $("#saveAttempt").click(function(e){
     audioReformulationBlob = null; // clears reformulation
 });
 
-$("#show_hints").click(function(e){
-    // insert on click function, which hopefully can save something in a database
+var details = document.querySelector("details")
+
+details.addEventListener("toggle", function(){
+    $.ajax({
+        type: "POST",
+        url: $("#create_or_update_url").val(),
+        data: {'hint_viewed': true},
+        processData: false,
+        contentType: false,
+        success: function(response){
+            //cs_notification('success', "Expression Saved")
+            // update expressions table
+            //drawExpressionsTable();
+        },
+        error: function(jqXHR, textStatus, errorThrown){
+            cs_ajax_error(jqXHR, textStatus, errorThrown)
+        },
+    })
+
 });
+
 </script>
