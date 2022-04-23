@@ -33,7 +33,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install Dependencies
       run: |
-        pip install --no-binary=:all: -r requirements.txt
+        python -m pip install --no-binary=:all: -r requirements.txt
     - name: Run Migrations
       run: python manage.py migrate
       env:
