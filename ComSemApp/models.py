@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.db.models import Q
 
 from ComSemApp.teacher import constants as teacher_constants
-from ComSemApp.BERT.dummy_model import BERTModel
+from ComSemApp.BERT.bert_model import BERTModel
 
 from .utils import pos_tag
 

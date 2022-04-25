@@ -3,9 +3,7 @@ import requests
 
 #constants
 API_URL = "https://f8nay4b9u5.execute-api.us-west-2.amazonaws.com/test/predictgrammar"
-# ACCESS_KEY = "AKIAU4PHKXC3LJLMK2HG"
-# SECRET_KEY = "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"
-# HEADERS = {'X-ApiKeys' : 'accessKey=' + ACCESS_KEY + '; secretKey=' + SECRET_KEY}
+
 
 class BERTModel():
     def __init__(self) -> None:
