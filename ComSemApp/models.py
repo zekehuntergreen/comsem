@@ -31,6 +31,77 @@ def audio_directory_path(directory, instance):
 
 
 # TODO : Split these models into admin, teacher, student, corpus apps
+
+
+# WORDS, SEQUENTIAL WORDS, TAG
+
+class Word(models.Model):
+    form = models.CharField(max_length=255)
+    tag = models.ForeignKey('Tag', on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.form
+
+    class Meta:
+        unique_together = ("form", "tag")
+
+    def frequency(self):
+        return SequentialWords.objects.filter(word=self).count()
+
+
+class SequentialWords(models.Model):
+    expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
+    word = models.ForeignKey('Word', on_delete=models.PROTECT)
+    position = models.IntegerField(validators=[MinValueValidator(0)])
+
+    def __str__(self):
+        return " - ".join([str(self.expression), str(self.position)])
+
+    class Meta:
+        verbose_name_plural = "Sequential Words"
+
+
+# upenn tagset
+class Tag(models.Model):
+    tag = models.CharField(max_length=255)
+    type = models.CharField(max_length=255, blank=True, null=True)
+    description = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return self.tag
+
+    def frequency(self):
+        words = Word.objects.filter(tag=self).all()
+        return SequentialWords.objects.filter(word__in=words).count()
+
+
+# Error tagging
+class ErrorCategory(models.Model):
+    category = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    def __unicode__(self):
+            return u'%s' % (self.name)
+
+
+class ErrorSubcategory(models.Model):
+    subcategory = models.CharField(max_length=255)
+    parent_category = models.ForeignKey('ErrorCategory', on_delete=models.CASCADE)
+    def __unicode__(self):
+            return u'%s' % (self.name)
+
+
+class ExpressionErrors(models.Model):
+    category = models.ForeignKey("ErrorCategory", on_delete=models.CASCADE)
+    subcategory = models.ForeignKey("ErrorSubcategory", on_delete=models.CASCADE, null=True)
+    expression = models.ForeignKey("Expression", on_delete=models.CASCADE)
+    notes = models.CharField(max_length=255, null=True)
+    start_index = models.IntegerField(validators=[MinValueValidator(0)], null=True)
+    end_index = models.IntegerField(null=True)
+    # the user who tagged the error
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+
+
+
 # STUDENTS, TEACHERS, ADMINS
 
 class Student(models.Model):
@@ -233,12 +304,14 @@ class Expression(models.Model):
     hint = models.CharField(null=True, blank=True, max_length=100)
     include_on_worksheet = models.BooleanField(default=True)
     hint_correct = models.BooleanField(default=True)
-    error_tag = models.CharField(choices=[
-        ('SV agr', 'Subject Verb Agreement'),
-        ('NP', 'Noun phrase'),
-        ('TSeq', 'Tense Sequence'),
-        ('SVC', 'Subject-verb-complement')
-    ], max_length=6, default='NP')
+
+    errors = ErrorCategory.objects.all()
+    error_tag_choices_list = []
+    for error in errors:
+        error_tag_choices_list.append((error.category, error.description))
+            
+
+    error_tag = models.CharField(choices=error_tag_choices_list, max_length=6, default='NP')
     hint_viewed = models.BooleanField(default=False)
 
     def __str__(self):
@@ -248,12 +321,6 @@ class Expression(models.Model):
         siblings = list(Expression.objects.filter(worksheet=self.worksheet))
         return siblings.index(self) + 1 if self in siblings else 0
     
-    # def generate_hints(self):
-    #     
-    #     if Worksheet.run_through_model:
-    #         BERT_model.in_queue.add_item(self.expression)
-    #         return BERT_model.giveHint()
-
 
 
 # ATTEMPTS AND SUBMISSIONS
@@ -333,71 +400,3 @@ class ReviewAttempt(models.Model):
 
     class Meta:
         verbose_name = "Review Attempt"
-
-
-# WORDS, SEQUENTIAL WORDS, TAG
-
-class Word(models.Model):
-    form = models.CharField(max_length=255)
-    tag = models.ForeignKey('Tag', on_delete=models.PROTECT)
-
-    def __str__(self):
-        return self.form
-
-    class Meta:
-        unique_together = ("form", "tag")
-
-    def frequency(self):
-        return SequentialWords.objects.filter(word=self).count()
-
-
-class SequentialWords(models.Model):
-    expression = models.ForeignKey('Expression', on_delete=models.CASCADE)
-    word = models.ForeignKey('Word', on_delete=models.PROTECT)
-    position = models.IntegerField(validators=[MinValueValidator(0)])
-
-    def __str__(self):
-        return " - ".join([str(self.expression), str(self.position)])
-
-    class Meta:
-        verbose_name_plural = "Sequential Words"
-
-
-# upenn tagset
-class Tag(models.Model):
-    tag = models.CharField(max_length=255)
-    type = models.CharField(max_length=255, blank=True, null=True)
-    description = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.tag
-
-    def frequency(self):
-        words = Word.objects.filter(tag=self).all()
-        return SequentialWords.objects.filter(word__in=words).count()
-
-
-# Error tagging
-class ErrorCategory(models.Model):
-    category = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
-    def __unicode__(self):
-            return u'%s' % (self.name)
-
-
-class ErrorSubcategory(models.Model):
-    subcategory = models.CharField(max_length=255)
-    parent_category = models.ForeignKey('ErrorCategory', on_delete=models.CASCADE)
-    def __unicode__(self):
-            return u'%s' % (self.name)
-
-
-class ExpressionErrors(models.Model):
-    category = models.ForeignKey("ErrorCategory", on_delete=models.CASCADE)
-    subcategory = models.ForeignKey("ErrorSubcategory", on_delete=models.CASCADE, null=True)
-    expression = models.ForeignKey("Expression", on_delete=models.CASCADE)
-    notes = models.CharField(max_length=255, null=True)
-    start_index = models.IntegerField(validators=[MinValueValidator(0)], null=True)
-    end_index = models.IntegerField(null=True)
-    # the user who tagged the error
-    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)

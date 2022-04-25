@@ -26,7 +26,7 @@ from extra_views import ModelFormSetView
 
 from ComSemApp.teacher import constants
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin
-from ComSemApp.BERT.dummy_model import BERTModel
+from ComSemApp.BERT.bert_model import BERTModel
 
 import json, math, datetime, os, csv
 from ComSemApp.models import *
@@ -309,9 +309,9 @@ class ExpressionHintUpdateView(ModelFormSetView):
         for item in query_set:
             expression_list.append(item.expression)
         context['expressions'] = expression_list
-        # context['tags'] = ['Subject Verb Agreement', 'Noun phrase', 'Tense Sequence',
-        # 'Subject-verb-complement']
-        error = ErrorCategory.object.all() #-- imported from models needs to be done after fixing merge issue 
+        context['tags'] = ['Subject Verb Agreement', 'Noun phrase', 'Tense Sequence',
+        'Subject-verb-complement']
+        #error = ErrorCategory.object.all() #-- imported from models needs to be done after fixing merge issue 
         return context
 
     def get_queryset(self):

@@ -67,7 +67,7 @@
 
         <div class="col-13">
 
-            <details id="show_hints">
+            <details id="show_hints" {% if not expression.include_on_worksheet %}hidden{%endif%}>
 
                 <summary>Show Hint(s):</summary>
 
@@ -162,8 +162,8 @@ var details = document.querySelector("details")
 details.addEventListener("toggle", function(){
     $.ajax({
         type: "POST",
-        url: $("#create_or_update_url").val(),
-        data: {'hint_viewed': true},
+        url: "/ComSemApp/templates/ComSemApp/student/update_hint_viewed.py",
+        data: {'expression_id': {{ expression.id }}},
         processData: false,
         contentType: false,
         success: function(response){

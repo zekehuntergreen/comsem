@@ -1,4 +1,4 @@
-from ComSemApp.BERT.dummy_model import BERTModel
+from ComSemApp.BERT.bert_model import BERTModel
 
 WORKSHEET_STATUS_PENDING = 'PENDING'
 WORKSHEET_STATUS_UNRELEASED = 'UNRELEASED'

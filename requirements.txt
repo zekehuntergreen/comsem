@@ -17,3 +17,4 @@ temp==2020.7.2
 pydub==0.25.1
 django-extra-views==0.14.0
 newrelic==7.4.0.172
+aws-requests-auth==0.4.3
