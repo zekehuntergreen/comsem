@@ -19,7 +19,7 @@ jobs:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: 2017%ComSem
+          MYSQL_ROOT_PASSWORD: zerling
           MYSQL_DATABASE: mysql
         ports: ['8080:3306']
     steps:
@@ -38,7 +38,7 @@ jobs:
           DBENGINE: django.db.backends.mysql
           DBNAME: mysql
           DBUSER: root
-          DBPASSWORD: 2017%ComSem
+          DBPASSWORD: zerling
           DBHOST: 127.0.0.1
           DBPORT: $
     - name: Run Tests
@@ -48,6 +48,6 @@ jobs:
           DBENGINE: django.db.backends.mysql
           DBNAME: mysql
           DBUSER: root
-          DBPASSWORD: 2017%ComSem
+          DBPASSWORD: zerling
           DBHOST: 127.0.0.1
           DBPORT: $
