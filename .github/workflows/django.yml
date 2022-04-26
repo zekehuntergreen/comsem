@@ -38,7 +38,7 @@ jobs:
           DBENGINE: django.db.backends.mysql
           DBNAME: mysql
           DBUSER: root
-          DBPASSWORD: zergling
+          DBPASSWORD: 2017%ComSem
           DBHOST: 127.0.0.1
           DBPORT: $
     - name: Run Tests
@@ -48,6 +48,6 @@ jobs:
           DBENGINE: django.db.backends.mysql
           DBNAME: mysql
           DBUSER: root
-          DBPASSWORD: zergling
+          DBPASSWORD: 2017%ComSem
           DBHOST: 127.0.0.1
           DBPORT: $
