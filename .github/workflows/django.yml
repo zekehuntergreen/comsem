@@ -21,7 +21,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: zergling
           MYSQL_DATABASE: mysql
-        ports: ['3306:3306']
+        ports: ['8080:3306']
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
