@@ -19,7 +19,7 @@ jobs:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: zergling
+          MYSQL_ROOT_PASSWORD: 2017%ComSem
           MYSQL_DATABASE: mysql
         ports: ['8080:3306']
     steps:
