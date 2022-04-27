@@ -143,7 +143,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'HOST': 'localhost',
+            'HOST': '127.0.0.1',
             'PORT': '3306',
             'NAME': 'CommunicationSeminarDjango',
             'USER': 'root',
