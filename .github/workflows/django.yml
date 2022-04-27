@@ -20,7 +20,7 @@ jobs:
         image: mysql:5.7
         env:
           MYSQL_ROOT_PASSWORD: zerling
-          MYSQL_DATABASE: mysql
+          MYSQL_DATABASE: CommunicationSeminarDjango
         ports: ['8080:3306']
     steps:
     - uses: actions/checkout@v3
