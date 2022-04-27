@@ -2,9 +2,9 @@ name: Django CI
 
 on:
   push:
-    branches: [ comsem-demo ]
+    branches: [ ComSem-Test-Development ]
   pull_request:
-    branches: [ comsem-demo ]
+    branches: [ ComSem-Test-Development ]
 
 jobs:
   build:
