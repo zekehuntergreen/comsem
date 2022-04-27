@@ -19,7 +19,7 @@ jobs:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: zerling
+          MYSQL_ROOT_PASSWORD: 2017%ComSem
           MYSQL_DATABASE: CommunicationSeminarDjango
         ports: ['3306:3306']
     steps:
