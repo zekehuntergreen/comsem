@@ -142,12 +142,8 @@ if LIVE:
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'HOST': '127.0.0.1',
-            'PORT': '3306',
-            'NAME': 'CommunicationSeminarDjango',
-            'USER': 'root',
-            'PASSWORD': env_get('DB_PASSWORD', '2017%ComSem')
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR + '/db.sqlite3'
         }
     }
 
