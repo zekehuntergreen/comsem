@@ -354,6 +354,8 @@ class ErrorCategory(models.Model):
     description = models.CharField(max_length=255)
     def __unicode__(self):
             return u'%s' % (self.name)
+    class Meta:
+        verbose_name_plural = "error categories"
 
 
 class ErrorSubcategory(models.Model):
@@ -361,6 +363,9 @@ class ErrorSubcategory(models.Model):
     parent_category = models.ForeignKey('ErrorCategory', on_delete=models.CASCADE)
     def __unicode__(self):
             return u'%s' % (self.name)
+
+    class Meta:
+        verbose_name_plural = "error subcategories"
 
 
 class ExpressionErrors(models.Model):
