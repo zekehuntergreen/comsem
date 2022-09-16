@@ -186,7 +186,7 @@ def error_search_results(request):
     if subcategory_id:
         filter_params["subcategory"] = subcategory_id
 
-    expression_errors = ExpressionErrors.objects.filter(**filter_params)
+    expression_errors = ExpressionError.objects.filter(**filter_params)
 
     context = {
         'errors': expression_errors,
