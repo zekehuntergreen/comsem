@@ -368,7 +368,7 @@ class ErrorSubcategory(models.Model):
         verbose_name_plural = "error subcategories"
 
 
-class ExpressionErrors(models.Model):
+class ExpressionError(models.Model):
     category = models.ForeignKey("ErrorCategory", on_delete=models.CASCADE)
     subcategory = models.ForeignKey("ErrorSubcategory", on_delete=models.CASCADE, null=True)
     expression = models.ForeignKey("Expression", on_delete=models.CASCADE)
