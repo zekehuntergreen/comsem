@@ -9,6 +9,7 @@ django-bootstrap3-datetimepicker-2==2.5.0
 django-extensions==2.1.9
 django-select2==6.0.1
 django-storages==1.7.1
+django-utils-six==2.0
 docutils==0.15.2
 gunicorn==19.9.0
 idna==2.10
