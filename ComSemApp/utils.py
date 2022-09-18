@@ -17,8 +17,8 @@ def pos_tag(expression):
     else:
         ssl._create_default_https_context = _create_unverified_https_context
 
-    # nltk.download('punkt')
-    # nltk.download('averaged_perceptron_tagger')
+    nltk.download('punkt')
+    nltk.download('averaged_perceptron_tagger')
 
     expression_text = expression.expression.lower()
     tokens = nltk.word_tokenize(expression_text)
