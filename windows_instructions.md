@@ -1,4 +1,4 @@
-## Getting Started on Mac
+## Getting Started on Windows
 
 ### Clone the repository
 
