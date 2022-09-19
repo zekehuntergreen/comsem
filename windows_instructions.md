@@ -14,10 +14,6 @@ Download python3 from https://www.python.org/downloads/. The project is currentl
 https://pipenv.pypa.io/en/latest/
 
 
-### Install Pipenv
-https://pipenv.pypa.io/en/latest/
-
-
 ### Create virtual environment and install python dependencies from Pipfile.lock
 
 ```bash
