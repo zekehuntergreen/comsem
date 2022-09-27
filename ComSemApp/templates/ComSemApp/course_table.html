@@ -6,6 +6,9 @@
 			<b>My Courses</b>
 		</h4>
 	</div>
+	<div class="col-6">
+		<button onclick="help()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
+	</div>
 </div>
 
 <div class="row mt-2">
@@ -35,10 +38,9 @@
 					<td>{{ course.session.start_date.year }}</td>
 					<td>{{ course.course_type.name }}</td>
 					<td>{{ course.section }}</td>
-
 					{% if teacher_view %}
 					<td>
-						<a href="{% url 'teacher:course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</a>
+						<a id="coursePageButton_Teacher" href="{% url 'teacher:course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</a>
 						<button type='button' class='btn btn-sm btn-outline-primary show-students'>Students</button>
 					</td>
 					{% else %}
@@ -46,7 +48,7 @@
 						{{ course.teachers.all|join:", " }}
 					</td>
 					<td>
-						<a href="{% url 'student:course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</button>
+						<a id="coursePageButton_Student" href="{% url 'student:course' course.id %}" class="btn btn-sm btn-outline-primary">Course Page</button>
 					</td>
 					{% endif %}
 				</tr>
@@ -60,4 +62,22 @@
 	{% else %}
 		<p>No available courses.</p>
 	{% endif %}
+
+
+	<script>
+	function help() {
+		Tour.run([
+			{
+				element: $('#coursePageButton_Student'),
+				content: 'Click HERE to go to your class.'
+			},
+			{
+				element: $('#coursePageButton_Teacher'),
+				content: 'Select the course you want to add a worksheet to.'
+			},
+			]);
+		}
+	</script>
+
+
 </div>
