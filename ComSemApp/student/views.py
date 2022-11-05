@@ -570,7 +570,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
         
         Arguments:
             raw_expressions {[list]} -- [A list of expressions]
-            use_audio True if user wants audio False otherwise
+            use_audio -- True if user wants audio False otherwise
         
         Returns:
             [type] -- [description]
@@ -673,3 +673,20 @@ class ReviewAttemptCreateView(ReviewsheetView, CreateView):
     def form_valid(self, form):
         form.save()
         return JsonResponse({}, status=200)
+
+class SpeakingPracticeGetView:
+    def foo():
+        pass
+
+class SpeakingPracticeGeneratorView:
+    def foo():
+        pass
+
+class SpeakingPracticeResultsView:
+    def foo():
+        pass
+
+
+class SpeakingPracticeInstructionsView:
+    def foo():
+        pass
