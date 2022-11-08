@@ -667,19 +667,20 @@ class ReviewAttemptCreateView(ReviewsheetView, CreateView):
         form.save()
         return JsonResponse({}, status=200)
 
-class SpeakingPracticeGetView:
-    def foo():
-        pass
+# ALL THESE CLASSES SHOULD IMPLEMENT PROPER VIEWS LATER
+# this means the as_view funtions will be inherited
+class SpeakingPracticeView:
+    def as_view():
+        return (lambda request, *callback_args, **callback_kwargs : HttpResponse('<h1>Speaking Practice View</h1>'))
 
 class SpeakingPracticeGeneratorView:
-    def foo():
-        pass
+    def as_view():
+        return (lambda request, *callback_args, **callback_kwargs : HttpResponse('<h1>Speaking Practice Generator View</h1>'))
 
 class SpeakingPracticeResultsView:
-    def foo():
-        pass
-
+    def as_view():
+        return (lambda request, *callback_args, **callback_kwargs : HttpResponse('<h1>Speaking Practice Results View</h1>'))
 
 class SpeakingPracticeInstructionsView:
-    def foo():
-        pass
+    def as_view():
+        return (lambda request, *callback_args, **callback_kwargs : HttpResponse('<h1>Speaking Practice Instructions View</h1>'))
