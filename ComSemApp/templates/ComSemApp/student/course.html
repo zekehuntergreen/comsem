@@ -7,8 +7,9 @@
 	<div class="col-md-12 col-xl-3">
 		{% include 'ComSemApp/course_details.html' %}
 		{% if worksheets %} <!-- prevents students from practicing if there are no worksheets -->
-			<div class="card-box"> <!--Button that takes students to a review sheet generator-->
+			<div class="card-box"> <!--2 Buttons  First: that takes students to a review sheet generator Second: to a speaking practice generator-->
 				<a href="{% url 'student:generate_reviewsheet' course.id  %}" class="btn btn-lg btn-success w-100"><i  class="icon fa fa-refresh"></i>   Practice</a>
+				<a href="{% url 'student:speaking_practice_generator' course.id %}" class="btn btn-lg btn-success w-100"><i  class="icon fa fa-refresh"></i>   Verbal Practice</a>
 			</div>
 		{% endif %}
 	</div>
