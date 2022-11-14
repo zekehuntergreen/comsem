@@ -1,0 +1,6 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% block content %}
+<h1>Speaking Practice View</h1><br>
+<a href="{% url 'student:speaking_practice_results' course.id %}">Results</a>
+{% endblock %}

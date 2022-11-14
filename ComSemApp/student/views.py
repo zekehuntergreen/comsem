@@ -8,11 +8,10 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
-
 from ComSemApp.teacher import constants as teacher_constants
 
 from ComSemApp.models import *
@@ -667,20 +666,28 @@ class ReviewAttemptCreateView(ReviewsheetView, CreateView):
         form.save()
         return JsonResponse({}, status=200)
 
-# ALL THESE CLASSES SHOULD IMPLEMENT PROPER VIEWS LATER
-# this means the as_view funtions will be inherited
-class SpeakingPracticeView:
-    def as_view():
-        return (lambda request, *callback_args, **callback_kwargs : HttpResponse('<h1>Speaking Practice View</h1>'))
+# ALL THESE CLASSES SHOULD IMPLEMENT DIFFERENT VIEWS LATER
+# the foo() functions are just placeholders too keep the classes in here
+class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
+    template_name: str = 'ComSemApp/student/assessment.html'
 
-class SpeakingPracticeGeneratorView:
-    def as_view():
-        return (lambda request, *callback_args, **callback_kwargs : HttpResponse('<h1>Speaking Practice Generator View</h1>'))
+    def foo():
+        pass
 
-class SpeakingPracticeResultsView:
-    def as_view():
-        return (lambda request, *callback_args, **callback_kwargs : HttpResponse('<h1>Speaking Practice Results View</h1>'))
+class SpeakingPracticeGeneratorView(StudentViewMixin, CourseViewMixin, TemplateView):
+    template_name: str = 'ComSemApp/student/assessment_generator.html'
 
-class SpeakingPracticeInstructionsView:
-    def as_view():
-        return (lambda request, *callback_args, **callback_kwargs : HttpResponse('<h1>Speaking Practice Instructions View</h1>'))
+    def foo():
+        pass
+
+class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, TemplateView):
+    template_name: str = 'ComSemApp/student/assessment_results.html'
+
+    def foo():
+        pass
+
+class SpeakingPracticeInstructionsView(StudentViewMixin, CourseViewMixin, TemplateView):
+    template_name: str = 'ComSemApp/student/assessment_instructions.html'
+
+    def foo():
+        pass
