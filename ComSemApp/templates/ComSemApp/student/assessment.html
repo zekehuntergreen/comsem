@@ -1,7 +1,7 @@
 {% extends 'ComSemApp/sidebar.html' %}
 
 {% block content %}
-<h1>Speaking Practice View</h1><br>
+<h1>Speaking Practice View</h1>
 
 <script>
     var given_time = 15;
@@ -15,9 +15,8 @@
       current_time -= 1;
     }, 1000);
 </script>
-<br>
 <p> You have <span id="text_timer">15 </span> seconds left</p>
 <progress value="0" max="15" id="timer_bar"></progress>
-
+<br>
 <a href="{% url 'student:speaking_practice_results' course.id %}">Results</a>
 {% endblock %}
