@@ -8,11 +8,10 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
-
 from ComSemApp.teacher import constants as teacher_constants
 
 from ComSemApp.models import *
@@ -354,7 +353,6 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
                 ranges[x] = 1
                      
         
-        #print('---------------------------------------------------------------------')
         for e in expression_qset:
             # e.norm_figs = {x:(e.raw_figs[x] - range_mins[x]['min']) / range_mins[x]['range'] if range_mins[x]['range'] > 0 else 0 for x in e.raw_figs }
             e.norm_figs = {}
@@ -505,7 +503,6 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
                 e.norm_figs['rt'] = (1 if e.raw_figs['rt'] == mins['rt'] else 1 - (e.raw_figs['rt'] - mins['rt']) / ranges['rt']) * WEIGHTS['rt']
                 e.norm_figs['pct_correct'] = (0 if e.raw_figs['pct_correct'] == mins['pct_correct'] else (e.raw_figs['pct_correct'] - mins['pct_correct']) / ranges['pct_correct']) * WEIGHTS['pct_correct']
                 e.practice_score = int(sum(e.norm_figs.values()) * 100)
-                #print(e.expression, e.practice_score)
 
         # Only allow students to review completed worksheets (must have an answer)        
         context['worksheets'] =  completed
@@ -533,7 +530,6 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
             try:
                 sattempt = StudentAttempt.objects.get(student_submission=submission, expression=expression)
                 attempts.append(sattempt)
-                #print("HEREE: ", sattempt)
             except:
                 pass
         
@@ -550,7 +546,6 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
         
         expression_ids = dict(self.request.GET)['choice']
         use_audio = dict(self.request.GET)['audio-choice'][0] == '1'
-        #print("AUDIO - ", use_audio)
         raw_expressions = []
         for expression_id in expression_ids:
             expression_object = get_object_or_404(Expression, pk=expression_id)
@@ -570,7 +565,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
         
         Arguments:
             raw_expressions {[list]} -- [A list of expressions]
-            use_audio True if user wants audio False otherwise
+            use_audio -- True if user wants audio False otherwise
         
         Returns:
             [type] -- [description]
@@ -623,21 +618,19 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
             # Choose between audio and text
 
             if e == selected[0]: # vhl forces original expression to be text to prevent the instructors recording from being used.
-                #print("EXPRESSION")
                 expression_data['term'] = selected[0].expression
                 expression_data['type'] = 'TEXT'
 
             elif selected[0].audio and use_audio and selected[0].audio_correct is not None: # vhl made it so audio only shows up when users request it and audio has been graded correctly
                 # Last conditional is for audio expressions graded before audio_correct was in models.
                 # vhl case for if selected attempt has audio and user is looking for audio problems          
-                #print("AUDIO")
                 expression_data['term'] = selected[0].reformulation_text
                 a_id = "%d_audio" % e.id
                 expression_data['audio_id'] = a_id
                 audio_paths.append((a_id, selected[0].audio))
                 expression_data['type'] = 'AUDIO'
-            else: # vhl case for if a selected attempt has no audio or user does not want audio
-                #print("ATTEMPT")
+            else: 
+                # vhl case for if a selected attempt has no audio or user does not want audio
                 expression_data['term'] = selected[0].reformulation_text
                 expression_data['type'] = 'TEXT'
 
@@ -649,7 +642,6 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
 class ReviewsheetGetView(ReviewsheetView):
     def get(self, request, *args, **kwargs):
         # student can't create a submission if there is an updatable one.
-        #print(request.GET)
         if 'choice' in request.GET:
             return super().get(self, request, *args, **kwargs)
         else:
@@ -673,3 +665,29 @@ class ReviewAttemptCreateView(ReviewsheetView, CreateView):
     def form_valid(self, form):
         form.save()
         return JsonResponse({}, status=200)
+
+# ALL THESE CLASSES SHOULD IMPLEMENT DIFFERENT VIEWS LATER
+# the foo() functions are just placeholders too keep the classes in here
+class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
+    template_name: str = 'ComSemApp/student/assessment.html'
+
+    def foo():
+        pass
+
+class SpeakingPracticeGeneratorView(StudentViewMixin, CourseViewMixin, TemplateView):
+    template_name: str = 'ComSemApp/student/assessment_generator.html'
+
+    def foo():
+        pass
+
+class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, TemplateView):
+    template_name: str = 'ComSemApp/student/assessment_results.html'
+
+    def foo():
+        pass
+
+class SpeakingPracticeInstructionsView(StudentViewMixin, CourseViewMixin, TemplateView):
+    template_name: str = 'ComSemApp/student/assessment_instructions.html'
+
+    def foo():
+        pass
