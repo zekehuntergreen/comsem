@@ -377,3 +377,8 @@ class ExpressionError(models.Model):
     end_index = models.IntegerField(null=True)
     # the user who tagged the error
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+
+# Self Assessment
+
+class SelfAssessment(models.Model):
+    display_reformulation_audio = models.BooleanField(default=True)
