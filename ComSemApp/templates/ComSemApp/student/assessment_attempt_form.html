@@ -25,16 +25,11 @@
 <!-- AUDIO RECORDING -->
 <div class="row" id="display_reformulation_audioRow">
     {% include 'ComSemApp/student/assessment_audio_recording.html' %}
-    <script>
-        var encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
-        initializeRecorder()
-    </script>
 </div>
 
 {% if attempt.audio %}
 <script>
     $(function(){
-        
         $('#recordingslist').html("<audio controls id='audioElement' src='" + "{{ attempt.audio.url }}" + "' type='audio/mpeg'></audio>");
         $('#deleteRecordingButton').show();
     })
