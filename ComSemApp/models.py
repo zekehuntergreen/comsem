@@ -382,3 +382,4 @@ class ExpressionError(models.Model):
 
 class SelfAssessment(models.Model):
     display_reformulation_audio = models.BooleanField(default=True)
+    audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
