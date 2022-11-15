@@ -378,8 +378,3 @@ class ExpressionError(models.Model):
     # the user who tagged the error
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
-# Self Assessment
-
-class SelfAssessment(models.Model):
-    display_reformulation_audio = models.BooleanField(default=True)
-    audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
