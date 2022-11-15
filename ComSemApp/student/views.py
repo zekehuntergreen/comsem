@@ -670,9 +670,7 @@ class ReviewAttemptCreateView(ReviewsheetView, CreateView):
 # the foo() functions are just placeholders too keep the classes in here
 class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
     template_name: str = 'ComSemApp/student/assessment.html'
-    model = SelfAssessment
-    #fields = ["reformulation_text", "audio"]
-
+    
     def foo():
         pass
 
