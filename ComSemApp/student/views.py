@@ -669,24 +669,39 @@ class ReviewAttemptCreateView(ReviewsheetView, CreateView):
 # ALL THESE CLASSES SHOULD IMPLEMENT DIFFERENT VIEWS LATER
 # the foo() functions are just placeholders too keep the classes in here
 class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
+    """
+      Serves the content of the speaking practice page which presents problems
+      and recieves user input.
+    """
     template_name: str = 'ComSemApp/student/assessment.html'
 
     def foo():
         pass
 
 class SpeakingPracticeGeneratorView(StudentViewMixin, CourseViewMixin, TemplateView):
+    """
+      Serves the content of the speaking practice page which lists expressions and
+      prompts user to select the onse they want to practice.
+    """
     template_name: str = 'ComSemApp/student/assessment_generator.html'
 
     def foo():
         pass
 
 class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, TemplateView):
+    """
+      Serves the content of the speaking practice results page presented after a
+      session of practice.
+    """
     template_name: str = 'ComSemApp/student/assessment_results.html'
 
     def foo():
         pass
 
 class SpeakingPracticeInstructionsView(StudentViewMixin, CourseViewMixin, TemplateView):
+    """
+      Serves the instructions page for the speaking practice tool.
+    """
     template_name: str = 'ComSemApp/student/assessment_instructions.html'
 
     def foo():
