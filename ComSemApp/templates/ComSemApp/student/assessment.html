@@ -1,3 +1,5 @@
+<!-- Page for Speaking Practice Problems-->
+
 {% extends 'ComSemApp/sidebar.html' %}
 
 {% block content %}
@@ -27,30 +29,22 @@
     {% include 'ComSemApp/student/assessment_audio_recording.html' %}
     <script>
         var encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
-        initializeRecorder()
+        initializeRecorder() // from encoderPath, initializes recording device
+        // Audio currently not being recorded
     </script>
 </div>
-
-{% if attempt.audio %}
-<script>
-    $(function(){
-        
-        $('#recordingslist').html("<audio controls id='audioElement' src='" + "{{ attempt.audio.url }}" + "' type='audio/mpeg'></audio>");
-        $('#deleteRecordingButton').show();
-    })
-</script>
-{% endif %}
-
 
 <div class="row">
     <div class="col-12 text-center">
         <div class="btn-group" role="group">
-            <button type="button" id="saveAttempt" class="btn btn-outline-success">Submit</button>
+            <button type="button" id="saveAttempt" class="btn btn-outline-success">Finished Recording</button>
         </div>
     </div>
 </div>
 
 
+
+<!-- Button script for finishing recording. Will need to be changed to call when disabled-->
 <script>
 $("#saveAttempt").click(function(e){
     e.preventDefault()
