@@ -269,7 +269,7 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
 
         return attempts
     
-    def get_expressions_v2(self, worksheet, reactions, weights):
+    def get_expressions(self, worksheet, reactions, weights):
         """ Get a list of expressions in a given worksheet
         --> 4.09.2020 Modified with new parameters
         
@@ -375,70 +375,6 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
         
         return expression_qset
 
-    def get_expressions(self, worksheet, reactions):
-        """ Get a list of expressions in a given worksheet
-        
-        Arguments:
-            worksheet {Worksheet} -- a Worksheet object
-        
-        Returns:
-            list -- a list of expressions contained in worksheet
-        """
-        import statistics
-        if len(reactions) > 1:
-            course_avg = statistics.mean(reactions) 
-            course_std = statistics.stdev(reactions)
-        else:
-            course_avg = 0
-            course_std = 1
-
-        expression_filters = Q(worksheet=worksheet)
-        if not worksheet.display_all_expressions:
-            expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
-
-        expression_qset = Expression.objects.filter(expression_filters)
-
-        for e in expression_qset:
-            e.last_submission = StudentSubmission.objects.filter(student=self.student, worksheet=e.worksheet).latest('date').date.date()
-            
-            e.attempts = self.get_attempts(e)
-            e.has_audio = False
-            
-            for a in e.attempts:
-                if a.audio:
-                    e.has_audio = True
-            
-            # AF - gets the number of attempts it took for the student to get the expression correct
-            attempt_factor = len([x for x in e.attempts if not x.text_correct]) + 1
-            
-            # AF - gets the reviews
-            past_correct_review = ReviewAttempt.objects.filter(expression=e.id, correct=True)
-            past_incorrect_count = len(ReviewAttempt.objects.filter(expression=e.id, correct=False))
-            
-            # AF - get the number of days since reviewed or submitted an attempt
-            if past_correct_review:
-                time_since_view = (datetime.date.today() - past_correct_review.latest("date").date.date()).days
-                expression_z = (statistics.mean([x.response_time for x in past_correct_review]) - course_avg)/course_std
-            else:
-                time_since_view = (datetime.date.today() - e.last_submission).days
-                expression_z = 0
-
-            # AF - placeholder algorithm: 1/(number of initial attempts + days since last seen  + 
-            #      expression reaction time vs course reaction time z score + number of incorrect review attempts - number of correct review attempts)
-            e.practice_score = int(100/(max(0, attempt_factor + time_since_view + expression_z + past_incorrect_count - len(past_correct_review)) + 1))
-
-            if e.practice_score <= 33:
-                e.bar_style = "bg-danger"
-                e.border_style = "border-danger"
-            elif e.practice_score <= 66:
-                e.bar_style = "bg-warning"
-                e.border_style = "border-warning"
-            else:
-                e.bar_style = "bg-primary"
-                e.border_style = "border-success"
-        
-        return expression_qset
-
     def get_context_data(self, **kwargs):
         """Get worksheet data for a student in a given course
         
@@ -463,7 +399,7 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
             if complete_submission_status == 'complete': # vhl if there is a complete worksheet
                 worksheet.last_submission_status = 'complete'
             if worksheet.last_submission_status == 'complete':
-                worksheet.expression_list = self.get_expressions_v2(worksheet, course_response_times, WEIGHTS)
+                worksheet.expression_list = self.get_expressions(worksheet, course_response_times, WEIGHTS)
                 # worksheet.expression_list = self.get_expressions(worksheet, course_response_times)
                 for e in worksheet.expression_list:
                     for f in exp_data:
@@ -834,7 +770,7 @@ class SpeakingPracticeGeneratorView(StudentViewMixin, DetailView):
             if complete_submission_status == 'complete': # vhl if there is a complete worksheet
                 worksheet.last_submission_status = 'complete'
             if worksheet.last_submission_status == 'complete':
-                worksheet.expression_list = self.get_expressions_v2(worksheet, course_response_times, WEIGHTS)
+                worksheet.expression_list = self.get_expressions(worksheet, course_response_times, WEIGHTS)
                 # worksheet.expression_list = self.get_expressions(worksheet, course_response_times)
                 for e in worksheet.expression_list:
                     for f in exp_data:
