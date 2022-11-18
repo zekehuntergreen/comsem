@@ -681,7 +681,7 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
 class SpeakingPracticeGeneratorView(StudentViewMixin, CourseViewMixin, TemplateView):
     """
       Serves the content of the speaking practice page which lists expressions and
-      prompts user to select the onse they want to practice.
+      prompts user to select the ones they want to practice.
     """
     template_name: str = 'ComSemApp/student/assessment_generator.html'
 
