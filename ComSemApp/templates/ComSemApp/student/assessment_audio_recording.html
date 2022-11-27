@@ -1,0 +1,57 @@
+<!--Page holding the audio Rrecording buttons for recording audio in the Speaking Practice feature-->
+<input id="audioUrl" type="hidden" value="{% url 'transcribe_audio' %}">
+
+<div class="col-md-12">
+	<div class="form-group">
+
+		<label for="recorderRecord">Record Reformulation:</label><br />
+
+		<div style="display: none">
+			<div>
+				<label>monitorGain</label>
+				<input id="monitorGain" type="number" value="0" />
+			</div>
+
+			<div>
+				<label>numberOfChannels</label>
+				<input id="numberOfChannels" type="number" value="1" />
+			</div>
+
+			<div>
+				<label>encoderSampleRate</label>
+				<input id="encoderSampleRate" type="number" value="48000" />
+			</div>
+
+			<div>
+				<label>bitRate</label>
+				<input id="bitRate" type="number" value="64000" />
+			</div>
+		</div>
+
+		<button id="start" class="btn btn-sm btn-danger csRecorderButton" type="button" disabled>
+			<i class="ti-control-record"></i>
+		</button>
+
+		<button id="pause" class="btn btn-sm btn-warning csRecorderButton" type="button" disabled>
+			<i class="ti-control-pause"></i>
+		</button>
+
+		<button id="resume" class="btn btn-sm btn-warning csRecorderButton" type="button" disabled>
+			<i class="ti-control-play"></i>
+		</button>
+
+		<button id="stopButton" class="btn btn-sm btn-success csRecorderButton" type="button" disabled>
+			<i class="ti-control-stop"></i>
+		</button>
+
+		<div class="float-right">
+			<div id="recordingslist" style="display: inline-block"></div>
+
+			<button type="button" id="deleteRecordingButton" class="btn btn-sm btn-outline-danger csRecorderButton" style="display:none">
+				<i class="ti-trash"></i>
+			</button>
+
+		</div>
+
+	</div>
+</div>

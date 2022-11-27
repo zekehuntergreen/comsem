@@ -1,3 +1,5 @@
+<!-- Page for Speaking Practice Problems-->
+
 {% extends 'ComSemApp/sidebar.html' %}
 
 {% block content %}
@@ -19,4 +21,86 @@
 <progress value="0" max="15" id="timer_bar"></progress>
 <br>
 <a href="{% url 'student:speaking_practice_results' course.id %}">Results</a>
+
+{% load static %}
+
+<!-- recordmp3 needed by ComSemRecording -->
+<script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
+<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
+
+<input hidden type="text" id="create_or_update_url">
+
+<!-- original -->
+{% if worksheet.display_original %}
+<div class="row">
+    <div class="col-12">
+        <label>Original Expression:</label>
+        <p id="ExprToEdit">{{ expression.expression }}</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- AUDIO RECORDING -->
+<div class="row" id="display_reformulation_audioRow">
+    {% include 'ComSemApp/student/assessment_audio_recording.html' %}
+    <script>
+        var encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
+        initializeRecorder() // from encoderPath, initializes recording device
+        // Audio currently not being recorded
+    </script>
+</div>
+
+<div class="row">
+    <div class="col-12 text-center">
+        <div class="btn-group" role="group">
+            <button type="button" id="saveAttempt" class="btn btn-outline-success">Finished Recording</button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Button script for finishing recording. Will need to be changed to call when disabled-->
+<script>
+$("#saveAttempt").click(function(e){
+    e.preventDefault()
+
+    if( $("#CorrectedExpr").val().trim() == "" ){
+        // must have a valid expression
+        alert("Please enter a correction")
+        return;
+    }
+
+    // because of audio, we must send a formdata object
+    var attemptFormData = new FormData();
+    attemptFormData.append( 'reformulation_text', $("#CorrectedExpr").val() );
+
+    var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? true : false
+    if (reformulation_audio){
+        attemptFormData.append( 'audio', audioReformulationBlob )
+    } else {
+        attemptFormData.append('delete_audio', true)
+    }
+
+    $.ajax({
+        type: "POST",
+        url: $("#create_or_update_url").val(),
+        data: attemptFormData,
+        processData: false,
+        contentType: false,
+        success: function(response){
+            cs_notification('success', "Expression Saved")
+            // update expressions table
+            drawExpressionsTable();
+        },
+        error: function(jqXHR, textStatus, errorThrown){
+            cs_ajax_error(jqXHR, textStatus, errorThrown)
+        },
+    });
+
+    clearEditor()
+    audioReformulationBlob = null; // clears reformulation
+});
+</script>
+
 {% endblock %}
