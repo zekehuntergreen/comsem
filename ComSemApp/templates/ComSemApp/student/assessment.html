@@ -42,26 +42,86 @@
 
 <!-- AUDIO RECORDING -->
 <div class="row" id="display_reformulation_audioRow">
-    {% include 'ComSemApp/student/assessment_audio_recording.html' %}
+  <input id="audioUrl" type="hidden" value="{% url 'transcribe_audio' %}">
+
+    <div class="col-md-12">
+      <div class="form-group">
+        <div style="display: none">
+          <div>
+            <label>monitorGain</label>
+            <input id="monitorGain" type="number" value="0" />
+          </div>
+    
+          <div>
+            <label>numberOfChannels</label>
+            <input id="numberOfChannels" type="number" value="1" />
+          </div>
+    
+          <div>
+            <label>encoderSampleRate</label>
+            <input id="encoderSampleRate" type="number" value="48000" />
+          </div>
+    
+          <div>
+            <label>bitRate</label>
+            <input id="bitRate" type="number" value="64000" />
+          </div>
+        </div>
+
+        <button id="start" class="btn btn-sm btn-danger csRecorderButton" type="button" disabled>
+          <i class="ti-control-record"></i>
+        </button>
+    
+        <button id="stopButton" class="btn btn-sm btn-success csRecorderButton" type="button" disabled>
+          <i class="ti-control-stop"></i>
+        </button>
+    
+        <div class="float-right">
+          <div id="recordingslist" style="display: inline-block"></div>
+        </div>
+      </div>
+    </div>
+    
     <script>
+        src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"
+        src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"
         var encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
         initializeRecorder() // from encoderPath, initializes recording device
         // Audio currently not being recorded
     </script>
 </div>
-
-<div class="row">
-    <div class="col-12 text-center">
-        <div class="btn-group" role="group">
-            <button type="button" id="saveAttempt" class="btn btn-outline-success">Finished Recording</button>
-        </div>
-    </div>
-</div>
-
+{% if attempt.audio %}
+<script>
+    $(function(){
+        $('#recordingslist').html("<audio controls id='audioElement' src='" + "{{ attempt.audio.url }}" + "' type='audio/mpeg'></audio>");
+        $('#deleteRecordingButton').show();
+    })
+</script>
+{% endif %}
 
 
 <!-- Button script for finishing recording. Will need to be changed to call when disabled-->
 <script>
+
+  $( document ).ready(function() {
+		console.log( "document loaded" );
+
+		$(window).on("beforeunload", function(event) {
+			event.preventDefault();
+			// This text won't show in modern browsers :(
+			event.returnValue = 'WARNING: If you leave this page, you will not be able to continue the review where you left off. Exit anyway?';
+			return event.returnValue;
+		});
+
+		//change_container("play-audio");
+
+		// initializing review
+		$("#begin-review").click( function() {
+		    current_question = 1;
+			start_review();
+		});
+	});
+/*
 $("#saveAttempt").click(function(e){
     e.preventDefault()
 
@@ -100,7 +160,9 @@ $("#saveAttempt").click(function(e){
 
     clearEditor()
     audioReformulationBlob = null; // clears reformulation
+
 });
+*/
 </script>
 
 {% endblock %}
