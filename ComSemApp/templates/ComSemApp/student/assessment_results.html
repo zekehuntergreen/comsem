@@ -10,21 +10,20 @@
 			<h4 class="header-title m-t-0 m-b-20">Verbal Practice</h4>
 			<!-- bar displaying student's progress throughout the reviewsheet -->
 			<div class="progress"  style="height: 20px;">
-  				<div class="progress-bar bg-success" role="progressbar" style="height: 20px; width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+  				<div class="progress-bar bg-success" role="progressbar" style="height: 20px; width: 100%" aria-valuenow="100" aria-valuemin="100" aria-valuemax="100"></div>
 			</div>
 			<div class="card">
-                <div class='card-body d-none end'> <!--card for displaying results-->
+                <div class='card-body'> <!--card for displaying results-->
                     <h1 class="card-title">Review complete!</h1>
                     <table id="results_table" class="table table-hover"> <!--table for displaying results of a worksheet-->
                         <thead>
                             <tr>
-                                <th>Expression Shown</th> <!--display term that students saw in question-->
-                                <th class="text-center">Correct Response</th> <!--displays if term is gramatically correct-->
-                                <th class="text-center">Result</th> <!--displays if the student's answer was correct-->
+                                <th>Student Transcription</th> <!--display term that students saw in question-->
+                                <th class="text-center">Accuracy Score</th> <!--displays if term is gramatically correct-->
+                                <th class="text-center">Fluency Score</th> <!--displays if the student's answer was correct-->
                             </tr>
                         </thead>
                         <tbody id="result_body">
-                            Hello
                             <!-- Results populated here -->
                         </tbody>
                     </table>
@@ -54,85 +53,21 @@
 
 	// AF - Sets up the screen height according to the tallest sec
 	// 		Should be replaced with a more dynamic option!
-	setEqualHeight('sec');
 
-	// AF - shuffle the expressions
-	review_data.sort(() => Math.random() - 0.5);
-
-	get_bar_increments();
 
 	// AF - Get a list of points (0-100) that the progress bar will stop at as the student
 	//		completes the review
-	function get_bar_increments() {
-		let inc = 100 / review_data.length;
-		let prog = 0;
-		for (let j = 0; j < review_data.length - 1; j++) {
-			prog += inc;
-			increments.push(prog);
-		}
-		increments.push(100);
-	}
-
-	// AF - Hide all elements having classname
-	function hide(classname) {
-		$('.' + classname).addClass("d-none");
-	}
-
-	// AF - Show all elements having classname
-	function show(classname) {
-		$('.' + classname).removeClass("d-none");
-	}
 
 	// AF - Use to set containers to matching heights, 
 	//		use with classgroup={'ec','sec'} where 'ec' will
 	//		align items with
-	function setEqualHeight(classgroup) {
-		$('.card-box').addClass("invisible");
-		show(classgroup);
-		$("div." + classgroup).height("auto");
-
-		var tallestcolumn = 0;
-		$("div." + classgroup).each(function() {
-			currentHeight = $(this).height();
-			if (currentHeight > tallestcolumn) {
-				tallestcolumn = currentHeight;
-			}
-		});
-		$("div." + classgroup).height(tallestcolumn);
-
-		hide(classgroup)
-		show(current_container_id);
-		$('.card-box').removeClass("invisible");
-	}
    
 	// AF - initializes timer to the current time
-	function start_time_interval () {
-		start_time = getnow();
-		timer = setInterval(update_timer, 100);
-	}
-	
 	// AF - update timer with time since start
-	function update_timer() {
-		current_time = (getnow() - start_time) / 1000;
-		$("#timedisplay").html(pad2(current_time.toFixed(1)));
-		if (current_time >= MAX_TIME) {
-			clearInterval(timer);
-			post_max_time_exceeded(null);
-			current_time = 0;
-			// go to continue screen
-			process_response();
-		} 
-	}
 
 	// AF - pad out number to format as 00.0
-	function pad2(number) {
-    	return (number < 10 ? '0' : '') + number;
-   	}
 
 	// AF - return the current time
-	function getnow() {
-		return new Date().getTime();
-	}
 
 	// AF - switch current_container_id to new_container_id and
 	//		hide/show secs accordingly
@@ -181,7 +116,7 @@
         $("#result_body").append(`<p>Hello3</p>`);
         // check is displayed if a student answered correctly and x is displayed if they are incorrect or skipped
         for(i = 0; i < current_question; i++){ // displays original incorrect expression and term
-            
+            $("#result_body").append(` ${review_data[i]['transcription']}`)
             if (review_data[i]['correct'] === true){ // checks if student is correct
                 // displays correct is student is correct
                 if (review_data[i]['type'] === 'AUDIO'){ // displays icon if audio is present
@@ -330,12 +265,7 @@
 		});
 
 	});
-
-    start_review();
-    setEqualHeight('ec');
     display_results();
-    change_container("end");
-    $(window).off("beforeunload");
     
 </script>
 
