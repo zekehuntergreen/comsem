@@ -24,6 +24,28 @@
                             </tr>
                         </thead>
                         <tbody id="result_body">
+							<script>
+								//let practice_data = {{ practice_data | safe }};
+								let practice_data = [{transcription:"This is a sentence transcription.",accuracy:50,fluency:75},
+													 {transcription:"This is a second sentence transcription.",accuracy:90,fluency:70}]
+								display_results();
+								function display_results(){
+									for(i = 0; i < practice_data.length; i++){
+										$("#result_body").append(`
+											<tr>
+												<td>
+													${practice_data[i]['transcription']}
+												</td>
+												<td class="text-center">
+													${practice_data[i]['accuracy']}
+												</td>
+												<td class="text-center">
+													${practice_data[i]['fluency']}
+												</td>
+											</tr>`);
+									}
+								}
+							</script>
                             <!-- Results populated here -->
                         </tbody>
                     </table>
@@ -32,241 +54,7 @@
         </div>
     </div>
 </div>
+
 <a href="{% url 'student:course' course.id %}">Return Home</a>
-<script>
-	// AF - set to 10.0 for production!
-	//const MAX_TIME = 10.0;
-	const MAX_TIME = 10.0;
-
-	let review_data = {{ review_data | safe }};
-
-	let student = "{{ student_id | safe }}";
-	let course = "{{ course.id| safe }}";
-
-	let current_container_id = 'start';
-	let start_time;
-	let timer; 
-	let current_time = 0; // variable for current time
-	let current_question; // variable for number of questions a user gets through
-	let increments = [];  
-
-
-	// AF - Sets up the screen height according to the tallest sec
-	// 		Should be replaced with a more dynamic option!
-
-
-	// AF - Get a list of points (0-100) that the progress bar will stop at as the student
-	//		completes the review
-
-	// AF - Use to set containers to matching heights, 
-	//		use with classgroup={'ec','sec'} where 'ec' will
-	//		align items with
-   
-	// AF - initializes timer to the current time
-	// AF - update timer with time since start
-
-	// AF - pad out number to format as 00.0
-
-	// AF - return the current time
-
-	// AF - switch current_container_id to new_container_id and
-	//		hide/show secs accordingly
-	function change_container(new_container_id) {
-		hide(current_container_id);
-		show(new_container_id);
-		current_container_id = new_container_id;
-	};
-
-	// AF - Initialize the reviewsheet
-	function start_review() {
-		i = 0;
-		// Show the first expression
-		set_display(review_data[i]);
-	}
-    
-	function set_display(exp_ob) {
-		if (exp_ob['type'] === 'AUDIO') {
-			change_container("play-audio");
-			var audio_ob = document.getElementById(exp_ob['audio_id']);
-			// Time delay to play audio
-			setTimeout(function() {
-				audio_ob.play();
-				// begin interval 0.5s after audio is done playing.
-				console.log("Delaying for: ", audio_ob.duration );
-				setTimeout(function() {
-					$("#expression-term").html("<i  class='icon fa fa-volume-up fa-lg'></i>");
-					change_container("show-expression");
-					start_time_interval();
-				}, (audio_ob.duration * 1000) + 500);
-				//}, 5500);
-			}, 500);
-			
-
-		} else {
-			$("#expression-term").html(exp_ob['term']);
-			change_container("show-expression");
-			start_time_interval();
-		}
-	}
-    
-    // VL - This function displays student results
-    function display_results() {
-        $("#result_body").append(`Hello1`);
-        $("#result_body").append(<p>Hello2</p>);
-        $("#result_body").append(`<p>Hello3</p>`);
-        // check is displayed if a student answered correctly and x is displayed if they are incorrect or skipped
-        for(i = 0; i < current_question; i++){ // displays original incorrect expression and term
-            $("#result_body").append(` ${review_data[i]['transcription']}`)
-            if (review_data[i]['correct'] === true){ // checks if student is correct
-                // displays correct is student is correct
-                if (review_data[i]['type'] === 'AUDIO'){ // displays icon if audio is present
-                    $("#result_body").append(`<tr><td><i class="icon fa fa-volume-up"></i> ${review_data[i]['term']}</td><td class="text-center">${review_data[i]['answer'].toUpperCase()}</td><td class="text-center"><i class=" fa fa-check-circle btn-outline-primary"></i></td></tr>`); 
-                
-                } else { // not audio
-                    $("#result_body").append(`<tr><td>${review_data[i]['term']}</td><td class="text-center">${review_data[i]['answer'].toUpperCase()}</td><td class="text-center"><i class=" fa fa-check-circle btn-outline-primary"></i></td></tr>`); 
-                }
-            } else {
-         
-                // displays incorrect if student is incorrect
-                if (review_data[i]['type'] === 'AUDIO'){
-                    $("#result_body").append(`<tr><td><i class="icon fa fa-volume-up"></i> ${review_data[i]['term']}</td><td class="text-center">${review_data[i]['answer'].toUpperCase()}</td><td class="text-center"><i class="fa fa-times-circle btn-outline-danger"></i></td></tr>`);
-                } else {
-                    $("#result_body").append(`<tr><td>${review_data[i]['term']}</td><td class="text-center">${review_data[i]['answer'].toUpperCase()}</td><td class="text-center"><i class="fa fa-times-circle btn-outline-danger"></i></td></tr>`);
-                }
-            }
-        }
-    }
-
-    // AF - post a ReviewAttempt if the student has exceeded MAX_TIME
-	function post_max_time_exceeded(event) {
-		clearInterval(timer);
-		let attemptFormData = new FormData();
-        review_data[i]['correct'] = false;
-		attemptFormData.append( 'correct', false );
-		attemptFormData.append( 'student', student );
-		attemptFormData.append( 'expression', review_data[i]['id']);
-		attemptFormData.append( 'response_time', MAX_TIME );
-		attemptFormData.append( 'course', course);
-        
-		$.ajax({
-			type: "POST",
-			url: $("#save_attempt_url").val(),
-			data: attemptFormData,
-			processData: false,
-			contentType: false,
-			success: function(response){
-				
-				cs_notification('warning', "Maximum time exceeded!");
-				
-			},
-			error: function(jqXHR, textStatus, errorThrown){
-				cs_ajax_error(jqXHR, textStatus, errorThrown);
-			},
-		}); 
-	}
-
-	// AF - post a ReviewAttempt with response_value at time
-	function post_response(event, time, response_value) {
-		console.log(time);
-		event.preventDefault();
-		let attemptFormData = new FormData();
-		let is_correct = (response_value == review_data[i]['answer']);
-		review_data[i]['correct'] = is_correct;
-        
-		attemptFormData.append( 'correct', is_correct );
-		attemptFormData.append( 'student', student );
-		attemptFormData.append( 'expression', review_data[i]['id']);
-		attemptFormData.append( 'response_time', time );
-		attemptFormData.append( 'course', course);
-
-		$.ajax({
-			type: "POST",
-			url: $("#save_attempt_url").val(),
-			data: attemptFormData,
-			processData: false,
-			contentType: false,
-			success: function(response){
-				// REMOVE THIS FOR REAL VERSION!!
-				cs_notification('success', "Review Attempt Saved!");
-			},
-			error: function(jqXHR, textStatus, errorThrown){
-				cs_ajax_error(jqXHR, textStatus, errorThrown);
-			},
-		}); 
-	}
-
-	// AF - enter continue and allow user to go to next expression or choose to end early,
-	//		OR end automatically if no expressions left
-	function process_response() {
-		$('.progress-bar').attr('aria-valuenow', increments[i]).css('width', increments[i] + "%");
-		if (increments[i] === 100) {
-			$('.progress-bar').removeClass("bg-success");
-			$('.progress-bar').addClass("bg-primary");
-		}
-		i++;
-		if (i >= review_data.length) {
-			// If there are no more expressions, go to end
-			display_results(); // populates results page
-			change_container("end"); // displays results page
-			$(window).off("beforeunload");
-		} else {
-			// Allow user to go on
-			change_container("continue");
-		}
-	}
-
-	// AF - Adds a warning if user attempts to exit the page when 
-	
-	$( document ).ready(function() {
-		console.log( "document loaded" );
-
-		$(window).on("beforeunload", function(event) {
-			event.preventDefault();
-			// This text won't show in modern browsers :(
-			event.returnValue = 'WARNING: If you leave this page, you will not be able to continue the review where you left off. Exit anyway?';
-			return event.returnValue;
-		});
-
-		//change_container("play-audio");
-
-		// initializing review
-		$("#begin-review").click( function() {
-		    current_question = 1;
-			start_review();
-		});
-
-		// get responses and stop the timer
-		$(".review-response").mousedown( function(e) {
-			clearInterval(timer);
-			post_response(e, current_time, this.value);
-			current_time = 0;
-			// go to continue screen
-			process_response();
-		});
-
-		// direct to appropriate sec based on continue response
-		$(".continue-response").click( function() {
-			if (this.value === "quit") {
-			    display_results();
-				change_container("end");
-				$(window).off("beforeunload");
-			} else if (this.value === "next-expression") {
-				set_display(review_data[i])
-				current_question += 1;
-			}
-		}); 
-
-		$(window).resize(function() {
-			if (current_container_id == 'start') {
-				setEqualHeight('sec');
-			} else if (current_container_id != 'end') {
-				setEqualHeight('ec');
-			}
-		});
-
-	});
-    display_results();
-    
-</script>
 
 {% endblock %}
