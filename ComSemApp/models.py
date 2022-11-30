@@ -25,6 +25,8 @@ STUDENT_SUBMISSION_STATUSES = [('pending', 'pending'), ('ungraded', 'ungraded'),
 def audio_directory_path(directory, instance):
     return "reformulations/" + str(uuid.uuid4()) + ".ogg"
 
+def speaking_practice_audio_directory(directory, instance):
+    return "speaking_practice_audio/" + str(uuid.uuid4()) + ".ogg"
 
 # TODO : Split these models into admin, teacher, student, corpus apps
 # STUDENTS, TEACHERS, ADMINS
@@ -305,6 +307,32 @@ class ReviewAttempt(models.Model):
     class Meta:
         verbose_name = "Review Attempt"
 
+
+class SpeakingPracticeAttempt(models.Model):
+    """
+        This model stores students' speaking practice attempts in a similar vein
+        to the ReviewSheet's ReviewAttempt
+        Inherits from:
+            django.db.models.Model
+    """
+    # The expression the student attempted
+    expression = models.ForeignKey(Expression, on_delete=models.CASCADE)
+    # The student who attempted
+    student = models.ForeignKey(Student, on_delete=models.SET_NULL, blank=True, null=True)
+    # The audio file from the student's attempt
+    audio = models.FileField(upload_to=speaking_practice_audio_directory, null=True, blank=True)
+    # The date and time the student made the attempt
+    date = models.DateTimeField(auto_now_add=True, verbose_name='Date and Time')
+    # The student's correctness score --- Accepts numbers 00.00-99.99
+    correct = models.DecimalField(max_digits=4,decimal_places=2, verbose_name='Correctness Score')
+    # The number of words per minute in the student's recording --- Accepts numbers 000.00-999.99
+    wpm = models.DecimalField(max_digits=5,decimal_places=2, verbose_name='Words per Minute')
+
+    def __str__(self):
+        return "%d - %5s - %s" % (self.id, str(self.correct), self.expression)
+
+    class Meta:
+        verbose_name = "Speaking Practice Attempt"
 
 # WORDS, SEQUENTIAL WORDS, TAG
 
