@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.http import JsonResponse
 
-from ComSemApp.models import Teacher, Worksheet, StudentSubmission
+from ComSemApp.models import Course, Teacher, Worksheet, StudentSubmission
 
 
 class RoleViewMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -72,7 +72,7 @@ class CourseViewMixin(object):
     def dispatch(self, request, *args, **kwargs):
         # is the user a teacher / student for this course ?
         course_id = kwargs.get('course_id', None)
-        self.course = self._check_valid_course(course_id)
+        self.course : Course = self._check_valid_course(course_id)
         if not self.course:
             return self._handle_invalid_course()
         return super(CourseViewMixin, self).dispatch(request, *args, **kwargs)

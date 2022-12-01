@@ -1,4 +1,5 @@
 import datetime, uuid
+from __future__ import annotations # This is necessary for some type hinting
 
 from django.db import models
 from django.conf import settings
@@ -6,7 +7,7 @@ from django.utils import timezone
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 from ComSemApp.teacher import constants as teacher_constants
 
@@ -106,6 +107,7 @@ class Course(models.Model):
         return "active" if active else "inactive"
 
     def get_visible_worksheets(self):
+        self.worksheets : QuerySet[Worksheet]
         return self.worksheets.exclude(status=teacher_constants.WORKSHEET_STATUS_PENDING)
 
     class Meta:
@@ -200,8 +202,8 @@ class Worksheet(models.Model):
             return False
 
 
-    def last_submission(self, student):
-        last_submission = None
+    def last_submission(self, student : Student) -> StudentSubmission | None:
+        last_submission : StudentSubmission | None = None
         if StudentSubmission.objects.filter(worksheet_id=self.id, student=student).exists():
             last_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student).latest()
         return last_submission

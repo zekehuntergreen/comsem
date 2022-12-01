@@ -1,5 +1,6 @@
 import json
-import os
+from statistics import mean, stdev
+from typing import Any
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -279,10 +280,9 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
         Returns:
             list -- a list of expressions contained in worksheet
         """
-        import statistics
         if len(reactions) > 1:
-            course_avg = statistics.mean(reactions) 
-            course_std = statistics.stdev(reactions)
+            course_avg = mean(reactions) 
+            course_std = stdev(reactions)
         else:
             course_avg = 0
             course_std = 1
@@ -314,8 +314,8 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
             # AF - get the number of days since reviewed or submitted an attempt
             if past_correct_review:
                 time_since_view = (datetime.date.today() - past_correct_review.latest("date").date.date()).days
-                expression_z = (statistics.mean([x.response_time for x in past_correct_review]) - course_avg)/course_std
-                avg_rt = statistics.mean([x.response_time for x in past_correct_review])
+                expression_z = (mean([x.response_time for x in past_correct_review]) - course_avg)/course_std
+                avg_rt = mean([x.response_time for x in past_correct_review])
                 
             else:
                 time_since_view = (datetime.date.today() - e.last_submission).days
@@ -400,7 +400,6 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
                 worksheet.last_submission_status = 'complete'
             if worksheet.last_submission_status == 'complete':
                 worksheet.expression_list = self.get_expressions(worksheet, course_response_times, WEIGHTS)
-                # worksheet.expression_list = self.get_expressions(worksheet, course_response_times)
                 for e in worksheet.expression_list:
                     for f in exp_data:
                         exp_data[f].append(e.raw_figs[f])
@@ -610,7 +609,7 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
     def foo():
         pass
 
-class SpeakingPracticeGeneratorView(StudentViewMixin, DetailView):
+class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
     # These class variables are a necessary part of the Django DetailView class
     context_object_name : str = 'speaking_practice_generator'
     template_name: str = 'ComSemApp/student/assessment_generator.html'
@@ -646,14 +645,12 @@ class SpeakingPracticeGeneratorView(StudentViewMixin, DetailView):
           Arguments:
             worksheet -- the Worksheet object to gather expressions from
 
-        
           Returns:
             list -- a list of expressions contained in worksheet
         """
-        import statistics
         if len(reactions) > 1:
-            course_avg = statistics.mean(reactions) 
-            course_std = statistics.stdev(reactions)
+            course_avg = mean(reactions) 
+            course_std = stdev(reactions)
         else:
             course_avg = 0
             course_std = 1
@@ -685,8 +682,8 @@ class SpeakingPracticeGeneratorView(StudentViewMixin, DetailView):
             # AF - get the number of days since reviewed or submitted an attempt
             if past_correct_review:
                 time_since_view = (datetime.date.today() - past_correct_review.latest("date").date.date()).days
-                expression_z = (statistics.mean([x.response_time for x in past_correct_review]) - course_avg)/course_std
-                avg_rt = statistics.mean([x.response_time for x in past_correct_review])
+                expression_z = (mean([x.response_time for x in past_correct_review]) - course_avg)/course_std
+                avg_rt = mean([x.response_time for x in past_correct_review])
                 
             else:
                 time_since_view = (datetime.date.today() - e.last_submission).days
@@ -746,32 +743,30 @@ class SpeakingPracticeGeneratorView(StudentViewMixin, DetailView):
         
         return expression_qset
 
-    def get_context_data(self, **kwargs):
-        """Get worksheet data for a student in a given course
-        
-        Returns:
-            dict -- context for creating generate_reviewsheet.html
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """
+            Get worksheet data for a student in a given course
         
-        WEIGHTS = {"attempts":0.1, "days_since_review":0.2,  "rt":0.2, "pct_correct":0.5} #a static that we can change later if we want to add adjustable weights
-        context = super(ReviewsheetGeneratorView, self).get_context_data(**kwargs)
+            Returns:
+                dict -- context for creating generate_reviewsheet.html
+        """
+        context : dict[str, Any] = super(ReviewsheetGeneratorView, self).get_context_data(**kwargs)
         worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
-        course_response_times = [x.response_time for x in ReviewAttempt.objects.filter(
-                    student=self.student, expression__worksheet__course=self.course, correct=True)]
+        practice_attempts : QuerySet[SpeakingPracticeAttempt] = \
+            SpeakingPracticeAttempt.objects.filter(student=self.student, expression__worksheet__course=self.course).get_queryset()
         exp_data = {"attempts":[], "days_since_review":[],  "rt":[], "pct_correct":[]}
         
-        # TODO should this logic be in the worksheet model ?
         for worksheet in worksheets:
             last_submission = worksheet.last_submission(self.student)
             complete_submission = worksheet.complete_submission(self.student) # vhl checks for complete worksheets
+
             complete_submission_status = "complete" if complete_submission else "none"
-    
-            worksheet.last_submission_status = last_submission.status if last_submission else "none"
+            last_submission_status = last_submission.status if last_submission else "none"
+            
             if complete_submission_status == 'complete': # vhl if there is a complete worksheet
-                worksheet.last_submission_status = 'complete'
-            if worksheet.last_submission_status == 'complete':
-                worksheet.expression_list = self.get_expressions(worksheet, course_response_times, WEIGHTS)
-                # worksheet.expression_list = self.get_expressions(worksheet, course_response_times)
+                last_submission_status = 'complete'
+            if last_submission_status == 'complete':
+                worksheet.expression_list = self.get_expressions(worksheet, practice_attempts)
                 for e in worksheet.expression_list:
                     for f in exp_data:
                         exp_data[f].append(e.raw_figs[f])
