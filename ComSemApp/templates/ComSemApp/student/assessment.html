@@ -3,20 +3,30 @@
 {% block content %}
 <h1>Speaking Practice View</h1>
 
+<p><span id="sentence_text" ></span></p>
+<p id="text_for_timer"><span id="text_timer"> </span> </p>
+<progress id="timer_bar"></progress>
+
 <script>
-    var given_time = 15;
-    var current_time =15;
-    var question_timer = setInterval(function(){
-      if(current_time <= 0){
-        clearInterval(question_timer);
+    const base_time = 2;
+    let sentence = 'This is the example that I love oh so much.';
+    document.getElementById("sentence_text").textContent = sentence
+    let sentence_len = sentence.length/10;
+    var current_time_reading = ((base_time * 10) + (sentence_len *10))/10; // In order to not have .00000001 show up ont he timer this is how decimals need to be done
+    let given_time = ((base_time * 10 + sentence_len * 10)) / 10;// starting time made dynamic with len
+    var reading_timer = setInterval(function(){//timer function tics every .1secs
+      if(current_time_reading <= 0){ // This runs when the timer is complete
+        clearInterval(reading_timer);
+        document.getElementById("timer_bar").style.visibility = "hidden";
+        document.getElementById("text_for_timer").style.visibility = "hidden";
       }
-      document.getElementById("timer_bar").value = given_time - current_time;
-      document.getElementById("text_timer").textContent = current_time;
-      current_time -= 1;
-    }, 1000);
+      document.getElementById("timer_bar").value = given_time - current_time_reading;
+      document.getElementById("text_timer").textContent = current_time_reading;
+      current_time_reading = (current_time_reading *10 - 1) /10;
+    }, 100);
+    document.getElementById("timer_bar").setAttribute("value", 0);// changes the bar to reflect dybamic allocation
+    document.getElementById("timer_bar").setAttribute("max", given_time);
 </script>
-<p> You have <span id="text_timer">15 </span> seconds left</p>
-<progress value="0" max="15" id="timer_bar"></progress>
 <br>
 <a href="{% url 'student:speaking_practice_results' course.id %}">Results</a>
 {% endblock %}
