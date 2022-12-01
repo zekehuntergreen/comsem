@@ -4,7 +4,7 @@ from __future__ import annotations # This is necessary for some type hinting
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db.models import Q, QuerySet
@@ -326,8 +326,8 @@ class SpeakingPracticeAttempt(models.Model):
     audio = models.FileField(upload_to=speaking_practice_audio_directory, null=True, blank=True)
     # The date and time the student made the attempt
     date = models.DateTimeField(auto_now_add=True, verbose_name='Date and Time')
-    # The student's correctness score --- Accepts numbers 00.00-99.99
-    correct = models.DecimalField(max_digits=4,decimal_places=2, verbose_name='Correctness Score')
+    # The student's correctness score --- Accepts numbers 00.00-100.00
+    correct = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], verbose_name='Correctness Score')
     # The number of words per minute in the student's recording --- Accepts numbers 000.00-999.99
     wpm = models.DecimalField(max_digits=5,decimal_places=2, verbose_name='Words per Minute')
 
