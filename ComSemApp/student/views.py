@@ -1,6 +1,7 @@
 import json
 from statistics import mean, stdev
 from typing import Any
+from datetime import datetime, timedelta
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -753,13 +754,34 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
         Returns:
             data : dict[str : float | int] -- The aggregate data for the expression (correct_attempts, days_since_review, wpm, last_score)
         """
-        correct_attempts : int = 0
-        days_since_review: int = 0
-        wpm : float = 0
-        last_score : float = 0
+        # aggregate_data is initialized with the worst possible values
+        aggregate_data : dict[str, float | int] = {'correct_attempts' : 0, 'days_since_review' : 999, 'wpm' : 0, 'last_score' : 0}
+        time_since_curr : timedelta
+        time_since_last : timedelta
+        curr_time : datetime 
 
+        if(attempts.count() == 0):
+            return aggregate_data
+        
+        curr_time = datetime.now()
+        time_since_last = curr_time - attempts[0].date
         for attempt in attempts:
-            if attempt.correct.
+            if attempt.correct == 100:
+                aggregate_data['correct_attempts'] += 1
+                # wpm will sum all the correct attempts and be averaged later (divided by correct_attempts)
+                aggregate_data['wpm'] += attempt.wpm
+            
+            # days_since_review is calculated at the end from the time_since_last timedelta
+            time_since_curr = curr_time - attempt.date
+            if time_since_curr < time_since_last:
+                time_since_last = time_since_curr
+                aggregate_data['last_score'] = attempt.correct
+
+        if(aggregate_data['correct_attempts'] != 0):
+            aggregate_data['wpm'] = aggregate_data['wpm'] / aggregate_data['correct_attempts']
+        aggregate_data['days_since_review'] = time_since_last.days
+
+        return aggregate_data
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """
