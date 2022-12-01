@@ -614,7 +614,7 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
     context_object_name : str = 'speaking_practice_generator'
     template_name: str = 'ComSemApp/student/assessment_generator.html'
     
-    WEIGHTS : dict[str,float] = {"correct_attempts":0.15, "days_since_review":0.1,  "wpm":0.25, "last_score":0.5}
+    WEIGHTS : dict[str,float] = {'correct_attempts': 0.15, 'days_since_review' : 0.1,  'wpm' : 0.25, 'last_score' : 0.5}
 
     def get_object(self):
         return self.course
@@ -743,6 +743,24 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
         
         return expression_qset
 
+    def get_expression_data(attempts : QuerySet[SpeakingPracticeAttempt]) -> dict[str, float | int]:
+        """
+        Gathers the aggregate context data for an expression given the queryset of attempts for that expression
+
+        Arguments:
+            attempts : QuerySet[SpeakingPracticeAttempt] -- The QuerySet of attempts for an expression
+
+        Returns:
+            data : dict[str : float | int] -- The aggregate data for the expression (correct_attempts, days_since_review, wpm, last_score)
+        """
+        correct_attempts : int = 0
+        days_since_review: int = 0
+        wpm : float = 0
+        last_score : float = 0
+
+        for attempt in attempts:
+            if attempt.correct.
+
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """
             Get worksheet data for a student in a given course
@@ -754,25 +772,34 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
         worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
         practice_attempts : QuerySet[SpeakingPracticeAttempt] = \
             SpeakingPracticeAttempt.objects.filter(student=self.student, expression__worksheet__course=self.course).get_queryset()
-        exp_data = {"attempts":[], "days_since_review":[],  "rt":[], "pct_correct":[]}
-        
-        for worksheet in worksheets:
-            last_submission = worksheet.last_submission(self.student)
-            complete_submission = worksheet.complete_submission(self.student) # vhl checks for complete worksheets
+        completed : list[Expression]
+        # every completed expression will have an entry in exp_data
+        # each entry will have the following data: 'correct_attempts', 'days_since_review', 'wpm', 'last_score'
+        exp_data : dict[Expression, dict[str, float | int]]
 
-            complete_submission_status = "complete" if complete_submission else "none"
-            last_submission_status = last_submission.status if last_submission else "none"
+        # {expression : {"attempts":[], "days_since_review":[],  "rt":[], "pct_correct":[]}}
+        
+        # for worksheet in worksheets:
+        #     last_submission = worksheet.last_submission(self.student)
+        #     complete_submission = worksheet.complete_submission(self.student) # vhl checks for complete worksheets
+
+        #     complete_submission_status = "complete" if complete_submission else "none"
+        #     last_submission_status = last_submission.status if last_submission else "none"
             
-            if complete_submission_status == 'complete': # vhl if there is a complete worksheet
-                last_submission_status = 'complete'
-            if last_submission_status == 'complete':
-                worksheet.expression_list = self.get_expressions(worksheet, practice_attempts)
-                for e in worksheet.expression_list:
-                    for f in exp_data:
-                        exp_data[f].append(e.raw_figs[f])
-            
-        #mins = { x: min([y for y in exp_data[x] if y >= 0]) for x in exp_data}
-        #ranges = { x:max([y for y in exp_data[x] if y >= 0]) - min([y for y in exp_data[x] if y >= 0]) for x in exp_data }
+        #     if complete_submission_status == 'complete': # vhl if there is a complete worksheet
+        #         last_submission_status = 'complete'
+        #     if last_submission_status == 'complete':
+        #         worksheet.expression_list = self.get_expressions(worksheet, practice_attempts.filter)
+        #         for e in worksheet.expression_list:
+        #             for f in exp_data:
+        #                 exp_data[f].append(e.raw_figs[f])
+
+        completed = [i for i in worksheets if i.complete_submission()]
+        for expression in completed:
+            exp_data[expression] = get_expression_data(expression, practice_attempts)
+    
+        # mins = { x: min([y for y in exp_data[x] if y >= 0]) for x in exp_data}
+        # ranges = { x:max([y for y in exp_data[x] if y >= 0]) - min([y for y in exp_data[x] if y >= 0]) for x in exp_data }
         # The previous two lines ran into an empty argument error wit min() and ranges would sometimes end up as 0
         # causing a divide by zero error later on. This was a quick fix near the end of the year so it migh tneed to be relooked at
         mins = {}

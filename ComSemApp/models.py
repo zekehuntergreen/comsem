@@ -185,13 +185,14 @@ class Worksheet(models.Model):
     def released(self):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
 
-    def complete_submission(self, student): # vhl checks if any submissions are complete
+    def complete_submission(self, student) -> StudentSubmissionManager | None: # vhl checks if any submissions are complete
         complete_submission = None
         if StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").exists():
             complete_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").latest()
         return complete_submission
 
-    def release(self):   
+    def release(self):
+        self.expressions : QuerySet[Expression]
         if self.expressions.exists(): # vhl releases no empty worksheets
             self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
             self.save()
