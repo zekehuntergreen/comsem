@@ -1,5 +1,30 @@
 {% extends 'ComSemApp/sidebar.html' %}
 
 {% block content %}
-<h1>Speaking Practice Instructions View</h1><a href="{% url 'student:speaking_practice_generator' course.id %}">Generator</a>
+
+<div class="row">
+
+    <div class="col-md-12 col-xl-3">
+		<div class="card-box w-100">
+			<a class="btn btn-danger btn-lg w-100" id='exit-review' href="{% url 'student:course' course.id%}"><i
+					class="fa fa-backward"></i> Back to Course</a>
+		</div>
+		{% include 'ComSemApp/course_details.html' %}
+		<div class="card-box w-100">
+			<a href="{% url 'student:speaking_practice_generator' course.id %}" class="btn btn-lg btn-success w-100 mb-1"><i class="icon fa fa-refresh mr-1"></i>Begin</a>
+		</div>
+    </div>
+    
+    <div class="col-md-12 col-xl-9">
+        <div class="card-box">
+            <h4 class="header-title m-t-0 m-b-20">Speaking Practice Instructions</h4>
+            <p>The goal of this practice is to allow you to improve your spoken English and the speed at which you understand the language. For each problem you will be given an incorrect sentence you have seen before, either in class or in worksheets, and be asked to reformulate it to the correct version. This practice was made to simulate a real conversation. To aid with this you will have a limited amount of time to read and correct the given sentence. This time will change based on the sentence length. You will be able to rest in between questions, but once you move on the timer instantly starts so be prepared. With that push the button below so you can get started.</p>
+        </div>
+    </div>
+</div>
+
+<!--  
+<a href="{% url 'student:speaking_practice_generator' course.id %}">Generator</a>
+-->
+
 {% endblock %}
