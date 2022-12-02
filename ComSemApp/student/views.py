@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView, View
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
@@ -688,15 +688,31 @@ class SpeakingPracticeGeneratorView(StudentViewMixin, CourseViewMixin, TemplateV
     def foo():
         pass
 
-class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, TemplateView):
+practice_data = [
+                    {'transcription1':"This is a sentence transcription.",'accuracy1':50,'fluency1':75},
+                    {'transcription1':"This is a second sentence transcription.",'accuracy1':90,'fluency1':70}
+                ]
+class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView):
     """
       Serves the content of the speaking practice results page presented after a
       session of practice.
     """
     template_name: str = 'ComSemApp/student/assessment_results.html'
 
-    def foo():
-        pass
+    def get_object(self):
+        return self.course
+
+
+    def get_context_data(self, **kwargs):
+        """Get worksheet data for a student in a given course
+        
+        Returns:
+            dict -- context for creating generate_reviewsheet.html
+        """
+        
+        context = super(SpeakingPracticeResultsView, self).get_context_data(**kwargs)
+        context['practice_data'] = practice_data
+        return context
 
 class SpeakingPracticeInstructionsView(StudentViewMixin, CourseViewMixin, TemplateView):
     """

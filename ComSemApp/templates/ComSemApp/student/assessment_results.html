@@ -21,32 +21,40 @@
                                 <th>Student Transcription</th> <!--display term that students saw in question-->
                                 <th class="text-center">Accuracy Score</th> <!--displays if term is gramatically correct-->
                                 <th class="text-center">Fluency Score</th> <!--displays if the student's answer was correct-->
-                            </tr>
+								<th class="text-center invisible"><button class="show-more" type="button">Show More</button></th>
+							</tr>
                         </thead>
                         <tbody id="result_body">
+							{% for item in practice_data%}
+							<tr>
+									<tr>
+										<td>
+											{{item.transcription1}}
+										</td>
+										<td class="text-center">
+											{{item.accuracy1}}%
+										</td>
+										<td class="text-center">
+											{{item.fluency1}}%
+										</td>
+										<td class="text-center">
+											<button class="show-more" type="button" url=>Show More</button>
+										</td>
+						
+							{% endfor %}
 							<script>
-								//let practice_data = {{ practice_data | safe }};
-								let practice_data = [{transcription:"This is a sentence transcription.",accuracy:50,fluency:75},
-													 {transcription:"This is a second sentence transcription.",accuracy:90,fluency:70}]
-								display_results();
-								function display_results(){
-									for(i = 0; i < practice_data.length; i++){
-										$("#result_body").append(`
-											<tr>
-												<td>
-													${practice_data[i]['transcription']}
-												</td>
-												<td class="text-center">
-													${practice_data[i]['accuracy']}
-												</td>
-												<td class="text-center">
-													${practice_data[i]['fluency']}
-												</td>
-											</tr>`);
-									}
-								}
+								$(function(){
+									// bind edit and delete buttons to their functions
+									$('.show-more').on('click', function(e){
+										$('#expressionsTableContainer tr').removeClass('cs-active');
+										$(this).parents('tr').addClass('cs-active');
+										populateEditor($(this).attr('url'));
+										audioReformulationBlob = null; // clears reformulation
+									});
+								})
 							</script>
                             <!-- Results populated here -->
+							</tr>
                         </tbody>
                     </table>
                 </div>
@@ -58,3 +66,7 @@
 <a href="{% url 'student:course' course.id %}">Return Home</a>
 
 {% endblock %}
+
+<script>
+
+</script>
