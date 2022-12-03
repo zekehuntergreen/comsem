@@ -31,7 +31,7 @@ function timer(sentence, base_time){
     document.getElementById("timer_bar").style.visibility = "visible";
     document.getElementById("text_for_timer").style.visibility = "visible";
     let sentence_len = sentence.length/10;
-    var current_time_reading = ((base_time * 10) + (sentence_len *10))/10; // In order to not have .00000001 show up ont he timer this is how decimals need to be done
+    var current_time_reading = ((base_time * 10) + (sentence_len *10))/10; // In order to not have .00000001 show up on the timer this is how decimals need to be done
     let given_time = ((base_time * 10 + sentence_len * 10)) / 10;// starting time made dynamic with len
     var reading_timer = setInterval(function(){//timer function tics every .1secs
       if(current_time_reading <= 0){ // This runs when the timer is complete
