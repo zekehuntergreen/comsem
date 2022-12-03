@@ -618,25 +618,6 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
     
     def get_object(self):
         return self.course
-
-    def get_attempts(self, expression : Expression) -> list[StudentAttempt] :
-        """
-          Get the current student's StudentAttempt objects for a particular expression
-
-          Returns:
-            attempts -- list of StudentAttempt objects for the given expression
-        """
-        submissions = StudentSubmission.objects.filter(student=self.student, worksheet=expression.worksheet)
-
-        attempts = []
-        for submission in submissions:
-            try:
-                sattempt = StudentAttempt.objects.get(student_submission=submission, expression=expression)
-                attempts.append(sattempt)
-            except:
-                pass
-
-        return attempts
     
     def get_expression_data(self, attempts : QuerySet[SpeakingPracticeAttempt]) -> dict[str, float | int]:
         """
@@ -648,7 +629,7 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
         Returns:
             data : dict[str : float | int] -- The aggregate data for the expression (correct_attempts, days_since_review, wpm, last_score)
         """
-        # aggregate_data is initialized with the worst possible values
+        # data is initialized with the worst possible values
         data : dict[str, float | int] = {'correct_attempts' : 0, 'days_since_review' : 999, 'wpm' : 0, 'last_score' : 0}
         time_since_curr : timedelta
         time_since_last : timedelta
@@ -679,42 +660,49 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """
-            Get worksheet data for a student in a given course
+            Implements Django's DetailView.get_context_data to provide data for the template
         
             Returns:
-                dict -- context for creating generate_reviewsheet.html
+                context -- context data used by assessment_generator.html
         """
         context : dict[str, Any] = super(SpeakingPracticeGeneratorView, self).get_context_data(**kwargs)
         worksheets : QuerySet[Worksheet] = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
-        practice_attempts : QuerySet[SpeakingPracticeAttempt] = \
-            SpeakingPracticeAttempt.objects.filter(student=self.student, expression__worksheet__course=self.course)
-        completed : list[Expression] = []
+        practice_attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(student=self.student, expression__worksheet__course=self.course)
+        completed : list[Worksheet] = []
         # every completed expression will have an entry in exp_data
         # each entry will have the following data: 'correct_attempts', 'days_since_review', 'wpm', 'last_score'
+        exp_data : dict[Expression, dict[str, float | int]] = {}
         WEIGHTS : dict[str,float] = {'correct_attempts': 0.15, 'days_since_review' : 0.1,  'wpm' : 0.25, 'last_score' : 0.5}
         DATA_KEYS : list[str] = ['correct_attempts', 'days_since_review', 'wpm', 'last_score']
-        exp_data : dict[Expression, dict[str, float | int]] = {}
-        normalized_data : dict[Expression, dict[str, float | int]] = {}
 
-        completed = list(itertools.chain.from_iterable([i.expressions.all() for i in worksheets if i.complete_submission(self.student)]))
-        for expression in completed:
-            exp_data[expression] = self.get_expression_data(practice_attempts.filter(expression=expression))
+        completed = [i for i in worksheets if i.complete_submission(self.student)]
+        for worksheet in completed:
+            worksheet.expression_list : QuerySet[Expression] = worksheet.expressions.all().filter(Q(student=self.student) | Q(student=None) | Q(all_do=True))
+            for expression in worksheet.expression_list:
+                exp_data[expression] = self.get_expression_data(practice_attempts.filter(expression=expression))
     
         mins = { key : min([y[key] for y in exp_data.values()]) for key in DATA_KEYS }
         maxes = { key: max([y[key] for y in exp_data.values()]) for key in DATA_KEYS }
         ranges = { key : maxes[key] - mins[key] if maxes[key] > mins[key] else 1 for key in DATA_KEYS }
 
-        for curr_expression in completed:
-            normalized_data[curr_expression] = {}
-            
-            normalized_data[curr_expression]['correct_attempts'] = max(0, exp_data[curr_expression]['correct_attempts'] - mins['correct_attempts']) / ranges['correct_attempts']
-            normalized_data[curr_expression]['days_since_review'] = max(0, exp_data[curr_expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review']
-            normalized_data[curr_expression]['wpm'] = max(0, exp_data[curr_expression]['wpm'] - mins['wpm']) / ranges['wpm']
-            normalized_data[curr_expression]['last_score'] = max(0, exp_data[curr_expression]['last_score'] - mins['last_score']) / ranges['last_score']
-            curr_expression.familiarity : int = round(sum([normalized_data[curr_expression][key] * WEIGHTS[key] for key in DATA_KEYS]))
+        for worksheet in completed:
+            for expression in worksheet.expression_list:
+                expression.norm_figs : dict[str, int | float] = {}
+                
+                expression.norm_figs['correct_attempts'] = max(0, exp_data[expression]['correct_attempts'] - mins['correct_attempts']) / ranges['correct_attempts']
+                expression.norm_figs['days_since_review'] = max(0, exp_data[expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review']
+                expression.norm_figs['wpm'] = max(0, exp_data[expression]['wpm'] - mins['wpm']) / ranges['wpm']
+                expression.norm_figs['last_score'] = max(0, exp_data[expression]['last_score'] - mins['last_score']) / ranges['last_score']
+                expression.familiarity : int = round(sum([expression.norm_figs[key] * WEIGHTS[key] for key in DATA_KEYS]))
+
+                # we need to set the style of each expression's score bar
+                (expression.bar_style, expression.border_style) = \
+                    ('bg-danger','border-danger') if expression.familiarity <= 33 \
+                    else ('bg-warning','border-warning') if expression.familiarity <= 66 \
+                    else ('bg-primary','border-success')
 
         # Only allow students to review completed worksheets (must have an answer)        
-        context['expressions'] =  completed
+        context['worksheets'] =  completed
         
         return context
 
