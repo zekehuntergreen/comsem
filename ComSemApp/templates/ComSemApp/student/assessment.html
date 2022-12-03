@@ -8,9 +8,28 @@
 <progress id="timer_bar"></progress>
 
 <script>
-    const base_time = 2;
-    let sentence = 'This is the example that I love oh so much.';
-    document.getElementById("sentence_text").textContent = sentence
+
+const reading_offset = 2;
+const recording_offset = 3;
+let sentence = 'This an example.'; // Change this to desired expression
+document.getElementById("sentence_text").textContent = sentence
+document.getElementById("timer_bar").style.visibility = "hidden";
+document.getElementById("text_for_timer").style.visibility = "hidden";
+
+P = timer(sentence, reading_offset);//runs the reading timer
+P.then(() => {//Once reading timer done this starts
+  //This is where recording start goes
+  P2= timer(sentence, recording_offset);//Runs the recording timer
+  P2.then(() => { //Once recording timer done this starts
+    //This is recording stop goes
+    document.getElementById("sentence_text").textContent = 'Problem Complete!';//This was a last test can be deleted
+  });
+});
+
+function timer(sentence, base_time){
+  return new Promise(function(resolve, reject){
+    document.getElementById("timer_bar").style.visibility = "visible";
+    document.getElementById("text_for_timer").style.visibility = "visible";
     let sentence_len = sentence.length/10;
     var current_time_reading = ((base_time * 10) + (sentence_len *10))/10; // In order to not have .00000001 show up ont he timer this is how decimals need to be done
     let given_time = ((base_time * 10 + sentence_len * 10)) / 10;// starting time made dynamic with len
@@ -19,6 +38,7 @@
         clearInterval(reading_timer);
         document.getElementById("timer_bar").style.visibility = "hidden";
         document.getElementById("text_for_timer").style.visibility = "hidden";
+        resolve();
       }
       document.getElementById("timer_bar").value = given_time - current_time_reading;
       document.getElementById("text_timer").textContent = current_time_reading;
@@ -26,6 +46,8 @@
     }, 100);
     document.getElementById("timer_bar").setAttribute("value", 0);// changes the bar to reflect dybamic allocation
     document.getElementById("timer_bar").setAttribute("max", given_time);
+  });
+}
 </script>
 <br>
 <a href="{% url 'student:speaking_practice_results' course.id %}">Results</a>
