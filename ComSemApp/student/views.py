@@ -1,3 +1,4 @@
+import itertools
 import json
 from statistics import mean, stdev
 from typing import Any
@@ -615,8 +616,6 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
     context_object_name : str = 'speaking_practice_generator'
     template_name: str = 'ComSemApp/student/assessment_generator.html'
     
-    WEIGHTS : dict[str,float] = {'correct_attempts': 0.15, 'days_since_review' : 0.1,  'wpm' : 0.25, 'last_score' : 0.5}
-
     def get_object(self):
         return self.course
 
@@ -639,112 +638,7 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
 
         return attempts
     
-    def get_expressions(self, worksheet : Worksheet, reactions):
-        """
-          Get a list of expressions and their familiarity scores from a particular worksheet
-        
-          Arguments:
-            worksheet -- the Worksheet object to gather expressions from
-
-          Returns:
-            list -- a list of expressions contained in worksheet
-        """
-        if len(reactions) > 1:
-            course_avg = mean(reactions) 
-            course_std = stdev(reactions)
-        else:
-            course_avg = 0
-            course_std = 1
-
-        expression_filters = Q(worksheet=worksheet)
-        if not worksheet.display_all_expressions:
-            expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
-
-        expression_qset = Expression.objects.filter(expression_filters)
-        exp_data = {"attempts":[], "days_since_review":[],  "rt":[], "pct_correct":[]}
-
-        for e in expression_qset:
-            e.last_submission = StudentSubmission.objects.filter(student=self.student, worksheet=e.worksheet).latest('date').date.date()
-            
-            e.attempts = self.get_attempts(e)
-            e.has_audio = False
-            
-            for a in e.attempts:
-                if a.audio:
-                    e.has_audio = True
-            
-            # AF - gets the number of attempts it took for the student to get the expression correct
-            attempt_factor = len([x for x in e.attempts if not x.text_correct]) + 1
-            
-            # AF - gets the reviews
-            past_correct_review = ReviewAttempt.objects.filter(expression=e.id, correct=True)
-            past_incorrect_count = len(ReviewAttempt.objects.filter(expression=e.id, correct=False))
-            
-            # AF - get the number of days since reviewed or submitted an attempt
-            if past_correct_review:
-                time_since_view = (datetime.date.today() - past_correct_review.latest("date").date.date()).days
-                expression_z = (mean([x.response_time for x in past_correct_review]) - course_avg)/course_std
-                avg_rt = mean([x.response_time for x in past_correct_review])
-                
-            else:
-                time_since_view = (datetime.date.today() - e.last_submission).days
-                expression_z = 0
-                avg_rt = -1
-                
-            all_attempts = len(e.attempts) + len(past_correct_review) + past_incorrect_count
-            pct_correct = (len(past_correct_review) + 1) / ( len(past_correct_review) + 1 + past_incorrect_count)
-            
-            e.raw_figs = {"attempts":all_attempts, "days_since_review":time_since_view,  "rt":avg_rt, "pct_correct":pct_correct}
-            for f in e.raw_figs:
-                exp_data[f].append(e.raw_figs[f])
-        
-        #mins = { x:min([y for y in exp_data[x] if y >= 0]) for x in exp_data}
-        #ranges = { x:max([y for y in exp_data[x] if y >= 0 ]) - min([y for y in exp_data[x] if y >= 0]) for x in exp_data }
-        # The previous two lines ran into an empty argument error wit min() and ranges would sometimes end up as 0
-        # causing a divide by zero error later on. This was a quick fix near the end of the year so it migh tneed to be relooked at
-        mins = {}
-        ranges = {}
-        
-        for x in exp_data:
-            check = False # vhl checks is there is a y > 0 otherwise you will get an error where the min function has not arguments
-            for y in exp_data[x]:
-                if y >= 0:
-                    check = True
-                    break
-                                             
-            if check: # if there is an appropriate min
-                mins[x] = min([y for y in exp_data[x] if y >= 0]) 
-                ranges[x] = max([y for y in exp_data[x] if y >= 0]) - min([y for y in exp_data[x] if y >= 0])
-                if ranges[x] == 0:
-                    ranges[x] = 1 # vhl I set this to 1 but only because it was dividing by 0
-            else: # else set to default values to avoid divide by 0 errors
-                mins[x] = 0
-                ranges[x] = 1
-                     
-        
-        for e in expression_qset:
-            # e.norm_figs = {x:(e.raw_figs[x] - range_mins[x]['min']) / range_mins[x]['range'] if range_mins[x]['range'] > 0 else 0 for x in e.raw_figs }
-            e.norm_figs = {}
-            
-            # e.norm_figs['attempts'] = (0 if e.raw_figs['attempts'] == mins['attempts'] else (e.raw_figs['attempts'] - mins['attempts']) / ranges['attempts']) * weights['attempts']
-            # e.norm_figs['days_since_review'] = (1 if e.raw_figs['days_since_review'] == mins['days_since_review'] else 1 - (e.raw_figs['days_since_review'] - mins['days_since_review']) / ranges['days_since_review']) * weights['days_since_review']
-            # e.norm_figs['rt'] = (1 if e.raw_figs['rt'] == mins['rt'] else 1 - (e.raw_figs['rt'] - mins['rt']) / ranges['rt']) * weights['rt']
-            # e.norm_figs['pct_correct'] = (0 if e.raw_figs['pct_correct'] == mins['pct_correct'] else (e.raw_figs['pct_correct'] - mins['pct_correct']) / ranges['pct_correct']) * weights['pct_correct']
-            # e.practice_score = int(sum(e.norm_figs.values()) * 100)
-            
-            if e.practice_score <= 33:
-                e.bar_style = "bg-danger"
-                e.border_style = "border-danger"
-            elif e.practice_score <= 66:
-                e.bar_style = "bg-warning"
-                e.border_style = "border-warning"
-            else:
-                e.bar_style = "bg-primary"
-                e.border_style = "border-success"
-        
-        return expression_qset
-
-    def get_expression_data(attempts : QuerySet[SpeakingPracticeAttempt]) -> dict[str, float | int]:
+    def get_expression_data(self, attempts : QuerySet[SpeakingPracticeAttempt]) -> dict[str, float | int]:
         """
         Gathers the relevant data for an expression given the queryset of attempts for that expression
 
@@ -790,73 +684,37 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
             Returns:
                 dict -- context for creating generate_reviewsheet.html
         """
-        context : dict[str, Any] = super(ReviewsheetGeneratorView, self).get_context_data(**kwargs)
-        worksheets = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
+        context : dict[str, Any] = super(SpeakingPracticeGeneratorView, self).get_context_data(**kwargs)
+        worksheets : QuerySet[Worksheet] = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
         practice_attempts : QuerySet[SpeakingPracticeAttempt] = \
-            SpeakingPracticeAttempt.objects.filter(student=self.student, expression__worksheet__course=self.course).get_queryset()
-        completed : list[Expression]
+            SpeakingPracticeAttempt.objects.filter(student=self.student, expression__worksheet__course=self.course)
+        completed : list[Expression] = []
         # every completed expression will have an entry in exp_data
         # each entry will have the following data: 'correct_attempts', 'days_since_review', 'wpm', 'last_score'
-        exp_data : dict[Expression, dict[str, float | int]]
+        WEIGHTS : dict[str,float] = {'correct_attempts': 0.15, 'days_since_review' : 0.1,  'wpm' : 0.25, 'last_score' : 0.5}
+        DATA_KEYS : list[str] = ['correct_attempts', 'days_since_review', 'wpm', 'last_score']
+        exp_data : dict[Expression, dict[str, float | int]] = {}
+        normalized_data : dict[Expression, dict[str, float | int]] = {}
 
-        # {expression : {"attempts":[], "days_since_review":[],  "rt":[], "pct_correct":[]}}
-        
-        # for worksheet in worksheets:
-        #     last_submission = worksheet.last_submission(self.student)
-        #     complete_submission = worksheet.complete_submission(self.student) # vhl checks for complete worksheets
-
-        #     complete_submission_status = "complete" if complete_submission else "none"
-        #     last_submission_status = last_submission.status if last_submission else "none"
-            
-        #     if complete_submission_status == 'complete': # vhl if there is a complete worksheet
-        #         last_submission_status = 'complete'
-        #     if last_submission_status == 'complete':
-        #         worksheet.expression_list = self.get_expressions(worksheet, practice_attempts.filter)
-        #         for e in worksheet.expression_list:
-        #             for f in exp_data:
-        #                 exp_data[f].append(e.raw_figs[f])
-
-        completed = [i for i in worksheets if i.complete_submission()]
+        completed = list(itertools.chain.from_iterable([i.expressions.all() for i in worksheets if i.complete_submission(self.student)]))
         for expression in completed:
-            exp_data[expression] = get_expression_data(expression, practice_attempts)
+            exp_data[expression] = self.get_expression_data(practice_attempts.filter(expression=expression))
     
-        # mins = { x: min([y for y in exp_data[x] if y >= 0]) for x in exp_data}
-        # ranges = { x:max([y for y in exp_data[x] if y >= 0]) - min([y for y in exp_data[x] if y >= 0]) for x in exp_data }
-        # The previous two lines ran into an empty argument error wit min() and ranges would sometimes end up as 0
-        # causing a divide by zero error later on. This was a quick fix near the end of the year so it migh tneed to be relooked at
-        mins = {}
-        ranges = {}
-        
-        for x in exp_data: 
-            check = False # vhl checks is there is a y > 0 otherwise you will get an error on new worksheets where there is none
-            for y in exp_data[x]:
-                if y >= 0: # if there is a y > 0 then min will not have empty arguments
-                    check = True
-                    break
-                                             
-            if check: 
-                mins[x] = min([y for y in exp_data[x] if y >= 0]) 
-                ranges[x] = max([y for y in exp_data[x] if y >= 0]) - min([y for y in exp_data[x] if y >= 0])
-                if ranges[x] == 0:
-                    ranges[x] = 1 # there was a divide by 0 error
-            else: # default values
-                mins[x] = 0
-                ranges[x] = 1
-        
-        
-        completed = [x for x in worksheets if x.last_submission_status == 'complete']
-        for w in completed:
-            for e in w.expression_list:
-                e.norm_figs = {}
-                
-                e.norm_figs['attempts'] = (0 if e.raw_figs['attempts'] == mins['attempts'] else (e.raw_figs['attempts'] - mins['attempts']) / ranges['attempts']) * WEIGHTS['attempts']
-                e.norm_figs['days_since_review'] = (1 if e.raw_figs['days_since_review'] == mins['days_since_review'] else 1 - (e.raw_figs['days_since_review'] - mins['days_since_review']) / ranges['days_since_review']) * WEIGHTS['days_since_review']
-                e.norm_figs['rt'] = (1 if e.raw_figs['rt'] == mins['rt'] else 1 - (e.raw_figs['rt'] - mins['rt']) / ranges['rt']) * WEIGHTS['rt']
-                e.norm_figs['pct_correct'] = (0 if e.raw_figs['pct_correct'] == mins['pct_correct'] else (e.raw_figs['pct_correct'] - mins['pct_correct']) / ranges['pct_correct']) * WEIGHTS['pct_correct']
-                e.practice_score = int(sum(e.norm_figs.values()) * 100)
+        mins = { key : min([y[key] for y in exp_data.values()]) for key in DATA_KEYS }
+        maxes = { key: max([y[key] for y in exp_data.values()]) for key in DATA_KEYS }
+        ranges = { key : maxes[key] - mins[key] if maxes[key] > mins[key] else 1 for key in DATA_KEYS }
+
+        for curr_expression in completed:
+            normalized_data[curr_expression] = {}
+            
+            normalized_data[curr_expression]['correct_attempts'] = max(0, exp_data[curr_expression]['correct_attempts'] - mins['correct_attempts']) / ranges['correct_attempts']
+            normalized_data[curr_expression]['days_since_review'] = max(0, exp_data[curr_expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review']
+            normalized_data[curr_expression]['wpm'] = max(0, exp_data[curr_expression]['wpm'] - mins['wpm']) / ranges['wpm']
+            normalized_data[curr_expression]['last_score'] = max(0, exp_data[curr_expression]['last_score'] - mins['last_score']) / ranges['last_score']
+            curr_expression.familiarity : int = round(sum([normalized_data[curr_expression][key] * WEIGHTS[key] for key in DATA_KEYS]))
 
         # Only allow students to review completed worksheets (must have an answer)        
-        context['worksheets'] =  completed
+        context['expressions'] =  completed
         
         return context
 

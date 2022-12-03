@@ -1,5 +1,5 @@
-import datetime, uuid
 from __future__ import annotations # This is necessary for some type hinting
+import datetime, uuid
 
 from django.db import models
 from django.conf import settings
