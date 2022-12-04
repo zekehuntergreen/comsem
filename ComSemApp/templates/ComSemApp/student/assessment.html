@@ -3,51 +3,62 @@
 {% block content %}
 <h1>Speaking Practice View</h1>
 
-<p><span id="sentence_text" ></span></p>
-<p id="text_for_timer"><span id="text_timer"> </span> </p>
-<progress id="timer_bar"></progress>
+<p><span id="sentence-text" ></span></p>
+<p id="text-for-timer"><span id="text-timer"> </span> </p>
+<progress id="timer-bar"></progress>
 
 <script>
 
-const reading_offset = 2;
-const recording_offset = 3;
-let sentence = 'This an example.'; // Change this to desired expression
-document.getElementById("sentence_text").textContent = sentence
-document.getElementById("timer_bar").style.visibility = "hidden";
-document.getElementById("text_for_timer").style.visibility = "hidden";
-
-P = timer(sentence, reading_offset);//runs the reading timer
-P.then(() => {//Once reading timer done this starts
-  //This is where recording start goes
-  P2= timer(sentence, recording_offset);//Runs the recording timer
-  P2.then(() => { //Once recording timer done this starts
-    //This is recording stop goes
-    document.getElementById("sentence_text").textContent = 'Problem Complete!';//This was a last test can be deleted
+  const reading_offset = 2;
+  const recording_offset = 3;
+  // Change this to desired expression
+  let sentence = 'This an example.'; 
+  document.getElementById("sentence-text").textContent = sentence
+  document.getElementById("timer-bar").style.visibility = "hidden";
+  document.getElementById("text-for-timer").style.visibility = "hidden";
+  
+  //runs the reading timer
+  P = timer(sentence, reading_offset);
+  //Once reading timer done this starts
+  P.then(() => {
+    //This is where recording start goes
+    //Runs the recording timer
+    P2= timer(sentence, recording_offset);
+    //Once recording timer done this starts
+    P2.then(() => { 
+      //This is recording stop goes
+      //This was a last test can be deleted
+      document.getElementById("sentence-text").textContent = 'Problem Complete!';
+    });
   });
-});
-
-function timer(sentence, base_time){
-  return new Promise(function(resolve, reject){
-    document.getElementById("timer_bar").style.visibility = "visible";
-    document.getElementById("text_for_timer").style.visibility = "visible";
-    let sentence_len = sentence.length/10;
-    var current_time_reading = ((base_time * 10) + (sentence_len *10))/10; // In order to not have .00000001 show up on the timer this is how decimals need to be done
-    let given_time = ((base_time * 10 + sentence_len * 10)) / 10;// starting time made dynamic with len
-    var reading_timer = setInterval(function(){//timer function tics every .1secs
-      if(current_time_reading <= 0){ // This runs when the timer is complete
-        clearInterval(reading_timer);
-        document.getElementById("timer_bar").style.visibility = "hidden";
-        document.getElementById("text_for_timer").style.visibility = "hidden";
-        resolve();
-      }
-      document.getElementById("timer_bar").value = given_time - current_time_reading;
-      document.getElementById("text_timer").textContent = current_time_reading;
-      current_time_reading = (current_time_reading *10 - 1) /10;
-    }, 100);
-    document.getElementById("timer_bar").setAttribute("value", 0);// changes the bar to reflect dybamic allocation
-    document.getElementById("timer_bar").setAttribute("max", given_time);
-  });
-}
+  
+  function timer(sentence, base_time){
+    return new Promise(function(resolve, reject){
+      document.getElementById("timer-bar").style.visibility = "visible";
+      document.getElementById("text-for-timer").style.visibility = "visible";
+      let sentence_len = sentence.length/10;
+      // In order to not have .00000001 show up on the timer this is how decimals need to be done
+      var current_time_reading = ((base_time * 10) + (sentence_len *10))/10; 
+      // starting time made dynamic with len
+      let given_time = ((base_time * 10 + sentence_len * 10)) / 10;
+      //timer function tics every .1secs
+      var reading_timer = setInterval(function(){
+        // This runs when the timer is complete
+        if(current_time_reading <= 0){ 
+          clearInterval(reading_timer);
+          document.getElementById("timer-bar").style.visibility = "hidden";
+          document.getElementById("text-for-timer").style.visibility = "hidden";
+          resolve();
+        }
+        document.getElementById("timer-bar").value = given_time - current_time_reading;
+        document.getElementById("text-timer").textContent = current_time_reading;
+        current_time_reading = (current_time_reading *10 - 1) /10;
+      }, 100);
+      // changes the bar to reflect dybamic allocation
+      document.getElementById("timer-bar").setAttribute("value", 0);
+      document.getElementById("timer-bar").setAttribute("max", given_time);
+    });
+  }
 </script>
 <br>
 <a href="{% url 'student:speaking_practice_results' course.id %}">Results</a>
