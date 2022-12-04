@@ -33,7 +33,7 @@
   });
   
   function timer(sentence, base_time){
-    return new Promise(function(resolve, reject){
+    return new Promise((resolve, reject) => {
       document.getElementById("timer-bar").style.visibility = "visible";
       document.getElementById("text-for-timer").style.visibility = "visible";
       let sentence_len = sentence.length/10;
@@ -42,7 +42,7 @@
       // starting time made dynamic with len
       let given_time = ((base_time * 10 + sentence_len * 10)) / 10;
       //timer function tics every .1secs
-      var reading_timer = setInterval(function(){
+      var reading_timer = setInterval(() => {
         // This runs when the timer is complete
         if(current_time_reading <= 0){ 
           clearInterval(reading_timer);
@@ -54,7 +54,7 @@
         document.getElementById("text-timer").textContent = current_time_reading;
         current_time_reading = (current_time_reading *10 - 1) /10;
       }, 100);
-      // changes the bar to reflect dybamic allocation
+      // changes the bar to reflect dynamic allocation
       document.getElementById("timer-bar").setAttribute("value", 0);
       document.getElementById("timer-bar").setAttribute("max", given_time);
     });
