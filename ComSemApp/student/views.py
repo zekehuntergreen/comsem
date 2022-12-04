@@ -617,8 +617,9 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
 
 class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
     """
-      Serves the content of the speaking practice page which lists expressions and
-      prompts user to select the ones they want to practice.
+      Serves the expression selection page wherein students are presented with
+      a list of expressions grouped by worksheet along with their familiarity scores
+      to select from for a practice session
     """
     # These class variables are a necessary part of the Django DetailView class
     context_object_name : str = 'speaking_practice_generator'
