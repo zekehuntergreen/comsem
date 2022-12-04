@@ -37,23 +37,6 @@
 				<p>Hover over a bar to see your actual score. The more you practice an expression, the higher your score
 					will get!</p>
 				<p></p>
-				<div class="form-group pl-4">
-					<div class="form-check radio radio-primary">
-						<input class="form-check-input form-control" type="radio" name="audio-choice" id="use-audio"
-							value="1" checked>
-						<label class="form-check-label" for="use-audio">
-							Use audio expressions - expressions with a <i class="icon fa fa-volume-up"></i> icon next to them will include audio practice
-					in the sheet
-						</label>
-					</div>
-					<div class="form-check radio radio-primary">
-						<input class="form-check-input form-control" type="radio" name="audio-choice" id="no-audio"
-							value="0">
-						<label class="form-check-label" for="no-audio">
-							Exclude audio expressions
-						</label>
-					</div>
-				</div>
 
 				{% if worksheets %} <!--table for worksheets vhl-->
 				<table class="table table-hover tablesorter reviewsheet-table header-fixed">
@@ -108,9 +91,6 @@
 
 												<div class="col-10 col-md-11 py-0">
 													<label class="m-0" for='expression{{ e.id }}'>
-														{% if e.has_audio%}
-														<i class="icon fa fa-volume-up"></i>
-														{% endif %}
 														{{ e.expression }}
 													</label>
 												</div>
