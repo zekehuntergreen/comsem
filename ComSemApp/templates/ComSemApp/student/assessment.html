@@ -18,14 +18,14 @@
   document.getElementById("text-for-timer").style.visibility = "hidden";
   
   //runs the reading timer
-  P = timer(sentence, reading_offset);
+  let reading_check = timer(sentence, reading_offset);
   //Once reading timer done this starts
-  P.then(() => {
+  reading_check.then(() => {
     //This is where recording start goes
     //Runs the recording timer
-    P2= timer(sentence, recording_offset);
+    let recording_check = timer(sentence, recording_offset);
     //Once recording timer done this starts
-    P2.then(() => { 
+    recording_check.then(() => { 
       //This is recording stop goes
       //This was a last test can be deleted
       document.getElementById("sentence-text").textContent = 'Problem Complete!';
@@ -33,16 +33,16 @@
   });
   
   function timer(sentence, base_time){
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
       document.getElementById("timer-bar").style.visibility = "visible";
       document.getElementById("text-for-timer").style.visibility = "visible";
       let sentence_len = sentence.length / 10;
       // In order to not have .00000001 show up on the timer this is how decimals need to be done
-      var current_time_reading = ((base_time * 10) + (sentence_len *10)) / 10; 
+      var current_time_reading = ((base_time * 10) + (sentence_len * 10)) / 10; 
       // starting time made dynamic with len
-      let given_time = ((base_time * 10 + sentence_len * 10)) / 10;
+      let given_time = ((base_time * 10) + (sentence_len * 10)) / 10;
       //timer function tics every .1secs
-      var reading_timer = setInterval(()=>{
+      var reading_timer = setInterval(() => {
         // This runs when the timer is complete
         if(current_time_reading <= 0){ 
           clearInterval(reading_timer);
