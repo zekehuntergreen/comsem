@@ -647,7 +647,7 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
         if(attempts.count() == 0):
             return data
         
-        curr_time = datetime.now()
+        curr_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
         time_since_last = curr_time - attempts[0].date
         for attempt in attempts:
             if attempt.correct == 100:
@@ -702,7 +702,7 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
                 expression.norm_figs['days_since_review'] = max(0, exp_data[expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review']
                 expression.norm_figs['wpm'] = max(0, exp_data[expression]['wpm'] - mins['wpm']) / ranges['wpm']
                 expression.norm_figs['last_score'] = max(0, exp_data[expression]['last_score'] - mins['last_score']) / ranges['last_score']
-                expression.familiarity : int = round(sum([expression.norm_figs[key] * WEIGHTS[key] for key in DATA_KEYS]))
+                expression.familiarity : int = round(sum([float(expression.norm_figs[key]) * WEIGHTS[key] for key in DATA_KEYS]) * 100)
 
                 # we need to set the style of each expression's score bar
                 (expression.bar_style, expression.border_style) = \
