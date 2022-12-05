@@ -332,7 +332,7 @@ class SpeakingPracticeAttempt(models.Model):
     wpm = models.DecimalField(max_digits=5,decimal_places=2, verbose_name='Words per Minute')
 
     def __str__(self):
-        return "%d - %5s - %s" % (self.id, str(self.correct), self.expression)
+        return f"{self.id}: {self.expression} - {self.correct}% ({self.date.strftime('%d %b %Y')})"
 
     class Meta:
         verbose_name = "Speaking Practice Attempt"
