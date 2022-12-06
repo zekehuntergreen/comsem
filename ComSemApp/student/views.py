@@ -715,15 +715,33 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
         
         return context
 
-class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, TemplateView):
+practice_data = [
+                    {'transcription1':"This is a sentence transcription.",'accuracy1':50,'fluency1':75},
+                    {'transcription1':"This is a second sentence transcription.",'accuracy1':90,'fluency1':70}
+                ]
+class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView):
     """
       Serves the content of the speaking practice results page presented after a
       session of practice.
     """
     template_name: str = 'ComSemApp/student/assessment_results.html'
 
-    def foo():
-        pass
+    def get_object(self):
+        """
+            implments Django DetailView function
+        """
+        return self.course
+
+
+    def get_context_data(self, **kwargs) -> dict[str, dict[str, str | int | float]]:
+        """implments Django's DetailView get_context_data function 
+        Returns:
+            context -- contains values needed for speaking practice result page 
+        """
+        
+        context = super(SpeakingPracticeResultsView, self).get_context_data(**kwargs)
+        context['practice_data'] = practice_data
+        return context
 
 class SpeakingPracticeInstructionsView(StudentViewMixin, CourseViewMixin, TemplateView):
     """
