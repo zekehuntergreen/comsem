@@ -701,7 +701,7 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView)
 
     def get_object(self):
         """
-            
+            needed for Django detailview function
         """
         return self.course
 
