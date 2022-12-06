@@ -700,6 +700,9 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView)
     template_name: str = 'ComSemApp/student/assessment_results.html'
 
     def get_object(self):
+        """
+            
+        """
         return self.course
 
 

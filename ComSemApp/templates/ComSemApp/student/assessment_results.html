@@ -28,22 +28,22 @@
 							<!--displays each item from context[practice data] in this table-->
 							{% for item in practice_data%}
 							<tr>
-									<tr>
-										<td>
-											{{item.transcription1}}
-										</td>
-										<td class="text-center">
-											{{item.accuracy1}}%
-										</td>
-										<td class="text-center">
-											{{item.fluency1}}%
-										</td>
-										<td class="text-center">
-											<button class="show-more" type="button" url=>Show More</button>
-										</td>
-						
-							{% endfor %}
+								<tr>
+									<td>
+										{{item.transcription1}}
+									</td>
+									<td class="text-center">
+										{{item.accuracy1}}%
+									</td>
+									<td class="text-center">
+										{{item.fluency1}}%
+									</td>
+									<td class="text-center">
+										<button class="show-more btn-success btn" type="button" url=>Show More</button>
+									</td>
+							
 							</tr>
+							{% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -51,8 +51,11 @@
         </div>
     </div>
 </div>
+<div class="btn-group d-flex card-footer" role="group" aria-label="...">
 
-<a href="{% url 'student:course' course.id %}">Return Home</a>
+	<a href="{% url 'student:course' course.id %}" class ="btn-success btn w-100 m-1">Return Home</a>
+	<a href="{% url 'student:course' course.id %}" class ="btn-success btn w-100 m-1">Try Again</a>
+</div>
 
 {% endblock %}
 
