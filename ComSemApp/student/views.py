@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView, View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
