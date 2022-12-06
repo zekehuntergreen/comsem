@@ -1,5 +1,8 @@
+import itertools
 import json
-import os
+from statistics import mean, stdev
+from typing import Any
+from datetime import datetime, timedelta
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -269,7 +272,7 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
 
         return attempts
     
-    def get_expressions_v2(self, worksheet, reactions, weights):
+    def get_expressions(self, worksheet, reactions, weights):
         """ Get a list of expressions in a given worksheet
         --> 4.09.2020 Modified with new parameters
         
@@ -279,10 +282,9 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
         Returns:
             list -- a list of expressions contained in worksheet
         """
-        import statistics
         if len(reactions) > 1:
-            course_avg = statistics.mean(reactions) 
-            course_std = statistics.stdev(reactions)
+            course_avg = mean(reactions) 
+            course_std = stdev(reactions)
         else:
             course_avg = 0
             course_std = 1
@@ -314,8 +316,8 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
             # AF - get the number of days since reviewed or submitted an attempt
             if past_correct_review:
                 time_since_view = (datetime.date.today() - past_correct_review.latest("date").date.date()).days
-                expression_z = (statistics.mean([x.response_time for x in past_correct_review]) - course_avg)/course_std
-                avg_rt = statistics.mean([x.response_time for x in past_correct_review])
+                expression_z = (mean([x.response_time for x in past_correct_review]) - course_avg)/course_std
+                avg_rt = mean([x.response_time for x in past_correct_review])
                 
             else:
                 time_since_view = (datetime.date.today() - e.last_submission).days
@@ -375,70 +377,6 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
         
         return expression_qset
 
-    def get_expressions(self, worksheet, reactions):
-        """ Get a list of expressions in a given worksheet
-        
-        Arguments:
-            worksheet {Worksheet} -- a Worksheet object
-        
-        Returns:
-            list -- a list of expressions contained in worksheet
-        """
-        import statistics
-        if len(reactions) > 1:
-            course_avg = statistics.mean(reactions) 
-            course_std = statistics.stdev(reactions)
-        else:
-            course_avg = 0
-            course_std = 1
-
-        expression_filters = Q(worksheet=worksheet)
-        if not worksheet.display_all_expressions:
-            expression_filters &= (Q(student=self.student) | Q(student=None) | Q(all_do=True))
-
-        expression_qset = Expression.objects.filter(expression_filters)
-
-        for e in expression_qset:
-            e.last_submission = StudentSubmission.objects.filter(student=self.student, worksheet=e.worksheet).latest('date').date.date()
-            
-            e.attempts = self.get_attempts(e)
-            e.has_audio = False
-            
-            for a in e.attempts:
-                if a.audio:
-                    e.has_audio = True
-            
-            # AF - gets the number of attempts it took for the student to get the expression correct
-            attempt_factor = len([x for x in e.attempts if not x.text_correct]) + 1
-            
-            # AF - gets the reviews
-            past_correct_review = ReviewAttempt.objects.filter(expression=e.id, correct=True)
-            past_incorrect_count = len(ReviewAttempt.objects.filter(expression=e.id, correct=False))
-            
-            # AF - get the number of days since reviewed or submitted an attempt
-            if past_correct_review:
-                time_since_view = (datetime.date.today() - past_correct_review.latest("date").date.date()).days
-                expression_z = (statistics.mean([x.response_time for x in past_correct_review]) - course_avg)/course_std
-            else:
-                time_since_view = (datetime.date.today() - e.last_submission).days
-                expression_z = 0
-
-            # AF - placeholder algorithm: 1/(number of initial attempts + days since last seen  + 
-            #      expression reaction time vs course reaction time z score + number of incorrect review attempts - number of correct review attempts)
-            e.practice_score = int(100/(max(0, attempt_factor + time_since_view + expression_z + past_incorrect_count - len(past_correct_review)) + 1))
-
-            if e.practice_score <= 33:
-                e.bar_style = "bg-danger"
-                e.border_style = "border-danger"
-            elif e.practice_score <= 66:
-                e.bar_style = "bg-warning"
-                e.border_style = "border-warning"
-            else:
-                e.bar_style = "bg-primary"
-                e.border_style = "border-success"
-        
-        return expression_qset
-
     def get_context_data(self, **kwargs):
         """Get worksheet data for a student in a given course
         
@@ -463,8 +401,7 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
             if complete_submission_status == 'complete': # vhl if there is a complete worksheet
                 worksheet.last_submission_status = 'complete'
             if worksheet.last_submission_status == 'complete':
-                worksheet.expression_list = self.get_expressions_v2(worksheet, course_response_times, WEIGHTS)
-                # worksheet.expression_list = self.get_expressions(worksheet, course_response_times)
+                worksheet.expression_list = self.get_expressions(worksheet, course_response_times, WEIGHTS)
                 for e in worksheet.expression_list:
                     for f in exp_data:
                         exp_data[f].append(e.raw_figs[f])
@@ -678,15 +615,105 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
     def foo():
         pass
 
-class SpeakingPracticeGeneratorView(StudentViewMixin, CourseViewMixin, TemplateView):
+class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
     """
-      Serves the content of the speaking practice page which lists expressions and
-      prompts user to select the ones they want to practice.
+      Serves the expression selection page wherein students are presented with
+      a list of expressions grouped by worksheet along with their familiarity scores
+      to select from for a practice session
     """
+    # These class variables are a necessary part of the Django DetailView class
+    context_object_name : str = 'speaking_practice_generator'
     template_name: str = 'ComSemApp/student/assessment_generator.html'
+    
+    def get_object(self):
+        return self.course
+    
+    def get_expression_data(self, attempts : QuerySet[SpeakingPracticeAttempt]) -> dict[str, float | int]:
+        """
+        Gathers the relevant data for an expression given the queryset of attempts for that expression
 
-    def foo():
-        pass
+        Arguments:
+            attempts : QuerySet[SpeakingPracticeAttempt] -- The QuerySet of attempts for an expression
+
+        Returns:
+            data : dict[str : float | int] -- The aggregate data for the expression (correct_attempts, days_since_review, wpm, last_score)
+        """
+        # data is initialized with the worst possible values
+        data : dict[str, float | int] = {'correct_attempts' : 0, 'days_since_review' : 999, 'wpm' : 0, 'last_score' : 0}
+        time_since_curr : timedelta
+        time_since_last : timedelta
+        curr_time : datetime 
+
+        if(attempts.count() == 0):
+            return data
+        
+        curr_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+        time_since_last = curr_time - attempts[0].date
+        for attempt in attempts:
+            if attempt.correct == 100:
+                data['correct_attempts'] += 1
+                # wpm will sum all the correct attempts and be averaged later (divided by correct_attempts)
+                data['wpm'] += attempt.wpm
+            
+            # days_since_review is calculated at the end from the time_since_last timedelta
+            time_since_curr = curr_time - attempt.date
+            if time_since_curr < time_since_last:
+                time_since_last = time_since_curr
+                data['last_score'] = attempt.correct
+
+        if(data['correct_attempts'] > 1):
+            data['wpm'] = data['wpm'] / data['correct_attempts']
+        data['days_since_review'] = time_since_last.days
+
+        return data
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """
+            Implements Django's DetailView.get_context_data to provide data for the template
+        
+            Returns:
+                context -- context data used by assessment_generator.html
+        """
+        context : dict[str, Any] = super(SpeakingPracticeGeneratorView, self).get_context_data(**kwargs)
+        worksheets : QuerySet[Worksheet] = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
+        practice_attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(student=self.student, expression__worksheet__course=self.course)
+        completed : list[Worksheet] = []
+        # every completed expression will have an entry in exp_data
+        # each entry will have the following data: 'correct_attempts', 'days_since_review', 'wpm', 'last_score'
+        exp_data : dict[Expression, dict[str, float | int]] = {}
+        WEIGHTS : dict[str,float] = {'correct_attempts': 0.15, 'days_since_review' : 0.1,  'wpm' : 0.25, 'last_score' : 0.5}
+        DATA_KEYS : list[str] = ['correct_attempts', 'days_since_review', 'wpm', 'last_score']
+
+        completed = [i for i in worksheets if i.complete_submission(self.student)]
+        for worksheet in completed:
+            worksheet.expression_list : QuerySet[Expression] = worksheet.expressions.all().filter(Q(student=self.student) | Q(student=None) | Q(all_do=True))
+            for expression in worksheet.expression_list:
+                exp_data[expression] = self.get_expression_data(practice_attempts.filter(expression=expression))
+    
+        mins = { key : min([y[key] for y in exp_data.values()]) for key in DATA_KEYS }
+        maxes = { key: max([y[key] for y in exp_data.values()]) for key in DATA_KEYS }
+        ranges = { key : maxes[key] - mins[key] if maxes[key] > mins[key] else 1 for key in DATA_KEYS }
+
+        for worksheet in completed:
+            for expression in worksheet.expression_list:
+                expression.norm_figs : dict[str, int | float] = {}
+                
+                expression.norm_figs['correct_attempts'] = max(0, exp_data[expression]['correct_attempts'] - mins['correct_attempts']) / ranges['correct_attempts']
+                expression.norm_figs['days_since_review'] = max(0, exp_data[expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review']
+                expression.norm_figs['wpm'] = max(0, exp_data[expression]['wpm'] - mins['wpm']) / ranges['wpm']
+                expression.norm_figs['last_score'] = max(0, exp_data[expression]['last_score'] - mins['last_score']) / ranges['last_score']
+                expression.familiarity : int = round(sum([float(expression.norm_figs[key]) * WEIGHTS[key] for key in DATA_KEYS]) * 100)
+
+                # we need to set the style of each expression's score bar
+                (expression.bar_style, expression.border_style) = \
+                    ('bg-danger','border-danger') if expression.familiarity <= 33 \
+                    else ('bg-warning','border-warning') if expression.familiarity <= 66 \
+                    else ('bg-primary','border-success')
+
+        # Only allow students to review completed worksheets (must have an answer)        
+        context['worksheets'] =  completed
+        
+        return context
 
 class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, TemplateView):
     """

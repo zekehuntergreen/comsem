@@ -1,3 +1,4 @@
+from __future__ import annotations # This is necessary for some type hinting
 import datetime, uuid
 
 from django.db import models
@@ -6,7 +7,7 @@ from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 from ComSemApp.teacher import constants as teacher_constants
 
@@ -106,6 +107,7 @@ class Course(models.Model):
         return "active" if active else "inactive"
 
     def get_visible_worksheets(self):
+        self.worksheets : QuerySet[Worksheet]
         return self.worksheets.exclude(status=teacher_constants.WORKSHEET_STATUS_PENDING)
 
     class Meta:
@@ -183,13 +185,14 @@ class Worksheet(models.Model):
     def released(self):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
 
-    def complete_submission(self, student): # vhl checks if any submissions are complete
+    def complete_submission(self, student) -> StudentSubmissionManager | None: # vhl checks if any submissions are complete
         complete_submission = None
         if StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").exists():
             complete_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").latest()
         return complete_submission
 
-    def release(self):   
+    def release(self):
+        self.expressions : QuerySet[Expression]
         if self.expressions.exists(): # vhl releases no empty worksheets
             self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
             self.save()
@@ -200,8 +203,8 @@ class Worksheet(models.Model):
             return False
 
 
-    def last_submission(self, student):
-        last_submission = None
+    def last_submission(self, student : Student) -> StudentSubmission | None:
+        last_submission : StudentSubmission | None = None
         if StudentSubmission.objects.filter(worksheet_id=self.id, student=student).exists():
             last_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student).latest()
         return last_submission
@@ -329,7 +332,7 @@ class SpeakingPracticeAttempt(models.Model):
     wpm = models.DecimalField(max_digits=5,decimal_places=2, verbose_name='Words per Minute')
 
     def __str__(self):
-        return "%d - %5s - %s" % (self.id, str(self.correct), self.expression)
+        return f"{self.id}: {self.expression} - {self.correct}% ({self.date.strftime('%d %b %Y')})"
 
     class Meta:
         verbose_name = "Speaking Practice Attempt"
