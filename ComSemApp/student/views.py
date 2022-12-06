@@ -701,16 +701,15 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView)
 
     def get_object(self):
         """
-            needed for Django detailview function
+            implments Django DetailView function
         """
         return self.course
 
 
-    def get_context_data(self, **kwargs):
-        """Get worksheet data for a student in a given course
-        
+    def get_context_data(self, **kwargs) -> dict[str, dict[str, str | int | float]]:
+        """implments Django's DetailView get_context_data function 
         Returns:
-            dict -- context for creating generate_reviewsheet.html
+            context -- contains values needed for speaking practice result page 
         """
         
         context = super(SpeakingPracticeResultsView, self).get_context_data(**kwargs)
