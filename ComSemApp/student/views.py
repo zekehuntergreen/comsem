@@ -698,8 +698,10 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
             for expression in worksheet.expression_list:
                 expression.norm_figs : dict[str, int | float] = {}
                 
+                # These weights are based on the formula: attempt - min / range
+                # the days_since_review score is subtracted from one since less days since review is higher familiarity
                 expression.norm_figs['correct_attempts'] = max(0, exp_data[expression]['correct_attempts'] - mins['correct_attempts']) / ranges['correct_attempts']
-                expression.norm_figs['days_since_review'] = max(0, exp_data[expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review']
+                expression.norm_figs['days_since_review'] = 1 - (max(0, exp_data[expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review'])
                 expression.norm_figs['wpm'] = max(0, exp_data[expression]['wpm'] - mins['wpm']) / ranges['wpm']
                 expression.norm_figs['last_score'] = max(0, exp_data[expression]['last_score'] - mins['last_score']) / ranges['last_score']
                 expression.familiarity : int = round(sum([float(expression.norm_figs[key]) * WEIGHTS[key] for key in DATA_KEYS]) * 100)
