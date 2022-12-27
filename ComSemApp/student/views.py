@@ -609,8 +609,17 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
     """
     template_name: str = 'ComSemApp/student/assessment.html'
 
-    def foo():
-        pass
+    def get_context_data(self, **kwargs):
+        """
+          Gets the data necessary to create speaking practice problems 
+          from expressions given in a GET request
+
+        Returns:
+          context -- context data used by assessment.html
+        """
+        
+        context = super(ReviewsheetView, self).get_context_data(**kwargs)
+        return context
 
 class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
     """
