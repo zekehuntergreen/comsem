@@ -448,9 +448,6 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
 
 
 class ReviewsheetView(StudentCourseViewMixin, DetailView):
-    # SHOULD THIS BE INHERETING ^^? 
-    # Only using it since I want to keep non-central page elements the same (sidebar/header/footer)
-    # Also I don't really know how to use Mixins properly -  AF
 
     context_object_name = 'reviewsheet'
     template_name = "ComSemApp/student/reviewsheet.html"
