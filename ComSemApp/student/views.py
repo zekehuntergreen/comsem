@@ -607,9 +607,23 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
       Serves the content of the speaking practice page which presents problems
       and recieves user input.
     """
-    template_name: str = 'ComSemApp/student/assessment.html'
+    template_name : str = 'ComSemApp/student/assessment.html'
 
-    def get_context_data(self, **kwargs):
+    def generate_problem_info(self, id : str) -> dict[str, float | int]:
+        """
+          Generates a speaking practice problem for an expression given the id of that expression
+
+        Arguments:
+          id : str -- The id of the expression
+
+        Returns:
+          problem_data : dict[str : str | float] -- The problem data for the given expression
+        """
+        problem_data : dict[str : str | float] = {}
+
+        return problem_data
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         """
           Gets the data necessary to create speaking practice problems 
           from expressions given in a GET request
