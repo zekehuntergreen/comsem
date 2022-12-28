@@ -699,7 +699,7 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
                 expression.norm_figs : dict[str, int | float] = {}
                 
                 expression.norm_figs['correct_attempts'] = max(0, exp_data[expression]['correct_attempts'] - mins['correct_attempts']) / ranges['correct_attempts']
-                expression.norm_figs['days_since_review'] = max(0, exp_data[expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review']
+                expression.norm_figs['days_since_review'] = 1 - max(0, exp_data[expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review']
                 expression.norm_figs['wpm'] = max(0, exp_data[expression]['wpm'] - mins['wpm']) / ranges['wpm']
                 expression.norm_figs['last_score'] = max(0, exp_data[expression]['last_score'] - mins['last_score']) / ranges['last_score']
                 expression.familiarity : int = round(sum([float(expression.norm_figs[key]) * WEIGHTS[key] for key in DATA_KEYS]) * 100)
@@ -716,7 +716,7 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
         return context
 
 practice_data = [
-                    {'transcription1':"This is a sentence transcription.",'accuracy1':50,'fluency1':75},
+                    {'transcription1':"This is a test.",'accuracy1':100,'fluency1':56},
                     {'transcription1':"This is a second sentence transcription.",'accuracy1':90,'fluency1':70}
                 ]
 class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView):

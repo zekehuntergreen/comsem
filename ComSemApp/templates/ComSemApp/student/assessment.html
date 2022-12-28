@@ -3,104 +3,116 @@
 {% extends 'ComSemApp/sidebar.html' %}
 
 {% block content %}
-<h1>Speaking Practice View</h1>
+<div class="row h-100">
+	<div class="col-12 h-100">
+		<div class="card-box">
+			<h4 class="header-title m-t-0 m-b-20">Speaking Practice</h4>
+			<div class="progress"  style="height: 20px;">
+  				<div class="progress-bar bg-success" role="progressbar" style="height: 20px; width: 5%" aria-valuenow="100" aria-valuemin="100" aria-valuemax="100"></div>
+			</div>
+			<div class="card">
+				<!--card for displaying results-->
+          <div class='card-body'>
+            <center>
+              <h2><span id="sentence-text" ></span></h2>
+              <p id="text-for-timer"><span id="text-timer"> </span> </p>
+              <progress id="timer-bar"></progress>
+              <script>
 
-<p><span id="sentence-text" ></span></p>
-<p id="text-for-timer"><span id="text-timer"> </span> </p>
-<progress id="timer-bar"></progress>
+                const reading_offset = 2;
+                const recording_offset = 3;
+                // Change this to desired expression
+                let sentence = 'This are a test.'; 
+                document.getElementById("sentence-text").textContent = sentence
+                document.getElementById("timer-bar").style.visibility = "hidden";
+                document.getElementById("text-for-timer").style.visibility = "hidden";
+                
+                //runs the reading timer
+                let reading_check = timer(sentence, reading_offset);
+                //Once reading timer done this starts
+                reading_check.then(() => {
+                  //This is where recording start goes
+                  //Runs the recording timer
+                  let recording_check = timer(sentence, recording_offset);
+                  //Once recording timer done this starts
+                  recording_check.then(() => { 
+                    //This is where recording stop goes
+                    //This was a last test can be deleted
+                    document.getElementById("sentence-text").textContent = 'Problem Complete!';
+                  });
+                });
+                
+                function timer(sentence, base_time){
+                  return new Promise((resolve, reject) => {
+                    document.getElementById("timer-bar").style.visibility = "visible";
+                    document.getElementById("text-for-timer").style.visibility = "visible";
+                    let sentence_len = sentence.length / 10;
+                    // In order to not have .00000001 show up on the timer this is how decimals need to be done
+                    var current_time_reading = ((base_time * 10) + (sentence_len * 10)) / 10; 
+                    // starting time made dynamic with len
+                    let given_time = ((base_time * 10) + (sentence_len * 10)) / 10;
+                    //timer function tics every .1secs
+                    var reading_timer = setInterval(() => {
+                      // This runs when the timer is complete
+                      if(current_time_reading <= 0){ 
+                        clearInterval(reading_timer);
+                        document.getElementById("timer-bar").style.visibility = "hidden";
+                        document.getElementById("text-for-timer").style.visibility = "hidden";
+                        resolve();
+                      }
+                      document.getElementById("timer-bar").value = given_time - current_time_reading;
+                      document.getElementById("text-timer").textContent = current_time_reading;
+                      current_time_reading = (current_time_reading * 10 - 1) / 10;
+                    }, 100);
+                    // changes the bar to reflect dynamic allocation
+                    document.getElementById("timer-bar").setAttribute("value", 0);
+                    document.getElementById("timer-bar").setAttribute("max", given_time);
+                  });
+                }
+              </script>
+              <br>
 
-<script>
 
-  const reading_offset = 2;
-  const recording_offset = 3;
-  // Change this to desired expression
-  let sentence = 'This an example.'; 
-  document.getElementById("sentence-text").textContent = sentence
-  document.getElementById("timer-bar").style.visibility = "hidden";
-  document.getElementById("text-for-timer").style.visibility = "hidden";
-  
-  //runs the reading timer
-  let reading_check = timer(sentence, reading_offset);
-  //Once reading timer done this starts
-  reading_check.then(() => {
-    //This is where recording start goes
-    //Runs the recording timer
-    let recording_check = timer(sentence, recording_offset);
-    //Once recording timer done this starts
-    recording_check.then(() => { 
-      //This is where recording stop goes
-      //This was a last test can be deleted
-      document.getElementById("sentence-text").textContent = 'Problem Complete!';
-    });
-  });
-  
-  function timer(sentence, base_time){
-    return new Promise((resolve, reject) => {
-      document.getElementById("timer-bar").style.visibility = "visible";
-      document.getElementById("text-for-timer").style.visibility = "visible";
-      let sentence_len = sentence.length / 10;
-      // In order to not have .00000001 show up on the timer this is how decimals need to be done
-      var current_time_reading = ((base_time * 10) + (sentence_len * 10)) / 10; 
-      // starting time made dynamic with len
-      let given_time = ((base_time * 10) + (sentence_len * 10)) / 10;
-      //timer function tics every .1secs
-      var reading_timer = setInterval(() => {
-        // This runs when the timer is complete
-        if(current_time_reading <= 0){ 
-          clearInterval(reading_timer);
-          document.getElementById("timer-bar").style.visibility = "hidden";
-          document.getElementById("text-for-timer").style.visibility = "hidden";
-          resolve();
-        }
-        document.getElementById("timer-bar").value = given_time - current_time_reading;
-        document.getElementById("text-timer").textContent = current_time_reading;
-        current_time_reading = (current_time_reading * 10 - 1) / 10;
-      }, 100);
-      // changes the bar to reflect dynamic allocation
-      document.getElementById("timer-bar").setAttribute("value", 0);
-      document.getElementById("timer-bar").setAttribute("max", given_time);
-    });
-  }
-</script>
-<br>
-<a href="{% url 'student:speaking_practice_results' course.id %}">Results</a>
+              {% load static %}
 
-{% load static %}
+              <!-- recordmp3 needed by ComSemRecording -->
+              <script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
+              <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
 
-<!-- recordmp3 needed by ComSemRecording -->
-<script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
-<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
+              <input hidden type="text" id="create_or_update_url">
 
-<input hidden type="text" id="create_or_update_url">
+              <!-- original -->
+              {% if worksheet.display_original %}
+              <div class="row">
+                  <div class="col-12">
+                      <label>Original Expression:</label>
+                      <p id="ExprToEdit">{{ expression.expression }}</p>
+                  </div>
+              </div>
+              {% endif %}
 
-<!-- original -->
-{% if worksheet.display_original %}
-<div class="row">
-    <div class="col-12">
-        <label>Original Expression:</label>
-        <p id="ExprToEdit">{{ expression.expression }}</p>
-    </div>
-</div>
-{% endif %}
-
-<!-- AUDIO RECORDING -->
-<div class="row" id="display_reformulation_audioRow">
-    {% include 'ComSemApp/student/assessment_audio_recording.html' %}
-    <script>
-        var encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
-        initializeRecorder() // from encoderPath, initializes recording device
-        // Audio currently not being recorded
-    </script>
-</div>
-
-<div class="row">
-    <div class="col-12 text-center">
-        <div class="btn-group" role="group">
-            <button type="button" id="saveAttempt" class="btn btn-outline-success">Finished Recording</button>
+              <!-- AUDIO RECORDING -->
+              <div class="row" id="display_reformulation_audioRow">
+                  {% include 'ComSemApp/audio_recording.html' %}
+                  <script>
+                      var encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
+                      initializeRecorder() // from encoderPath, initializes recording device
+                      // Audio currently not being recorded
+                  </script>
+              </div>
+            </center>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
+</div>
+<div class ="card">
+  <button class="btn btn-success m-3">Next Problem</button>
 </div>
 
+
+<a href="{% url 'student:speaking_practice_results' course.id %}">Results</a>
 
 
 <!-- Button script for finishing recording. Will need to be changed to call when disabled-->
