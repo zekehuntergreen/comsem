@@ -3,7 +3,7 @@ import json
 from statistics import mean, stdev
 from typing import Any
 from datetime import datetime, timedelta
-from random import choice
+from random import choice, shuffle
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -664,6 +664,7 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
         expression_ids : list[str] = dict(self.request.GET)['choice']
         # This list comprehension grabs all the data necessary for problems and filters out invalid expressions
         context['problems'] = [problem_data for expression_id in expression_ids if (problem_data := self.generate_problem_info(expression_id)) is not None]
+        shuffle(context['problems'])
 
         return context
 
