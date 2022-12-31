@@ -3,6 +3,7 @@ import json
 from statistics import mean, stdev
 from typing import Any
 from datetime import datetime, timedelta
+from random import choice, shuffle
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -448,9 +449,6 @@ class ReviewsheetGeneratorView(StudentCourseViewMixin, DetailView):
 
 
 class ReviewsheetView(StudentCourseViewMixin, DetailView):
-    # SHOULD THIS BE INHERETING ^^? 
-    # Only using it since I want to keep non-central page elements the same (sidebar/header/footer)
-    # Also I don't really know how to use Mixins properly -  AF
 
     context_object_name = 'reviewsheet'
     template_name = "ComSemApp/student/reviewsheet.html"
@@ -610,10 +608,65 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
       Serves the content of the speaking practice page which presents problems
       and recieves user input.
     """
-    template_name: str = 'ComSemApp/student/assessment.html'
+    template_name : str = 'ComSemApp/student/assessment.html'
 
-    def foo():
-        pass
+    def generate_problem_info(self, id : str) -> dict[str, str | int]:
+        """
+          Generates a speaking practice problem for an expression given the id of that expression
+
+        Arguments:
+          id : str -- The id of the expression
+
+        Returns:
+          problem_data : dict[str : str | int] -- The problem data for the given expression, contains:
+            ['id'] : str -- the expression id
+            ['formulation'] : str -- the expression formulation to be displayed
+            ['syllables'] : int -- the number of syllables in the correct formulation
+        """
+        problem_data : dict[str : str | float] = {}
+        valid_formulations : list[str] = []
+        correct_formulations : list[str] = []
+        expression_object : Expression = None
+        attempts : QuerySet[StudentAttempt] = StudentAttempt.objects.filter(student_submission__student=self.student, expression=id)
+
+        try:
+            expression_object = Expression.objects.get(pk=id)
+        except(Expression.DoesNotExist):
+            return None
+
+        if not attempts:
+            return None
+
+        valid_formulations = [attempt.reformulation_text for attempt in attempts if attempt.reformulation_text and attempt.text_correct == False]
+        valid_formulations.append(expression_object.expression)
+
+        correct_formulations = [attempt.reformulation_text for attempt in attempts if attempt.reformulation_text and attempt.text_correct == True]
+        
+        problem_data['id'] = id
+        problem_data['formulation'] = choice(valid_formulations)
+        # this is an extremely primitive way to find syllable count, but is fine for a demo/beta
+        problem_data['syllables'] = round(max(len(formulation) for formulation in correct_formulations)) / 2
+
+        return problem_data
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """
+          Gets the data necessary to create speaking practice problems 
+          from expressions given in a GET request
+
+        Returns:
+          context -- context data used by assessment.html
+        """
+        context : dict[str, Any] = super(SpeakingPracticeView, self).get_context_data(**kwargs)
+        context['problems'] : list[dict[str, str | float]] = {}
+        context['student'] : int = self.student.id
+        
+        expression_ids : list[str] = dict(self.request.GET)['choice']
+        # This list comprehension grabs all the data necessary for problems and filters out invalid expressions
+        context['problems'] = [problem_data for expression_id in expression_ids if (problem_data := self.generate_problem_info(expression_id)) is not None]
+        shuffle(context['problems'])
+
+        return context
 
 class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
     """
