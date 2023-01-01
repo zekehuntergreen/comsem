@@ -2,18 +2,91 @@
 
 {% extends 'ComSemApp/sidebar.html' %}
 
-{% block content %}
-<h1>Speaking Practice View</h1>
-
-<p><span id="sentence-text" ></span></p>
-<p id="text-for-timer"><span id="text-timer"> </span> </p>
-<progress id="timer-bar"></progress>
-
-<br>
-<a href="{% url 'student:speaking_practice_results' course.id %}">Results</a>
-
 {% load static %}
 
+{% block content %}
+
+<div class="row h-100">
+  <div class="col-12 h-100">
+    <!-- invisible until setup is complete -->
+    <div class="card-box invisible">
+      <h4 class="header-title m-t-0 m-b-20">Speaking Practice</h4>
+      <!-- bar displaying student's progress throughout the reviewsheet -->
+        <div class="progress-bar bg-success" role="progressbar" style="height: 20px; width: 100%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        <input hidden type="text" id="transcribe_url" value="{% url 'transcribe_audio' %}">
+        <div class="card">
+
+          {% comment %}           
+          <!-- sec: only shown one at a time, allowing user to navigate start > show-expression > continue > ... > end -->
+          <div class='sec card-body start'> <!--card for initial instructions-->
+            <h1 class="card-title">INSTRUCTIONS</h1>
+            <p class="card-text">For each expression you selected, you will be shown either a <strong>RIGHT</strong> or <strong>WRONG</strong> formulation. You will have <strong>10 SECONDS</strong> per expression to provide your answer. If you do not know the answer to a question, select <strong>SKIP</strong> to move to the next. Your results will be saved after every answer, so you may end the review at any point.</p>
+          </div>
+          {% endcomment %}
+  
+          <div class="sec ec card-body show-expression" id="expression-container"> <!-- card for showing expression -->
+            <div id="timer-bar" class="progress-bar bg-info show-expression" role="timer" style="height: auto; width: 100%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+              <h2 id="timer-text" class="show-expression"></h2>
+            </div>
+            <h1 id='expression-text' class="card-title text-center show-expression"></h1>
+          </div>
+
+          {% comment %}   
+          <div class='sec ec card-body continue'> <!-- card that asks students if they would like to quit mid review sheet or continue-->
+            <h1 class="card-title">CONTINUE?</h1>
+            <p class="card-text">Your results up to this point are automatically saved. Select <strong>EXIT</strong> to quit the review and see your results, or <strong>CONTINUE</strong> to review the next term.</p>
+          </div>
+          {% endcomment %}
+
+          {% comment %} 
+          <div class='card-body d-none end'> <!--card for displaying results-->
+            <h1 class="card-title">Review complete!</h1>
+              <table id="results_table" class="table table-hover"> <!--table for displaying results of a worksheet-->
+                  <thead>
+                      <tr>
+                          <th>Expression Shown</th> <!--display term that students saw in question-->
+                          <th class="text-center">Correct Response</th> <!--displays if term is gramatically correct-->
+                          <th class="text-center">Result</th> <!--displays if the student's answer was correct-->
+                      </tr>
+                  </thead>
+                  <tbody id="result_body">
+                      <!-- Results populated here -->
+                  </tbody>
+              </table>
+          </div>
+          {% endcomment %}
+
+
+          <div class="btn-group d-flex card-footer" role="group" aria-label="...">
+            
+            <!-- button display cycles same as secs -->
+            <button class='btn btn-success btn-lg sec w-100 start' id='begin-review'>BEGIN REVIEW</button>
+            
+            {% comment %}
+            <button class="btn btn-disabled btn-lg sec ec w-100 play-audio" value="right">RIGHT</button>
+            <button class="btn btn-disabled btn-lg sec ec w-100 play-audio" value="skipped">SKIP</button>
+            <button class="btn btn-disabled btn-lg sec ec w-100 play-audio" value="wrong">WRONG</button>
+            
+            <button class="btn btn-primary btn-lg sec ec review-response w-100 show-expression" value="right">RIGHT</button>
+            <button class="btn btn-warning btn-lg sec ec review-response w-100 show-expression" value="skipped">SKIP</button>
+            <button class="btn btn-danger btn-lg sec ec review-response w-100 show-expression" value="wrong">WRONG</button>
+            
+            <button class="btn btn-danger btn-lg sec ec continue-response w-100 continue" value="quit">EXIT REVIEW</button>
+            <button class="btn btn-primary btn-lg sec ec continue-response w-100 continue" value="next-expression">CONTINUE REVIEW</button>
+            {% endcomment %}
+            
+            <button class="btn btn-success btn-lg sec ec w-100 control" value="stop">STOP RECORDING</button>
+            <button class="btn btn-success btn-lg sec ec w-100 control" value="next">NEXT EXPRESSION</button>
+          </div>
+          <button class="btn btn-success btn-lg sec w-100 ec" href="{% url 'student:speaking_practice_results' course.id %}">RESULTS</button>
+          <button class="btn btn-success btn-lg w-100 end d-none" id='exit-review' href="{% url 'student:course' course.id %}">RETURN TO COURSE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% comment %} 
 <!-- recordmp3 needed by ComSemRecording -->
 <script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
@@ -39,7 +112,9 @@
         // Audio currently not being recorded
     </script>
 </div>
+{% endcomment %}
 
+{% comment %} 
 <div class="row">
     <div class="col-12 text-center">
         <div class="btn-group" role="group">
@@ -47,100 +122,160 @@
         </div>
     </div>
 </div>
-
+ {% endcomment %}
 
 
 <!-- Button script for finishing recording. Will need to be changed to call when disabled-->
 <script>
-  const reading_offset = 2;
-  const recording_offset = 3;
-  // Change this to desired expression
-  let sentence = 'This an example.'; 
-  document.getElementById("sentence-text").textContent = sentence
-  document.getElementById("timer-bar").style.visibility = "hidden";
-  document.getElementById("text-for-timer").style.visibility = "hidden";
-  
-  //runs the reading timer
-  let reading_check = timer(sentence, reading_offset);
-  //Once reading timer done this starts
-  reading_check.then(() => {
-    //This is where recording start goes
-    //Runs the recording timer
-    let recording_check = timer(sentence, recording_offset);
-    //Once recording timer done this starts
-    recording_check.then(() => { 
-      //This is where recording stop goes
-      //This was a last test can be deleted
-      document.getElementById("sentence-text").textContent = 'Problem Complete!';
-    });
+const READING_OFFSET = 2;
+const RECORDING_OFFSET = 3;
+// Change this to desired expression
+let sentence = 'This an example.'; 
+
+function timer(syllables, offset) {
+  return new Promise((resolve, reject) => {
+    let start_time = getnow();
+    let current_time = 0;
+    let max_time = offset + syllables / 10
+    $("#timer-bar").ariaValueNow = 0;
+    $("#timer-bar").ariaValueMin = 0;
+    $("#timer-bar").ariaValueMax = max_time;
+    $("#timer-bar").visibility = "visible";
+    $("#timer-text").visibility = "visible";
+
+    //timer function tics every .1secs
+    let update = setInterval(() => {
+      current_time = (getnow() - start_time) / 1000
+      // This runs when the timer is complete
+      if(current_time >= max_time){ 
+        clearInterval(update);
+        resolve();
+      }
+      $("#timer-bar").ariaValueNow = current_time;
+      $("#timer-text").html(pad2(current_time.toFixed(1)));
+    }, 100);
   });
-  
-  function timer(sentence, base_time){
-    return new Promise((resolve, reject) => {
-      document.getElementById("timer-bar").style.visibility = "visible";
-      document.getElementById("text-for-timer").style.visibility = "visible";
-      let sentence_len = sentence.length / 10;
-      // In order to not have .00000001 show up on the timer this is how decimals need to be done
-      var current_time_reading = ((base_time * 10) + (sentence_len * 10)) / 10; 
-      // starting time made dynamic with len
-      let given_time = ((base_time * 10) + (sentence_len * 10)) / 10;
-      //timer function tics every .1secs
-      var reading_timer = setInterval(() => {
-        // This runs when the timer is complete
-        if(current_time_reading <= 0){ 
-          clearInterval(reading_timer);
-          document.getElementById("timer-bar").style.visibility = "hidden";
-          document.getElementById("text-for-timer").style.visibility = "hidden";
-          resolve();
-        }
-        document.getElementById("timer-bar").value = given_time - current_time_reading;
-        document.getElementById("text-timer").textContent = current_time_reading;
-        current_time_reading = (current_time_reading * 10 - 1) / 10;
-      }, 100);
-      // changes the bar to reflect dynamic allocation
-      document.getElementById("timer-bar").setAttribute("value", 0);
-      document.getElementById("timer-bar").setAttribute("max", given_time);
-    });
-  }
+}
 
-$("#saveAttempt").click(function(e){
-    e.preventDefault()
+function hide(classname) {
+  $('.' + classname).addClass("d-none");
+}
 
-    if( $("#CorrectedExpr").val().trim() == "" ){
-        // must have a valid expression
-        alert("Please enter a correction")
-        return;
+function show(classname) {
+  $('.' + classname).removeClass("d-none");
+}
+
+function setEqualHeight(classgroup) {
+  $('.card-box').addClass("invisible");
+  show(classgroup);
+  $("div." + classgroup).height("auto");
+
+  var tallestcolumn = 0;
+  $("div." + classgroup).each(function() {
+    currentHeight = $(this).height();
+    if (currentHeight > tallestcolumn) {
+      tallestcolumn = currentHeight;
     }
+  });
+  $("div." + classgroup).height(tallestcolumn);
 
-    // because of audio, we must send a formdata object
-    var attemptFormData = new FormData();
-    attemptFormData.append( 'reformulation_text', $("#CorrectedExpr").val() );
+  hide(classgroup)
+  //show(current_container_id);
+  $('.card-box').removeClass("invisible");
+}
 
-    var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? true : false
-    if (reformulation_audio){
-        attemptFormData.append( 'audio', audioReformulationBlob )
-    } else {
-        attemptFormData.append('delete_audio', true)
+function pad2(number) {
+  return (number < 10 ? '0' : '') + number;
+ }
+
+// AF - return the current time
+function getnow() {
+return new Date().getTime();
+}
+
+$(document).ready(() => {
+  console.log( "document loaded" );
+
+  $(window).on("beforeunload", (event) => {
+    event.preventDefault();
+    // This text won't show in modern browsers :(
+    event.returnValue = 'WARNING: If you leave this page, you will not be able to continue the review where you left off. Exit anyway?';
+    return event.returnValue;
+  });
+
+  // initializing review
+  $("#begin-review").click(() => {
+      current_question = 1;
+    start_review();
+  });
+
+  /*
+  // get responses and stop the timer
+  $(".review-response").mousedown((e) => {
+    clearInterval(timer);
+    post_response(e, current_time, this.value);
+    current_time = 0;
+    // go to continue screen
+    process_response();
+  });
+  */
+
+  $(".control").click(() => {
+    // TODO: add logic to submit attempt
+    if(this.value == "stop") {
+
     }
+  });
 
-    $.ajax({
-        type: "POST",
-        url: $("#create_or_update_url").val(),
-        data: attemptFormData,
-        processData: false,
-        contentType: false,
-        success: function(response){
-            cs_notification('success', "Expression Saved")
-            // update expressions table
-            drawExpressionsTable();
-        },
-        error: function(jqXHR, textStatus, errorThrown){
-            cs_ajax_error(jqXHR, textStatus, errorThrown)
-        },
-    });
+  /*
+  // direct to appropriate sec based on continue response
+  $(".continue-response").click(() => {
+    if (this.value === "quit") {
+        display_results();
+      change_container("end");
+      $(window).off("beforeunload");
+    } else if (this.value === "next-expression") {
+      set_display(review_data[i])
+      current_question += 1;
+    }
+  }); 
+  */
 
-    clearEditor()
-    audioReformulationBlob = null; // clears reformulation
+  $(window).resize(() => {
+    /*
+    if (current_container_id == 'start') {
+      setEqualHeight('sec');
+    } else if (current_container_id != 'end') {
+      setEqualHeight('ec');
+    }
+    */
+    setEqualHeight("sec");
+    show("show-expression");
+    show("control");
+  });
+
+$("#expression-text").content = sentence;
+$("#timer-bar").visibility = "hidden";
+$("#timer-text").visibility = "hidden";
+
+show("show-expression");
+
+setEqualHeight("sec");
+
+//runs the reading timer
+let reading_check = timer(5, READING_OFFSET);
+//Once reading timer done this starts
+reading_check.then(() => {
+  //This is where recording start goes
+  //Runs the recording timer
+  let recording_check = timer(sentence, RECORDING_OFFSET);
+  //Once recording timer done this starts
+  recording_check.then(() => { 
+    //This is where recording stop goes
+    //This was a last test can be deleted
+    $("#expression-text").textContent = 'Problem Complete!';
+  });
+});
 });
 </script>
 
