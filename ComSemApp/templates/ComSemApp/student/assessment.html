@@ -80,9 +80,9 @@
             <button class="btn btn-success btn-lg sec ec w-100 control" value="stop">STOP RECORDING</button>
             <button class="btn btn-success btn-lg sec ec w-100 control" value="next">NEXT EXPRESSION</button>
           </div>
-          <button class="btn btn-success btn-lg sec w-100 ec" href="{% url 'student:speaking_practice_results' course.id %}">RESULTS</button>
-          <button class="btn btn-success btn-lg w-100 end d-none" id='exit-review' href="{% url 'student:course' course.id %}">RETURN TO COURSE</button>
         </div>
+        <button class="btn btn-warning btn-lg w-100 m-1" onclick="window.location.href='{% url 'student:speaking_practice_results' course.id %}';">RESULTS</button>
+        <button class="btn btn-warning btn-lg w-100 m-1" onclick="window.location.href='{% url 'student:course' course.id %}';">RETURN TO COURSE</button>
       </div>
     </div>
   </div>
