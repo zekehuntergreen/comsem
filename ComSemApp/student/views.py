@@ -718,8 +718,8 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
         return context
 
 practice_data = [
-                    {'id':1,'transcription1':"This is a sentence transcription.",'accuracy1':50,'fluency1':75},
-                    {'id':2,'transcription1':"This is a second sentence transcription.",'accuracy1':90,'fluency1':70}
+                    {'id':1,'transcription1':"This is a sentence transcription.",'accuracy1':50,'fluency1':75, 'correct':'This is the correct sentence.'},
+                    {'id':2,'transcription1':"This is a second sentence transcription.",'accuracy1':90,'fluency1':70, 'correct':'This is another correct sentence.'}
                 ]
 class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView):
     """
