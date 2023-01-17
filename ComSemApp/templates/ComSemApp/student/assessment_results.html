@@ -3,6 +3,13 @@
 {% load static %}
 
 {% block content %}
+
+<script type="text/javascript">
+	function showHideRow(row){
+		$("#" + row).toggle();
+	}
+</script>
+
 <div class="row h-100">
 	<div class="col-12 h-100">
 		<div class="card-box">
@@ -36,22 +43,25 @@
 										{{item.fluency1}}%
 									</td>
 									<td class="text-center">
-										<button id="viewDetails" class="btn btn-outline-primary btn-sm" url="none">ViewDetails</button>
+										<button onclick="showHideRow({{item.id}})" class="sbtn btn-outline-primary btn-sm">
+											Show More
+										</button>
 									</td>
 								</tr>
+								<tr id={{item.id}} class="hidden_row">
+									<td colspan=4>
+										<p style="margin-left:40px">
+										<tab><b>Correct Sentence:</b> {{item.correct}} </tab><br>
+										<b>Alternate Transcription:</b> {{item.transcription1}}<br>
+										</p>
+								<script>
+									showHideRow({{item.id}});
+								</script>
 							{% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
-			<div class="card" id="show-more-card">
-				<div class="card-body">
-					<h3 class="card-title">Details</h3>
-					<div id="details"></div>
-				</div>
-			</div>
-
-
         </div>
     </div>
 </div>
@@ -61,18 +71,3 @@
 </div>
 
 {% endblock %}
-
-<script>
-console.log("test log");
-/*
-function populateDetails(url){
-	console.log("populate reached");
-	//$("#details").load(url, )
-}
-
-$('#viewDetails').on('click', function(){
-		//console.log("view Details clicked");
-		populateDetails($(this).attr('url'));
-});
-*/
-</script>
