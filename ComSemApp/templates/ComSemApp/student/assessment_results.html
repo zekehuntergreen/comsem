@@ -6,6 +6,10 @@
 
 <script type="text/javascript">
 	function showHideRow(row){
+		/*
+			toggles (hides/shows) the "show more" row that
+			is inputted as a parameter
+		*/
 		$("#" + row).toggle();
 	}
 </script>
@@ -44,18 +48,21 @@
 									</td>
 									<td class="text-center">
 										<button onclick="showHideRow({{item.id}})" class="sbtn btn-outline-primary btn-sm">
+											<!--Calls the showHideRow function when pressed, with the item id as the input-->
 											Show More
 										</button>
 									</td>
 								</tr>
-								<tr id={{item.id}} class="hidden_row">
-									<td colspan=4>
-										<p style="margin-left:40px">
+								<!--row that shows hidden information-->
+								<tr id={{item.id}} class="hidden_row">  <!--row id corresponds to individual item id-->
+									<td colspan=4> <!-- merges all four columns in this row-->
+										<p style="margin-left:40px"> <!--indentation for this paragraph-->
 										<b>Correct Sentence:</b> {{item.correct}} <br>
 										<b>Alternate Transcription:</b> {{item.transcription1}}<br>
 										<b>Graded Sentence:</b> {{item.graded}} <br>
 										</p>
 								<script>
+									// called on instantitiation to hide the "show more" row
 									showHideRow({{item.id}});
 								</script>
 							{% endfor %}
