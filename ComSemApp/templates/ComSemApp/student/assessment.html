@@ -65,13 +65,6 @@
 <br>
 <a href="{% url 'student:speaking_practice_results' course.id %}">Results</a>
 
-{% load static %}
-
-<!-- recordmp3 needed by ComSemRecording -->
-<script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
-<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
-
-<input hidden type="text" id="create_or_update_url">
 
 <!-- original -->
 {% if worksheet.display_original %}
@@ -84,14 +77,25 @@
 {% endif %}
 
 <!-- AUDIO RECORDING -->
+
+<!-- recordmp3 needed by ComSemRecording -->
+<input hidden type="text" id="create_or_update_url">
+
 <div class="row" id="display_reformulation_audioRow">
     {% include 'ComSemApp/student/assessment_audio_recording.html' %}
-    <script>
-        var encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
-        initializeRecorder() // from encoderPath, initializes recording device
-        // Audio currently not being recorded
-    </script>
 </div>
+
+{% load static %}
+<script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
+<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
+
+<script>
+  var encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
+  initializeRecorder() // from encoderPath, initializes recording device
+  // Audio currently not being recorded
+</script>
+
+
 
 <div class="row">
     <div class="col-12 text-center">
@@ -103,7 +107,7 @@
 
 
 
-<!-- Button script for finishing recording. Will need to be changed to call when disabled-->
+<!-- Button script for finishing recording. Will need to be changed to call when disabled
 <script>
 $("#saveAttempt").click(function(e){
     e.preventDefault()
@@ -145,5 +149,5 @@ $("#saveAttempt").click(function(e){
     audioReformulationBlob = null; // clears reformulation
 });
 </script>
-
+-->
 {% endblock %}

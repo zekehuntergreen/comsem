@@ -603,12 +603,14 @@ class ReviewAttemptCreateView(ReviewsheetView, CreateView):
 
 # ALL THESE CLASSES SHOULD IMPLEMENT DIFFERENT VIEWS LATER
 # the foo() functions are just placeholders too keep the classes in here
-class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
+class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, CreateView):
     """
       Serves the content of the speaking practice page which presents problems
       and recieves user input.
     """
+    model = SpeakingPracticeAttempt
     template_name : str = 'ComSemApp/student/assessment.html'
+    fields = ['audio']
 
     def generate_problem_info(self, id : str) -> dict[str, str | int]:
         """
@@ -667,6 +669,19 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
         shuffle(context['problems'])
 
         return context
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form):
+        expression_id = self.kwargs.get('expression_id')
+        expression = get_object_or_404(Expression, id=expression_id, worksheet=self.worksheet)
+        attempt = form.save(commit=False)
+        attempt.student_submission = self.submission
+        attempt.expression = expression
+        attempt.save()
+        return JsonResponse({}, status=200)
 
 class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
     """
