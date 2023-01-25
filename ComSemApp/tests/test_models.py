@@ -60,3 +60,20 @@ class TestSpeakingPracticeAttempt(BaseTestCase):
         # correct too low (negative)
         with transaction.atomic():
             self.assertRaises(ValidationError, SpeakingPracticeAttempt.objects.create(expression=self.expression, correct=-1, wpm=100).full_clean)
+
+    def test_multiple_attempts_on_same_expression_are_unique(self) -> None:
+        """
+            Tests that attempts for the same expression are created as separate objects
+        """
+        attempt1 : SpeakingPracticeAttempt = SpeakingPracticeAttempt.objects.create(expression=self.expression, correct=90, wpm=100)
+        attempt2 : SpeakingPracticeAttempt = SpeakingPracticeAttempt.objects.create(expression=self.expression, correct=50, wpm=123)
+        self.assertNotEqual(attempt1, attempt2)
+
+    def test_values_read_from_object_equal_those_assigned(self) -> None:
+        """
+            Tests that the object created has values identical to those assigned
+        """
+        attempt : SpeakingPracticeAttempt = SpeakingPracticeAttempt.objects.create(expression=self.expression, correct=90, wpm=100)
+        self.assertEqual(self.expression, attempt.expression)
+        self.assertEqual(90, attempt.correct)
+        self.assertEqual(100, attempt.wpm)
