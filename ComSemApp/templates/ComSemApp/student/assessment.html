@@ -67,7 +67,7 @@ function timer(syllables, offset) {
       let value = Math.min(((current_time / max_time) * 100), 100);
       $("#timer-bar").attr("aria-valuenow", value)
         .css("width", value + "%");
-      $("#timer-text").html(current_time.toFixed(0));
+      $("#timer-text").html(Math.ceil(Math.max(0, max_time - current_time)).toFixed(0));
     }, 25);
   });
 }
@@ -124,17 +124,6 @@ $(document).ready(() => {
     start_review();
   });
 
-  /*
-  // get responses and stop the timer
-  $(".review-response").mousedown((e) => {
-    clearInterval(timer);
-    post_response(e, current_time, this.value);
-    current_time = 0;
-    // go to continue screen
-    process_response();
-  });
-  */
-
   $(".control").click(() => {
     // TODO: add logic to submit attempt
     if(this.value == "stop") {
@@ -142,28 +131,7 @@ $(document).ready(() => {
     }
   });
 
-  /*
-  // direct to appropriate sec based on continue response
-  $(".continue-response").click(() => {
-    if (this.value === "quit") {
-        display_results();
-      change_container("end");
-      $(window).off("beforeunload");
-    } else if (this.value === "next-expression") {
-      set_display(review_data[i])
-      current_question += 1;
-    }
-  }); 
-  */
-
   $(window).resize(() => {
-    /*
-    if (current_container_id == 'start') {
-      setEqualHeight('sec');
-    } else if (current_container_id != 'end') {
-      setEqualHeight('ec');
-    }
-    */
     setEqualHeight("sec");
     show("show-expression");
     show("control");
