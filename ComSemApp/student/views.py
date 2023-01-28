@@ -4,6 +4,7 @@ from statistics import mean, stdev
 from typing import Any
 from datetime import datetime, timedelta
 from random import choice, shuffle
+from collections import Counter
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -20,6 +21,7 @@ from ComSemApp.teacher import constants as teacher_constants
 
 from ComSemApp.models import *
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin, SubmissionViewMixin
+from ComSemApp.utils import transcribe_and_get_length_audio_file
 
 
 class StudentViewMixin(RoleViewMixin):
@@ -817,9 +819,9 @@ class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
     template_name = "ComSemApp/student/assessment.html"
     fields = ["expression", "student", "audio"]
 
-    def transcribe_audio(self, audio):
-        # TODO: Trancribe audio
-        pass
+    def score_attempt(transcription : str) -> float:
+        # TODO: Implement
+        return 100
 
     def form_invalid(self, form):
         """
@@ -835,6 +837,15 @@ class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
             Processes audio data from the form, creates the SpeakingPracticeAttempt
             entry in the database and returns the transcription and score data back to the frontend
         """
-        attempt = form.save(commit=False)
-        
-        return JsonResponse({}, status=200)
+        attempt : SpeakingPracticeAttempt = form.save(commit=False)
+
+        transcription : str
+        length : int
+        transcription, length = transcribe_and_get_length_audio_file(attempt.files['audio'])
+        # The Counter call gets the number of words, the division on the bottom get the length in minutes
+        attempt.wpm = Counter(transcription.split()) / (length / 60000)
+        attempt.correct = self.score_attempt(transcription)
+
+        attempt.save()
+
+        return JsonResponse({attempt}, status=200)

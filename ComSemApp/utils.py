@@ -1,7 +1,8 @@
 import ssl
 import nltk
 import speech_recognition as sr
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
+from django.core.files.uploadedfile import UploadedFile
 import tempfile
 import os
 from pydub import AudioSegment
@@ -79,3 +80,51 @@ def transcribe(request):
                 os.close(in_file_handle)
                 os.close(out_file_handle)
                 return HttpResponse("")
+
+
+def transcribe_and_get_length_audio_file(file : UploadedFile) -> tuple(str, int):
+    """
+        Utilizes the Google audio transcription API to transcribe and get the length of an
+        audio file of the Django UploadedFile class
+        
+        Arguments:
+            file : UploadedFile -- The file to transcribe and get length of
+
+        Returns:
+            tuple(str, int) -- The transcription and length (in milliseconds) of the file
+    """
+    # tempfile.mkstemp returns a tuple containing an OS level handle
+    # and absolute path of the temp file
+    in_file_handle : int
+    temp_in_path : bytes
+    out_file_handle : int
+    temp_out_path : bytes
+
+    in_file_handle, temp_in_path = tempfile.mkstemp(suffix=".ogg")
+    out_file_handle, temp_out_path = tempfile.mkstemp(suffix=".wav")
+    with open(temp_in_path, 'wb') as temp_in:
+        temp_in.write(file.read())
+        
+    # pydub is needed to change an ogg file to a wav file
+    audio : AudioSegment = AudioSegment.from_file(temp_in_path, format="ogg")
+    audio.export(temp_out_path, format="wav")
+    length = len(audio)
+
+    # r is an object of an import "speech_recognition" declared at the top
+    r = sr.Recognizer()
+
+    # sr.Recognizer can only take .wav files
+    audio_file = temp_out_path
+    with sr.AudioFile(audio_file) as source:
+        audio = r.listen(source)
+        try:
+            text = r.recognize_google(audio)
+            #closes the temp files
+            os.close(in_file_handle)
+            os.close(out_file_handle)
+            # capitalize sentence
+            return (text, length)
+        except Exception:
+            os.close(in_file_handle)
+            os.close(out_file_handle)
+            return ("", length)
