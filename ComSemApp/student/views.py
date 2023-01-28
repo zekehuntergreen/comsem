@@ -812,9 +812,14 @@ class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
         Used to process form data served from the SpeakingPracticeView on the frontend.
         Implements the standard Django CreateView
     """
-    model = ReviewAttempt
+    model = SpeakingPracticeAttempt
+    # TODO: Update template_name when a proper template is created
     template_name = "ComSemApp/student/assessment.html"
-    fields = ["expression", "student", "correct", "response_time"]
+    fields = ["expression", "student", "audio"]
+
+    def transcribe_audio(self, audio):
+        # TODO: Trancribe audio
+        pass
 
     def form_invalid(self, form):
         """
@@ -830,6 +835,6 @@ class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
             Processes audio data from the form, creates the SpeakingPracticeAttempt
             entry in the database and returns the transcription and score data back to the frontend
         """
-        # TODO: add processing for the audio data
-        form.save()
+        attempt = form.save(commit=False)
+        
         return JsonResponse({}, status=200)
