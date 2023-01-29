@@ -806,3 +806,30 @@ class SpeakingPracticeInstructionsView(StudentViewMixin, CourseViewMixin, Templa
 
     def foo():
         pass
+
+class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
+    """
+        Used to process form data served from the SpeakingPracticeView on the frontend.
+        Implements the standard Django CreateView
+    """
+    model = ReviewAttempt
+    template_name = "ComSemApp/student/assessment.html"
+    fields = ["expression", "student", "correct", "response_time"]
+
+    def form_invalid(self, form):
+        """
+            Defines the behavior for an invalid form submission.
+            Reports whatever errors are found back to the frontend.
+        """
+        response = super().form_invalid(form)
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form):
+        """
+            Defines the behavior for a valid form submission.
+            Processes audio data from the form, creates the SpeakingPracticeAttempt
+            entry in the database and returns the transcription and score data back to the frontend
+        """
+        # TODO: add processing for the audio data
+        form.save()
+        return JsonResponse({}, status=200)
