@@ -9,7 +9,6 @@
 <p id="text-for-timer"><span id="text-timer"> </span> </p>
 <progress id="timer-bar"></progress>
 
-<!-- original -->
 {% if worksheet.display_original %}
 <div class="row">
     <div class="col-12">
@@ -18,13 +17,6 @@
     </div>
 </div>
 {% endif %}
-
-<!-- AUDIO RECORDING -->
-
-<!-- loads buttons for recording (they are invisible) -->
-<div class="row" id="display_reformulation_audioRow">
-    {% include 'ComSemApp/student/assessment_audio_recording.html' %}
-</div>
 
 <!-- loads recording javascript file which creates eventlisteners for invisible recording buttons-->
 {% load static %}
@@ -54,7 +46,7 @@
     //Runs the recording timer
 
     //Starts recording
-    document.getElementById("start").click();
+    recorder.start();
 
     //TODO:
     // Make element appear that shows that audio is recording
@@ -63,7 +55,7 @@
     //Once recording timer done this starts
     recording_check.then(() => { 
       //Stops recording
-      document.getElementById("stopButton").click();
+      recorder.stop();
       //This was a last test can be deleted
       document.getElementById("sentence-text").textContent = 'Problem Complete!';
     });
@@ -99,49 +91,4 @@
 </script>
 <br>
 <a href="{% url 'student:speaking_practice_results' course.id %}">Results</a>
-
-
-<!-- Button script for finishing recording. Will need to be changed to call when disabled
-<script>
-$("#saveAttempt").click(function(e){
-    e.preventDefault()
-
-    if( $("#CorrectedExpr").val().trim() == "" ){
-        // must have a valid expression
-        alert("Please enter a correction")
-        return;
-    }
-
-    // because of audio, we must send a formdata object
-    var attemptFormData = new FormData();
-    attemptFormData.append( 'reformulation_text', $("#CorrectedExpr").val() );
-
-    var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? true : false
-    if (reformulation_audio){
-        attemptFormData.append( 'audio', audioReformulationBlob )
-    } else {
-        attemptFormData.append('delete_audio', true)
-    }
-
-    $.ajax({
-        type: "POST",
-        url: $("#create_or_update_url").val(),
-        data: attemptFormData,
-        processData: false,
-        contentType: false,
-        success: function(response){
-            cs_notification('success', "Expression Saved")
-            // update expressions table
-            drawExpressionsTable();
-        },
-        error: function(jqXHR, textStatus, errorThrown){
-            cs_ajax_error(jqXHR, textStatus, errorThrown)
-        },
-    });
-
-    clearEditor()
-    audioReformulationBlob = null; // clears reformulation
-});
-</script>
--->
 {% endblock %}
