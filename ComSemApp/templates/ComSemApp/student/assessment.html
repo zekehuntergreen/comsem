@@ -9,15 +9,6 @@
 <p id="text-for-timer"><span id="text-timer"> </span> </p>
 <progress id="timer-bar"></progress>
 
-{% if worksheet.display_original %}
-<div class="row">
-    <div class="col-12">
-        <label>Original Expression:</label>
-        <p id="ExprToEdit">{{ expression.expression }}</p>
-    </div>
-</div>
-{% endif %}
-
 <!-- loads recording javascript file which creates eventlisteners for invisible recording buttons-->
 {% load static %}
 <script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
