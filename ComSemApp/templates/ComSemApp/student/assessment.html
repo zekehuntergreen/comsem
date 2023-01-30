@@ -9,6 +9,10 @@
 <p id="text-for-timer"><span id="text-timer"> </span> </p>
 <progress id="timer-bar"></progress>
 
+<div class="row" id="display_reformulation_audioRow">
+  {% include 'ComSemApp/audio_recording.html' %}
+</div>
+
 <!-- loads recording javascript file which creates eventlisteners for invisible recording buttons-->
 {% load static %}
 <script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
