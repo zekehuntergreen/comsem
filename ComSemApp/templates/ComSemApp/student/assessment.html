@@ -40,6 +40,21 @@
   </div>
 </div>
 
+<!-- This is not hidden for now due to demo purposes, but will be replaced later -->
+<div class="row" id="display_reformulation_audioRow">
+  {% include 'ComSemApp/audio_recording.html' %}
+</div>
+
+<!-- loads recording javascript file which creates eventlisteners for invisible recording buttons-->
+{% load static %}
+<script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
+<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
+
+<script>
+  var encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
+  initializeRecorder() // from encoderPath, initializes recording device
+</script>
+
 <!-- Button script for finishing recording. Will need to be changed to call when disabled-->
 <script>
 const READING_OFFSET = 2;
@@ -152,11 +167,13 @@ reading_check.then(() => {
   $("#timer-bar").removeClass("bg-info").addClass("bg-danger")
   //This is where recording start goes
   //Runs the recording timer
+  recorder.start();
   let recording_check = timer(sentence.length/2, RECORDING_OFFSET);
   //Once recording timer done this starts
   recording_check.then(() => { 
     //This is where recording stop goes
     //This was a last test can be deleted
+    recorder.stop();
     $("#expression-text").html('Problem Complete!');
   });
 });
