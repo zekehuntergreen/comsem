@@ -5,67 +5,69 @@
 {% block content %}
 
 <script type="text/javascript">
-	function showHideRow(row){
-		/*
-			toggles (hides/shows) the "show more" row that
-			is inputted as a parameter
-		*/
-		$("#" + row).toggle();
-	}
+    function showHideRow(row){
+        /*
+            toggles (hides/shows) the "show more" row that
+            is inputted as a parameter
+        */
+        $("#" + row).toggle();
+    }
 </script>
 
 <div class="row h-100">
-	<div class="col-12 h-100">
-		<div class="card-box">
-			<h4 class="header-title m-t-0 m-b-20">Speaking Practice</h4>
-			<div class="progress"  style="height: 20px;">
-  				<div class="progress-bar bg-success" role="progressbar" style="height: 20px; width: 100%" aria-valuenow="100" aria-valuemin="100" aria-valuemax="100"></div>
-			</div>
-			<div class="card">
-				<!--card for displaying results-->
+    <div class="col-12 h-100">
+        <div class="card-box">
+            <h4 class="header-title m-t-0 m-b-20">Speaking Practice</h4>
+            <div class="progress"  style="height: 20px;">
+                  <div class="progress-bar bg-success" role="progressbar" style="height: 20px; width: 100%" aria-valuenow="100" aria-valuemin="100" aria-valuemax="100"></div>
+            </div>
+            <div class="card">
+                <!--card for displaying results-->
                 <div class='card-body'>
                     <h1 class="card-title">Review complete!</h1>
-					<!--table for displaying results of a practice-->
+                    <!--table for displaying results of a practice-->
                     <table id="results_table" class="table table-hover"> 
-						<div class="row header">
-							<th class=>Student Transcription</th> 
-							<th class="text-center">Accuracy Score</th>
-							<th class="text-center">Fluency Score</th> 
-							<th class="text-center invisible"><button class="show-more" type="button">Show More</button></th>
-						</div>
+                        <div class="row header">
+                            <th class=>Student Transcription</th> 
+                            <th class="text-center">Accuracy Score</th>
+                            <th class="text-center">Fluency Score</th> 
+                            <th class="text-center invisible"><button class="show-more" type="button">Show More</button></th>
+                        </div>
                         <tbody id="result_body">
-							<!--displays each item from context[practice data] in this table-->
-							{% for item in practice_data%}
-								<tr>
-									<td>
-										{{item.transcription1}}
-									</td>
-									<td class="text-center">
-										{{item.accuracy1}}%
-									</td>
-									<td class="text-center">
-										{{item.fluency1}}%
-									</td>
-									<td class="text-center">
-										<button onclick="showHideRow({{item.id}})" class="sbtn btn-outline-primary btn-sm">
-											<!--Calls the showHideRow function when pressed, with the item id as the input-->
-											Show More
-										</button>
-									</td>
-								</tr>
-								<!--row that shows hidden information-->
-								<tr id={{item.id}} class="hidden_row">  <!--row id corresponds to individual item id-->
-									<td colspan=4> <!-- merges all four columns in this row-->
-										<p style="margin-left:40px"> <!--indentation for this paragraph-->
-										<b>Correct Sentence:</b> {{item.correct}} <br>
-										<b>Alternate Transcription:</b> {{item.transcription1}}<br>
-										<b>Graded Sentence:</b> {{item.graded}} <br>
-										</p>
-								<script>
-									// called on instantitiation to hide the "show more" row
-									showHideRow({{item.id}});
-								</script>
-							{% endfor %}
+                            <!--displays each item from context[practice data] in this table-->
+                            {% for item in practice_data%}
+                                <tr>
+                                    <td>
+                                        {{item.transcription1}}
+                                    </td>
+                                    <td class="text-center">
+                                        {{item.accuracy1}}%
+                                    </td>
+                                    <td class="text-center">
+                                        {{item.fluency1}}%
+                                    </td>
+                                    <td class="text-center">
+                                        <button onclick="showHideRow({{item.id}})" class="sbtn btn-outline-primary btn-sm">
+                                            <!--Calls the showHideRow function when pressed, with the item id as the input-->
+                                            Show More
+                                        </button>
+                                    </td>
+                                </tr>
+                                <!--row that shows hidden information-->
+                                <tr id={{item.id}} class="hidden_row">  <!--row id corresponds to individual item id-->
+                                    <td colspan=4> <!-- merges all four columns in this row-->
+                                        <p style="margin-left:40px"> <!--indentation for this paragraph-->
+                                            <b>Correct Sentence:</b> {{item.correct}} <br>
+                                            <b>Alternate Transcription:</b> {{item.transcription1}}<br>
+                                            <b>Graded Sentence:</b> {{item.graded}} <br>
+                                        </p>
+                                    </td>
+                                </tr>
+                                <script>
+                                    // called on instantitiation to hide the "show more" row
+                                    showHideRow({{item.id}});
+                                </script>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -74,8 +76,8 @@
     </div>
 </div>
 <div class="btn-group d-flex card-footer" role="group" aria-label="...">
-	<a href="{% url 'student:course' course.id %}" class ="btn-success btn w-100 m-1">Return Home</a>
-	<a href="{% url 'student:course' course.id %}" class ="btn-success btn w-100 m-1">Try Again</a>
+    <a href="{% url 'student:course' course.id %}" class ="btn-success btn w-100 m-1">Return Home</a>
+    <a href="{% url 'student:course' course.id %}" class ="btn-success btn w-100 m-1">Try Again</a>
 </div>
 
 {% endblock %}
