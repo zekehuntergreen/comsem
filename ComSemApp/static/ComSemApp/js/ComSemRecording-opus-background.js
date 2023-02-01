@@ -48,13 +48,6 @@ function initializeRecorder() {
         // audioBlob is the variable name that should be used to reference the audio in other scripts
         var audioBlob = new Blob([e.detail], { type: 'audio/ogg' });
         console.log('Audio is ready');
-
-        var url = URL.createObjectURL(audioBlob);
-        var audio = document.createElement('audio');
-        audio.controls = true;
-        audio.src = url;
-        audio.id = 'audioElement' // important to identify later
-		$('#recordingslist').html(audio);
     });
 
     recorder.initStream();
