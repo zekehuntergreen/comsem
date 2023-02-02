@@ -40,25 +40,18 @@
   </div>
 </div>
 
-<!-- This is not hidden for now due to demo purposes, but will be replaced later -->
-<div class="row" id="display_reformulation_audioRow">
-  {% include 'ComSemApp/audio_recording.html' %}
-</div>
+{% include 'ComSemApp/audio_recording_background.html' %}
 
 <!-- loads recording javascript file which creates eventlisteners for invisible recording buttons-->
-{% load static %}
 <script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
-<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
-
-<script>
-  var encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
-  initializeRecorder() // from encoderPath, initializes recording device
-</script>
+<script src="{% static "ComSemApp/js/ComSemRecording-opus-background.js" %}?{% now "U" %}"></script>
 
 <!-- Button script for finishing recording. Will need to be changed to call when disabled-->
 <script>
 const READING_OFFSET = 2;
 const RECORDING_OFFSET = 3;
+const encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
+
 // Change this to desired expression
 let sentence = 'This an example.'; 
 
@@ -71,7 +64,7 @@ function timer(syllables, offset) {
     $("#timer-bar").visibility = "visible";
     $("#timer-text").visibility = "visible";
 
-    //timer function tics every .1secs
+    //timer function tics every .025 secs
     let update = setInterval(() => {
       current_time = (getnow() - start_time) / 1000;
       // This runs when the timer is complete
@@ -160,6 +153,7 @@ show("show-expression");
 
 setEqualHeight("sec");
 
+initializeRecorder();
 //runs the reading timer
 let reading_check = timer(sentence.length/2, READING_OFFSET);
 //Once reading timer done this starts
