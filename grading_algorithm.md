@@ -2,7 +2,7 @@
 Here is where we will explain the model begind the grading algorithm.
 The documentation should include the different categories of grading, the criteria of those categories, and an overview of the implementation of each sub-algorithm.
 
-## Presence : 50% of total
+## Word Presence : 50% of total
 Graded solely upon the presence of all the words from the correct expression
 
 ## Word Order : 50 % of total
@@ -10,5 +10,5 @@ Graded solely upon the presence of all the words from the correct expression
 20% is based upon the postion of words in the expression. <br />
 70% is based upon the order in which the words appear. <br />
 
-## Overrall Equation : ((Presence) * .5) + ((Word Count + Word Position + Word Order) * .5)
+## Overrall Equation : ((Word Presence) * .5) + ((Word Count + Word Position + Word Order) * .5)
 Percentage Based : ((100%) * .5) + ((10% + 20% + 70%) * .5)
