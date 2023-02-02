@@ -11,3 +11,4 @@ Graded solely upon the presence of all the words from the correct expression
 70% is based upon the order in which the words appear. <br />
 
 ## Overrall Equation : ((Presence) * .5) + ((Word Count + Word Position + Word Order) * .5)
+Percentage Based : ((100%) * .5) + ((10% + 20% + 70%) * .5)
