@@ -814,7 +814,7 @@ class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
         Used to process form data served from the SpeakingPracticeView on the frontend.
         Implements the standard Django CreateView
     """
-    model = ReviewAttempt
+    model = SpeakingPracticeAttempt
     template_name = "ComSemApp/student/assessment.html"
     fields = ["expression", "student", "audio"]
 
@@ -824,6 +824,7 @@ class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
             Reports whatever errors are found back to the frontend.
         """
         response = super().form_invalid(form)
+        print("failed but got here so better")
         return JsonResponse(form.errors, status=400)
 
     def form_valid(self, form):
