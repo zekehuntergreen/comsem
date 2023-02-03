@@ -41,6 +41,8 @@
     </div>
   </div>
 </div>
+<input hidden type="text" id="save_attempt_url" value="{% url 'student:speaking_practice_submit' course.id%}">
+{% csrf_token %}
 
 {% include 'ComSemApp/audio_recording_background.html' %}
 
@@ -60,6 +62,7 @@ const encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.mi
 var curr_problem_index = 0;
 // places problems from context into array
 let problems = {{ problems | safe }};
+let student = {{ student | safe}};
 // sets up 1st problem
 let sentence = problems[curr_problem_index]['formulation'];
 
@@ -110,9 +113,11 @@ function timer_promise(sentence){
       if (curr_problem_index < problems.length -1 ){
         toggle_enabled_next();
       }
+      
 
       // updates the progress bar
       process_response();
+      save_in_form();
       $("#expression-text").html('Problem Complete!');
     });
   });
@@ -125,6 +130,7 @@ function next_problem(){
 
   $("#expression-text").html(sentence);
   console.log("changed expression to " + sentence);
+  $("#timer-bar").addClass("bg-info").removeClass("bg-danger")
   timer_promise(sentence);
 }
 
@@ -135,6 +141,29 @@ function toggle_enabled_next(){
   else{
     $("#next").addClass("disabled");
   }
+}
+
+function save_in_form(){
+  let attemptFormData = new FormData();
+  attemptFormData.append( 'expression', problems.id);
+  attemptFormData.append('student', student);
+  attemptFormData.append('audio', audioReformulationBlob);
+  
+  $.ajax({
+        type: "POST",
+        url: $("#create_or_update_url").val(),
+        data: attemptFormData,
+        processData: false,
+        contentType: false,
+        success: function(response){
+            cs_notification('success', "Expression Saved")
+        },
+        error: function(jqXHR, textStatus, errorThrown){
+            cs_ajax_error(jqXHR, textStatus, errorThrown)
+        },
+  });
+
+  audioReformulationBlob = null; // clears reformulation
 }
 
 function hide(classname) {

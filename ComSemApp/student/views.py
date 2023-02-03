@@ -816,7 +816,7 @@ class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
     """
     model = ReviewAttempt
     template_name = "ComSemApp/student/assessment.html"
-    fields = ["expression", "student", "correct", "response_time"]
+    fields = ["expression", "student", "audio"]
 
     def form_invalid(self, form):
         """
@@ -833,5 +833,7 @@ class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
             entry in the database and returns the transcription and score data back to the frontend
         """
         # TODO: add processing for the audio data
+
+        print(form.data)
         form.save()
         return JsonResponse({}, status=200)
