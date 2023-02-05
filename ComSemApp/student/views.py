@@ -811,7 +811,7 @@ class SpeakingPracticeInstructionsView(StudentViewMixin, CourseViewMixin, Templa
     def foo():
         pass
 
-class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
+class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
     """
         Used to process form data served from the SpeakingPracticeView on the frontend.
         Implements the standard Django CreateView
@@ -821,7 +821,7 @@ class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
     template_name = "ComSemApp/student/assessment.html"
     fields = ["expression", "student", "audio"]
 
-    def score_attempt(transcription : str) -> float:
+    def score_attempt(self, transcription : str) -> float:
         # TODO: Implement
         return 100
 
@@ -830,7 +830,6 @@ class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
             Defines the behavior for an invalid form submission.
             Reports whatever errors are found back to the frontend.
         """
-        response = super().form_invalid(form)
         return JsonResponse(form.errors, status=400)
 
     def form_valid(self, form):
@@ -843,11 +842,11 @@ class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
 
         transcription : str
         length : int
-        transcription, length = transcribe_and_get_length_audio_file(attempt.files['audio'])
+        transcription, length = transcribe_and_get_length_audio_file(attempt.audio)
         # The Counter call gets the number of words, the division on the bottom get the length in minutes
-        attempt.wpm = Counter(transcription.split()) / (length / 60000)
+        attempt.wpm = Counter(transcription.split()).total() / (length / 60000)
         attempt.correct = self.score_attempt(transcription)
 
         attempt.save()
 
-        return JsonResponse({attempt}, status=200)
+        return JsonResponse({'id' : attempt.id}, status=201)
