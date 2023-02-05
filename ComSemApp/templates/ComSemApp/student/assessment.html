@@ -2,147 +2,175 @@
 
 {% extends 'ComSemApp/sidebar.html' %}
 
-{% block content %}
-<h1>Speaking Practice View</h1>
-
-<p><span id="sentence-text" ></span></p>
-<p id="text-for-timer"><span id="text-timer"> </span> </p>
-<progress id="timer-bar"></progress>
-
-<script>
-
-  const reading_offset = 2;
-  const recording_offset = 3;
-  // Change this to desired expression
-  let sentence = 'This an example.'; 
-  document.getElementById("sentence-text").textContent = sentence
-  document.getElementById("timer-bar").style.visibility = "hidden";
-  document.getElementById("text-for-timer").style.visibility = "hidden";
-  
-  //runs the reading timer
-  let reading_check = timer(sentence, reading_offset);
-  //Once reading timer done this starts
-  reading_check.then(() => {
-    //This is where recording start goes
-    //Runs the recording timer
-    let recording_check = timer(sentence, recording_offset);
-    //Once recording timer done this starts
-    recording_check.then(() => { 
-      //This is where recording stop goes
-      //This was a last test can be deleted
-      document.getElementById("sentence-text").textContent = 'Problem Complete!';
-    });
-  });
-  
-  function timer(sentence, base_time){
-    return new Promise((resolve, reject) => {
-      document.getElementById("timer-bar").style.visibility = "visible";
-      document.getElementById("text-for-timer").style.visibility = "visible";
-      let sentence_len = sentence.length / 10;
-      // In order to not have .00000001 show up on the timer this is how decimals need to be done
-      var current_time_reading = ((base_time * 10) + (sentence_len * 10)) / 10; 
-      // starting time made dynamic with len
-      let given_time = ((base_time * 10) + (sentence_len * 10)) / 10;
-      //timer function tics every .1secs
-      var reading_timer = setInterval(() => {
-        // This runs when the timer is complete
-        if(current_time_reading <= 0){ 
-          clearInterval(reading_timer);
-          document.getElementById("timer-bar").style.visibility = "hidden";
-          document.getElementById("text-for-timer").style.visibility = "hidden";
-          resolve();
-        }
-        document.getElementById("timer-bar").value = given_time - current_time_reading;
-        document.getElementById("text-timer").textContent = current_time_reading;
-        current_time_reading = (current_time_reading * 10 - 1) / 10;
-      }, 100);
-      // changes the bar to reflect dynamic allocation
-      document.getElementById("timer-bar").setAttribute("value", 0);
-      document.getElementById("timer-bar").setAttribute("max", given_time);
-    });
-  }
-</script>
-<br>
-<a href="{% url 'student:speaking_practice_results' course.id %}">Results</a>
-
 {% load static %}
 
-<!-- recordmp3 needed by ComSemRecording -->
-<script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
-<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
+{% block content %}
 
-<input hidden type="text" id="create_or_update_url">
+<div class="row h-100">
+  <div class="col-12 h-100">
+    <!-- invisible until setup is complete -->
+    <div class="card-box invisible">
+      <h4 class="header-title m-t-0 m-b-20">Speaking Practice</h4>
+      <!-- bar displaying student's progress throughout the reviewsheet -->
+        <div class="progress-bar bg-success" role="progressbar" style="height: 20px; width: 100%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        <input hidden type="text" id="transcribe_url" value="{% url 'transcribe_audio' %}">
+        <div class="card">
+  
+          <div class="sec ec card-body show-expression inline-block  text-center align-middle" id="expression-container"> <!-- card for showing expression -->
+            <h1 id='expression-text' class="card-title text-center show-expression"></h1>
+            <h2 id="timer-text" class="show-expression"></h2>
+            <div class="timer bg-muted" style="height: 100px; width: 100%">
+              <div id="timer-bar" class="timer-bar bg-info show-expression" role="timer" style="height: 100px; width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <br>
+          </div>
 
-<!-- original -->
-{% if worksheet.display_original %}
-<div class="row">
-    <div class="col-12">
-        <label>Original Expression:</label>
-        <p id="ExprToEdit">{{ expression.expression }}</p>
-    </div>
-</div>
-{% endif %}
-
-<!-- AUDIO RECORDING -->
-<div class="row" id="display_reformulation_audioRow">
-    {% include 'ComSemApp/student/assessment_audio_recording.html' %}
-    <script>
-        var encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
-        initializeRecorder() // from encoderPath, initializes recording device
-        // Audio currently not being recorded
-    </script>
-</div>
-
-<div class="row">
-    <div class="col-12 text-center">
-        <div class="btn-group" role="group">
-            <button type="button" id="saveAttempt" class="btn btn-outline-success">Finished Recording</button>
+          <div class="btn-group d-flex card-footer" role="group" aria-label="...">
+            
+            <!-- button display cycles same as secs -->
+            <button class='btn btn-success btn-lg sec w-100 start' id='begin-review'>BEGIN REVIEW</button>
+            <button class="btn btn-success btn-lg sec ec w-100 control" value="stop">STOP RECORDING</button>
+            <button class="btn btn-success btn-lg sec ec w-100 control" value="next">NEXT EXPRESSION</button>
+          </div>
         </div>
+        <button class="btn btn-warning btn-lg w-100 mt-1" onclick="window.location.href='{% url 'student:speaking_practice_results' course.id %}';">RESULTS</button>
+        <button class="btn btn-warning btn-lg w-100 mt-1" onclick="window.location.href='{% url 'student:course' course.id %}';">RETURN TO COURSE</button>
+      </div>
     </div>
+  </div>
 </div>
 
+{% include 'ComSemApp/audio_recording_background.html' %}
 
+<!-- loads recording javascript file which creates eventlisteners for invisible recording buttons-->
+<script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
+<script src="{% static "ComSemApp/js/ComSemRecording-opus-background.js" %}?{% now "U" %}"></script>
 
 <!-- Button script for finishing recording. Will need to be changed to call when disabled-->
 <script>
-$("#saveAttempt").click(function(e){
-    e.preventDefault()
+const READING_OFFSET = 2;
+const RECORDING_OFFSET = 3;
+const encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
 
-    if( $("#CorrectedExpr").val().trim() == "" ){
-        // must have a valid expression
-        alert("Please enter a correction")
-        return;
+// Change this to desired expression
+let sentence = 'This an example.'; 
+
+function timer(syllables, offset) {
+  return new Promise((resolve, reject) => {
+    let start_time = getnow();
+    let current_time = 0;
+    let max_time = offset + syllables / 3
+    $("#timer-bar").attr("aria-valuenow", 0).css("width", 0 + "%");
+    $("#timer-bar").visibility = "visible";
+    $("#timer-text").visibility = "visible";
+
+    //timer function tics every .025 secs
+    let update = setInterval(() => {
+      current_time = (getnow() - start_time) / 1000;
+      // This runs when the timer is complete
+      if(current_time >= max_time){ 
+        clearInterval(update);
+        resolve();
+      }
+      let value = Math.min(((current_time / max_time) * 100), 100);
+      $("#timer-bar").attr("aria-valuenow", value)
+        .css("width", value + "%");
+      $("#timer-text").html(Math.ceil(Math.max(0, max_time - current_time)).toFixed(0));
+    }, 25);
+  });
+}
+
+function hide(classname) {
+  $('.' + classname).addClass("d-none");
+}
+
+function show(classname) {
+  $('.' + classname).removeClass("d-none");
+}
+
+function setEqualHeight(classgroup) {
+  $('.card-box').addClass("invisible");
+  show(classgroup);
+  $("div." + classgroup).height("auto");
+
+  var tallestcolumn = 0;
+  $("div." + classgroup).each(function() {
+    currentHeight = $(this).height();
+    if (currentHeight > tallestcolumn) {
+      tallestcolumn = currentHeight;
     }
+  });
+  $("div." + classgroup).height(tallestcolumn);
 
-    // because of audio, we must send a formdata object
-    var attemptFormData = new FormData();
-    attemptFormData.append( 'reformulation_text', $("#CorrectedExpr").val() );
+  hide(classgroup)
+  //show(current_container_id);
+  $('.card-box').removeClass("invisible");
+}
 
-    var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? true : false
-    if (reformulation_audio){
-        attemptFormData.append( 'audio', audioReformulationBlob )
-    } else {
-        attemptFormData.append('delete_audio', true)
+function pad2(number) {
+  return (number < 10 ? '0' : '') + number;
+ }
+
+// AF - return the current time
+function getnow() {
+return new Date().getTime();
+}
+
+$(document).ready(() => {
+  console.log( "document loaded" );
+
+  $(window).on("beforeunload", (event) => {
+    event.preventDefault();
+    // This text won't show in modern browsers :(
+    event.returnValue = 'WARNING: If you leave this page, you will not be able to continue the review where you left off. Exit anyway?';
+    return event.returnValue;
+  });
+
+  // initializing review
+  $("#begin-review").click(() => {
+      current_question = 1;
+    start_review();
+  });
+
+  $(".control").click(() => {
+    // TODO: add logic to submit attempt
+    if(this.value == "stop") {
+
     }
+  });
 
-    $.ajax({
-        type: "POST",
-        url: $("#create_or_update_url").val(),
-        data: attemptFormData,
-        processData: false,
-        contentType: false,
-        success: function(response){
-            cs_notification('success', "Expression Saved")
-            // update expressions table
-            drawExpressionsTable();
-        },
-        error: function(jqXHR, textStatus, errorThrown){
-            cs_ajax_error(jqXHR, textStatus, errorThrown)
-        },
-    });
+  $(window).resize(() => {
+    setEqualHeight("sec");
+    show("show-expression");
+    show("control");
+  });
 
-    clearEditor()
-    audioReformulationBlob = null; // clears reformulation
+$("#expression-text").html(sentence);
+$("#timer-bar").visibility = "hidden";
+$("#timer-text").visibility = "hidden";
+
+show("show-expression");
+
+setEqualHeight("sec");
+
+initializeRecorder();
+//runs the reading timer
+let reading_check = timer(sentence.length/2, READING_OFFSET);
+//Once reading timer done this starts
+reading_check.then(() => {
+  $("#timer-bar").removeClass("bg-info").addClass("bg-danger")
+  //This is where recording start goes
+  //Runs the recording timer
+  recorder.start();
+  let recording_check = timer(sentence.length/2, RECORDING_OFFSET);
+  //Once recording timer done this starts
+  recording_check.then(() => { 
+    //This is where recording stop goes
+    //This was a last test can be deleted
+    recorder.stop();
+    $("#expression-text").html('Problem Complete!');
+  });
+});
 });
 </script>
 

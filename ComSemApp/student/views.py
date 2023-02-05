@@ -772,9 +772,10 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
         
         return context
 
+# Array of Dictionaries for result data
 practice_data = [
-                    {'transcription1':"This is a sentence transcription.",'accuracy1':50,'fluency1':75},
-                    {'transcription1':"This is a second sentence transcription.",'accuracy1':90,'fluency1':70}
+                    {'id':1,'transcription1':"This is a sentence transcription.",'accuracy1':50,'fluency1':75, 'correct':'This is the correct sentence.'},
+                    {'id':2,'transcription1':"This is a second sentence transcription.",'accuracy1':90,'fluency1':70, 'correct':'This is another correct sentence.'}
                 ]
 class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView):
     """
@@ -785,15 +786,16 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView)
 
     def get_object(self):
         """
-            implments Django DetailView function
+            implements Django DetailView function
         """
         return self.course
 
 
     def get_context_data(self, **kwargs) -> dict[str, dict[str, str | int | float]]:
-        """implments Django's DetailView get_context_data function 
-        Returns:
-            context -- contains values needed for speaking practice result page 
+        """
+            implements Django's DetailView get_context_data function 
+            Returns:
+                context -- contains values needed for speaking practice result page 
         """
         
         context = super(SpeakingPracticeResultsView, self).get_context_data(**kwargs)

@@ -329,7 +329,7 @@ class SpeakingPracticeAttempt(models.Model):
     # The student's correctness score --- Accepts numbers 00.00-100.00
     correct = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], verbose_name='Correctness Score')
     # The number of words per minute in the student's recording --- Accepts numbers 000.00-999.99
-    wpm = models.DecimalField(max_digits=5,decimal_places=2, verbose_name='Words per Minute')
+    wpm = models.DecimalField(max_digits=5,decimal_places=2, validators=[MinValueValidator(0)], verbose_name='Words per Minute')
 
     def __str__(self):
         return f"{self.id}: {self.expression} - {self.correct}% ({self.date.strftime('%d %b %Y')})"
