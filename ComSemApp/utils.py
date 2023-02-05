@@ -82,7 +82,7 @@ def transcribe(request):
                 return HttpResponse("")
 
 
-def transcribe_and_get_length_audio_file(file : UploadedFile) -> tuple(str, int):
+def transcribe_and_get_length_audio_file(file : UploadedFile) -> tuple[str, int]:
     """
         Utilizes the Google audio transcription API to transcribe and get the length of an
         audio file of the Django UploadedFile class
