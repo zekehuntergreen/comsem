@@ -3,7 +3,7 @@
  * No functions are provided to retrieve a transcription of the audio from the server
  */
 
-var audioReformulationBlob;
+var audioBlob;
 var recorder;
 
 function initializeRecorder() {
@@ -46,7 +46,7 @@ function initializeRecorder() {
 
     recorder.addEventListener("dataAvailable", (e) => {
         // audioBlob is the variable name that should be used to reference the audio in other scripts
-        var audioBlob = new Blob([e.detail], { type: 'audio/ogg' });
+        audioBlob = new Blob([e.detail], { type: 'audio/ogg' });
         console.log('Audio is ready');
     });
 
