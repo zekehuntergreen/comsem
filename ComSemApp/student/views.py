@@ -817,8 +817,6 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         Implements the standard Django CreateView
     """
     model = SpeakingPracticeAttempt
-    # TODO: Update template_name when a proper template is created
-    template_name = "ComSemApp/student/assessment.html"
     fields = ["expression", "student", "audio"]
 
     def score_attempt(self, transcription : str) -> float:
