@@ -4,6 +4,7 @@ from statistics import mean, stdev
 from typing import Any
 from datetime import datetime, timedelta
 from random import choice, shuffle
+from collections import Counter
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -20,6 +21,7 @@ from ComSemApp.teacher import constants as teacher_constants
 
 from ComSemApp.models import *
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin, SubmissionViewMixin
+from ComSemApp.utils import transcribe_and_get_length_audio_file
 
 
 class StudentViewMixin(RoleViewMixin):
@@ -809,21 +811,23 @@ class SpeakingPracticeInstructionsView(StudentViewMixin, CourseViewMixin, Templa
     def foo():
         pass
 
-class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
+class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
     """
         Used to process form data served from the SpeakingPracticeView on the frontend.
         Implements the standard Django CreateView
     """
-    model = ReviewAttempt
-    template_name = "ComSemApp/student/assessment.html"
-    fields = ["expression", "student", "correct", "response_time"]
+    model = SpeakingPracticeAttempt
+    fields = ["expression", "student", "audio"]
+
+    def score_attempt(self, transcription : str) -> float:
+        # TODO: Implement
+        return 100
 
     def form_invalid(self, form):
         """
             Defines the behavior for an invalid form submission.
             Reports whatever errors are found back to the frontend.
         """
-        response = super().form_invalid(form)
         return JsonResponse(form.errors, status=400)
 
     def form_valid(self, form):
@@ -832,6 +836,15 @@ class SpeakingPracticeAttemptCreateView(SpeakingPracticeView, CreateView):
             Processes audio data from the form, creates the SpeakingPracticeAttempt
             entry in the database and returns the transcription and score data back to the frontend
         """
-        # TODO: add processing for the audio data
-        form.save()
-        return JsonResponse({}, status=200)
+        attempt : SpeakingPracticeAttempt = form.save(commit=False)
+
+        transcription : str
+        length : int
+        transcription, length = transcribe_and_get_length_audio_file(attempt.audio)
+        # The Counter call gets the number of words, the division on the bottom get the length in minutes
+        attempt.wpm = Counter(transcription.split()).total() / (length / 60000)
+        attempt.correct = self.score_attempt(transcription)
+
+        attempt.save()
+
+        return JsonResponse({'id' : attempt.id}, status=201)
