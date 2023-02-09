@@ -109,7 +109,7 @@ function timerPromise(sentence){
 
     //starts recording
     recorder.start();
-    form_expression = problems[curr_problem_index]['formulation'];
+    form_expression = problems[curr_problem_index]['id'];
     let recording_check = timer(sentence.length/2, RECORDING_OFFSET);
     //Once recording timer done this starts
     recording_check.then(() => { 
