@@ -828,6 +828,14 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
             Defines the behavior for an invalid form submission.
             Reports whatever errors are found back to the frontend.
         """
+        print("ERROR: INVALID FORM IN SPEAKING PRACTICE")
+
+        print("\nhas errors")
+        print(form.has_error)
+        print("\n errors")
+        print(form.errors)
+        print("\ndata")
+        print(form.data)
         return JsonResponse(form.errors, status=400)
 
     def form_valid(self, form):
