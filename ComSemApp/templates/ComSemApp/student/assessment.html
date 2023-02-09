@@ -170,7 +170,7 @@ function sendPostRequestForm(){
            'X-CSRFToken': csrf_token
         },
         success: function(response){
-            cs_notification('success', "Expression Saved")
+            cs_notification('success', "Attempt Saved")
         },
         error: function(jqXHR, textStatus, errorThrown){
             cs_ajax_error(jqXHR, textStatus, errorThrown)
