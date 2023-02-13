@@ -55,14 +55,13 @@
 
 <!-- Button script for finishing recording. Will need to be changed to call when disabled-->
 
-
 <script>
 const READING_OFFSET = 2;
 const RECORDING_OFFSET = 3;
 const encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
 
 //index for tracking current problem
-var curr_problem_index = 0;
+let curr_problem_index = 0;
 // places problems from context into array
 let problems = {{ problems | safe }};
 let student = {{ student | safe}};
@@ -101,16 +100,14 @@ function timer(syllables, offset) {
 }
 
 function timerPromise(sentence){
-  let reading_check = timer(sentence.length/2, READING_OFFSET);
+  let reading_check = timer(sentence.length / 2, READING_OFFSET);
   //Once reading timer done this starts
   reading_check.then(() => {
     $("#timer-bar").removeClass("bg-info").addClass("bg-danger")
-    //Runs the recording timer
-
     //starts recording
     recorder.start();
     form_expression = problems[curr_problem_index]['id'];
-    let recording_check = timer(sentence.length/2, RECORDING_OFFSET);
+    let recording_check = timer(sentence.length / 2, RECORDING_OFFSET);
     //Once recording timer done this starts
     recording_check.then(() => { 
       // stops recording
@@ -119,8 +116,6 @@ function timerPromise(sentence){
       if (curr_problem_index < problems.length -1 ){
         toggleEnabledNext();
       }
-      
-
       // updates the progress bar
       updateProgressBar();
 
@@ -157,7 +152,6 @@ function sendPostRequestForm(){
   // form_expression just holds the correct expression for this form
   attemptFormData.append( 'expression', form_expression); 
   attemptFormData.append('student', student);
-  console.log(audioBlob)
   attemptFormData.append('audio', audioBlob);
   var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
   $.ajax({ // send POST request
@@ -174,7 +168,7 @@ function sendPostRequestForm(){
         },
         error: function(jqXHR, textStatus, errorThrown){
             cs_ajax_error(jqXHR, textStatus, errorThrown)
-        },
+        }
   });
 
   initializeRecorder();
@@ -270,7 +264,7 @@ $(document).ready(() => {
   });
   $("#next").click(() => {
     console.log("next problem clicked");
-    if(curr_problem_index < problems.length - 1 && !$("#next").hasClass("disabled")){
+    if((curr_problem_index < problems.length - 1) && (!$("#next").hasClass("disabled"))){
       goToNextProb();
     }
   });
@@ -281,23 +275,15 @@ $(document).ready(() => {
     show("control");
   });
 
-$("#expression-text").html(sentence);
-$("#timer-bar").visibility = "hidden";
-$("#timer-text").visibility = "hidden";
-
-show("show-expression");
-
-setEqualHeight("sec");
-
-initializeRecorder();
-
-//runs the initial reading timer
-timerPromise(sentence)
-
-
-
+  // page initializations 
+  $("#expression-text").html(sentence);
+  $("#timer-bar").visibility = "hidden";
+  $("#timer-text").visibility = "hidden";
+  show("show-expression");
+  setEqualHeight("sec");
+  initializeRecorder();
+  //runs the initial reading timer
+  timerPromise(sentence)
 });
 </script>
-
-
 {% endblock %}
