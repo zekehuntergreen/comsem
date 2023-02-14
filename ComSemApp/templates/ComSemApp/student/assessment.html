@@ -35,7 +35,7 @@
             <button class="btn btn-success btn-lg sec ec w-100 control disabled" value="next" id="next">NEXT EXPRESSION</button>
           </div>
         </div>
-        <button class="btn btn-warning btn-lg w-100 mt-1" onclick="window.location.href='{% url 'student:speaking_practice_results' course.id %}';">RESULTS</button>
+        <button class="btn btn-warning btn-lg w-100 mt-1" id="results-button">RESULTS</button>
         <button class="btn btn-warning btn-lg w-100 mt-1" onclick="window.location.href='{% url 'student:course' course.id %}';">RETURN TO COURSE</button>
       </div>
     </div>
@@ -46,6 +46,10 @@
 <form id="pageForm" method="POST">
   <input hidden type="text" id="save_attempt_url" value="{% url 'student:speaking_practice_submit' course.id%}">
 </form>
+<form id="pageFormGet" method="GET">
+  <input hidden type="text" id="attempts_get_request" value="{% url 'student:speaking_practice_results' course.id  %}"> 
+</form>
+
 
 {% include 'ComSemApp/audio_recording_background.html' %}
 
@@ -56,8 +60,8 @@
 <!-- Button script for finishing recording. Will need to be changed to call when disabled-->
 
 <script>
-const READING_OFFSET = 2;
-const RECORDING_OFFSET = 3;
+const READING_OFFSET = 0;
+const RECORDING_OFFSET = 0;
 const encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
 
 //index for tracking current problem
@@ -73,6 +77,9 @@ let form_expression;
 // both used for progress bar
 let increments = [];  
 getBarIncrements();
+
+//for results page get request
+let attempt_ids = [];
 
 function timer(syllables, offset) {
   return new Promise((resolve, reject) => {
@@ -165,6 +172,8 @@ function sendPostRequestForm(){
         },
         success: function(response){
             cs_notification('success', "Attempt Saved")
+            let id = response['id'];
+            attempt_ids.push(id)
         },
         error: function(jqXHR, textStatus, errorThrown){
             cs_ajax_error(jqXHR, textStatus, errorThrown)
@@ -267,6 +276,31 @@ $(document).ready(() => {
     if((curr_problem_index < problems.length - 1) && (!$("#next").hasClass("disabled"))){
       goToNextProb();
     }
+  });
+
+  $("#results-button").click(()=>{
+    console.log("results button clicked");
+    let attempt_ids_form = new FormData();
+    attempt_ids_form.append('attempt_ids', attempt_ids)
+    console.log(attempt_ids)
+    var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
+    $.ajax({ // send GET request
+        type: "GET",
+        url: $("#attempts_get_request").val(), // links to html form above which specifies the url to recieve request
+        data: attempt_ids_form,
+        processData: false,
+        contentType: false,
+        headers: { // places token in request so that it is certified by server
+           'X-CSRFToken': csrf_token
+        },
+        success: function(){
+          console.log("get success")
+          window.location.href='{% url 'student:speaking_practice_results' course.id %}';
+        },
+        error: function(){
+          console.log("get had errors")
+        }
+    });
   });
 
   $(window).resize(() => {

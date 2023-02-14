@@ -800,6 +800,13 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView)
         
         context = super(SpeakingPracticeResultsView, self).get_context_data(**kwargs)
         context['practice_data'] = practice_data
+        print(self.request.GET)
+        try:
+            attempt_ids : list[str] = dict(self.request.GET)['attempt_ids']
+            print("attempt ids in results page data: " + attempt_ids)
+        except:
+            print("\n\ndidnt get attempt_ids\n\n")
+        
         return context
 
 class SpeakingPracticeInstructionsView(StudentViewMixin, CourseViewMixin, TemplateView):
