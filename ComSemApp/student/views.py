@@ -804,6 +804,7 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
         expressions : set[Expression] = set([attempt.expression for attempt in attempts])
         familiarity_scores : dict[int, int] = {}
 
+        # In order to generate familiarity scores, we must get some data for all expressions.
         worksheets : QuerySet[Worksheet] = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
         practice_attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(student=self.student, expression__worksheet__course=self.course)
         completed : list[Worksheet] = []
