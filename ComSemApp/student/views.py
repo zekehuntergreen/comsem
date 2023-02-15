@@ -823,14 +823,14 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
         ranges = { key : maxes[key] - mins[key] if maxes[key] > mins[key] else 1 for key in DATA_KEYS }
 
         for expression in expressions:
-            expression.norm_figs : dict[str, int | float] = {}
-            expression.norm_figs['correct_attempts'] = max(0, exp_data[expression]['correct_attempts'] - mins['correct_attempts']) / ranges['correct_attempts']
-            expression.norm_figs['days_since_review'] = 1 - (max(0, exp_data[expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review'])
-            expression.norm_figs['wpm'] = max(0, exp_data[expression]['wpm'] - mins['wpm']) / ranges['wpm']
-            expression.norm_figs['last_score'] = max(0, exp_data[expression]['last_score'] - mins['last_score']) / ranges['last_score']
-            familiarity_scores[expression.pk] = round(sum([float(expression.norm_figs[key]) * WEIGHTS[key] for key in DATA_KEYS]) * 100)
+            normalized_data : dict[str, int | float] = {}
+            normalized_data['correct_attempts'] = max(0, exp_data[expression]['correct_attempts'] - mins['correct_attempts']) / ranges['correct_attempts']
+            normalized_data['days_since_review'] = 1 - (max(0, exp_data[expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review'])
+            normalized_data['wpm'] = max(0, exp_data[expression]['wpm'] - mins['wpm']) / ranges['wpm']
+            normalized_data['last_score'] = max(0, exp_data[expression]['last_score'] - mins['last_score']) / ranges['last_score']
+            familiarity_scores[expression.pk] = round(sum([float(normalized_data[key]) * WEIGHTS[key] for key in DATA_KEYS]) * 100)
 
-        context['attempts'] = [{'id' : attempt.pk, 'transcription' : 'placeholder transcription', 'audio_path' : attempt.audio.path, 'familiarity_score' : familiarity_scores[attempt.expression.pk]} for attempt in attempts]
+        context['attempts'] = [{'id' : attempt.pk, 'transcription' : attempt.transcription, 'audio_path' : attempt.audio.path, 'familiarity_score' : familiarity_scores[attempt.expression.pk]} for attempt in attempts]
 
         return context
 
