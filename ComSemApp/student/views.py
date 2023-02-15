@@ -814,8 +814,8 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
 
         completed = [i for i in worksheets if i.complete_submission(self.student)]
         for worksheet in completed:
-            worksheet.expression_list : QuerySet[Expression] = worksheet.expressions.all().filter(Q(student=self.student) | Q(student=None) | Q(all_do=True))
-            for expression in worksheet.expression_list:
+            expression_list : QuerySet[Expression] = worksheet.expressions.all().filter(Q(student=self.student) | Q(student=None) | Q(all_do=True))
+            for expression in expression_list:
                 exp_data[expression] = self.get_expression_data(practice_attempts.filter(expression=expression))
         
         mins = { key : min([y[key] for y in exp_data.values()]) for key in DATA_KEYS }
