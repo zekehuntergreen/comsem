@@ -31,7 +31,6 @@
             
             <!-- button display cycles same as secs -->
             <button class='btn btn-success btn-lg sec w-100 start' id='begin-review'>BEGIN REVIEW</button>
-            <!-- <button class="btn btn-success btn-lg sec ec w-100 control" value="stop">STOP RECORDING</button> !-->
             <button class="btn btn-success btn-lg sec ec w-100 control disabled" value="next" id="next">NEXT EXPRESSION</button>
           </div>
         </div>
@@ -76,6 +75,8 @@ let form_expression;
 // both used for progress bar
 let increments = [];  
 getBarIncrements();
+
+let readyForResults = true;
 
 function timer(syllables, offset) {
   return new Promise((resolve, reject) => {
@@ -146,6 +147,7 @@ function sendPostRequestForm(){
     takes current data and send it in a post request to the server (SpeakingPracticeAttemptCreateView)
   */
   console.log("save in form called");
+  readyForResults = false;
 
   let attemptFormData = new FormData(); // creates new form
   console.log(form_expression)
@@ -168,9 +170,14 @@ function sendPostRequestForm(){
         },
         success: function(response){
             cs_notification('success', "Attempt Saved")
+
+            // inputs the id recieved into the html form 
             let id = response['id'];
             let line = "<input type='hidden' value="+id+" name='attempt_ids'></input>";
             $("#form").append(line);
+            console.log(readyForResults);
+            setTimeout(function(){readyForResults = true; console.log(readyForResults)},9000);
+            
         },
         error: function(jqXHR, textStatus, errorThrown){
             cs_ajax_error(jqXHR, textStatus, errorThrown)
@@ -246,6 +253,16 @@ function getNow() {
   return new Date().getTime();
 }
 
+function submitForm(){
+  console.log("ready val when submitting form:"+ readyForResults);
+  if (readyForResults === true){
+    console.log("submitting form");
+    $("#form").submit();
+    return true
+  }
+  return false
+}
+
 $(document).ready(() => {
   console.log( "document loaded" );
 
@@ -276,8 +293,10 @@ $(document).ready(() => {
   });
 
   $("#results-button").click(()=>{
-    $("#form").submit();
-  })
+    if (submitForm() === false){
+      setTimeout(submitForm(),5000);
+    }
+  });
 
   $(window).resize(() => {
     setEqualHeight("sec");
