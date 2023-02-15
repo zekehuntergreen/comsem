@@ -323,7 +323,9 @@ class SpeakingPracticeAttempt(models.Model):
     # The student who attempted
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, blank=True, null=True)
     # The audio file from the student's attempt
-    audio = models.FileField(upload_to=speaking_practice_audio_directory, null=True, blank=True)
+    audio = models.FileField(upload_to=speaking_practice_audio_directory, null=False, blank=False)
+    # The transcription of the student's attempt
+    transcription = models.TextField(null=False, blank=False)
     # The date and time the student made the attempt
     date = models.DateTimeField(auto_now_add=True, verbose_name='Date and Time')
     # The student's correctness score --- Accepts numbers 00.00-100.00
