@@ -75,6 +75,8 @@ let form_expression;
 let increments = [];  
 getBarIncrements();
 
+// list of attempt promises. These promises are created in sendPostRequestForm that
+// are resolved/rejected when either the Post request comes back or 5 seconds pass
 let attemptPromises = [];
 
 function timer(syllables, offset) {
@@ -121,13 +123,15 @@ function timerPromise(sentence){
       }
       // updates the progress bar
       updateProgressBar();
-
+      
+      // when data is available after the recorder is done recording
       recorder.addEventListener("dataAvailable", (e) => {
         disableResultsButton();
         let attemptPromise = sendPostRequestForm();
         attemptPromises.push(attemptPromise);
         initializeRecorder();
-        Promise.allSettled(attemptPromises).then(()=>{
+        Promise.allSettled(attemptPromises).then(()=>{ 
+          // if all promises in list are settled (no longer pending) then the results button is reopened
           console.log("promises settled");
           enableResultsButton();
         });
@@ -164,6 +168,9 @@ function sendPostRequestForm(){
   attemptFormData.append('student', student);
   attemptFormData.append('audio', audioBlob);
   var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
+
+  // returns a promise that calls the ajax, if successful resolves, if error OR takes more than 5 seconds
+  // to return then rejects
   return new Promise((resolve, reject)=>{
     $.ajax({ // send POST request
       type: "POST",
@@ -187,7 +194,10 @@ function sendPostRequestForm(){
         reject();
       }
     });
-    setTimeout(()=>{console.log("timeout here");reject();}, 5000);
+    setTimeout(()=>{
+      console.log("timeout here");
+      reject();
+      }, 5000);
   })
 }
 
@@ -244,7 +254,7 @@ function setEqualHeight(classgroup) {
   $("div." + classgroup).height("auto");
 
   var tallestcolumn = 0;
-  $("div." + classgroup).each(function() {
+  $("div." + classgroup).each(() => {
     currentHeight = $(this).height();
     if (currentHeight > tallestcolumn) {
       tallestcolumn = currentHeight;
