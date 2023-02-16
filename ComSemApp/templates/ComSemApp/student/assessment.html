@@ -127,7 +127,7 @@ function timerPromise(sentence){
         attemptPromises.push(attemptPromise);
         initializeRecorder();
         disableResultsButton();
-        setTimeout(()=>Promise.allSettled(attemptPromises).then(enableResultsButton()),3000);
+        Promise.allSettled(attemptPromises).then(enableResultsButton());
       });
       $("#expression-text").html('Problem Complete!');
     });
@@ -177,11 +177,11 @@ function sendPostRequestForm(){
         let id = response['id'];
         let line = "<input type='hidden' value="+id+" name='attempt_ids'></input>";
         $("#form").append(line);
-        setTimeout(()=>resolve(), 3000);
+        resolve();
       },
       error: (jqXHR, textStatus, errorThrown) => {
-        setTimeout(()=>reject(jqXHR, textStatus, errorThrown),3000);
-        //cs_ajax_error(jqXHR, textStatus, errorThrown)
+        cs_ajax_error(jqXHR, textStatus, errorThrown);
+        reject();
       }
     });
     setTimeout(reject, 5000);
