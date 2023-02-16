@@ -123,11 +123,14 @@ function timerPromise(sentence){
       updateProgressBar();
 
       recorder.addEventListener("dataAvailable", (e) => {
+        disableResultsButton();
         let attemptPromise = sendPostRequestForm();
         attemptPromises.push(attemptPromise);
         initializeRecorder();
-        disableResultsButton();
-        Promise.allSettled(attemptPromises).then(enableResultsButton());
+        Promise.allSettled(attemptPromises).then(()=>{
+          console.log("promises settled");
+          enableResultsButton();
+        });
       });
       $("#expression-text").html('Problem Complete!');
     });
@@ -184,7 +187,7 @@ function sendPostRequestForm(){
         reject();
       }
     });
-    setTimeout(reject, 5000);
+    setTimeout(()=>{console.log("timeout here");reject();}, 5000);
   })
 }
 
