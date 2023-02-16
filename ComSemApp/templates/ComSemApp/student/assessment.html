@@ -75,7 +75,7 @@ let form_expression;
 let increments = [];  
 getBarIncrements();
 
-let readyForResults = true;
+let attemptPromises = [];
 
 function timer(syllables, offset) {
   return new Promise((resolve, reject) => {
@@ -123,7 +123,11 @@ function timerPromise(sentence){
       updateProgressBar();
 
       recorder.addEventListener("dataAvailable", (e) => {
-        sendPostRequestForm();
+        let attemptPromise = sendPostRequestForm();
+        attemptPromises.push(attemptPromise);
+        initializeRecorder();
+        disableResultsButton();
+        setTimeout(()=>Promise.allSettled(attemptPromises).then(enableResultsButton()),3000);
       });
       $("#expression-text").html('Problem Complete!');
     });
@@ -146,7 +150,6 @@ function sendPostRequestForm(){
     takes current data and send it in a post request to the server (SpeakingPracticeAttemptCreateView)
   */
   console.log("save in form called");
-  readyForResults = false;
 
   let attemptFormData = new FormData(); // creates new form
   console.log(form_expression)
@@ -158,32 +161,31 @@ function sendPostRequestForm(){
   attemptFormData.append('student', student);
   attemptFormData.append('audio', audioBlob);
   var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
-  $.ajax({ // send POST request
-        type: "POST",
-        url: $("#save_attempt_url").val(), // links to html form above which specifies the url to recieve request
-        data: attemptFormData,
-        processData: false,
-        contentType: false,
-        headers: { // places token in request so that it is certified by server
-           'X-CSRFToken': csrf_token
-        },
-        success: function(response){
-            cs_notification('success', "Attempt Saved")
-
-            // inputs the id recieved into the html form 
-            let id = response['id'];
-            let line = "<input type='hidden' value="+id+" name='attempt_ids'></input>";
-            $("#form").append(line);
-            console.log("before timeout" + readyForResults);
-            readyForResults = true;
-            
-        },
-        error: function(jqXHR, textStatus, errorThrown){
-            cs_ajax_error(jqXHR, textStatus, errorThrown)
-        }
-  });
-
-  initializeRecorder();
+  return new Promise((resolve, reject)=>{
+    $.ajax({ // send POST request
+      type: "POST",
+      url: $("#save_attempt_url").val(), // links to html form above which specifies the url to recieve request
+      data: attemptFormData,
+      processData: false,
+      contentType: false,
+      headers: { // places token in request so that it is certified by server
+        'X-CSRFToken': csrf_token
+      },
+      success:(response) => {
+        cs_notification('success', "Attempt Saved")
+        // inputs the id recieved into the html form 
+        let id = response['id'];
+        let line = "<input type='hidden' value="+id+" name='attempt_ids'></input>";
+        $("#form").append(line);
+        setTimeout(()=>resolve(), 3000);
+      },
+      error: (jqXHR, textStatus, errorThrown) => {
+        setTimeout(()=>reject(jqXHR, textStatus, errorThrown),3000);
+        //cs_ajax_error(jqXHR, textStatus, errorThrown)
+      }
+    });
+    setTimeout(reject, 5000);
+  })
 }
 
 // AF - Get a list of points (0-100) that the progress bar will stop at as the student
@@ -223,6 +225,14 @@ function hide(classname) {
 
 function show(classname) {
   $('.' + classname).removeClass("d-none");
+}
+
+function disableResultsButton() {
+  $('#results-button').addClass("disabled");
+}
+
+function enableResultsButton() {
+  $('#results-button').removeClass("disabled");
 }
 
 function setEqualHeight(classgroup) {
@@ -282,11 +292,8 @@ $(document).ready(() => {
   });
 
   $("#results-button").click(()=>{
-    if (readyForResults === true){
+    if (!$('#results-button').hasClass("disabled")){
       $("#form").submit();
-    }
-    else{
-      setTimeout(function(){$("#form").submit();},5000);
     }
   });
 
