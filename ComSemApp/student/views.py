@@ -847,6 +847,7 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         # The Counter call gets the number of words, the division on the bottom get the length in minutes
         attempt.wpm = Counter(transcription.split()).total() / (length / 60000)
         attempt.correct = self.score_attempt(transcription)
+        attempt.transcription = transcription
 
         attempt.save()
 
