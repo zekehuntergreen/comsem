@@ -11,4 +11,4 @@ The documentation should include the different categories of grading, the criter
 75% is based upon the order in which the words appear. <br />
 
 ## Overrall Equation : ((Word Presence + Word Count) * .5) + ((Word Position + Word Order) * .5)
-Percentage Based : ((80% + 20%) * .5) + ((20% + 70%) * .5)
+Percentage Based : ((80% + 20%) * .5) + ((25% + 75%) * .5)
