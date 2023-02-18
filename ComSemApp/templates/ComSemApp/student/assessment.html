@@ -47,7 +47,6 @@
   <input hidden type="text" id="save_attempt_url" value="{% url 'student:speaking_practice_submit' course.id%}">
 </form>
 
-
 {% include 'ComSemApp/audio_recording_background.html' %}
 
 <!-- loads recording javascript file which creates eventlisteners for invisible recording buttons-->
@@ -57,8 +56,8 @@
 <!-- Button script for finishing recording. Will need to be changed to call when disabled-->
 
 <script>
-const READING_OFFSET = 0;
-const RECORDING_OFFSET = 0;
+const READING_OFFSET = 2;
+const RECORDING_OFFSET = 3;
 const encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
 
 //index for tracking current problem
@@ -131,8 +130,8 @@ function timerPromise(sentence){
         attemptPromises.push(attemptPromise);
         initializeRecorder();
         Promise.allSettled(attemptPromises).then(()=>{ 
-          // if all promises in list are settled (no longer pending) then the results button is reopened
-          console.log("promises settled");
+          // if all promises in list are settled (no longer pending) 
+          // then the results button is reopened
           enableResultsButton();
         });
       });
@@ -178,26 +177,21 @@ function sendPostRequestForm(){
       data: attemptFormData,
       processData: false,
       contentType: false,
+      timeout: 5000, // if takes longer than 5 secs, return timeout error
       headers: { // places token in request so that it is certified by server
         'X-CSRFToken': csrf_token
       },
       success:(response) => {
         cs_notification('success', "Attempt Saved")
-        // inputs the id recieved into the html form 
-        let id = response['id'];
-        let line = "<input type='hidden' value="+id+" name='attempt_ids'></input>";
-        $("#form").append(line);
-        resolve();
+        // inputs the id recieved into the html form
+        $("#form").append("<input type='hidden' value="+response['id']+" name='attempt_ids'></input>");
+        //resolve();
       },
       error: (jqXHR, textStatus, errorThrown) => {
         cs_ajax_error(jqXHR, textStatus, errorThrown);
         reject();
       }
     });
-    setTimeout(()=>{
-      console.log("timeout here");
-      reject();
-      }, 5000);
   })
 }
 
