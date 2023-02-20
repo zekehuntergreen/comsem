@@ -23,8 +23,6 @@ from ComSemApp.models import *
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin, SubmissionViewMixin
 from ComSemApp.utils import transcribe_and_get_length_audio_file
 
-import time
-
 class StudentViewMixin(RoleViewMixin):
 
     role_class = Student
@@ -849,5 +847,4 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         attempt.transcription = transcription
 
         attempt.save()
-        time.sleep(10)
         return JsonResponse({'id' : attempt.id}, status=201)
