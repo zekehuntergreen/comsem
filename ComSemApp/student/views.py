@@ -795,7 +795,7 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
         """
             implements Django's DetailView get_context_data function 
             Returns:
-                context -- context data used by assessment_generator.html
+                context -- context data used by assessment_results.html
         """
         context : dict[str, Any] = super(SpeakingPracticeResultsView, self).get_context_data(**kwargs)
         context['attempts'] : list[dict[str, str | float]] = {}
@@ -830,7 +830,16 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
             normalized_data['last_score'] = max(0, exp_data[expression]['last_score'] - mins['last_score']) / ranges['last_score']
             familiarity_scores[expression.pk] = round(sum([float(normalized_data[key]) * WEIGHTS[key] for key in DATA_KEYS]) * 100)
 
-        context['attempts'] = [{'id' : attempt.pk, 'transcription' : attempt.transcription, 'audio_path' : attempt.audio.path, 'familiarity_score' : familiarity_scores[attempt.expression.pk]} for attempt in attempts]
+        context['attempts'] = [
+            {
+            'id' : attempt.pk,
+            'transcription' : attempt.transcription,
+            'audio_path' : attempt.audio.path,
+            'score' : attempt.correct,
+            'expression_id' : expression.pk,
+            'correct_formulation' : attempt.expression.reformulation_text,
+            'familiarity' : familiarity_scores[attempt.expression.pk]
+            } for attempt in attempts]
 
         return context
 
