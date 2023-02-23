@@ -57,9 +57,12 @@
                                 <tr id={{attempt.id}} class="hidden_row">  <!--row id corresponds to individual item id-->
                                     <td colspan=4> <!-- merges all four columns in this row-->
                                         <p style="margin-left:40px"> <!--indentation for this paragraph-->
-                                            <b>Correct Sentence</b><br> {{attempt.correct_formulation}} <br>
-                                            <b>Graded Sentence</b><br> {{attempt.transcription}} <br>
-                                            <div id="audioPlayback"><b>Audio Recording</b><br></div>
+                                            <b>Correct Sentence</b><br> 
+                                            {{attempt.correct_formulation}} <br>
+                                            <b>Graded Sentence</b><br> 
+                                            <mark><span title="There could be errors shown here">{{attempt.transcription}}</span></mark><br>
+                                            <b>Audio Recording</b><br>
+                                            <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio><br>
                                         </p>
                                     </td>
                                 </tr>
@@ -79,5 +82,6 @@
     <a href="{% url 'student:course' course.id %}" class ="btn-success btn w-100 m-1">Return Home</a>
     <a href="{% url 'student:course' course.id %}" class ="btn-success btn w-100 m-1">Try Again</a>
 </div>
+<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
 
 {% endblock %}

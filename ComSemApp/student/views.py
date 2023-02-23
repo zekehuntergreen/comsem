@@ -833,7 +833,7 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
             {
             'id' : attempt.pk,
             'transcription' : attempt.transcription,
-            'audio_path' : attempt.audio.path,
+            'audio_path' : attempt.audio.url,
             'score' : attempt.correct,
             'expression_id' : expression.pk,
             'correct_formulation' : attempt.expression.reformulation_text,
