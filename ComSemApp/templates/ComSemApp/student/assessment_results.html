@@ -57,14 +57,15 @@
                                 <tr id={{attempt.id}} class="hidden_row">  <!--row id corresponds to individual item id-->
                                     <td colspan=4> <!-- merges all four columns in this row-->
                                         <p style="margin-left:40px"> <!--indentation for this paragraph-->
-                                            <b>Correct Sentence:</b> {{attempt.correct_formulation}} <br>
-                                            <b>Graded Sentence:</b> {{attempt.transcription}} <br>
+                                            <b>Correct Sentence</b><br> {{attempt.correct_formulation}} <br>
+                                            <b>Graded Sentence</b><br> {{attempt.transcription}} <br>
+                                            <div id="audioPlayback"><b>Audio Recording</b><br></div>
                                         </p>
                                     </td>
                                 </tr>
                                 <script>
                                     // called on instantitiation to hide the "show more" row
-                                    showHideRow({{item.id}});
+                                    showHideRow({{attempt.id}});
                                 </script>
                             {% endfor %}
                         </tbody>
