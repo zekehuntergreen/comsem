@@ -23,7 +23,6 @@ from ComSemApp.models import *
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin, SubmissionViewMixin
 from ComSemApp.utils import transcribe_and_get_length_audio_file
 
-
 class StudentViewMixin(RoleViewMixin):
 
     role_class = Student
@@ -885,7 +884,7 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         # The Counter call gets the number of words, the division on the bottom get the length in minutes
         attempt.wpm = Counter(transcription.split()).total() / (length / 60000)
         attempt.correct = self.score_attempt(transcription)
+        attempt.transcription = transcription
 
         attempt.save()
-
         return JsonResponse({'id' : attempt.id}, status=201)
