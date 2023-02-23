@@ -604,6 +604,46 @@ class ReviewAttemptCreateView(ReviewsheetView, CreateView):
 
 # ALL THESE CLASSES SHOULD IMPLEMENT DIFFERENT VIEWS LATER
 # the foo() functions are just placeholders too keep the classes in here
+class SpeakingPracticeInfoMixin(object):
+    def get_expression_data(self, attempts : QuerySet[SpeakingPracticeAttempt]) -> dict[str, float | int]:
+        """
+        Gathers the relevant data for an expression given the queryset of attempts for that expression
+
+        Arguments:
+            attempts : QuerySet[SpeakingPracticeAttempt] -- The QuerySet of attempts for an expression
+
+        Returns:
+            data : dict[str : float | int] -- The aggregate data for the expression (correct_attempts, days_since_review, wpm, last_score)
+        """
+        # data is initialized with the worst possible values
+        data : dict[str, float | int] = {'correct_attempts' : 0, 'days_since_review' : 999, 'wpm' : 0, 'last_score' : 0}
+        time_since_curr : timedelta
+        time_since_last : timedelta
+        curr_time : datetime 
+
+        if(attempts.count() == 0):
+            return data
+        
+        curr_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+        time_since_last = curr_time - attempts[0].date
+        for attempt in attempts:
+            if attempt.correct == 100:
+                data['correct_attempts'] += 1
+                # wpm will sum all the correct attempts and be averaged later (divided by correct_attempts)
+                data['wpm'] += attempt.wpm
+            
+            # days_since_review is calculated at the end from the time_since_last timedelta
+            time_since_curr = curr_time - attempt.date
+            if time_since_curr < time_since_last:
+                time_since_last = time_since_curr
+                data['last_score'] = attempt.correct
+
+        if(data['correct_attempts'] > 1):
+            data['wpm'] = data['wpm'] / data['correct_attempts']
+        data['days_since_review'] = time_since_last.days
+
+        return data
+
 class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
     """
       Serves the content of the speaking practice page which presents problems
@@ -669,7 +709,7 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
 
         return context
 
-class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
+class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView, SpeakingPracticeInfoMixin):
     """
       Serves the expression selection page wherein students are presented with
       a list of expressions grouped by worksheet along with their familiarity scores
@@ -682,45 +722,6 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView):
     def get_object(self):
         return self.course
     
-    def get_expression_data(self, attempts : QuerySet[SpeakingPracticeAttempt]) -> dict[str, float | int]:
-        """
-        Gathers the relevant data for an expression given the queryset of attempts for that expression
-
-        Arguments:
-            attempts : QuerySet[SpeakingPracticeAttempt] -- The QuerySet of attempts for an expression
-
-        Returns:
-            data : dict[str : float | int] -- The aggregate data for the expression (correct_attempts, days_since_review, wpm, last_score)
-        """
-        # data is initialized with the worst possible values
-        data : dict[str, float | int] = {'correct_attempts' : 0, 'days_since_review' : 999, 'wpm' : 0, 'last_score' : 0}
-        time_since_curr : timedelta
-        time_since_last : timedelta
-        curr_time : datetime 
-
-        if(attempts.count() == 0):
-            return data
-        
-        curr_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
-        time_since_last = curr_time - attempts[0].date
-        for attempt in attempts:
-            if attempt.correct == 100:
-                data['correct_attempts'] += 1
-                # wpm will sum all the correct attempts and be averaged later (divided by correct_attempts)
-                data['wpm'] += attempt.wpm
-            
-            # days_since_review is calculated at the end from the time_since_last timedelta
-            time_since_curr = curr_time - attempt.date
-            if time_since_curr < time_since_last:
-                time_since_last = time_since_curr
-                data['last_score'] = attempt.correct
-
-        if(data['correct_attempts'] > 1):
-            data['wpm'] = data['wpm'] / data['correct_attempts']
-        data['days_since_review'] = time_since_last.days
-
-        return data
-
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """
             Implements Django's DetailView.get_context_data to provide data for the template
@@ -776,7 +777,7 @@ practice_data = [
                     {'id':1,'transcription1':"This is a sentence transcription.",'accuracy1':50,'fluency1':75, 'correct':'This is the correct sentence.'},
                     {'id':2,'transcription1':"This is a second sentence transcription.",'accuracy1':90,'fluency1':70, 'correct':'This is another correct sentence.'}
                 ]
-class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView):
+class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView, SpeakingPracticeInfoMixin):
     """
       Serves the content of the speaking practice results page presented after a
       session of practice.
@@ -789,16 +790,55 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView)
         """
         return self.course
 
-
     def get_context_data(self, **kwargs) -> dict[str, dict[str, str | int | float]]:
         """
             implements Django's DetailView get_context_data function 
             Returns:
-                context -- contains values needed for speaking practice result page 
+                context -- context data used by assessment_results.html
         """
+        context : dict[str, Any] = super(SpeakingPracticeResultsView, self).get_context_data(**kwargs)
+        context['attempts'] : list[dict[str, str | float]] = {}
+        attempt_ids : list[str] = dict(self.request.GET)['attempt']
+        attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(student=self.student, pk__in=attempt_ids)
+        expressions : set[Expression] = set([attempt.expression for attempt in attempts])
+        familiarity_scores : dict[int, int] = {}
+
+        # In order to generate familiarity scores, we must get some data for all expressions.
+        worksheets : QuerySet[Worksheet] = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
+        practice_attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(student=self.student, expression__worksheet__course=self.course)
+        completed : list[Worksheet] = []
+        exp_data : dict[Expression, dict[str, float | int]] = {}
+        WEIGHTS : dict[str,float] = {'correct_attempts': 0.15, 'days_since_review' : 0.1,  'wpm' : 0.25, 'last_score' : 0.5}
+        DATA_KEYS : list[str] = ['correct_attempts', 'days_since_review', 'wpm', 'last_score']
+
+        completed = [i for i in worksheets if i.complete_submission(self.student)]
+        for worksheet in completed:
+            expression_list : QuerySet[Expression] = worksheet.expressions.all().filter(Q(student=self.student) | Q(student=None) | Q(all_do=True))
+            for expression in expression_list:
+                exp_data[expression] = self.get_expression_data(practice_attempts.filter(expression=expression))
         
-        context = super(SpeakingPracticeResultsView, self).get_context_data(**kwargs)
-        context['practice_data'] = practice_data
+        mins = { key : min([y[key] for y in exp_data.values()]) for key in DATA_KEYS }
+        maxes = { key: max([y[key] for y in exp_data.values()]) for key in DATA_KEYS }
+        ranges = { key : maxes[key] - mins[key] if maxes[key] > mins[key] else 1 for key in DATA_KEYS }
+
+        for expression in expressions:
+            normalized_data : dict[str, int | float] = {}
+            normalized_data['correct_attempts'] = max(0, exp_data[expression]['correct_attempts'] - mins['correct_attempts']) / ranges['correct_attempts']
+            normalized_data['days_since_review'] = 1 - (max(0, exp_data[expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review'])
+            normalized_data['wpm'] = max(0, exp_data[expression]['wpm'] - mins['wpm']) / ranges['wpm']
+            normalized_data['last_score'] = max(0, exp_data[expression]['last_score'] - mins['last_score']) / ranges['last_score']
+            familiarity_scores[expression.pk] = round(sum([float(normalized_data[key]) * WEIGHTS[key] for key in DATA_KEYS]) * 100)
+
+        context['attempts'] = [
+            {
+            'id' : attempt.pk,
+            'transcription' : attempt.transcription,
+            'audio_path' : attempt.audio.path,
+            'score' : attempt.correct,
+            'expression_id' : expression.pk,
+            'correct_formulation' : attempt.expression.reformulation_text,
+            'familiarity' : familiarity_scores[attempt.expression.pk]
+            } for attempt in attempts]
 
         return context
 
