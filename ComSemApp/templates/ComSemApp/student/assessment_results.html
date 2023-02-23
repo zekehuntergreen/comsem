@@ -35,31 +35,30 @@
                         </div>
                         <tbody id="result_body">
                             <!--displays each item from context[practice data] in this table-->
-                            {% for item in practice_data%}
+                            {% for attempt in attempts%}
                                 <tr>
                                     <td>
-                                        {{item.transcription1}}
+                                        {{attempt.transcription}}
                                     </td>
                                     <td class="text-center">
-                                        {{item.accuracy1}}%
+                                        {{attempt.score}}%
                                     </td>
                                     <td class="text-center">
-                                        {{item.fluency1}}%
+                                        {{attempt.score}}%
                                     </td>
                                     <td class="text-center">
-                                        <button onclick="showHideRow({{item.id}})" class="sbtn btn-outline-primary btn-sm">
+                                        <button onclick="showHideRow({{attempt.id}})" class="sbtn btn-outline-primary btn-sm">
                                             <!--Calls the showHideRow function when pressed, with the item id as the input-->
                                             Show More
                                         </button>
                                     </td>
                                 </tr>
                                 <!--row that shows hidden information-->
-                                <tr id={{item.id}} class="hidden_row">  <!--row id corresponds to individual item id-->
+                                <tr id={{attempt.id}} class="hidden_row">  <!--row id corresponds to individual item id-->
                                     <td colspan=4> <!-- merges all four columns in this row-->
                                         <p style="margin-left:40px"> <!--indentation for this paragraph-->
-                                            <b>Correct Sentence:</b> {{item.correct}} <br>
-                                            <b>Alternate Transcription:</b> {{item.transcription1}}<br>
-                                            <b>Graded Sentence:</b> {{item.graded}} <br>
+                                            <b>Correct Sentence:</b> {{attempt.correct_formulation}} <br>
+                                            <b>Graded Sentence:</b> {{attempt.transcription}} <br>
                                         </p>
                                     </td>
                                 </tr>
