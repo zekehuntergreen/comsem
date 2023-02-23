@@ -57,11 +57,11 @@
                                 <tr id={{attempt.id}} class="hidden_row">  <!--row id corresponds to individual item id-->
                                     <td colspan=4> <!-- merges all four columns in this row-->
                                         <p style="margin-left:40px"> <!--indentation for this paragraph-->
-                                            <b>Correct Sentence</b><br> 
+                                            <b>Correct Expression</b><br> 
                                             {{attempt.correct_formulation}} <br>
-                                            <b>Given Sentence</b><br> 
+                                            <b>Given Expression</b><br> 
                                             {{attempt.incorrect_expression}} <br>
-                                            <b>Graded Sentence</b> (hover for details about each error)<br> 
+                                            <b>Graded Expression</b> (hover for details about each error)<br> 
                                             <mark><span title="There could be errors shown here">{{attempt.transcription}}</span></mark><br>
                                             <b>Audio Recording</b><br>
                                             <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio><br>
