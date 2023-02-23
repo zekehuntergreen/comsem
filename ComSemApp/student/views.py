@@ -836,6 +836,7 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
             'audio_path' : attempt.audio.url,
             'score' : attempt.correct,
             'expression_id' : expression.pk,
+            'incorrect_expression': attempt.expression.expression,
             'correct_formulation' : attempt.expression.reformulation_text,
             'familiarity' : familiarity_scores[attempt.expression.pk]
             } for attempt in attempts]

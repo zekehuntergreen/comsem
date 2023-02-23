@@ -59,7 +59,9 @@
                                         <p style="margin-left:40px"> <!--indentation for this paragraph-->
                                             <b>Correct Sentence</b><br> 
                                             {{attempt.correct_formulation}} <br>
-                                            <b>Graded Sentence</b><br> 
+                                            <b>Given Sentence</b><br> 
+                                            {{attempt.incorrect_expression}} <br>
+                                            <b>Graded Sentence</b> (hover for details about each error)<br> 
                                             <mark><span title="There could be errors shown here">{{attempt.transcription}}</span></mark><br>
                                             <b>Audio Recording</b><br>
                                             <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio><br>
