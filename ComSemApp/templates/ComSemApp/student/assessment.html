@@ -248,7 +248,7 @@ function setEqualHeight(classgroup) {
   $("div." + classgroup).height("auto");
 
   var tallestcolumn = 0;
-  $("div." + classgroup).each(() => {
+  $("div." + classgroup).each(function() {
     currentHeight = $(this).height();
     if (currentHeight > tallestcolumn) {
       tallestcolumn = currentHeight;
