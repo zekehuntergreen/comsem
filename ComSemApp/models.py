@@ -180,6 +180,10 @@ class Worksheet(models.Model):
     @property
     def released(self):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
+    
+    @property
+    def can_be_released(self):
+        return all(e.reformulation_text or e.audio for e in self.expressions.all())
 
     def complete_submission(self, student):
         complete_submission = None
@@ -188,10 +192,9 @@ class Worksheet(models.Model):
         return complete_submission
 
     def release(self):
-        worksheet_expressions = self.expressions.all()
-        if not worksheet_expressions:
+        if not self.expressions.exists():
             return False
-        if not all(e.reformulation_text or e.audio for e in worksheet_expressions):
+        if not self.can_be_released:
             return False
         self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
         self.save()
