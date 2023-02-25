@@ -47,6 +47,7 @@ SIGNUP_FORM_RECIPIENTS = [ZEKE_EMAIL, JAMES_EMAIL]
 
 
 ALLOWED_HOSTS = [
+    'comsem-staging.herokuapp.com',
     'comsem.herokuapp.com',
     'localhost',
     '127.0.0.1',

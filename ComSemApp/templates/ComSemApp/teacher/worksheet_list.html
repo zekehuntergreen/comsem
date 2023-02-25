@@ -31,8 +31,22 @@
                 {% else %}
                     <div class="row">
                         <a href="{% url 'teacher:worksheet_update' course.id worksheet.id %}" class='btn btn-sm btn-outline-primary'>Edit</a>
-
-                        <button type='button' name='' class='btn btn-sm btn-outline-success release_worksheet_button' style="margin-left: 10px;">Release</button>
+                        
+                        {% if worksheet.can_be_released %}
+                        <button type='button' name='' class='btn btn-sm
+                        btn-outline-success release_worksheet_button'
+                        style="margin-left: 10px;">Release</button>
+                        {% else %}
+                            <button style="margin-left: 10px;"  type='button' name='' class='btn btn-sm
+                            btn-outline-success release_worksheet_button' data-toggle="tooltip" data-placement="top"
+                            title="Add a text or audio reformulation to every
+                            expression in the worksheet in order to release it.">Release</button>
+                        <script>
+                            $(function () {
+                              $('[data-toggle="tooltip"]').tooltip()
+                            })
+                         </script>
+                        {% endif %}
 
                         <button type="button" class='btn btn-sm btn-outline-danger delete_worksheet_button' style="margin-left: 10px;">Delete</button>
                     </div>
