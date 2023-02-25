@@ -181,21 +181,23 @@ class Worksheet(models.Model):
     def released(self):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
 
-    def complete_submission(self, student): # vhl checks if any submissions are complete
+    def complete_submission(self, student):
         complete_submission = None
         if StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").exists():
             complete_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").latest()
         return complete_submission
 
-    def release(self):   
-        if self.expressions.exists(): # vhl releases no empty worksheets
-            self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
-            self.save()
-            for expression in self.expressions.all():
-                pos_tag(expression)
-            return True
-        else: # vhl prevents empty worksheets from being released
+    def release(self):
+        worksheet_expressions = self.expressions.all()
+        if not worksheet_expressions:
             return False
+        if not all(e.reformulation_text or e.audio for e in worksheet_expressions):
+            return False
+        self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
+        self.save()
+        for expression in self.expressions.all():
+            pos_tag(expression)
+        return True
 
 
     def last_submission(self, student):
