@@ -1,6 +1,7 @@
 import itertools
 import json
 from statistics import mean, stdev
+import string
 from typing import Any
 from datetime import datetime, timedelta
 from random import choice, shuffle
@@ -859,7 +860,33 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
     model = SpeakingPracticeAttempt
     fields = ["expression", "student", "audio"]
 
-    def score_attempt(self, transcription : str) -> float:
+    def score_attempt(self, transcription : str, expression: Expression) -> float:
+        """
+            Scores a transcription of a speaking practice attempt against all correct
+            formulations of its corresponding expression
+
+            Arguments:
+                transcription : str -- The transcription to grade against all correct worksheet attempts
+                expression : Expression -- The Expression object associated with the speaking practice attempt
+
+            Returns:
+                highest_score : float -- the highest score out of all individual comparison scores
+        """
+        correct_attempts : QuerySet[StudentAttempt] = StudentAttempt.objects.filter(expression=expression, text_correct=True)
+        correct_formulations : list[str]
+        highest_score  : float
+
+        # remove punctuation and set to lowercase so string comparisons are standardized
+        correct_formulations = [attempt.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)) for attempt in correct_attempts]
+        transcription = transcription.lower().translate(str.maketrans('', '', string.punctuation))
+        # add the teacher-provided reformulation
+        correct_formulations.append(expression.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)))
+
+        highest_score = max([self.grade_against_correct(transcription, correct_formulation) for correct_formulation in correct_formulations])
+
+        return highest_score
+    
+    def grade_against_correct(self,transcription, correct_formulation):
         # TODO: Implement
         return 100
 
@@ -883,7 +910,7 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         transcription, length = transcribe_and_get_length_audio_file(attempt.audio)
         # The Counter call gets the number of words, the division on the bottom get the length in minutes
         attempt.wpm = Counter(transcription.split()).total() / (length / 60000)
-        attempt.correct = self.score_attempt(transcription)
+        attempt.correct = self.score_attempt(transcription, attempt.expression)
         attempt.transcription = transcription
 
         attempt.save()
