@@ -35,37 +35,42 @@
                         </div>
                         <tbody id="result_body">
                             <!--displays each item from context[practice data] in this table-->
-                            {% for item in practice_data%}
+                            {% for attempt in attempts%}
                                 <tr>
                                     <td>
-                                        {{item.transcription1}}
+                                        {{attempt.transcription}}
                                     </td>
                                     <td class="text-center">
-                                        {{item.accuracy1}}%
+                                        {{attempt.score}}%
                                     </td>
                                     <td class="text-center">
-                                        {{item.fluency1}}%
+                                        {{attempt.score}}%
                                     </td>
                                     <td class="text-center">
-                                        <button onclick="showHideRow({{item.id}})" class="sbtn btn-outline-primary btn-sm">
+                                        <button onclick="showHideRow({{attempt.id}})" class="sbtn btn-outline-primary btn-sm">
                                             <!--Calls the showHideRow function when pressed, with the item id as the input-->
                                             Show More
                                         </button>
                                     </td>
                                 </tr>
                                 <!--row that shows hidden information-->
-                                <tr id={{item.id}} class="hidden_row">  <!--row id corresponds to individual item id-->
+                                <tr id={{attempt.id}} class="hidden_row">  <!--row id corresponds to individual item id-->
                                     <td colspan=4> <!-- merges all four columns in this row-->
                                         <p style="margin-left:40px"> <!--indentation for this paragraph-->
-                                            <b>Correct Sentence:</b> {{item.correct}} <br>
-                                            <b>Alternate Transcription:</b> {{item.transcription1}}<br>
-                                            <b>Graded Sentence:</b> {{item.graded}} <br>
+                                            <b>Correct Expression</b><br> 
+                                            {{attempt.correct_formulation}} <br>
+                                            <b>Given Expression</b><br> 
+                                            {{attempt.incorrect_expression}} <br>
+                                            <b>Graded Expression</b> (hover for details about each error)<br> 
+                                            <mark><span title="There could be errors shown here">{{attempt.transcription}}</span></mark><br>
+                                            <b>Audio Recording</b><br>
+                                            <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio><br>
                                         </p>
                                     </td>
                                 </tr>
                                 <script>
                                     // called on instantitiation to hide the "show more" row
-                                    showHideRow({{item.id}});
+                                    showHideRow({{attempt.id}});
                                 </script>
                             {% endfor %}
                         </tbody>
@@ -79,5 +84,6 @@
     <a href="{% url 'student:course' course.id %}" class ="btn-success btn w-100 m-1">Return Home</a>
     <a href="{% url 'student:course' course.id %}" class ="btn-success btn w-100 m-1">Try Again</a>
 </div>
+<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
 
 {% endblock %}
