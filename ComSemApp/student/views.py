@@ -798,7 +798,10 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
         """
         context : dict[str, Any] = super(SpeakingPracticeResultsView, self).get_context_data(**kwargs)
         context['attempts'] : list[dict[str, str | float]] = {}
-        attempt_ids : list[str] = dict(self.request.GET)['attempt_ids']
+        try:
+            attempt_ids : list[str] = dict(self.request.GET)['attempt_ids']
+        except:
+            return context
         attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(student=self.student, pk__in=attempt_ids)
         expressions : set[Expression] = set([attempt.expression for attempt in attempts])
         familiarity_scores : dict[int, int] = {}
