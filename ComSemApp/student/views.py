@@ -2,7 +2,7 @@ import itertools
 import json
 from statistics import mean, stdev
 import string
-from typing import Any
+from typing import Any, Iterable
 from datetime import datetime, timedelta
 from random import choice, shuffle
 from collections import Counter
@@ -860,33 +860,32 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
     model = SpeakingPracticeAttempt
     fields = ["expression", "student", "audio"]
 
-    def score_attempt(self, transcription : str, expression: Expression) -> float:
+    def score_generator(self, transcription : str, expression : Expression) -> Iterable[tuple[float, StudentAttempt | None]]:
         """
-            Scores a transcription of a speaking practice attempt against all correct
-            formulations of its corresponding expression
+            Generator function which returns an Iterable over score tuples, which include the 
+            associated StudentAttempt if applicable
 
             Arguments:
                 transcription : str -- The transcription to grade against all correct worksheet attempts
                 expression : Expression -- The Expression object associated with the speaking practice attempt
 
-            Returns:
-                highest_score : float -- the highest score out of all individual comparison scores
         """
+        MAX_SCORE : float = 100
+        score : float
         correct_attempts : QuerySet[StudentAttempt] = StudentAttempt.objects.filter(expression=expression, text_correct=True)
-        correct_formulations : list[str]
-        highest_score  : float
 
-        # remove punctuation and set to lowercase so string comparisons are standardized
-        correct_formulations = [attempt.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)) for attempt in correct_attempts]
+        # All strings are made lowercase and have their punctuation removed for comparison
         transcription = transcription.lower().translate(str.maketrans('', '', string.punctuation))
-        # add the teacher-provided reformulation
-        correct_formulations.append(expression.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)))
+        score = self.grade_against_correct(transcription, expression.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)))
+        yield (score, None)
+        for attempt in correct_attempts:
+            if score == MAX_SCORE:
+                raise StopIteration
+            score = self.grade_against_correct(transcription, attempt.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)))
+            yield (score, attempt)
+        raise StopIteration
 
-        highest_score = max([self.grade_against_correct(transcription, correct_formulation) for correct_formulation in correct_formulations])
-
-        return highest_score
-    
-    def grade_against_correct(self,transcription, correct_formulation):
+    def grade_against_correct(self,transcription : string, correct_formulation : string):
         # TODO: Implement
         return 100
 
@@ -904,13 +903,16 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
             entry in the database and returns the transcription and score data back to the frontend
         """
         attempt : SpeakingPracticeAttempt = form.save(commit=False)
-
         transcription : str
         length : int
+        score : tuple[float, StudentAttempt | None]
+
         transcription, length = transcribe_and_get_length_audio_file(attempt.audio)
         # The Counter call gets the number of words, the division on the bottom get the length in minutes
         attempt.wpm = Counter(transcription.split()).total() / (length / 60000)
-        attempt.correct = self.score_attempt(transcription, attempt.expression)
+        score = max(self.score_generator(transcription,attempt.expression), key=lambda score : score[1])
+        attempt.correct = score[0]
+        # TODO: ADD ASSOCIATED STUDENTATTEMPT ONCE MODEL IS UPDATED
         attempt.transcription = transcription
 
         attempt.save()
