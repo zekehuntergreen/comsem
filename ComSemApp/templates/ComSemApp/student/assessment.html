@@ -8,14 +8,16 @@
 
 <style>
   @keyframes blink {
-    34% { opacity: 1; }
-    35% { opacity: 0; }
-    65% { opacity: 0; }
-    66% { opacity: 1; }
+    0% { opacity: 0; }
+    24% { opacity: 0; }
+    25% { opacity: 1; }
+    75% { opacity: 1; }
+    76% { opacity: 0; }
+    100% { opacity: 0; }
   }
   
   .blinking {
-    animation: blink 1.6s;
+    animation: blink 1.0s;
     animation-iteration-count: infinite;
   }
 </style>
@@ -36,8 +38,7 @@
             <h1 id='expression-text' class="card-title text-center show-expression"></h1>
             <div>
               <h2 id="timer-text" class="show-expression" style="display: inline-block;"></h2>
-              <div id="read-icon" class=""  style="display: none;"> <img src="../../../../static/ComSemApp/images/reading_icon.png" width="35" height="35"> </div>
-	            <div id="speak-icon" class=""  style="display: none;"> <img src="../../../../static/ComSemApp/images/microphone_icon.png" width="30" height="30"> </div>
+              <img id="curr-icon" class=""  style="display: none;" src="../../../../static/ComSemApp/images/reading_icon.png" width="35" height="35">
             </div>
             <div id="timerContainer" class="timer bg-muted" style="height: 100px; width: 100%">
               <div id="timer-bar" class="timer-bar bg-info show-expression" role="timer" style="height: 100px; width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
@@ -78,6 +79,9 @@ const READING_OFFSET = 2;
 const RECORDING_OFFSET = 3;
 const encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
 
+let read_src = "../../../../static/ComSemApp/images/reading_icon.png";
+let speak_src = "../../../../static/ComSemApp/images/microphone_icon.png";
+
 //index for tracking current problem
 let curr_problem_index = 0;
 // places problems from context into array
@@ -105,7 +109,7 @@ function timer(syllables, offset) {
     $("#timer-bar").visibility = "visible";
     $("#timer-text").visibility = "visible";
     $("#read-icon").visibility = "visible";
-    startBlinking("read-icon");
+    startBlinking("curr-icon");
 
     //timer function tics every .025 secs
     let update = setInterval(() => {
@@ -113,7 +117,6 @@ function timer(syllables, offset) {
       // This runs when the timer is complete
       if(current_time >= max_time){ 
         clearInterval(update);
-        stopBlinking("read-icon");
         resolve();
       }
       let value = Math.min(((current_time / max_time) * 100), 100);
@@ -129,14 +132,16 @@ function timerPromise(sentence){
   //Once reading timer done this starts
   reading_check.then(() => {
     $("#timer-bar").removeClass("bg-info").addClass("bg-danger");
-    startBlinking("speak-icon");
+    changeIcon("curr-icon", speak_src);
     //starts recording
     recorder.start();
     form_expression = problems[curr_problem_index]['id'];
     let recording_check = timer(sentence.length / 2, RECORDING_OFFSET);
     //Once recording timer done this starts
     recording_check.then(() => { 
-      stopBlinking("speak-icon");
+
+      stopBlinking("curr-icon");
+      changeIcon("curr-icon", read_src);
 
       // stops recording
       recorder.stop();
@@ -251,6 +256,13 @@ function stopBlinking(imageID) {
   var image = document.getElementById(imageID);
   $("#" + imageID).removeClass("blinking");
   image.style.display = "none";
+}
+
+function changeIcon(imageId, newSrc) {
+  const imgElement = document.getElementById(imageId);
+  if (imgElement) {
+    imgElement.src = newSrc;
+  }
 }
 
 function toggleEnabledNext(){
