@@ -869,6 +869,13 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
                 transcription : str -- The transcription to grade against all correct worksheet attempts
                 expression : Expression -- The Expression object associated with the speaking practice attempt
 
+            Remarks:
+                As a generator function, this follows the python generator model with the use of the
+                yield keyword. When .next() is called on the returned iterable, the function is run
+                until a yield statement is met, and the yielded value is returned as the result of the
+                .next() call. Every subsequent time .next() is called, execution resumes from the
+                previous yield statement.
+                It is strongly recommended to read Python's official documentation of generator.
         """
         MAX_SCORE : float = 100
         score : float
