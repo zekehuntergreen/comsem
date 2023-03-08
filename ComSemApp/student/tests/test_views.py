@@ -1,7 +1,8 @@
 from django.urls import reverse
 from django.core import mail
+from django.test import *
 
-from ComSemApp.libs.factories import BaseTestCase
+from ComSemApp.libs.factories import BaseTestCase, Factory
 from ComSemApp.models import *
 
 from ComSemApp.teacher.constants import WORKSHEET_STATUS_PENDING, WORKSHEET_STATUS_UNRELEASED, WORKSHEET_STATUS_RELEASED
@@ -280,3 +281,15 @@ class TestAttemptUpdateView(TestSubmissionsMixin):
         self.assertEqual(self.submission.attempts.count(), 1)
         self.attempt.refresh_from_db()
         self.assertEqual(self.attempt.reformulation_text, reformulation_text)
+
+# The following tests are not utilizing the ComSemApp.libs.factories.BaseTestCase
+class TestSpeakingPracticeMixin(TestCase):
+    _factory : Factory 
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.factory = Factory()
+    pass
+
+class TestSpeakingPracticeGeneratorView():
+    pass

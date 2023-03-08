@@ -1,5 +1,8 @@
 import uuid
 
+from typing import Optional, TypedDict
+from typing_extensions import Unpack
+
 from django.utils import timezone
 from django.contrib.auth.models import User
 from ComSemApp.teacher.constants import WORKSHEET_STATUS_UNRELEASED
@@ -9,11 +12,21 @@ from ComSemApp.models import *
 from django.test import TestCase
 from django.test import Client
 
+class UserParams(TypedDict, total=False):
+    username : str
+    password : str
 
 class Factory:
-    _institution = None
+    _institution : Institution = None
 
-    def db_get_or_create_institution(self, **kwargs):
+    def db_get_or_create_institution(self) -> Institution:
+        """
+            Gets the institution associated with this factory.
+            If no such institution exists, one is created with default values.
+
+            Returns:
+                _institution : Institution -- The institution associated with this factory
+        """
         if self._institution:
             return self._institution
 
@@ -26,24 +39,29 @@ class Factory:
         self._institution = Institution.objects.create(**defaults)
         return self._institution
 
-    def db_create_user(self, **kwargs):
+    def db_create_user(self, **kwargs : Unpack[UserParams]) -> User:
+        """
+            Creates a new user with the optionally given username and password values
+
+            Returns:
+                user : User -- the new user created with the given or default values
+        """
         defaults = {
             "first_name": "firstname",
             "last_name": "lastname",
             "username": kwargs.get("username", str(uuid.uuid4())),
         }
         user = User.objects.create(**defaults)
-        password = kwargs.get("password", "password123")
-        user.set_password(password)
+        user.set_password(kwargs.get("password", "password123"))
         user.save()
         return user
 
-    def db_create_admin(self, **kwargs):
+    def db_create_admin(self, **kwargs : Unpack[UserParams]) -> Admin:
         institution = self.db_get_or_create_institution()
         user = self.db_create_user(**kwargs)
         return Admin.objects.create(institution=institution, user=user)
 
-    def db_create_teacher(self, **kwargs):
+    def db_create_teacher(self, **kwargs : Unpack[UserParams]) -> Teacher:
         institution = self.db_get_or_create_institution()
         user = self.db_create_user(**kwargs)
         teacher = Teacher.objects.create(user=user)
@@ -51,12 +69,12 @@ class Factory:
         teacher.save()
         return teacher
 
-    def db_create_student(self, **kwargs):
+    def db_create_student(self, **kwargs : Unpack[UserParams]) -> Student:
         institution = self.db_get_or_create_institution()
         user = self.db_create_user(**kwargs)
         return Student.objects.create(user=user, institution=institution)
 
-    def db_create_course_type(self, **kwargs):
+    def db_create_course_type(self):
         defaults = {
             "institution": self.db_get_or_create_institution(),
             "name": "Course Type",
