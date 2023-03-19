@@ -91,11 +91,15 @@
                 </button>
             </div>
             <div class="modal-body">
-                <span id="confirm-message">Are you sure you want to request teacher review? Please listen back to your audio to ensure that there was a potential grading or transcription error before continuing.</span>
+                <span id="confirm-message"><b>Are you sure you want to request teacher review?</b><br>
+                    Please listen back to your audio recording to ensure that there was a grading or 
+                    transcription error before requesting review.<br>
+                    If you have already done so, continue. 
+                </span>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-warning" id="confirm-button">Yes, I'm sure</button>
+                <button type="button" class="btn btn-warning" id="confirm-button">Request Review</button>
             </div>
         </div>
     </div>
@@ -115,10 +119,10 @@
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
 <script>
 
-// Add click event listener to all submit buttons
+// Add click event listener to all request buttons
 $(".request-btn").on("click", function() {
-    // Get the submit ID from the data attribute of the button
-    var submitId = $(this).data("submit-id");
+    // Get the request ID from the data attribute of the button
+    var attempt_id = $(this).data("submit-id");
   
     // Show the modal dialog box
     $("#confirm-modal").modal("show");
@@ -127,28 +131,11 @@ $(".request-btn").on("click", function() {
     $("#confirm-button").one("click", function() {
       // Submit the form with the submit ID as a parameter
       console.log("confirm clicked")
-        teacherRequestClick(submitId);
+        teacherRequestClick(attempt_id);
       // Hide the modal dialog box
       $("#confirm-modal").modal("hide");
     });
   });
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function teacherRequestClick(attempt){
     if (!$("#request" + attempt).hasClass("disabled")){
