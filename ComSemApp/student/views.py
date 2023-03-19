@@ -892,3 +892,25 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
 
         attempt.save()
         return JsonResponse({'id' : attempt.id}, status=201)
+
+class SpeakingPracticeAttemptsView(StudentViewMixin, CourseViewMixin, DetailView):
+    """
+      Serves the content of the speaking practice results page presented after a
+      session of practice.
+    """
+    template_name: str = 'ComSemApp/student/assessment_attempts.html'
+
+    def get_object(self):
+        """
+            implements Django DetailView function
+        """
+        return self.course
+
+    def get_context_data(self, **kwargs) -> dict[str, dict[str, str | int | float]]:
+        """
+            implements Django's DetailView get_context_data function 
+            Returns:
+                context -- context data used by assessment_results.html
+        """
+        context = {}
+        return context
