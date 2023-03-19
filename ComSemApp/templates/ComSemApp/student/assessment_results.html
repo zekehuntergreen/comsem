@@ -3,14 +3,13 @@
 {% load static %}
 
 {% block content %}
-
-<script type="text/javascript">
+<script>
     function showHideRow(row){
         /*
             toggles (hides/shows) the "show more" row that
             is inputted as a parameter
         */
-        $("#" + row).toggle();
+        $("#row" + row).toggle();
     }
 </script>
 
@@ -54,17 +53,18 @@
                                     </td>
                                 </tr>
                                 <!--row that shows hidden information-->
-                                <tr id={{attempt.id}} class="hidden_row">  <!--row id corresponds to individual item id-->
+                                <tr id="row{{attempt.id}}" class="hidden_row">  <!--row id corresponds to individual item id-->
                                     <td colspan=4> <!-- merges all four columns in this row-->
                                         <p style="margin-left:40px"> <!--indentation for this paragraph-->
                                             <b>Correct Expression</b><br> 
                                             {{attempt.correct_formulation}} <br>
-                                            <b>Given Expression</b><br> 
+                                            <b>Problem Expression</b><br> 
                                             {{attempt.incorrect_expression}} <br>
                                             <b>Graded Expression</b> (hover for details about each error)<br> 
                                             <mark><span title="There could be errors shown here">{{attempt.transcription}}</span></mark><br>
                                             <b>Audio Recording</b><br>
                                             <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio><br>
+                                            <button type="button" id="request{{attempt.id}}" data-submit-id="{{attempt.id}}" class="request-btn sbtn btn-warning btn-sm" data-toggle="modal" data-target="#confirm-modal">Request Teacher Review</button>
                                         </p>
                                     </td>
                                 </tr>
@@ -80,10 +80,112 @@
         </div>
     </div>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="confirm-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-modal-label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirm-modal-label">Are you sure?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="confirm-message">Are you sure you want to request teacher review? Please listen back to your audio to ensure that there was a potential grading or transcription error before continuing.</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="confirm-button">Yes, I'm sure</button>
+            </div>
+        </div>
+    </div>
+</div>
+  
+  
 <div class="btn-group d-flex card-footer" role="group" aria-label="...">
     <a href="{% url 'student:course' course.id %}" class ="btn-success btn w-100 m-1">Return Home</a>
     <a href="{% url 'student:course' course.id %}" class ="btn-success btn w-100 m-1">Try Again</a>
 </div>
+
+<!-- page form holder, input specifies url "speaking_practice_teacher_request" which links to SpeakingPracticeTeacherReviewRequest" -->
+<form id="pageForm" method="POST">
+    <input hidden type="text" id="teacher_review_request" value="{% url 'student:speaking_practice_teacher_request' course.id%}">
+  </form>
+
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
+<script>
+
+// Add click event listener to all submit buttons
+$(".request-btn").on("click", function() {
+    // Get the submit ID from the data attribute of the button
+    var submitId = $(this).data("submit-id");
+  
+    // Show the modal dialog box
+    $("#confirm-modal").modal("show");
+  
+    // Add click event listener to the confirm button
+    $("#confirm-button").one("click", function() {
+      // Submit the form with the submit ID as a parameter
+      console.log("confirm clicked")
+        teacherRequestClick(submitId);
+      // Hide the modal dialog box
+      $("#confirm-modal").modal("hide");
+    });
+  });
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function teacherRequestClick(attempt){
+    if (!$("#request" + attempt).hasClass("disabled")){
+        console.log(attempt);
+        $("#request" + attempt).removeClass("btn-warning").addClass("btn-secondary").prop("disabled", true);
+
+        let requestFormData = new FormData(); // creates new form
+        requestFormData.append( 'attempt_id', attempt); 
+        //requestFormData.append('student', student);
+        var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
+        
+
+        $.ajax({ // send POST request
+            type: "POST",
+            url: $("#teacher_review_request").val(), // links to html form above which specifies the url to recieve request
+            data: requestFormData,
+            processData: false,
+            contentType: false,
+            timeout: 5000, // if takes longer than 5 secs, return timeout error
+            headers: { // places token in request so that it is certified by server
+                'X-CSRFToken': csrf_token
+            },
+            success:(response) => {
+                cs_notification('success', "Request Sent")
+                // inputs the id recieved into the html form
+                $("#form").append("<input type='hidden' value="+response['id']+" name='attempt_ids'></input>");
+                resolve();
+            },
+            error: (jqXHR, textStatus, errorThrown) => {
+                cs_ajax_error(jqXHR, textStatus, errorThrown);
+                reject();
+            }
+            });
+    }
+}
+
+</script>
+
 
 {% endblock %}
