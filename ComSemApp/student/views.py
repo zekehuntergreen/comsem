@@ -774,8 +774,8 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView, Speaking
 
 # Array of Dictionaries for result data
 practice_data = [
-                    {'id':1,'transcription1':"This is a sentence transcription.",'accuracy1':50,'fluency1':75, 'correct':'This is the correct sentence.'},
-                    {'id':2,'transcription1':"This is a second sentence transcription.",'accuracy1':90,'fluency1':70, 'correct':'This is another correct sentence.'}
+                    {'id':1,'transcription':"This is a sentence transcription.",'accuracy':50,'fluency':75, 'correct_formulation':'This is the correct sentence.', 'incorrect_expression':'This is the problem expression','teacher_comments':'teacher comments are shown here'},
+                    {'id':2,'transcription':"This is a second sentence transcription.",'accuracy':70,'fluency':90, 'correct_formulation':'This is the correct sentence.', 'incorrect_expression':'This is the problem expression','teacher_comments':'teacher comments are shown here'}
                 ]
 class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView, SpeakingPracticeInfoMixin):
     """
@@ -912,5 +912,7 @@ class SpeakingPracticeAttemptsView(StudentViewMixin, CourseViewMixin, DetailView
             Returns:
                 context -- context data used by assessment_results.html
         """
-        context = {}
+
+        context : dict[str, Any] = super(SpeakingPracticeAttemptsView, self).get_context_data(**kwargs)
+        context['attempts'] = practice_data
         return context
