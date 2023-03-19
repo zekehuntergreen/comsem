@@ -32,20 +32,20 @@ def grade_reformulation(expression, c_exp) :
     # Adds to total
     total_order_score = total_order_score + position_percent_of_order_score
 
-    # Performs the word order check
-    order_error_count = word_order(expression, c_exp)
-    # Once again converts to percent, but this section is instead worth 70% of the order portion
-    order_percent = ((total_word_count - order_error_count) / total_word_count) * 100
-    print("Order percentage: ", order_percent)
-    order_percent_of_total = order_percent * .75
-    total_order_score = total_order_score + order_percent_of_total
-
     # The presence check
     presence_error_count = word_prescence(expression, c_exp)
     # Converts presence score to a percent which is the overrall score for the presence portion
     presence_percent = ((total_word_count - presence_error_count) / total_word_count) * 100
     presence_score = presence_percent * .7
     print("Presence Score: ", presence_percent)
+
+    # Word Order check
+    order_error_count = word_order(expression, c_exp, presence_error_count)
+    # Once again converts to percent, but this section is instead worth 70% of the order portion
+    order_percent = ((total_word_count - order_error_count) / total_word_count) * 100
+    print("Order percentage: ", order_percent)
+    order_percent_of_total = order_percent * .75
+    total_order_score = total_order_score + order_percent_of_total
 
     # Sentence length check
     length_percent = word_count(expression, c_exp)
@@ -83,20 +83,20 @@ def word_prescence(expression, c_exp):
 
     present_words = [] # A list of strings that will hold the words that have been recorded
     number_present = [] # A list that will record the number of each word that is not present in the student submission
-    for x in c_exp_list:
-        if x not in present_words: # Checks if the word is already present in list
+    for word in c_exp_list:
+        if word not in present_words: # Checks if the word is already present in list
             #If word is not present, the word is appened to the list and the number list has one appeneded
-            present_words.append(x) 
+            present_words.append(word) 
             number_present.append(1)
         else:
             #if the word is already in the previous list, the value at the index of the word is increased in the numbers list
-            temp = present_words.index(x)
+            temp = present_words.index(word)
             number_present[temp] += 1
 
     # This counts the words in the student submission and alters number_present based off them
-    for y in expression_list:
-        if y in present_words: # Checks if the word is present in the correct expression
-            temp = present_words.index(y)
+    for word in expression_list:
+        if word in present_words: # Checks if the word is present in the correct expression
+            temp = present_words.index(word)
             if(number_present[temp] == 0): # A case that oocurs when there is an excess number of the given word in the student expression
                 error_count += 1
             else:
@@ -110,12 +110,13 @@ def word_prescence(expression, c_exp):
 
     return error_count
 
-def word_order(expression, c_exp):
+def word_order(expression, c_exp, presence_errors):
     """
     This is a function that determines if there is an error with the order of words
     Args:
         expression (string): The student provided version of the expression
         c_exp (string): The correct expression to be comapred to
+        presence_errors (int): the amount presence errors for a check
     
     Returns:
         error_count (int): the amount of times that a word order error occurs
@@ -126,12 +127,11 @@ def word_order(expression, c_exp):
     c_exp_list = l_c_exp.split()
 
     # If none of the words are present order must be zero as well
-    if(word_prescence(expression, c_exp) == len(l_c_exp)):
+    if(presence_errors == len(l_c_exp)):
         return len(l_c_exp)
     
     error_count = 0
-    for x in range(len(expression_list)):
-        if (x + 1) < len(expression_list): # Makes sure that it will not go out of index checking the next word
+    for x in range(len(expression_list)-1):
             if expression_list[x] in c_exp_list: # Checks if the word is in the correct expression
                 word_index = c_exp_list.index(expression_list[x]) # Sets word index equal to the index of the word in the orignal expression
                 if (word_index + 1) < len(c_exp_list): # Make sure that there is a word after the desired word
@@ -140,13 +140,11 @@ def word_order(expression, c_exp):
                     else:
                         error_count += 1
 
-        if x == len(expression_list)-1: # If the index is to the last word in expression, since the last word has no word after it
-            if expression_list[x] in c_exp_list: # Checks if the word is in the correct expression
-                word_index = c_exp_list.index(expression_list[x]) # Gets the index of the word in the correct expression
-                if word_index == len(c_exp_list)-1: # Checks if the word is the last word in the correct expression
-                    continue
-                else:
-                    error_count += 1
+    x = len(expression_list)-1 # If the index is to the last word in expression, since the last word has no word after it
+    if expression_list[x] in c_exp_list: # Checks if the word is in the correct expression
+        word_index = c_exp_list.index(expression_list[x]) # Gets the index of the word in the correct expression
+        if word_index != len(c_exp_list)-1: # Checks if the word is the last word in the correct expression
+            error_count += 1
 
     return error_count
 
@@ -194,10 +192,7 @@ def word_count(expression, c_exp):
     if expression_len == c_exp_len:
         return 100
     
-    if expression_len > c_exp_len:
-        error_count = expression_len - c_exp_len
-    else:
-        error_count = c_exp_len - expression_len
+    error_count = abs(expression_len - c_exp_len)
 
     half_len = c_exp_len/2
     correct_percent = 0
@@ -206,7 +201,7 @@ def word_count(expression, c_exp):
         correct_percent = correct_percent * 100
         return correct_percent
     else:
-        return correct_percent
+        return 0
     
 def extra_words(expression, c_exp):
     """
@@ -224,8 +219,8 @@ def extra_words(expression, c_exp):
     c_exp_list = l_c_exp.split()
     error_count = 0
 
-    for x in expression_list:
-        if x in c_exp_list:
+    for word in expression_list:
+        if word in c_exp_list:
             continue
         else:
             error_count += 1
@@ -237,7 +232,7 @@ def extra_words(expression, c_exp):
         correct_percent = correct_percent * 100
         return correct_percent
     else:
-        return correct_percent
+        return 0
 
 c_exp = "Hello My Name is Elder Price."
 expression = "Hello My Pineapple is Elder Price."
