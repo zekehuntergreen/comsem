@@ -160,8 +160,6 @@ function teacherRequestClick(attempt){
             },
             success:(response) => {
                 cs_notification('success', "Request Sent")
-                // inputs the id recieved into the html form
-                $("#form").append("<input type='hidden' value="+response['id']+" name='attempt_ids'></input>");
                 resolve();
             },
             error: (jqXHR, textStatus, errorThrown) => {
