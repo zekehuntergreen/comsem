@@ -16,6 +16,35 @@ class FactoryUserParams(TypedDict, total=False):
     username : str
     password : str
 
+class CourseParams(TypedDict, total=False):
+    session : Session
+    course_type : CourseType
+
+class SessionParams(TypedDict, total=False):
+    session_type : SessionType
+
+class CountryParams(TypedDict, total=False):
+    country : str
+
+class LanguageParams(TypedDict, total=False):
+    language : str
+
+class WorksheetParams(TypedDict, total=False):
+    course : Course
+
+class ExpressionParams(TypedDict, total = False):
+    worksheet : Worksheet
+    student : Student
+
+class SubmissionParams(TypedDict, total = False):
+    worksheet : Worksheet
+    student : Student
+    status : str
+
+class AttemptParams(TypedDict, total = False):
+    expression : Expression
+    submission : StudentSubmission
+
 class Factory:
     _institution : Institution = None
 
@@ -122,13 +151,13 @@ class Factory:
         }
         return CourseType.objects.create(**defaults)
 
-    def db_create_course(self, **kwargs) -> Course:
+    def db_create_course(self, **kwargs : Unpack[CourseParams]) -> Course:
         """
             Creates a new course with given or generated values
 
             Optional Arguments:
                 session : Session -- the course's session
-                course_type : CourseTyoe -- the course's type
+                course_type : CourseType -- the course's type
 
             Returns:
                 course : Course -- the new course with given or generated values
@@ -163,7 +192,7 @@ class Factory:
         }
         return SessionType.objects.create(**defaults)
 
-    def db_create_session(self, **kwargs) -> Session:
+    def db_create_session(self, **kwargs : Unpack[SessionParams]) -> Session:
         """
             Creates a new session with given or generated values
 
@@ -183,7 +212,7 @@ class Factory:
         }
         return Session.objects.create(**defaults)
 
-    def db_create_country(self, **kwargs) -> Country:
+    def db_create_country(self, **kwargs : Unpack[CountryParams]) -> Country:
         """
             Creates new country with given or default values
 
@@ -198,7 +227,7 @@ class Factory:
         }
         return Country.objects.create(**defaults)
 
-    def db_create_language(self, **kwargs) -> Language:
+    def db_create_language(self, **kwargs : Unpack[LanguageParams]) -> Language:
         """
             Creates new language with given or default values
 
@@ -213,7 +242,7 @@ class Factory:
         }
         return Language.objects.create(**defaults)
 
-    def db_create_worksheet(self, **kwargs) -> Worksheet:
+    def db_create_worksheet(self, **kwargs : Unpack[WorksheetParams]) -> Worksheet:
         """
             Creates a new worksheet with given or generated values
 
@@ -238,7 +267,7 @@ class Factory:
         }
         return Worksheet.objects.create(**defaults)
 
-    def db_create_expression(self, **kwargs) -> Expression:
+    def db_create_expression(self, **kwargs : Unpack[ExpressionParams]) -> Expression:
         """
             Creates a new expression with given or generated values
 
@@ -269,7 +298,18 @@ class Factory:
         }
         return Expression.objects.create(**defaults)
 
-    def db_create_submission(self, **kwargs) -> StudentSubmission:
+    def db_create_submission(self, **kwargs : Unpack[SubmissionParams]) -> StudentSubmission:
+        """
+            Creates a new StudentSubmission with given or generated values
+
+            Optional Arguments:
+                worksheet : Worksheet -- the worksheet that owns the expression
+                student : Student -- the student associated with the expression
+                status : str -- the status of the submission (default = 'pending')
+
+            Returns:
+                submission: StudentSubmission -- the new submission with given or generated values
+        """
         worksheet = kwargs.get("worksheet")
         if not worksheet:
             worksheet = self.db_create_worksheet()
@@ -286,7 +326,17 @@ class Factory:
         return StudentSubmission.objects.create(**defaults)
 
 
-    def db_create_attempt(self, **kwargs) -> StudentAttempt:
+    def db_create_attempt(self, **kwargs : Unpack[AttemptParams]) -> StudentAttempt:
+        """
+            Creates a new StudentAttempt with given or generated values
+
+            Optional Arguments:
+                expression : Expression -- the attempt's expression
+                submission : StudentSubmission -- the submission associated with the attempt
+
+            Returns:
+                attempt: StudentAttempt -- the new attempt with given or generated values
+        """
         expression = kwargs.get("expression")
         if not expression:
             expression = self.db_create_expression()
