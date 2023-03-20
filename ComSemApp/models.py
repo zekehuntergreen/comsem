@@ -334,10 +334,32 @@ class SpeakingPracticeAttempt(models.Model):
     wpm = models.DecimalField(max_digits=5,decimal_places=2, validators=[MinValueValidator(0)], verbose_name='Words per Minute')
 
     def __str__(self):
-        return f"{self.id}: {self.expression} - {self.correct}% ({self.date.strftime('%d %b %Y')})"
+        return f"{self.pk}: {self.expression} - {self.correct}% ({self.date.strftime('%d %b %Y')})"
 
     class Meta:
         verbose_name = "Speaking Practice Attempt"
+
+class SpeakingPracticeAttemptReviewRequest(models.Model):
+    """
+        This model stores students' requests for teacher review on their Speaking Practice attempts
+        Inherits from:
+            django.db.models.Model
+        Remarks:
+            The 'attempt' field is the primary key for this model because students cannot request
+            review of the same attempt more than once.
+    """
+    # The attempt which the student has requested review for
+    attempt = models.ForeignKey(SpeakingPracticeAttempt, on_delete=models.CASCADE, primary_key=True)
+    # Whether or not the attempt has been reviewed yet
+    is_reviewed = models.BooleanField(default=False, verbose_name="Is Reviewed", null=False)
+    # The comments the teacher has provided during review
+    comments = models.TextField(null=True, blank=True, verbose_name="Teacher Comments")
+
+    def __str__(self):
+        return f"{self.attempt.pk}: {'Not' if self.is_reviewed else ''} Reviewed{f' -- {self.comments}' if self.comments else ''}"
+    
+    class Meta:
+        verbose_name = "Instructor Review Request for Speaking Practice Attempt"
 
 # WORDS, SEQUENTIAL WORDS, TAG
 
