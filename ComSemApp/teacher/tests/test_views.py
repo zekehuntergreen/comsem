@@ -225,7 +225,7 @@ class TestWorksheetReleaseView(TestTeacherMixin):
         self.assertEqual(self.worksheet.status, WORKSHEET_STATUS_UNRELEASED)
         response = self.client.post(reverse("teacher:worksheet_release",
                 kwargs={'course_id': self.course.id, 'worksheet_id': self.worksheet.id}))
-        self.assertEqual(response.reason_phrase, "Worksheet cannot be empty")
+        self.assertEqual(response.reason_phrase, "Worksheet must have at least one expression with a reforumlation.")
         self.assertEqual(response.status_code, 406)
         self.worksheet.refresh_from_db()
         self.assertEqual(self.worksheet.status, WORKSHEET_STATUS_UNRELEASED)
