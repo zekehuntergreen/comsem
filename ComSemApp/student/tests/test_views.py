@@ -288,18 +288,31 @@ class TestSpeakingPracticeBase(TestCase):
     PASSWORD : str = "password123"
     APP : str = "student"
 
-    factory : Factory = Factory()
-    courses : list[Course] =[]
-    students : list[Student] = []
+    factory : Factory
+    courses : list[Course]
+    students : list[Student]
+    worksheets : list[Worksheet]
+    expressions : list[Expression]
 
     def setUp(self) -> None:
         super().setUp()
-
-    def generate_students(self, num : int):
-        self.students.extend([self.factory.db_create_student(password=self.PASSWORD) for _ in range(num)])
+        self.factory = Factory()
+        self.courses = []
+        self.students = []
+        self.worksheets = []
+        self.expressions = []
 
     def generate_courses(self, num : int):
         self.courses.extend([self.factory.db_create_course() for _ in range(num)])
+
+    def generate_students(self, num : int):
+        self.students.extend([self.factory.db_create_student(password=self.PASSWORD) for _ in range(num)])
+    
+    def generate_worksheets(self, num : int, course : Course):
+        self.worksheets.extend([self.factory.db_create_worksheet(course=course) for _ in range(num)])
+
+    def generate_expressions(self, num : int, worksheet : Worksheet, student : Student = None):
+        self.expressions.extend([self.factory.db_create_expression(worksheet=worksheet, student=student) for _ in range(num)])
 
 class TestSpeakingPracticeGeneratorBase(TestSpeakingPracticeBase):
     VIEW_NAME : str = "student:speaking_practice_generator"
@@ -314,6 +327,50 @@ class TestSpeakingPracticeGeneratorViewNoWorksheets(TestSpeakingPracticeGenerato
 
         self.assertTrue(self.client.login(username=self.students[0].user.username, password=self.PASSWORD))
 
-    def test_no_worksheets_created_returns_no_expressions(self):
+    def test_no_worksheets_created_returns_no_worksheets(self):
         response : HttpResponse = self.client.get(reverse(self.VIEW_NAME, current_app=self.APP, kwargs={'course_id' : self.courses[0].pk}))
         self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(response.context['worksheets'])
+        self.assertListEqual(response.context['worksheets'],[])
+
+    def test_no_worksheets_released_returns_no_worksheets(self):
+        self.generate_worksheets(1, self.courses[0])
+        self.generate_expressions(1, self.worksheets[0])
+
+        response : HttpResponse = self.client.get(reverse(self.VIEW_NAME, current_app=self.APP, kwargs={'course_id' : self.courses[0].pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(response.context['worksheets'])
+        self.assertListEqual(response.context['worksheets'],[])
+
+    def test_no_worksheets_completed_returns_no_worksheets(self):
+        self.generate_worksheets(1, self.courses[0])
+        self.generate_expressions(1, self.worksheets[0])
+        self.assertTrue(self.worksheets[0].release())
+
+        response : HttpResponse = self.client.get(reverse(self.VIEW_NAME, current_app=self.APP, kwargs={'course_id' : self.courses[0].pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(response.context['worksheets'])
+        self.assertListEqual(response.context['worksheets'],[])
+
+    def test_no_worksheets_completed_by_current_student_returns_no_worksheets(self):
+        # One more student (total of two)
+        self.generate_students(1)
+        self.courses[0].students.add(self.students[1])
+        self.generate_worksheets(1, self.courses[0])
+        self.generate_expressions(1, self.worksheets[0])
+        self.assertTrue(self.worksheets[0].release())
+        self.factory.db_create_submission(worksheet=self.worksheets[0], student=self.students[1], status='complete')
+
+        # Student with no complete worksheets
+        response : HttpResponse = self.client.get(reverse(self.VIEW_NAME, current_app=self.APP, kwargs={'course_id' : self.courses[0].pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(response.context['worksheets'])
+        self.assertListEqual(response.context['worksheets'],[])
+
+        # Student with the completed worksheets
+        self.client.logout()
+        self.assertTrue(self.client.login(username=self.students[1].user.username, password=self.PASSWORD))
+        response : HttpResponse = self.client.get(reverse(self.VIEW_NAME, current_app=self.APP, kwargs={'course_id' : self.courses[0].pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(response.context['worksheets'])
+        self.assertNotEqual(len(response.context['worksheets']), 0)
