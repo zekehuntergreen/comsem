@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.urls import reverse
 from django.core import mail
 from django.test import *
@@ -283,13 +284,36 @@ class TestAttemptUpdateView(TestSubmissionsMixin):
         self.assertEqual(self.attempt.reformulation_text, reformulation_text)
 
 # The following tests are not utilizing the ComSemApp.libs.factories.BaseTestCase
-class TestSpeakingPracticeMixin(TestCase):
-    _factory : Factory 
+class TestSpeakingPracticeBase(TestCase):
+    PASSWORD : str = "password123"
+    APP : str = "student"
+
+    factory : Factory = Factory()
+    courses : list[Course] =[]
+    students : list[Student] = []
 
     def setUp(self) -> None:
         super().setUp()
-        self.factory = Factory()
-    pass
 
-class TestSpeakingPracticeGeneratorView():
-    pass
+    def generate_students(self, num : int):
+        self.students.extend([self.factory.db_create_student(password=self.PASSWORD) for _ in range(num)])
+
+    def generate_courses(self, num : int):
+        self.courses.extend([self.factory.db_create_course() for _ in range(num)])
+
+class TestSpeakingPracticeGeneratorBase(TestSpeakingPracticeBase):
+    VIEW_NAME : str = "student:speaking_practice_generator"
+
+class TestSpeakingPracticeGeneratorViewNoWorksheets(TestSpeakingPracticeGeneratorBase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.generate_students(1)
+        self.generate_courses(1)
+        self.courses[0].students.add(self.students[0])
+
+        self.assertTrue(self.client.login(username=self.students[0].user.username, password=self.PASSWORD))
+
+    def test_no_worksheets_created_returns_no_expressions(self):
+        response : HttpResponse = self.client.get(reverse(self.VIEW_NAME, current_app=self.APP, kwargs={'course_id' : self.courses[0].pk}))
+        self.assertEqual(response.status_code, 200)
