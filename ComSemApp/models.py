@@ -184,8 +184,12 @@ class Worksheet(models.Model):
     @property
     def released(self):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
+    
+    @property
+    def can_be_released(self):
+        return all(e.reformulation_text or e.audio for e in self.expressions.all())
 
-    def complete_submission(self, student) -> StudentSubmissionManager | None: # vhl checks if any submissions are complete
+    def complete_submission(self, student) -> StudentSubmissionManager | None:
         complete_submission = None
         if StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").exists():
             complete_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").latest()
@@ -193,14 +197,15 @@ class Worksheet(models.Model):
 
     def release(self):
         self.expressions : QuerySet[Expression]
-        if self.expressions.exists(): # vhl releases no empty worksheets
-            self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
-            self.save()
-            for expression in self.expressions.all():
-                pos_tag(expression)
-            return True
-        else: # vhl prevents empty worksheets from being released
+        if not self.expressions.exists():
             return False
+        if not self.can_be_released:
+            return False
+        self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
+        self.save()
+        for expression in self.expressions.all():
+            pos_tag(expression)
+        return True
 
 
     def last_submission(self, student : Student) -> StudentSubmission | None:
