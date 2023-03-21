@@ -740,6 +740,11 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView, Speaking
         DATA_KEYS : list[str] = ['correct_attempts', 'days_since_review', 'wpm', 'last_score']
 
         completed = [i for i in worksheets if i.complete_submission(self.student)]
+
+        if not completed:
+            context['worksheets'] = []
+            return context
+
         for worksheet in completed:
             worksheet.expression_list : QuerySet[Expression] = worksheet.expressions.all().filter(Q(student=self.student) | Q(student=None) | Q(all_do=True))
             for expression in worksheet.expression_list:
