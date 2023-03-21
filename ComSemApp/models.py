@@ -349,7 +349,7 @@ class SpeakingPracticeAttemptReviewRequest(models.Model):
             review of the same attempt more than once.
     """
     # The attempt which the student has requested review for
-    attempt = models.ForeignKey(SpeakingPracticeAttempt, on_delete=models.CASCADE, primary_key=True)
+    attempt = models.OneToOneField(SpeakingPracticeAttempt, on_delete=models.CASCADE, primary_key=True)
     # The date on which the request was created
     date = models.DateField(auto_now_add=True)
 
@@ -369,7 +369,7 @@ class SpeakingPracticeAttemptReview(models.Model):
             satisfied by one review
     """
     # The SpeakingPracticeAttemptReviewRequest that this review is satisfying
-    request = models.ForeignKey(SpeakingPracticeAttemptReviewRequest, on_delete=models.CASCADE, primary_key=True)
+    request = models.OneToOneField(SpeakingPracticeAttemptReviewRequest, on_delete=models.CASCADE, primary_key=True)
     # The Teacher that reviewed the attempt
     reviewer = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
     # The date on which the review was completed
@@ -381,7 +381,6 @@ class SpeakingPracticeAttemptReview(models.Model):
 
     class Meta:
         verbose_name = "Speaking Practice Attempt Review"
-
 
 # WORDS, SEQUENTIAL WORDS, TAG
 
