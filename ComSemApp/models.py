@@ -350,16 +350,38 @@ class SpeakingPracticeAttemptReviewRequest(models.Model):
     """
     # The attempt which the student has requested review for
     attempt = models.ForeignKey(SpeakingPracticeAttempt, on_delete=models.CASCADE, primary_key=True)
-    # Whether or not the attempt has been reviewed yet
-    is_reviewed = models.BooleanField(default=False, verbose_name="Is Reviewed", null=False)
-    # The comments the teacher has provided during review
-    comments = models.TextField(null=True, blank=True, verbose_name="Teacher Comments")
+    # The date on which the request was created
+    date = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.attempt.pk}: {'Not' if self.is_reviewed else ''} Reviewed{f' -- {self.comments}' if self.comments else ''}"
+        return f"{self.attempt.pk}: {self.date}"
     
     class Meta:
         verbose_name = "Instructor Review Request for Speaking Practice Attempt"
+
+class SpeakingPracticeAttemptReview(models.Model):
+    """
+        This model stores teachers' reviews of students' SpeakingPracticeAttemptReviewRequests
+        Inherits from:
+            django.db.models.Model
+        Remarks:
+            The 'request' field is the primary key for this model because each attempt can be
+            satisfied by one review
+    """
+    # The SpeakingPracticeAttemptReviewRequest that this review is satisfying
+    request = models.ForeignKey(SpeakingPracticeAttemptReviewRequest, on_delete=models.CASCADE, primary_key=True)
+    # The Teacher that reviewed the attempt
+    reviewer = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
+    # The date on which the review was completed
+    date = models.DateField(auto_now_add=True)
+    # The comments the teacher has provided during review
+    comments = models.TextField(null=True, blank=True, verbose_name="Teacher Comments")
+    # The original score of the attempt. If blank, the score was not updated
+    original_score = models.DecimalField(null=True, blank=False, max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], verbose_name='Original Score')
+
+    class Meta:
+        verbose_name = "Speaking Practice Attempt Review"
+
 
 # WORDS, SEQUENTIAL WORDS, TAG
 
