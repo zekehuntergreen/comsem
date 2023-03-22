@@ -1,7 +1,8 @@
 import itertools
 import json
 from statistics import mean, stdev
-from typing import Any
+import string
+from typing import Any, Iterable
 from datetime import datetime, timedelta
 from random import choice, shuffle
 from collections import Counter
@@ -863,7 +864,39 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
     model = SpeakingPracticeAttempt
     fields = ["expression", "student", "audio"]
 
-    def score_attempt(self, transcription : str) -> float:
+    def score_generator(self, transcription : str, expression : Expression) -> Iterable[tuple[float, StudentAttempt | None]]:
+        """
+            Generator function which returns an Iterable over score tuples, which include the 
+            associated StudentAttempt if applicable
+
+            Arguments:
+                transcription : str -- The transcription to grade against all correct worksheet attempts
+                expression : Expression -- The Expression object associated with the speaking practice attempt
+
+            Remarks:
+                As a generator function, this follows the python generator model with the use of the
+                yield keyword. When .next() is called on the returned iterable, the function is run
+                until a yield statement is met, and the yielded value is returned as the result of the
+                .next() call. Every subsequent time .next() is called, execution resumes from the
+                previous yield statement.
+                It is strongly recommended to read Python's official documentation of generator.
+        """
+        MAX_SCORE : float = 100
+        score : float
+        correct_attempts : QuerySet[StudentAttempt] = StudentAttempt.objects.filter(expression=expression, text_correct=True)
+
+        # All strings are made lowercase and have their punctuation removed for comparison
+        transcription = transcription.lower().translate(str.maketrans('', '', string.punctuation))
+        score = self.grade_against_correct(transcription, expression.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)))
+        yield (score, None)
+        for attempt in correct_attempts:
+            if score == MAX_SCORE:
+                raise StopIteration
+            score = self.grade_against_correct(transcription, attempt.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)))
+            yield (score, attempt)
+        raise StopIteration
+
+    def grade_against_correct(self,transcription : string, correct_formulation : string):
         # TODO: Implement
         return 100
 
@@ -881,13 +914,16 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
             entry in the database and returns the transcription and score data back to the frontend
         """
         attempt : SpeakingPracticeAttempt = form.save(commit=False)
-
         transcription : str
         length : int
+        score : tuple[float, StudentAttempt | None]
+
         transcription, length = transcribe_and_get_length_audio_file(attempt.audio)
         # The Counter call gets the number of words, the division on the bottom get the length in minutes
         attempt.wpm = Counter(transcription.split()).total() / (length / 60000)
-        attempt.correct = self.score_attempt(transcription)
+        score = max(self.score_generator(transcription,attempt.expression), key=lambda score : score[1])
+        attempt.correct = score[0]
+        # TODO: ADD ASSOCIATED STUDENTATTEMPT ONCE MODEL IS UPDATED
         attempt.transcription = transcription
 
         attempt.save()
