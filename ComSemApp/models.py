@@ -315,6 +315,15 @@ class ReviewAttempt(models.Model):
     class Meta:
         verbose_name = "Review Attempt"
 
+class SpeakingPracticeSession:
+    """
+        This model groups Speaking Practice attempts into sessions so they can be reviewed as such later.
+        Remarks:
+
+        Inherits from:
+            django.db.models.Model
+    """
+    date = models.DateTimeField(auto_now_add=True, verbose_name='Date and Time')
 
 class SpeakingPracticeAttempt(models.Model):
     """
@@ -327,6 +336,8 @@ class SpeakingPracticeAttempt(models.Model):
     expression = models.ForeignKey(Expression, on_delete=models.CASCADE)
     # The student who attempted
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, blank=True, null=True)
+    # The session which this attempt is a part of
+    session = models.ForeignKey(SpeakingPracticeSession, on_delete=models.CASCADE, related_name='attempts')
     # The audio file from the student's attempt
     audio = models.FileField(upload_to=speaking_practice_audio_directory, null=False, blank=False)
     # The transcription of the student's attempt
