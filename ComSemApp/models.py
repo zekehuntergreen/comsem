@@ -376,7 +376,8 @@ class SpeakingPracticeAttemptReview(models.Model):
     date = models.DateField(auto_now_add=True)
     # The comments the teacher has provided during review
     comments = models.TextField(null=True, blank=True, verbose_name="Teacher Comments")
-    # The original score of the attempt. If blank, the score was not updated
+    # The original score of the attempt. If null, the score was not updated
+    # The teacher's new scoring is stored in the SpeakingPracticeAttempt associated with the SpeakingPracticeAttemptReviewRequest
     original_score = models.DecimalField(null=True, blank=False, max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], verbose_name='Original Score')
 
     class Meta:
