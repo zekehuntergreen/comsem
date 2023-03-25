@@ -318,12 +318,13 @@ class ReviewAttempt(models.Model):
 class SpeakingPracticeSession:
     """
         This model groups Speaking Practice attempts into sessions so they can be reviewed as such later.
-        Remarks:
-
         Inherits from:
             django.db.models.Model
     """
+    # The date and time of the session
     date = models.DateTimeField(auto_now_add=True, verbose_name='Date and Time')
+    # The student who owns the session
+    student = models.ForeignKey(Student, on_delete=models.SET_NULL, blank=True, null=True)
 
 class SpeakingPracticeAttempt(models.Model):
     """
@@ -334,16 +335,12 @@ class SpeakingPracticeAttempt(models.Model):
     """
     # The expression the student attempted
     expression = models.ForeignKey(Expression, on_delete=models.CASCADE)
-    # The student who attempted
-    student = models.ForeignKey(Student, on_delete=models.SET_NULL, blank=True, null=True)
     # The session which this attempt is a part of
     session = models.ForeignKey(SpeakingPracticeSession, on_delete=models.CASCADE, related_name='attempts')
     # The audio file from the student's attempt
     audio = models.FileField(upload_to=speaking_practice_audio_directory, null=False, blank=False)
     # The transcription of the student's attempt
     transcription = models.TextField(null=False, blank=False)
-    # The date and time the student made the attempt
-    date = models.DateTimeField(auto_now_add=True, verbose_name='Date and Time')
     # The student's correctness score --- Accepts numbers 00.00-100.00
     correct = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], verbose_name='Correctness Score')
     # The number of words per minute in the student's recording --- Accepts numbers 000.00-999.99
