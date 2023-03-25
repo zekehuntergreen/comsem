@@ -24,4 +24,8 @@ urlpatterns = [
 
     url(r'^corpus/search$', corpus_views.corpus_search, name='corpus_search'),
     url(r'^corpus/error_search', corpus_views.error_search, name='error_search'),
+
+
+    url(r'^course/(?P<course_id>[0-9]+)/requests/$', views.SpeakingPracticeReviewRequestsListView.as_view(), name='request_list'),
+    url(r'^course/(?P<course_id>[0-9]+)/requests/attempt/(?P<attempt_id>[0-9]+)/', views.SpeakingPracticeAttemptReviewView.as_view(), name='request_attempt'),
 ]

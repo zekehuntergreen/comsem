@@ -2,150 +2,174 @@
 
 {% block content %}
 
-	<!-- Page-Title -->
-	<div class="row">
-		<div class="col-sm-12">
-			<div class="page-title-box">
-				<h4 class="page-title">Course Information</h4>
+<!-- Page-Title -->
+<div class="row">
+	<div class="col-sm-12">
+		<div class="page-title-box">
+			<h4 class="page-title">Course Information</h4>
+			<div class="clearfix"></div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+
+	<!-- course info -->
+	<div class="col-lg-5 col-md-5 col-sm-4">
+		{% include 'ComSemApp/course_details.html' %}
+		<a type="button" class="btn btn-primary btn-lg btn-block" href="{% url 'teacher:download_course_csv' course_id=course.id %}">
+			Download All Sentences
+		</a>
+	</div>
+
+	<!-- course students -->
+	<div class="col-lg-7 col-md-7 col-sm-8">
+		<div class="portlet">
+
+			<div class="portlet-heading portlet-default">
+				<h4 class="portlet-title m-t-0 header-title"><b>Students</b></h4>
+
+				<div class="portlet-widgets">
+
+					<a data-toggle="collapse" data-parent="#accordion1" href="#courseStudentsPortlet"><i class="ion-minus-round"></i></a>
+
+				</div>
 				<div class="clearfix"></div>
+
+			</div>
+
+			<div id="courseStudentsPortlet" class="panel-collapse collapse show">
+				<div class="portlet-body">
+					<table course_id="{{ course.id }}" class="courseStudentsTable table table-hover">
+						{% include 'ComSemApp/teacher/course_students.html' %}
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class="row">
+</div>
 
-		<!-- course info -->
-		<div class="col-lg-5 col-md-5 col-sm-4">
-			{% include 'ComSemApp/course_details.html' %}
-			<a type="button" class="btn btn-primary btn-lg btn-block" href="{% url 'teacher:download_course_csv' course_id=course.id %}">
-				Download All Sentences
-			</a>
-		</div>
+<!-- worksheets -->
+<div class="row">
 
-		<!-- course students -->
-		<div class="col-lg-7 col-md-7 col-sm-8">
-			<div class="portlet">
+	<div class="col-12">
 
-				<div class="portlet-heading portlet-default">
-					<h4 class="portlet-title m-t-0 header-title"><b>Students</b></h4>
+		<div class="card-box">
 
-					<div class="portlet-widgets">
+			<div class="row">
 
-						<a data-toggle="collapse" data-parent="#accordion1" href="#courseStudentsPortlet"><i class="ion-minus-round"></i></a>
-
-					</div>
-					<div class="clearfix"></div>
-
+				<div class="col-6">
+					<h4 class="m-t-0 header-title"><b>Worksheets</b></h4>
+				</div>
+				<div class="col-6">
+					<a href="{% url 'teacher:worksheet_create' course_id=course.id %}" class="btn btn-sm btn-outline-info float-right"><b>Create Worksheet</b><!--vhl create worksheet button--></a> 
 				</div>
 
-				<div id="courseStudentsPortlet" class="panel-collapse collapse show">
-					<div class="portlet-body">
-						<table course_id="{{ course.id }}" class="courseStudentsTable table table-hover">
-							{% include 'ComSemApp/teacher/course_students.html' %}
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-
-	</div>
-
-	<!-- worksheets -->
-	<div class="row">
-
-		<div class="col-12">
-
-			<div class="card-box">
-
-				<div class="row">
-
-					<div class="col-6">
-						<h4 class="m-t-0 header-title"><b>Worksheets</b></h4>
-					</div>
-					<div class="col-6">
-						<a href="{% url 'teacher:worksheet_create' course_id=course.id %}" class="btn btn-sm btn-outline-info float-right"><b>Create Worksheet</b><!--vhl create worksheet button--></a> 
-					</div>
-
-				</div>
-
-				<div class="panel-body mt-3">
-
-					<div id="worksheet_table"></div>
-
-				</div>
 			</div>
 
+			<div class="panel-body mt-3">
 
-			<!-- END PAGE CONTENT -->
+				<div id="worksheet_table"></div>
+
+			</div>
 		</div>
 	</div>
+</div>
+
+<!-- attempt review requests -->
+<div class="row">
+
+	<div class="col-12">
+
+		<div class="card-box">
+
+			<div class="row">
+
+				<div class="col-6">
+					<h4 class="m-t-0 header-title"><b>Speaking Practice Attempt Review Requests</b></h4>
+				</div>
+
+			</div>
+
+			<div class="panel-body mt-3">
+
+				<div id="requests_table"></div>
+
+			</div>
+		</div>
+	</div>
+</div>
 
 
-	<script>
-		function drawWorksheets(){
-			$("#worksheet_table").load("{% url 'teacher:worksheet_list' course_id=course.id %}", function(){
-				initialize_tablesorter()
+<script>
+function drawWorksheets(){
+	$("#worksheet_table").load("{% url 'teacher:worksheet_list' course_id=course.id %}", function(){
+		initialize_tablesorter()
 
-				$(".delete_worksheet_button").on("click", function(e){
-					$worksheet_row = $(this).parents('tr')
-					delete_worksheet_url = $worksheet_row.attr('delete_url')
-					cs_confirm("Delete Worksheet", "Are you sure you'd like to delete this worksheet?",
-									'error', 'Yes, delete it', delete_worksheet);
-				});
+		$(".delete_worksheet_button").on("click", function(e){
+			$worksheet_row = $(this).parents('tr')
+			delete_worksheet_url = $worksheet_row.attr('delete_url')
+			cs_confirm("Delete Worksheet", "Are you sure you'd like to delete this worksheet?",
+							'error', 'Yes, delete it', delete_worksheet);
+		});
 
-				$(".release_worksheet_button").on("click", function(e){
-					$worksheet_row = $(this).parents('tr')
-					release_worksheet_url = $worksheet_row.attr('release_url')
-					cs_confirm("Release Worksheet", "Are you sure you'd like to release this worksheet?\nIf so, you will no longer be able to delete it, create new expressions, or reassign or delete existing ones.", 'warning', "Yes, release it", release_worksheet);
-				});
-			})
-		}
+		$(".release_worksheet_button").on("click", function(e){
+			$worksheet_row = $(this).parents('tr')
+			release_worksheet_url = $worksheet_row.attr('release_url')
+			cs_confirm("Release Worksheet", "Are you sure you'd like to release this worksheet?\nIf so, you will no longer be able to delete it, create new expressions, or reassign or delete existing ones.", 'warning', "Yes, release it", release_worksheet);
+		});
+	})
+}
+drawWorksheets()
 
-		drawWorksheets()
+var $worksheet_row
+var delete_worksheet_url;
+function delete_worksheet(){
+	$.ajax({
+		type: "POST",
+		url: delete_worksheet_url,
+		success: function(data) {
+			try {
+				response = JSON.parse(response);
+				cs_notification('error', response.error)
+			} catch(e) {
+				cs_notification('success', "worksheet deleted")
+				drawWorksheets()
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown){
+			cs_ajax_error(jqXHR, textStatus, errorThrown)
+		},
+	});
+}
 
-		var $worksheet_row
-		var delete_worksheet_url;
-		function delete_worksheet(){
-			$.ajax({
-				type: "POST",
-				url: delete_worksheet_url,
-				success: function(data) {
-					try {
-						response = JSON.parse(response);
-						cs_notification('error', response.error)
-					} catch(e) {
-						cs_notification('success', "worksheet deleted")
-						drawWorksheets()
-					}
-				},
-				error: function(jqXHR, textStatus, errorThrown){
-					cs_ajax_error(jqXHR, textStatus, errorThrown)
-				},
-			});
-		}
+var release_worksheet_url;
+function release_worksheet(){
+	$.ajax({
+		type: "POST",
+		url: release_worksheet_url,
+		success: function(data){
+			try {
+				response = JSON.parse(response);
+				cs_notification('error', response.error)
+			} catch(e) {
+				drawWorksheets()
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown){
+			cs_ajax_error(jqXHR, textStatus, errorThrown)
+		},
+	});
+}
 
+function drawRequests(){
+	$("#requests_table").load("{% url 'teacher:request_list' course_id=course.id %}", function(){
+		initialize_tablesorter()
+	});
+}
+drawRequests();
 
-		var release_worksheet_url;
-		function release_worksheet(){
-			$.ajax({
-				type: "POST",
-				url: release_worksheet_url,
-				success: function(data){
-					try {
-						response = JSON.parse(response);
-						cs_notification('error', response.error)
-					} catch(e) {
-						drawWorksheets()
-					}
-				},
-				error: function(jqXHR, textStatus, errorThrown){
-					cs_ajax_error(jqXHR, textStatus, errorThrown)
-				},
-			});
-		}
-
-
-
-	</script>
+</script>
 
 {% endblock %}

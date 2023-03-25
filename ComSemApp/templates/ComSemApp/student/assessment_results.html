@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block content %}
-<script>
+<script type="text/javascript">
     function showHideRow(row){
         /*
             toggles (hides/shows) the "show more" row that
@@ -117,18 +117,21 @@
   </form>
 
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
-<script>
+<script type="text/javascript">
 
 // Add click event listener to all request buttons
-$(".request-btn").on("click", function() {
+$(".request-btn").on("click", (obj) => {
     // Get the request ID from the data attribute of the button
-    var attempt_id = $(this).data("submit-id");
+    // obj.currentTarget is needed because obj holds information regarding the event
+    // currentTarget grabs the item which initaited the event
+    // this is similar to just using the 'this' call but within an arrow annonymous function
+    var attempt_id = $(obj.currentTarget).data("submit-id");
   
     // Show the modal dialog box
     $("#confirm-modal").modal("show");
   
     // Add click event listener to the confirm button
-    $("#confirm-button").one("click", function() {
+    $("#confirm-button").one("click", (obj) => {
       // Submit the form with the submit ID as a parameter
       console.log("confirm clicked")
         teacherRequestClick(attempt_id);
@@ -160,11 +163,9 @@ function teacherRequestClick(attempt){
             },
             success:(response) => {
                 cs_notification('success', "Request Sent")
-                resolve();
             },
             error: (jqXHR, textStatus, errorThrown) => {
                 cs_ajax_error(jqXHR, textStatus, errorThrown);
-                reject();
             }
             });
     }

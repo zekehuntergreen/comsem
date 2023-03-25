@@ -110,6 +110,12 @@ class Course(models.Model):
         self.worksheets : QuerySet[Worksheet]
         return self.worksheets.exclude(status=teacher_constants.WORKSHEET_STATUS_PENDING)
 
+    def get_speaking_practice_attempts(self):
+        worksheets = Worksheet.objects.filter(course=self)
+        expressions = Expression.objects.filter(worksheet__in=worksheets)
+        attempts = SpeakingPracticeAttempt.objects.filter(expression__in=expressions)
+        return attempts
+
     class Meta:
         ordering = ('-session__start_date',)
 
