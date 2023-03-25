@@ -138,6 +138,14 @@ class WorksheetListView(TeacherCourseViewMixin, ListView):
     def get_queryset(self):
         return self.course.get_visible_worksheets().order_by('-date')
 
+class SpeakingPracticeReviewRequestsListView(TeacherCourseViewMixin, ListView):
+    model = SpeakingPracticeAttempt
+    template_name = 'ComSemApp/teacher/request_list.html'
+    context_object_name = 'attempts'
+
+    def get_queryset(self):
+        return self.course.get_speaking_practice_attempts().order_by('-date')
+
 
 class WorksheetDetailView(TeacherWorksheetViewMixin, DetailView):
     template_name = 'ComSemApp/teacher/view_worksheet.html'
@@ -355,3 +363,15 @@ def delete_file(url):
         os.remove(url)
     except FileNotFoundError:
         pass
+
+
+class SpeakingPracticeAttemptReviewView(TeacherViewMixin,UpdateView):
+    model = SpeakingPracticeAttempt
+    fields = ["correct"]
+    template_name = "ComSemApp/teacher/attempt_request_review.html"
+    pk_url_kwarg = 'attempt_id'
+
+    def get_context_data(self, **kwargs: any) -> dict[str, any]:
+
+        context = super().get_context_data(**kwargs)
+        return context

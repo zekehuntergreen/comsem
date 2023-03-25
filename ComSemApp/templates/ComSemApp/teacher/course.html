@@ -74,9 +74,30 @@
 
 				</div>
 			</div>
+		</div>
+	</div>
 
+	<!-- attempt review requests -->
+	<div class="row">
 
-			<!-- END PAGE CONTENT -->
+		<div class="col-12">
+
+			<div class="card-box">
+
+				<div class="row">
+
+					<div class="col-6">
+					<h4 class="m-t-0 header-title"><b>Speaking Practice Attempt Review Requests</b></h4>
+					</div>
+
+				</div>
+
+				<div class="panel-body mt-3">
+
+				<div id="requests_table"></div>
+
+				</div>
+			</div>
 		</div>
 	</div>
 
@@ -100,7 +121,6 @@
 				});
 			})
 		}
-
 		drawWorksheets()
 
 		var $worksheet_row
@@ -124,7 +144,6 @@
 			});
 		}
 
-
 		var release_worksheet_url;
 		function release_worksheet(){
 			$.ajax({
@@ -144,7 +163,12 @@
 			});
 		}
 
-
+function drawRequests(){
+	$("#requests_table").load("{% url 'teacher:request_list' course_id=course.id %}", function(){
+		initialize_tablesorter()
+	});
+}
+drawRequests();
 
 	</script>
 
