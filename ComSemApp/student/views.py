@@ -772,7 +772,8 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView, Speaking
         
         return context
 
-# Array of Dictionaries for result data
+# Array of Dictionaries for result data for testing only
+# TODO: Remove once view is complete with real data!
 practice_data = [
                     {'id':1,'transcription':"This is a sentence transcription.",'accuracy':50,'fluency':75, 'correct_formulation':'This is the correct sentence.', 'incorrect_expression':'This is the problem expression','teacher_comments':'teacher comments are shown here'},
                     {'id':2,'transcription':"This is a second sentence transcription.",'accuracy':70,'fluency':90, 'correct_formulation':'This is the correct sentence.', 'incorrect_expression':'This is the problem expression','teacher_comments':'teacher comments are shown here'}
