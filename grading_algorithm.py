@@ -1,90 +1,96 @@
-def grade_reformulation(expression, c_exp) :
+def grade_reformulation(reformulation, correct_expression) :
     """
     This function takes in the reformulation the student provided as well as the correct expression 
     it then uses the functions in this file to grade their answer
     Args:
-        expression (string): The student provided version of the expression
-        c_exp (string): The correct expression to be comapred to
+        reformulation (string): The student provided version of the expression.
+        correct_expression (string): The correct expression the given expression will be compared to.
     
     Returns: 
-        grade (float): Placeholder, eventually will be overall grade
+        overall_grade (float): The final grade based upon the scores recieved and the
+        weights applied to each section.
     """
-
-    #SELF NOTE, NO ISSUES WITH USING WORD COUNT FOR PERCENTAGES
-    #CAHNGE THEM ALL TO LOWERS
 
     # This checks if the expression has no errors and if it does returns full credit
-    if expression == c_exp:
+    if reformulation == correct_expression:
         return 100
-
-    #Create a case for when the expression has nothing
-
-    c_exp_list = c_exp.split()
-    # Begins with checking the position of words
+    # Initialize the total scores
     total_order_score = 0
-    total_word_count = len(c_exp_list)
-    position_error_count = word_position(expression, c_exp)
-
-    # Math for the algorithm, converts it to a percentage and then converts it to 20% of the overall grade
-    position_percent = ((total_word_count - position_error_count) / total_word_count) * 100
-    position_percent_of_order_score = position_percent * .25
-    print("Position Percentage: ", position_percent)
-    # Adds to total
-    total_order_score = total_order_score + position_percent_of_order_score
-
-    # The presence check
-    presence_error_count = word_prescence(expression, c_exp)
-    # Converts presence score to a percent which is the overrall score for the presence portion
-    presence_percent = ((total_word_count - presence_error_count) / total_word_count) * 100
-    presence_score = presence_percent * .7
-    print("Presence Score: ", presence_percent)
-
-    # Word Order check
-    order_error_count = word_order(expression, c_exp, presence_error_count)
-    # Once again converts to percent, but this section is instead worth 70% of the order portion
-    order_percent = ((total_word_count - order_error_count) / total_word_count) * 100
-    print("Order percentage: ", order_percent)
-    order_percent_of_total = order_percent * .75
-    total_order_score = total_order_score + order_percent_of_total
-
-    # Sentence length check
-    length_percent = word_count(expression, c_exp)
-    length_score = length_percent *.2
-    presence_score = presence_score + length_score
-    print("Sentence Length Score: ", length_percent)
-
-    # Extra Words check
-    extra_percent = extra_words(expression, c_exp)
-    extra_score = extra_percent * .1
-    presence_score = presence_score + extra_score
-    print("Extra Words Score: ", extra_percent)
+    total_presence_score = 0
     
+    # Declarations of algorithm percentages
+    # Order Conversions
+    order_weight = .5 # 50% of total grade
+    position_conversion = .25 # 25% of total order score
+    order_conversion = .75 # 75% of total order score
+    # Presence Conversions
+    presence_weight = .5 # 50% of total grade
+    presence_conversion = .7 # 70% of total presence score
+    legnth_converison = .2 # 20% of total presence score
+    extra_converison = .1 # 10% of total presence score
 
-    # Combines the two sections, both being weighted at 50%
-    grade = (total_order_score * .5) + (presence_score * .5)
-    return grade
+    # The Postion check
+    position_grade = word_position(reformulation, correct_expression)
+    position_percent = position_grade * position_conversion
+    print("Position Percentage: ", position_grade)
+    # Adds to total order score
+    total_order_score += position_percent
 
-#change presence to include mutiple instances of words, not jsut one instance
-def word_prescence(expression, c_exp):
+    # The Presence check
+    presence_grade = word_prescence(reformulation, correct_expression)
+    presence_percent = presence_grade * presence_conversion
+    print("Presence Score: ", presence_grade)
+    # Adds to total presence score
+    total_presence_score += presence_percent
+
+    # The Word Order check
+    order_grade = word_order(reformulation, correct_expression, presence_grade)
+    print("Order percentage: ", order_grade)
+    order_percent = order_grade * order_conversion
+    # Adds to total order score
+    total_order_score += order_percent
+
+    # The Sentence Length check
+    length_grade = expression_length(reformulation, correct_expression)
+    length_percent = length_grade * legnth_converison
+    print("Sentence Length Score: ", length_grade)
+    # Adds to total presence score
+    total_presence_score += length_percent
+
+    # The Extra Words check
+    extra_grade = extra_words(reformulation, correct_expression)
+    extra_percent = extra_grade * extra_converison
+    print("Extra Words Score: ", extra_grade)
+    # Adds to total presence score
+    total_presence_score += extra_percent
+    
+    # Combines the two sections
+    overall_grade = (total_order_score * order_weight) + (total_presence_score * presence_weight)
+    return overall_grade
+
+def word_prescence(expression, correct_expression):
     """
-    This is a function that determines if the words from the correct expression are present within the reformulation
+    This is a function that determines if the words from the given correct expression 
+    are present within the given expression. It then calculates a percentage score 
+    based upon the length of the given correct expresssion and errors, then returns it.
     Args:
-        expression (string): The student provided version of the expression
-        c_exp (string): The correct expression to be comapred to
+        expression (string): The student provided version of the expression, the reformulation.
+        correct_expression (string): The correct expression the given expression will be compared to.
     
     Returns:
-        error_count(int): the amount of times that a word is not present
+        percentage (float): The amount of errors compared to the length of the correct expression.
     """
-    l_expression = expression.lower()
-    expression_list = l_expression.split()
-    l_c_exp = c_exp.lower()
-    c_exp_list = l_c_exp.split()
+    lower_expression = expression.lower()
+    expression_list = lower_expression.split()
+    lower_correct_expression = correct_expression.lower()
+    correct_expression_list = lower_correct_expression.split()
+    correct_expression_length = len(correct_expression_list)
     error_count = 0
 
     present_words = [] # A list of strings that will hold the words that have been recorded
     number_present = [] # A list that will record the number of each word that is not present in the student submission
-    for word in c_exp_list:
-        if word not in present_words: # Checks if the word is already present in list
+    for word in correct_expression_list:
+        if word not in present_words:
             #If word is not present, the word is appened to the list and the number list has one appeneded
             present_words.append(word) 
             number_present.append(1)
@@ -95,147 +101,165 @@ def word_prescence(expression, c_exp):
 
     # This counts the words in the student submission and alters number_present based off them
     for word in expression_list:
-        if word in present_words: # Checks if the word is present in the correct expression
+        if word in present_words:
             temp = present_words.index(word)
-            if(number_present[temp] == 0): # A case that oocurs when there is an excess number of the given word in the student expression
-                error_count += 1
+            # A case that oocurs when there is an excess number of the given word in the student expression
+            if(number_present[temp] == 0):
+                error_count += 1           
             else:
-                #When a word is present, 1 is deleted from the word's index in number_present
+                # When a word is present, 1 is deleted from the word's index in number_present
                 number_present[temp] -= 1
     
     # Counts the errors based on what is left in number_present
-    for c in range(len(number_present)):
-        if(number_present[c] != 0):
-            error_count += number_present[c]
+    for x in range(len(number_present)):
+        if(number_present[x] != 0):
+            error_count += number_present[x]
 
-    return error_count
+    percentage = 0
+    # Simple check to make sure that if there are too many duplicates 0 is returned
+    if(error_count < correct_expression_length):
+        percentage = ((correct_expression_length - error_count) / correct_expression_length) * 100
+    return percentage
 
-def word_order(expression, c_exp, presence_errors):
+def word_order(expression, correct_expression, presence_grade):
     """
-    This is a function that determines if there is an error with the order of words
+    This is a function that determines if there is an error with the order of words in the given
+    expression based upon the order of words in the given correct expression. It then calculates 
+    a percentage score based upon the length of the given correct expresssion 
+    and errors, then returns it.
     Args:
-        expression (string): The student provided version of the expression
-        c_exp (string): The correct expression to be comapred to
-        presence_errors (int): the amount presence errors for a check
+        expression (string): The student provided version of the expression, the reformulation.
+        correct_expression (string): The correct expression the given expression will be compared to.
+        presence_grade (int): The grade received on presence.
     
     Returns:
-        error_count (int): the amount of times that a word order error occurs
+        percentage (float): The amount of errors compared to the length of the correct expression.
     """
-    l_expression = expression.lower()
-    expression_list = l_expression.split()
-    l_c_exp = c_exp.lower()
-    c_exp_list = l_c_exp.split()
+    lower_expression = expression.lower()
+    expression_list = lower_expression.split()
+    lower_correct_expression = correct_expression.lower()
+    correct_expression_list = lower_correct_expression.split()
+    correct_expression_length = len(expression_list)
 
     # If none of the words are present order must be zero as well
-    if(presence_errors == len(l_c_exp)):
-        return len(l_c_exp)
+    if(presence_grade == 0):
+        return 0
     
     error_count = 0
-    for x in range(len(expression_list)-1):
-            if expression_list[x] in c_exp_list: # Checks if the word is in the correct expression
-                word_index = c_exp_list.index(expression_list[x]) # Sets word index equal to the index of the word in the orignal expression
-                if (word_index + 1) < len(c_exp_list): # Make sure that there is a word after the desired word
-                    if expression_list[x+1] == c_exp_list[word_index+1]: # Checks if that word matches the next word in the expression
-                        continue
-                    else:
-                        error_count += 1
+    for x in range(len(expression_list) - 1):
+            if expression_list[x] in correct_expression_list: 
+                word_index = correct_expression_list.index(expression_list[x])
+                # Checks if that word matches the next word in the expression and Makes sure that it is not the last word in the expression
+                if (word_index + 1) < len(correct_expression_list) and expression_list[x + 1] == correct_expression_list[word_index + 1]: 
+                    continue
+                else:
+                    error_count += 1
 
-    x = len(expression_list)-1 # If the index is to the last word in expression, since the last word has no word after it
-    if expression_list[x] in c_exp_list: # Checks if the word is in the correct expression
-        word_index = c_exp_list.index(expression_list[x]) # Gets the index of the word in the correct expression
-        if word_index != len(c_exp_list)-1: # Checks if the word is the last word in the correct expression
+    x = len(expression_list) - 1
+    if expression_list[x] in correct_expression_list:
+        word_index = correct_expression_list.index(expression_list[x])
+        # Checks if the word is the last word in the correct expression
+        if word_index != len(correct_expression_list) - 1:
             error_count += 1
 
-    return error_count
 
-def word_position(expression, c_exp):
+    percentage = ((correct_expression_length - error_count) / correct_expression_length) * 100
+    return percentage
+
+def word_position(expression, correct_expression):
     """
-    This is a function that determines if there is an error with word positions
+    This is a function that determines if there is an error with word positions in the given
+    expression, compared to the given correct expression. The function then calculates 
+    a percentage score based upon the length of the given correct expresssion 
+    and errors, then returns it.
     Args:
-        expression (string): The student provided version of the expression
-        c_exp (string): The correct expression to be comapred to
+        expression (string): The student provided version of the expression, the reformulation.
+        correct_expression (string): The correct expression the given expression will be compared to.
     
     Returns:
-        error_count (int): the amount of times that a word order error occurs
+        percentage (float): The amount of errors compared to the length of the correct expression
     """
-    l_expression = expression.lower()
-    expression_list = l_expression.split()
-    l_c_exp = c_exp.lower()
-    c_exp_list = l_c_exp.split()
+    lower_expression = expression.lower()
+    expression_list = lower_expression.split()
+    lower_correct_expression = correct_expression.lower()
+    correct_expression_list = lower_correct_expression.split()
+    correct_expression_length = len(correct_expression_list)
     error_count = 0
     # Checks if the postiion of a word is the same in each expression
     for x in range(len(expression_list)):
-        if x < len(c_exp_list):
-            if expression_list[x] != c_exp_list[x]:
+        if x < correct_expression_length:
+            if expression_list[x] != correct_expression_list[x]:
                 error_count += 1
 
-    return error_count
+    percentage = ((correct_expression_length - error_count) / correct_expression_length) * 100
+    return percentage
 
 
-def word_count(expression, c_exp):
+def expression_length(expression, correct_expression):
     """
-    This is a function that determines if the number of words in the expressions are the same
+    This is a function that determines if the number of words in the given expression and
+    given correct expression are the same. If they are not and the deffecernce is greater
+    than half the length of the correct expression, 89the student recieves 0.
     Args:
-        expression (string): The student provided version of the expression
-        c_exp (string): The correct expression to be comapred to
+        expression (string): The student provided version of the expression, the reformulation.
+        correct_expression (string): The correct expression the given expression will be compared to.
     
     Returns:
-        correct_percent(int): The percentage the student got in this given section
+        percentage (float): The amount of errors compared to the length of the correct expression
     """
-    l_expression = expression.lower()
-    expression_list = l_expression.split()
-    l_c_exp = c_exp.lower()
-    c_exp_list = l_c_exp.split()
+    lower_expression = expression.lower()
+    expression_list = lower_expression.split()
+    lower_correct_expression = correct_expression.lower()
+    correct_expression_list = lower_correct_expression.split()
     error_count = 0
     expression_len = len(expression_list)
-    c_exp_len = len(c_exp_list)
-    if expression_len == c_exp_len:
-        return 100
-    
-    error_count = abs(expression_len - c_exp_len)
+    correct_expression_len = len(correct_expression_list)
 
-    half_len = c_exp_len/2
-    correct_percent = 0
+    if expression_len == correct_expression_len:
+        return 100
+    error_count = abs(expression_len - correct_expression_len)
+
+    half_len = correct_expression_len / 2
+    percentage = 0
     if error_count <= half_len:
-        correct_percent = (c_exp_len - error_count)/c_exp_len
-        correct_percent = correct_percent * 100
-        return correct_percent
-    else:
-        return 0
+        percentage = (correct_expression_len - error_count) / correct_expression_len
+        percentage = percentage * 100
+    return percentage
     
-def extra_words(expression, c_exp):
+def extra_words(expression, correct_expression):
     """
-    This is a function that determines if the student added extra words within their reformulation
+    This is a function that determines if the student added extra words to their given expression
+    by comparing to the given correct expression. Once again if they add more words than half
+    the length of the correct expression they receive a 0.
     Args:
-        expression (string): The student provided version of the expression
-        c_exp (string): The correct expression to be comapred to
+        expression (string): The student provided version of the expression, the reformulation.
+        correct_expression (string): The correct expression to be comapred to
     
     Returns:
-        correct_percent(int): The percentage the student got in this given sectione
+        percentage (flaot): The amount of errors compared to the length of the correct expression
     """
-    l_expression = expression.lower()
-    expression_list = l_expression.split()
-    l_c_exp = c_exp.lower()
-    c_exp_list = l_c_exp.split()
+    lower_expression = expression.lower()
+    expression_list = lower_expression.split()
+    lower_correct_expression = correct_expression.lower()
+    correct_expression_list = lower_correct_expression.split()
     error_count = 0
 
     for word in expression_list:
-        if word in c_exp_list:
+        if word in correct_expression_list:
             continue
         else:
             error_count += 1
 
-    half_len = len(c_exp_list)/2
-    correct_percent = 0
+    half_len = len(correct_expression_list) / 2
+    percentage = 0
     if error_count <= half_len:
-        correct_percent = (len(c_exp_list) - error_count)/len(c_exp_list)
-        correct_percent = correct_percent * 100
-        return correct_percent
-    else:
-        return 0
-
-c_exp = "Hello My Name is Elder Price."
-expression = "Hello My Pineapple is Elder Price."
-print(expression)
-print(c_exp)
-print("Your overall grade was:", grade_reformulation(expression, c_exp))
+        percentage = (len(correct_expression_list) - error_count) / len(correct_expression_list)
+        percentage = percentage * 100
+    return percentage
+    
+if __name__ == "__main__":
+    correct_expression = "Hello My Name is Elder Price."
+    expression = "Hello My Pineapple is Elder Price."
+    print(expression)
+    print(correct_expression)
+    print("Your overall grade was:", grade_reformulation(expression, correct_expression))
