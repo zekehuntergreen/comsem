@@ -381,7 +381,8 @@ class SpeakingPracticeAttemptReviewView(TeacherCourseViewMixin, ListView):
 class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView):
     model = SpeakingPracticeAttempt
     template_name = "ComSemApp/teacher/attempt_request_info.html"
-    fields = ["correct"]
+    fields = ["correct", "transcription", "audio"]
+    context_object_name = "attempt"
 
     def get_object(self):
         attempt_id = self.kwargs.get('attempt_id', None)
