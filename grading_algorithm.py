@@ -32,20 +32,17 @@ def grade_reformulation(reformulation, correct_expression) :
     # The Postion check
     position_grade = word_position(reformulation, correct_expression)
     position_percent = position_grade * position_conversion
-    print("Position Percentage: ", position_grade)
     # Adds to total order score
     total_order_score += position_percent
 
     # The Presence check
     presence_grade = word_prescence(reformulation, correct_expression)
     presence_percent = presence_grade * presence_conversion
-    print("Presence Score: ", presence_grade)
     # Adds to total presence score
     total_presence_score += presence_percent
 
     # The Word Order check
     order_grade = word_order(reformulation, correct_expression, presence_grade)
-    print("Order percentage: ", order_grade)
     order_percent = order_grade * order_conversion
     # Adds to total order score
     total_order_score += order_percent
@@ -53,14 +50,12 @@ def grade_reformulation(reformulation, correct_expression) :
     # The Sentence Length check
     length_grade = expression_length(reformulation, correct_expression)
     length_percent = length_grade * legnth_converison
-    print("Sentence Length Score: ", length_grade)
     # Adds to total presence score
     total_presence_score += length_percent
 
     # The Extra Words check
     extra_grade = extra_words(reformulation, correct_expression)
     extra_percent = extra_grade * extra_converison
-    print("Extra Words Score: ", extra_grade)
     # Adds to total presence score
     total_presence_score += extra_percent
     
