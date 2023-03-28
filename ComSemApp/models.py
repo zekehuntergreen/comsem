@@ -315,7 +315,7 @@ class ReviewAttempt(models.Model):
     class Meta:
         verbose_name = "Review Attempt"
 
-class SpeakingPracticeSession:
+class SpeakingPracticeSession(models.Model):
     """
         This model groups Speaking Practice attempts into sessions so they can be reviewed as such later.
         Inherits from:
@@ -325,6 +325,12 @@ class SpeakingPracticeSession:
     date = models.DateTimeField(auto_now_add=True, verbose_name='Date and Time')
     # The student who owns the session
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.student.user.last_name}, {self.student.user.first_name} - {self.date.strftime('%d %b %Y')} - {self.attempts.count()} attempts"
+
+    class Meta:
+        verbose_name = "Speaking Practice Session"
 
 class SpeakingPracticeAttempt(models.Model):
     """
@@ -347,7 +353,7 @@ class SpeakingPracticeAttempt(models.Model):
     wpm = models.DecimalField(max_digits=5,decimal_places=2, validators=[MinValueValidator(0)], verbose_name='Words per Minute')
 
     def __str__(self):
-        return f"{self.id}: {self.expression} - {self.correct}% ({self.date.strftime('%d %b %Y')})"
+        return f"{self.expression} - {self.correct}% ({self.session.date.strftime('%d %b %Y')}) [Session {self.session.pk}]"
 
     class Meta:
         verbose_name = "Speaking Practice Attempt"
