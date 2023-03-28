@@ -58,6 +58,8 @@ class TeacherWorksheetViewMixin(TeacherViewMixin, WorksheetViewMixin):
         return HttpResponseRedirect(reverse("teacher:course", kwargs={"course_id": self.course.id}))
 
 
+
+
 class CourseListView(TeacherViewMixin, ListView):
     # teacher home page
     model = Course
@@ -375,3 +377,25 @@ class SpeakingPracticeAttemptReviewView(TeacherCourseViewMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         return context
+
+class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView):
+    model = SpeakingPracticeAttempt
+    template_name = "ComSemApp/teacher/attempt_request_info.html"
+    fields = ["correct"]
+
+    def get_object(self):
+        attempt_id = self.kwargs.get('attempt_id', None)
+        attempts = SpeakingPracticeAttempt.objects.filter(id=attempt_id)
+        if not attempts.exists():
+            # only ajax right now
+            response = JsonResponse({"error": 'Invalid Attempt ID.'})
+            response.status_code = 403
+            return response
+        return attempts.first()
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form):
+        return JsonResponse({}, status=200)
