@@ -26,7 +26,7 @@ def group_attempts_into_sessions(apps, schema_editor):
         previous_attempt.save()
 
         for attempt in attempts[1:]:
-            if (attempt.date - previous_attempt.date).seconds > 300:
+            if ((attempt.date - previous_attempt.date).seconds > 300) or any(att.expression == attempt.expression for att in curr_session.attempts.all()):
                 curr_session = speakingpracticesession(student=student)
                 curr_session.save()
                 curr_session.date = attempt.date
