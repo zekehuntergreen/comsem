@@ -1,32 +1,69 @@
 {% extends 'ComSemApp/sidebar.html' %}
+
+{% load static %}
+
 {% block content %}
 
+<!-- page head -->
+<form method="POST" id="editWorksheetForm">
+	{% csrf_token %}
 
-<div class="row h-100">
-    <div class="col-12 h-100">
-        <div class="card-box">
-            <h4 class="header-title m-t-0 m-b-20">Speaking Practice Review Request</h4>
-            <div class="card">
-                <!--card for displaying results-->
-                <b>Student</b><br>
-                <br>
-                <b>Course</b><br>
-                {{ course.id }}
-                <br>
-                <br>
-                <b>Correct Expression</b><br> 
-                {{attempt.correct_formulation}} <br>
-                <b>Given Expression</b><br> 
-                {{attempt.incorrect_expression}} <br>
-                <b>Graded Expression</b> (hover for details about each error)<br> 
-                <mark><span title="There could be errors shown here">{{attempt.transcription}}</span></mark><br>
-                <b>Audio Recording</b><br>
-                <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio><br>
-            </div>
-        </div>
-    </div>
+	<!-- Page-Title -->
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="page-title-box">
+
+				<h4 class="page-title">
+					Speaking Practice Attempt Review Request
+					<small>{{ course }}</small>
+				</h4>
+
+                <button class="btn btn-sm btn-success float-right" id="home_button">Home</button>
+
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+
+	{% include 'ComSemApp/recording_alerts.html' %}
+
+</form>
+
+
+<div class="row">
+
+	<!-- expressions -->
+	<div class="col-sm-12 col-md-6">
+		<div class="card-box">
+
+			<div class="row">
+				<div class="col-md-6">
+					<h4 class="m-t-0 header-title"><b>Attempts</b></h4>
+				</div>
+			</div>
+
+			<div id="requests_table" style="max-height:600px;overflow-y:scroll"></div>
+
+		</div>
+	</div>
+
+	<!-- expression editor -->
+	<div class="col-sm-12 col-md-6">
+		<div class="card-box" id="ExpressionEditorCardBox">
+			<h4 class="m-t-0 header-title"><b>Attempt Reviewer</b></h4>
+
+			<div id="attempt_reviewer"></div>
+
+		</div>
+	</div>
+
 </div>
-
-<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
-
+<script>
+    function drawRequests(){
+        $("#requests_table").load("{% url 'teacher:request_list' course_id=course.id %}", function(){
+            initialize_tablesorter()
+        });
+    }
+    drawRequests();
+</script
 {% endblock %}

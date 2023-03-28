@@ -2,7 +2,6 @@
 <table class="table table-hover tablesorter">
     <thead>
         <tr>
-            <th>#</th>
             <th>Date</th>
             <th>Student</th>
             <th>Problem Expression</th>
@@ -12,11 +11,14 @@
     <tbody>
         {% for attempt in attempts %}
         <tr attempt_id="{{ attempt.id }}">
-            <td>{{ attempt.get_number }}</td>
             <td>{{ attempt.date }}</td>
             <td>{{ attempt.student }}</td>
             <td>{{ attempt.expression.expression }}</td>
-            <td><a href="{% url 'teacher:request_attempt' course.id attempt.id %}" class='btn btn-sm btn-outline-primary'>Review</a></td>
+            <td>
+                <button class='btn btn-sm btn-outline-primary editExpression' url="{% url 'teacher:request_review' course_id=course.id attempt_id=attempt.id %}">
+                    <i class='fa fa-pencil-square-o'></i>
+                </button>
+            </td>
         </tr>
         {% endfor %}
     </tbody>

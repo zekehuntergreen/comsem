@@ -365,11 +365,10 @@ def delete_file(url):
         pass
 
 
-class SpeakingPracticeAttemptReviewView(TeacherViewMixin,UpdateView):
+class SpeakingPracticeAttemptReviewView(TeacherCourseViewMixin, ListView):
     model = SpeakingPracticeAttempt
     fields = ["correct"]
     template_name = "ComSemApp/teacher/attempt_request_review.html"
-    pk_url_kwarg = 'attempt_id'
 
     def get_context_data(self, **kwargs: any) -> dict[str, any]:
 

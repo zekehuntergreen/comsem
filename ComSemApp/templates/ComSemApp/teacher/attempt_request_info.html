@@ -1,0 +1,30 @@
+{% load static %}
+
+{% block content %}
+
+<div class="row h-100">
+    <div class="col-12 h-100">
+        <div class="card-box">
+            <h4 class="header-title m-t-0 m-b-20">Speaking Practice Review Request</h4>
+            <div class="card">
+                <div class='card-body'>
+                    <!--card for displaying results-->
+                    <b>Student</b><br>
+                    <br>
+                    <b>Course</b><br>
+                    {{ course }}<br>
+                    <b>Correct Expression</b><br> 
+                    {{attempt.correct_formulation}} <br>
+                    <b>Given Expression</b><br> 
+                    {{attempt.incorrect_expression}} <br>
+                    <b>Graded Expression</b> (hover for details about each error)<br> 
+                    <mark><span title="There could be errors shown here">Test</span></mark><br>
+                    <b>Audio Recording</b><br>
+                    <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio><br>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
