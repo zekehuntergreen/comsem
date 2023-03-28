@@ -6,12 +6,12 @@
                 <div class='card-body'>
                     <!--card for displaying results-->
                     <b>Student</b><br>
-                    <br>
+                    {{attempt.student}} <br>
                     <b>Course</b><br>
                     {{ course }}<br>
                     <b>Correct Expression</b><br> 
                     {{attempt.expression.reformulation_text}} <br>
-                    <b>Given Expression</b><br> 
+                    <b>Problem Expression</b><br> 
                     {{attempt.expression.expression}} <br>
                     <b>Graded Expression</b> (hover for details about each error)<br> 
                     <mark><span title="There could be errors shown here">{{attempt.transcription}}</span></mark><br>
