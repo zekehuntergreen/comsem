@@ -618,30 +618,22 @@ class SpeakingPracticeInfoMixin(object):
         """
         # data is initialized with the worst possible values
         data : dict[str, float | int] = {'correct_attempts' : 0, 'days_since_review' : 999, 'wpm' : 0, 'last_score' : 0}
-        time_since_curr : timedelta
-        time_since_last : timedelta
+        correct_attempts : QuerySet[SpeakingPracticeAttempt]
+        last_attempt : SpeakingPracticeAttempt
         curr_time : datetime 
 
         if(attempts.count() == 0):
             return data
         
-        curr_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
-        time_since_last = curr_time - attempts[0].date
-        for attempt in attempts:
-            if attempt.correct == 100:
-                data['correct_attempts'] += 1
-                # wpm will sum all the correct attempts and be averaged later (divided by correct_attempts)
-                data['wpm'] += attempt.wpm
-            
-            # days_since_review is calculated at the end from the time_since_last timedelta
-            time_since_curr = curr_time - attempt.date
-            if time_since_curr < time_since_last:
-                time_since_last = time_since_curr
-                data['last_score'] = attempt.correct
+        correct_attempts = attempts.filter(correct=100)
+        data['correct_attempts'] = len(correct_attempts)
+        data['wpm'] = mean([attempt.correct for attempt in correct_attempts]) if data['correct_attempts'] > 0 else 0
 
-        if(data['correct_attempts'] > 1):
-            data['wpm'] = data['wpm'] / data['correct_attempts']
-        data['days_since_review'] = time_since_last.days
+        # Get the current date in UTC so python allows us to compare with the dates in the database
+        curr_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+        last_attempt = attempts.latest('session.date')
+        data['days_since_review'] = (curr_time - last_attempt.session.date).days
+        data['last_score'] = last_attempt.correct
 
         return data
 
