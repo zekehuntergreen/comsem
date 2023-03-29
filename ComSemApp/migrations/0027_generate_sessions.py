@@ -45,6 +45,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SpeakingPracticeSession',
             fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('date', models.DateTimeField(auto_now_add=True, verbose_name='Date and Time')),
                 ('student', models.ForeignKey(blank=True, null=True, on_delete=models.deletion.SET_NULL, to='ComSemApp.student')),
             ],
