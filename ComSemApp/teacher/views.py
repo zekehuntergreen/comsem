@@ -220,7 +220,7 @@ class WorksheetReleaseView(TeacherWorksheetViewMixin, View):
         is_valid = worksheet.release()
         if is_valid:
             return HttpResponse(status=204)
-        return HttpResponse(status=406, reason="Worksheet cannot be empty")
+        return HttpResponse(status=406, reason="Worksheet must have at least one expression with a reforumlation.")
 
 
 class WorksheetDeleteView(TeacherWorksheetViewMixin, DeleteView):

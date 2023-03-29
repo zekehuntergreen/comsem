@@ -190,8 +190,12 @@ class Worksheet(models.Model):
     @property
     def released(self):
         return self.status == teacher_constants.WORKSHEET_STATUS_RELEASED
+    
+    @property
+    def can_be_released(self):
+        return all(e.reformulation_text or e.audio for e in self.expressions.all())
 
-    def complete_submission(self, student) -> StudentSubmissionManager | None: # vhl checks if any submissions are complete
+    def complete_submission(self, student) -> StudentSubmissionManager | None:
         complete_submission = None
         if StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").exists():
             complete_submission = StudentSubmission.objects.filter(worksheet_id=self.id, student=student, status="complete").latest()
@@ -199,14 +203,15 @@ class Worksheet(models.Model):
 
     def release(self):
         self.expressions : QuerySet[Expression]
-        if self.expressions.exists(): # vhl releases no empty worksheets
-            self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
-            self.save()
-            for expression in self.expressions.all():
-                pos_tag(expression)
-            return True
-        else: # vhl prevents empty worksheets from being released
+        if not self.expressions.exists():
             return False
+        if not self.can_be_released:
+            return False
+        self.status = teacher_constants.WORKSHEET_STATUS_RELEASED
+        self.save()
+        for expression in self.expressions.all():
+            pos_tag(expression)
+        return True
 
 
     def last_submission(self, student : Student) -> StudentSubmission | None:
@@ -340,10 +345,54 @@ class SpeakingPracticeAttempt(models.Model):
     wpm = models.DecimalField(max_digits=5,decimal_places=2, validators=[MinValueValidator(0)], verbose_name='Words per Minute')
 
     def __str__(self):
-        return f"{self.id}: {self.expression} - {self.correct}% ({self.date.strftime('%d %b %Y')})"
+        return f"{self.pk}: {self.expression} - {self.correct}% ({self.date.strftime('%d %b %Y')})"
 
     class Meta:
         verbose_name = "Speaking Practice Attempt"
+
+class SpeakingPracticeAttemptReviewRequest(models.Model):
+    """
+        This model stores students' requests for teacher review on their Speaking Practice attempts
+        Inherits from:
+            django.db.models.Model
+        Remarks:
+            The 'attempt' field is the primary key for this model because students cannot request
+            review of the same attempt more than once.
+    """
+    # The attempt which the student has requested review for
+    attempt = models.OneToOneField(SpeakingPracticeAttempt, on_delete=models.CASCADE, primary_key=True)
+    # The date on which the request was created
+    date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.attempt.pk}: {self.date}"
+    
+    class Meta:
+        verbose_name = "Instructor Review Request for Speaking Practice Attempt"
+
+class SpeakingPracticeAttemptReview(models.Model):
+    """
+        This model stores teachers' reviews of students' SpeakingPracticeAttemptReviewRequests
+        Inherits from:
+            django.db.models.Model
+        Remarks:
+            The 'request' field is the primary key for this model because each attempt can be
+            satisfied by one review
+    """
+    # The SpeakingPracticeAttemptReviewRequest that this review is satisfying
+    request = models.OneToOneField(SpeakingPracticeAttemptReviewRequest, on_delete=models.CASCADE, primary_key=True)
+    # The Teacher that reviewed the attempt
+    reviewer = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
+    # The date on which the review was completed
+    date = models.DateField(auto_now_add=True)
+    # The comments the teacher has provided during review
+    comments = models.TextField(null=True, blank=True, verbose_name="Teacher Comments")
+    # The original score of the attempt. If null, the score was not updated
+    # The teacher's new scoring is stored in the SpeakingPracticeAttempt associated with the SpeakingPracticeAttemptReviewRequest
+    original_score = models.DecimalField(null=True, blank=False, max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], verbose_name='Original Score')
+
+    class Meta:
+        verbose_name = "Speaking Practice Attempt Review"
 
 # WORDS, SEQUENTIAL WORDS, TAG
 
