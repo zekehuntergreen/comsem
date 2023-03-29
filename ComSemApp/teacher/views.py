@@ -140,14 +140,6 @@ class WorksheetListView(TeacherCourseViewMixin, ListView):
     def get_queryset(self):
         return self.course.get_visible_worksheets().order_by('-date')
 
-class SpeakingPracticeReviewRequestsListView(TeacherCourseViewMixin, ListView):
-    model = SpeakingPracticeAttempt
-    template_name = 'ComSemApp/teacher/request_list.html'
-    context_object_name = 'attempts'
-
-    def get_queryset(self):
-        return self.course.get_speaking_practice_attempts().order_by('-date')
-
 
 class WorksheetDetailView(TeacherWorksheetViewMixin, DetailView):
     template_name = 'ComSemApp/teacher/view_worksheet.html'
@@ -378,21 +370,34 @@ class SpeakingPracticeAttemptReviewView(TeacherCourseViewMixin, ListView):
 
         return context
 
+class SpeakingPracticeReviewRequestsListView(TeacherCourseViewMixin, ListView):
+    model = SpeakingPracticeAttemptReviewRequest
+    template_name = 'ComSemApp/teacher/request_list.html'
+    context_object_name = 'requests'
+
+    def get_queryset(self):
+        q = self.course.get_speaking_practice_review_requests().order_by('-date')
+        print(q)
+        return q
+
+
 class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView):
-    model = SpeakingPracticeAttempt
+    model = SpeakingPracticeAttemptReview
     template_name = "ComSemApp/teacher/attempt_request_info.html"
-    fields = ["correct", "transcription", "audio"]
-    context_object_name = "attempt"
+    fields = ["reviewer", "comments", "original_score"]
+    context_object_name = "object"
 
     def get_object(self):
-        attempt_id = self.kwargs.get('attempt_id', None)
-        attempts = SpeakingPracticeAttempt.objects.filter(id=attempt_id)
+        request_id = self.kwargs.get('request_id', None)
+        attempt = SpeakingPracticeAttempt.objects.filter(id=request_id.attempt.id)
+        object = {}
+        object['attempt'] = attempt.first
         if not attempts.exists():
             # only ajax right now
             response = JsonResponse({"error": 'Invalid Attempt ID.'})
             response.status_code = 403
             return response
-        return attempts.first()
+        return object
 
     def form_invalid(self, form):
         response = super().form_invalid(form)

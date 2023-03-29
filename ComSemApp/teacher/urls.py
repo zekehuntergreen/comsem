@@ -28,5 +28,5 @@ urlpatterns = [
 
     url(r'^course/(?P<course_id>[0-9]+)/requests/$', views.SpeakingPracticeReviewRequestsListView.as_view(), name='request_list'),
     url(r'^course/(?P<course_id>[0-9]+)/requests/attempt/$', views.SpeakingPracticeAttemptReviewView.as_view(), name='request_attempt'),
-    url(r'^course/(?P<course_id>[0-9]+)/requests/attempt/(?P<attempt_id>[0-9]+)/review/$', views.SpeakingPracticeAttemptReviewUpdateView.as_view(), name='request_review'),
+    url(r'^course/(?P<course_id>[0-9]+)/requests/attempt/(?P<request_id>[0-9]+)/review/$', views.SpeakingPracticeAttemptReviewUpdateView.as_view(), name='request_review'),
 ]
