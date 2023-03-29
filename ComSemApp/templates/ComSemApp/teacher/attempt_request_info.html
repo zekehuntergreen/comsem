@@ -17,10 +17,49 @@
                     <mark><span title="There could be errors shown here">{{attempt.transcription}}</span></mark><br>
                     <b>Audio Recording</b><br>
                     <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio.url }}"></audio><br>
+                    <b>Fluency Score</b><br>
+                    {{attempt.wpm}}<br>
+                    <b>Correctness Score</b><br>
+                    {{attempt.correct}}<br>
+                    <br>
+                    <div class="checkbox checkbox-primary">
+                        <input type="checkbox" id="new_score_check">
+                        <label for="new_score_check">
+                            Assign new correctness score?
+                        </label>
+                    </div>
+                    <div id="myTextboxContainer"></div>
+                    <div style="position: relative;">
+                        <button type="button" onclick="editText()" style="position: absolute; top: 0; right: 0;">Edit</button>
+                        <b>Teacher Comments</b><br>
+                        <textarea id="teacher_comments_box" rows="4" cols="30"><!--Place teacher comments here --></textarea>
+                    </div>
+                    <br>
+                    <button type="button" onclick="submitText()">Submit</button>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
+</div> 
+<script>      
+    const checkbox = $("#new_score_check");
+    checkbox.on("click", () =>{
+        // get the container element for the text box
+        const container = $("#myTextboxContainer");
+      
+        // check if the checkbox is checked
+        if (checkbox.prop("checked")) {
+          // create the number text box element
+          const textbox = $("<input type='number'>");
+      
+          // add the text box to the container
+          container.append(textbox);
+        } else {
+          // remove the text box
+          container.empty();
+        }
+        console.log("checked")
+      }
+</script>
+</body>
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
