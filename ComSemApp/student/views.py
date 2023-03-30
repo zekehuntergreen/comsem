@@ -695,6 +695,12 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
         context['problems'] : list[dict[str, str | float]] = {}
         context['student'] : int = self.student.pk
 
+        session : SpeakingPracticeSession = SpeakingPracticeSession.objects.filter(student=self.student).latest('date')
+        if session is None or session.attempts.count() != 0:
+            session = SpeakingPracticeSession(student=self.student)
+            session.save()
+        context['session'] = session.id
+
         expression_ids : list[str] = dict(self.request.GET)['choice']
         # This list comprehension grabs all the data necessary for problems and filters out invalid expressions
         context['problems'] = [problem_data for expression_id in expression_ids if (problem_data := self.generate_problem_info(expression_id)) is not None]
@@ -849,7 +855,7 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         Implements the standard Django CreateView
     """
     model = SpeakingPracticeAttempt
-    fields = ["expression", "student", "audio"]
+    fields = ["expression", "session", "audio"]
 
     def score_generator(self, transcription : str, expression : Expression) -> Iterable[tuple[float, StudentAttempt | None]]:
         """
@@ -878,10 +884,10 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         yield (score, None)
         for attempt in correct_attempts:
             if score == MAX_SCORE:
-                raise StopIteration
+                return
             score = self.grade_against_correct(transcription, attempt.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)))
             yield (score, attempt)
-        raise StopIteration
+        return
 
     def grade_against_correct(self,transcription : string, correct_formulation : string):
         # TODO: Implement
@@ -901,21 +907,17 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
             entry in the database and returns the transcription and score data back to the frontend
         """
         attempt : SpeakingPracticeAttempt = form.save(commit=False)
-        session : int = self.kwargs.get('Session', None)
         transcription : str
         length : int
         score : tuple[float, StudentAttempt | None]
 
-        if not session:
-            return HttpResponse(f"Session ", status=404)
-
         if attempt.session.student != self.student:
-            return HttpResponse("The ", status=403)
+            return HttpResponse(f"Student does not own session {attempt.session}", status=403)
 
         transcription, length = transcribe_and_get_length_audio_file(attempt.audio)
         # The Counter call gets the number of words, the division on the bottom get the length in minutes
         attempt.wpm = Counter(transcription.split()).total() / (length / 60000)
-        score = max(self.score_generator(transcription,attempt.expression), key=lambda score : score[1])
+        score = max(self.score_generator(transcription,attempt.expression), key=lambda score : score[0])
         attempt.correct = score[0]
         # TODO: ADD ASSOCIATED STUDENTATTEMPT ONCE MODEL IS UPDATED
         attempt.transcription = transcription

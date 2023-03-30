@@ -65,6 +65,7 @@ let curr_problem_index = 0;
 // places problems from context into array
 let problems = {{ problems | safe }};
 let student = {{ student | safe}};
+let session = {{ session | safe}};
 
 // sets up 1st problem
 let sentence = problems[curr_problem_index]['formulation'];
@@ -163,8 +164,8 @@ function sendPostRequestForm(){
   // if, for whatever reason, the user pressed next problem before the sentence is appended to the form
   // then the next(and wrong) sentence might get appended to the form
   // form_expression just holds the correct expression for this form
-  attemptFormData.append( 'expression', form_expression); 
-  attemptFormData.append('student', student);
+  attemptFormData.append('session', session);
+  attemptFormData.append('expression', form_expression); 
   attemptFormData.append('audio', audioBlob);
   var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
 
