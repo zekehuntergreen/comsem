@@ -404,4 +404,4 @@ class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView
         return JsonResponse(form.errors, status=400)
 
     def form_valid(self, form):
-        return JsonResponse({}, status=200)
+        return JsonResponse({}, status=200){% include 'ComSemApp/tablesorter_footer.html'%}
