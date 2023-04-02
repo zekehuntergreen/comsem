@@ -924,3 +924,41 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
 
         attempt.save()
         return JsonResponse({'id' : attempt.id}, status=201)
+
+
+session_dummy_data = [
+    {'id' : 1, 'date':'1/21/2000', 'avg_score':72.3},
+    {'id' : 2, 'date':'2/22/2000', 'avg_score':0},
+    {'id' : 3, 'date':'3/23/2000', 'avg_score':100},
+    {'id' : 4, 'date':'4/25/2000', 'avg_score':32.7}
+]
+
+request_dummy_data = [
+    {'id': 1, 'expression' : 'this is the expression', 'date':'1/21/2000', 'session':19, 'pending':True},
+    {'id': 2,'expression' : 'the dog is walking', 'date':'1/21/2000', 'session':19, 'pending':False},
+    {'id': 3,'expression' : 'he did a silly', 'date':'3/24/2000', 'session':24, 'pending':True},
+]
+
+class SpeakingPracticeReviewDetailView(StudentViewMixin, CourseViewMixin, DetailView, SpeakingPracticeInfoMixin):
+    """
+      Serves the content of the speaking practice results page presented after a
+      session of practice.
+    """
+    template_name: str = 'ComSemApp/student/speaking_practice_review.html'
+
+    def get_object(self):
+        """
+            implements Django DetailView function
+        """
+        return self.course
+
+    def get_context_data(self, **kwargs) -> dict[str, dict[str, str | int | float]]:
+        """
+            implements Django's DetailView get_context_data function 
+            Returns:
+                context -- context data used by assessment_results.html
+        """
+        context : dict[str, Any] = super(SpeakingPracticeReviewDetailView, self).get_context_data(**kwargs)
+        context['sessions'] = session_dummy_data
+        context['requests'] = request_dummy_data
+        return context
