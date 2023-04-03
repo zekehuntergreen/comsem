@@ -959,6 +959,35 @@ class SpeakingPracticeReviewDetailView(StudentViewMixin, CourseViewMixin, Detail
                 context -- context data used by assessment_results.html
         """
         context : dict[str, Any] = super(SpeakingPracticeReviewDetailView, self).get_context_data(**kwargs)
-        context['sessions'] = session_dummy_data
-        context['requests'] = request_dummy_data
         return context
+
+class SpeakingPracticeReviewSessionListView(StudentViewMixin, CourseViewMixin, SpeakingPracticeInfoMixin, ListView):
+    context_object_name = 'sessions'
+    template_name = "ComSemApp/student/speaking_practice_sessions_list.html"
+
+    def get_queryset(self):
+        sessions : QuerySet[SpeakingPracticeSession] = SpeakingPracticeSession.objects.filter(student=self.student, attempts__expression__worksheet__course= self.course).distinct().order_by('-date')
+
+        sessions_data = [
+            {
+                'id':session.pk,
+                'date':session.date,
+                'avg_score': 0
+            } for session in sessions]
+        return sessions_data
+
+class SpeakingPracticeReviewRequestListView(StudentViewMixin, CourseViewMixin, SpeakingPracticeInfoMixin, ListView):
+    context_object_name = 'requests'
+    template_name = "ComSemApp/student/speaking_practice_requests_list.html"
+
+    def get_queryset(self):
+        requests : QuerySet[SpeakingPracticeAttemptReviewRequest] = SpeakingPracticeAttemptReviewRequest.objects.filter(attempt__expression__worksheet__course=self.course, attempt__session__student=self.student)
+
+        request_data =[]
+        for request in requests:
+            data = {}
+            data['pending'] = request.review
+            request_data.append(data)
+            print(data['pending'])
+            
+        return request_dummy_data
