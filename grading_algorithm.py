@@ -25,9 +25,9 @@ def grade_reformulation(reformulation, correct_expression) :
     order_conversion = .75 # 75% of total order score
     # Presence Conversions
     presence_weight = .5 # 50% of total grade
-    presence_conversion = .7 # 70% of total presence score
+    presence_conversion = .6 # 70% of total presence score
     legnth_converison = .2 # 20% of total presence score
-    extra_converison = .1 # 10% of total presence score
+    extra_converison = .2 # 10% of total presence score
 
     # The Postion check
     position_grade = word_position(reformulation, correct_expression)
