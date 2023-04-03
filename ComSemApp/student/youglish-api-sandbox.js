@@ -11,10 +11,15 @@ Ajax - A technique used to make asynchronous HTTP requests from the client-side 
 $(document).ready(function() {
 
   // Define the URL for the Youglish proxy API and the query string
-  const apiUrl = 'http://localhost:3000/youglish-proxy';
+  
+  //use this for node server
+  //const apiUrl = 'http://localhost:3000/youglish-proxy';
+  //use this apiUrl if using Django
+  const apiUrl = '/youglish-proxy';
+
   const query = 'explaining'; //replace with searched for word
 
-  const youtubeApiKey = 'AIzaSyDQoynj7T6sa77hqlheFTgIIuuGTb1dQng';
+  const youtubeApiKey = 'AIzaSyCWqdb9QDYo2Z6P_WqWwXF-s3-38_UnbaE';
 
   // Initialize empty arrays and variables to hold video data
   let videos = [];
@@ -72,54 +77,56 @@ $(document).ready(function() {
     });
   }
 
+  // Function to display the sentence with highlighting
+  function displaySentence(sentence, query) {
+    const highlightedSentence = sentence.replace(
+      new RegExp(`\\b${query}\\b`, 'gi'),
+      (match) => `<mark>${match}</mark>`
+    );
+    $('#sentence-container').html(highlightedSentence);
+  }
+
   //Function displays the video at the specified index.
-  function displayVideo(videoIndex) {
+  async function displayVideo(videoIndex, sentences = 2) {
     if (videoIndex >= videos.length) {
       console.warn('No more available videos.');
       return;
     }
-
-    // Get the video ID, start time, and end time of the video at the specified index
+  
     const videoId = videos[videoIndex].vid;
     const startTime = videos[videoIndex].start;
-    const endTime = videos[videoIndex].end;
-
-    // Calculate the buffered start and end times (2 seconds before and after the specified times)
-    const bufferedStartTime = parseInt(startTime) - 2;
-    const bufferedEndTime = parseInt(endTime) + 2;
-
+    const sentenceDuration = videos[videoIndex].dur;
+    const endTime = startTime + (sentences * sentenceDuration);
+  
     console.log("Extracted video ID:", videoId);
-
-    // Call the fetchVideoDetails function to get details about the video
+  
     fetchVideoDetails(
       videoId,
-      function (response) {
-        // Check if the response contains any items and if the video is embeddable and public
+      async function (response) {
         if (response.items.length > 0 && response.items[0].status.embeddable && response.items[0].status.privacyStatus === "public") {
-          // If the player already exists, load the video
           if (player) {
             player.loadVideoById({ videoId: videoId, startSeconds: startTime, endSeconds: endTime });
-          } else { // Otherwise, create a new player
+          } else {
             player = new YT.Player('video-container', {
               height: '270',
               width: '480',
               videoId: videoId,
               playerVars: {
-                'autoplay': 1,
-                'start': bufferedStartTime,
-                'end': bufferedEndTime,
+                'autoplay': 0,
+                'start': startTime,
+                'end': endTime,
               },
               events: {
                 'onStateChange': onPlayerStateChange,
               },
             });
           }
-          // Update the video index and the current video index
           $('#video-index').text(videoIndex + 1);
           currentVideoIndex = videoIndex;
+  
+          displaySentence(videos[videoIndex].display, query);
         } else {
           console.warn('Video is not available:', videoId);
-          // If the video is not available, skip it and try the next one
           displayVideo(videoIndex + 1);
         }
       },
@@ -128,7 +135,13 @@ $(document).ready(function() {
       }
     );
   }
-
+  
+  function playNextVideo() {
+    if (currentVideoIndex < videos.length - 1) {
+      currentVideoIndex++;
+      displayVideo(currentVideoIndex);
+    }
+  }
   
   /**
   * This function handles changes to the state of the YouTube player.
