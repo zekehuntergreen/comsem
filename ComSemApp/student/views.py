@@ -18,8 +18,9 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, T
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
-from ComSemApp.teacher import constants as teacher_constants
+from django.core.exceptions import BadRequest
 
+from ComSemApp.teacher import constants as teacher_constants
 from ComSemApp.models import *
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin, SubmissionViewMixin
 from ComSemApp.utils import transcribe_and_get_length_audio_file
@@ -485,7 +486,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
         use_audio = dict(self.request.GET)['audio-choice'][0] == '1'
         raw_expressions = []
         for expression_id in expression_ids:
-            expression_object = get_object_or_404(Expression, pk=expression_id)
+            expression_object = get_object_or_404(Expression, id=expression_id)
             expression_object.last_submission = StudentSubmission.objects.filter(student=self.student, worksheet=expression_object.worksheet).latest('date').date.date()
             expression_object.attempts = self.get_attempts(expression_object)
             raw_expressions.append(expression_object)
@@ -664,7 +665,7 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
         attempts : QuerySet[StudentAttempt] = StudentAttempt.objects.filter(student_submission__student=self.student, expression=id)
 
         try:
-            expression_object = Expression.objects.get(pk=id)
+            expression_object = Expression.objects.get(id=id)
         except(Expression.DoesNotExist):
             return None
 
@@ -693,7 +694,7 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
         """
         context : dict[str, Any] = super(SpeakingPracticeView, self).get_context_data(**kwargs)
         context['problems'] : list[dict[str, str | float]] = {}
-        context['student'] : int = self.student.pk
+        context['student'] : int = self.student.id
 
         session : SpeakingPracticeSession = SpeakingPracticeSession.objects.filter(student=self.student).latest('date')
         if session is None or session.attempts.count() != 0:
@@ -792,11 +793,17 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
         """
         context : dict[str, Any] = super(SpeakingPracticeResultsView, self).get_context_data(**kwargs)
         context['attempts'] : list[dict[str, str | float]] = {}
-        try:
-            attempt_ids : list[str] = dict(self.request.GET)['attempt_ids']
-        except:
-            return context
-        attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(session__student=self.student, pk__in=attempt_ids)
+        attempt_ids : list[str] = dict(self.request.GET).get('attempt', None)
+        session_ids : list[str] = dict(self.request.GET).get('session', None)
+
+        # if both are null
+        if(not (attempt_ids or session_ids)):
+            raise BadRequest("No attempt id or session id given")
+        
+        attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(
+            Q(session__student=self.student)
+            & Q(worksheet__course=self.course)
+            & (Q(id__in=attempt_ids) | Q(session__id__in=attempt_ids)))
         expressions : set[Expression] = set([attempt.expression for attempt in attempts])
         familiarity_scores : dict[int, int] = {}
 
@@ -824,18 +831,18 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
             normalized_data['days_since_review'] = 1 - (max(0, exp_data[expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review'])
             normalized_data['wpm'] = max(0, exp_data[expression]['wpm'] - mins['wpm']) / ranges['wpm']
             normalized_data['last_score'] = max(0, exp_data[expression]['last_score'] - mins['last_score']) / ranges['last_score']
-            familiarity_scores[expression.pk] = round(sum([float(normalized_data[key]) * WEIGHTS[key] for key in DATA_KEYS]) * 100)
+            familiarity_scores[expression.id] = round(sum([float(normalized_data[key]) * WEIGHTS[key] for key in DATA_KEYS]) * 100)
 
         context['attempts'] = [
             {
-            'id' : attempt.pk,
+            'id' : attempt.id,
             'transcription' : attempt.transcription,
             'audio_path' : attempt.audio.url,
             'score' : attempt.correct,
-            'expression_id' : expression.pk,
+            'expression_id' : expression.id,
             'incorrect_expression': attempt.expression.expression,
             'correct_formulation' : attempt.expression.reformulation_text,
-            'familiarity' : familiarity_scores[attempt.expression.pk]
+            'familiarity' : familiarity_scores[attempt.expression.id]
             } for attempt in attempts]
 
         return context

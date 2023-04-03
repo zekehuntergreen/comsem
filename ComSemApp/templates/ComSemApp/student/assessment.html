@@ -185,7 +185,7 @@ function sendPostRequestForm(){
       success:(response) => {
         cs_notification('success', "Attempt Saved")
         // inputs the id recieved into the html form
-        $("#form").append("<input type='hidden' value="+response['id']+" name='attempt_ids'></input>");
+        $("#form").append(`<input type='hidden' value=${response['id']} name='attempt'></input>`);
         resolve();
       },
       error: (jqXHR, textStatus, errorThrown) => {
