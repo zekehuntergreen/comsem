@@ -15,6 +15,9 @@ from django.urls import reverse_lazy
 from .models import Admin, Teacher, Student
 from ComSemApp.administrator.forms import SignupForm, ContactForm
 
+from django.http import JsonResponse
+from .api_keys import API_KEY, YOUTUBE_API_KEY
+
 # TODO - these are the sort of extra views that don't exactly fit into one of the existing "apps"
 # and should be reorganized and tested
 
@@ -89,3 +92,33 @@ def initiate_roles(request):
 
     if Student.objects.filter(user=request.user).exists():
         return redirect('/student/')
+
+    
+def youglish_proxy(request):
+    if request.method == 'GET':
+        query = request.GET.get('q')
+        skip = request.GET.get('skip', 0)
+        max = request.GET.get('max', 10)
+
+        youglish_url = f'https://youglish.com/api/v1/videos/search?key={API_KEY}&query={query}&lg=english&max={max}&skip={skip}'
+
+        try:
+            # Make a GET request to the Youglish API using requests
+            response = requests.get(youglish_url)
+            data = response.json()
+
+            # Add YouTube video details to each video result
+            for video in data['results']:
+                video_id = video['vid']
+                video_url = f'https://www.googleapis.com/youtube/v3/videos?id={video_id}&key={YOUTUBE_API_KEY}&part=snippet'
+                youtube_response = requests.get(video_url).json()
+                video['title'] = youtube_response['items'][0]['snippet']['title']
+                video['thumbnail'] = youtube_response['items'][0]['snippet']['thumbnails']['default']['url']
+
+            # Return the response data as a JSON object to the client
+            return JsonResponse(data)
+        except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'An error occurred while fetching data from Youglish API'})
+
+    return JsonResponse({'error': 'Invalid Request'})
