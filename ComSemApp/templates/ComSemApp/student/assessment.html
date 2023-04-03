@@ -58,13 +58,13 @@
 <script>
 const READING_OFFSET = 2;
 const RECORDING_OFFSET = 3;
+const SESSION_ID = {{ session | safe }};
 const encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
 
 //index for tracking current problem
 let curr_problem_index = 0;
 // places problems from context into array
 let problems = {{ problems | safe }};
-let student = {{ student | safe}};
 
 // sets up 1st problem
 let sentence = problems[curr_problem_index]['formulation'];
@@ -161,16 +161,16 @@ function sendPostRequestForm(){
   console.log(form_expression)
   // form_expression used to ensure correct sentence is passed for the correct problem
   // if, for whatever reason, the user pressed next problem before the sentence is appended to the form
-  // then the next(and wrong) sentence might get appended to the form
+  // then the next (and wrong) sentence might get appended to the form
   // form_expression just holds the correct expression for this form
-  attemptFormData.append( 'expression', form_expression); 
-  attemptFormData.append('student', student);
+  attemptFormData.append('session', SESSION_ID);
+  attemptFormData.append('expression', form_expression); 
   attemptFormData.append('audio', audioBlob);
   var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
 
   // returns a promise that calls the ajax, if successful resolves, if error OR takes more than 5 seconds
   // to return then rejects
-  return new Promise((resolve, reject)=>{
+  return new Promise((resolve, reject) => {
     $.ajax({ // send POST request
       type: "POST",
       url: $("#save_attempt_url").val(), // links to html form above which specifies the url to recieve request
@@ -182,9 +182,7 @@ function sendPostRequestForm(){
         'X-CSRFToken': csrf_token
       },
       success:(response) => {
-        cs_notification('success', "Attempt Saved")
-        // inputs the id recieved into the html form
-        $("#form").append("<input type='hidden' value="+response['id']+" name='attempt_ids'></input>");
+        cs_notification('success', 'Attempt Saved');
         resolve();
       },
       error: (jqXHR, textStatus, errorThrown) => {
@@ -278,6 +276,9 @@ $(document).ready(() => {
     event.returnValue = 'WARNING: If you leave this page, you will not be able to continue the review where you left off. Exit anyway?';
     return event.returnValue;
   });
+
+  // Add session to results form
+  $("#form").append(`<input type='hidden' value='${SESSION_ID}' name='session'></input>`);
 
   // initializing review
   $("#begin-review").click(() => {
