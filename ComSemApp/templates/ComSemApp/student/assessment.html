@@ -281,9 +281,12 @@ $(document).ready(() => {
   $("#timer-text").visibility = "hidden";
   show("show-expression");
   setEqualHeight("sec");
-  initializeRecorder();
-  //runs the initial reading timer
-  timerPromise(sentence)
+  initializeRecorder()
+    .then(() => {
+      // runs the initial reading timer
+      timerPromise(sentence);
+    })
+    .catch((msg) => cs_notification('error', msg));
 });
 </script>
 {% endblock %}
