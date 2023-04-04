@@ -145,45 +145,33 @@
 		function initialize_tablesorter(){
 			// make tablesorter footer the right size
 			$('.tablesorter').each(function(){
-				num_cols = $(this).find('thead tr').children().length;
-				$(this).find('.cs-tablesorter-footer').attr('colspan', num_cols)
-			})
-
-
-			// appelez le plugin tablesorter et appliquez le widget uitheme
+			  num_cols = $(this).find('thead tr').children().length;
+			  $(this).find('.cs-tablesorter-footer').attr('colspan', num_cols);
+			});
+		  
+			// initialize tablesorter with the date format option
 			$(".tablesorter").tablesorter({
-				theme : "bootstrap",
-
-				widthFixed: true,
-
-				headerTemplate : '{content} {icon}',
-
-				widgets : [ "uitheme", "filter", "columns", "zebra" ],
-
-				widgetOptions : {
-
-					zebra : ["even", "odd"],
-
-					columns: [ "primary", "secondary", "tertiary" ],
-
-
-					filter_cssFilter: "form-control",
-
-				}
-			})
-			// initialiser le pager
-			.tablesorterPager({
-
-				container: $(".ts-pager"),
-
-				cssGoto  : ".pagenum",
-
-				removeRows: false,
-
-				output: '{startRow} - {endRow} / {filteredRows} ({totalRows})'
-
-			})
-		}
+			  theme : "bootstrap",
+			  widthFixed: true,
+			  headerTemplate : '{content} {icon}',
+			  widgets : [ "uitheme", "filter", "columns", "zebra" ],
+			  widgetOptions : {
+				zebra : ["even", "odd"],
+				columns: [ "primary", "secondary", "tertiary" ],
+				filter_cssFilter: "form-control",
+				dateFormat: "MMM. dd, yyyy, h:mm a", // add this line
+			  },
+			});
+		  
+			// initialize the pager
+			$(".tablesorter").tablesorterPager({
+			  container: $(".ts-pager"),
+			  cssGoto  : ".pagenum",
+			  removeRows: false,
+			  output: '{startRow} - {endRow} / {filteredRows} ({totalRows})'
+			});
+		  }
+		  
 
 		$(function(){
 			initialize_tablesorter()
