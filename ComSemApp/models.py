@@ -111,10 +111,7 @@ class Course(models.Model):
         return self.worksheets.exclude(status=teacher_constants.WORKSHEET_STATUS_PENDING)
 
     def get_speaking_practice_attempts(self):
-        worksheets = Worksheet.objects.filter(course=self)
-        expressions = Expression.objects.filter(worksheet__in=worksheets)
-        attempts = SpeakingPracticeAttempt.objects.filter(expression__in=expressions)
-        return attempts
+        return self.worksheets.select_related('expressions').select_related('speaking_practice_attempts')
 
     class Meta:
         ordering = ('-session__start_date',)
@@ -325,7 +322,7 @@ class SpeakingPracticeAttempt(models.Model):
             django.db.models.Model
     """
     # The expression the student attempted
-    expression = models.ForeignKey(Expression, on_delete=models.CASCADE)
+    expression = models.ForeignKey(Expression, on_delete=models.CASCADE, related_name="speaking_practice_attempts")
     # The student who attempted
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, blank=True, null=True)
     # The audio file from the student's attempt

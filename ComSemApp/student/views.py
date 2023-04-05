@@ -895,7 +895,7 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
 
 class SpeakingPracticeTeacherReviewRequestCreateView(StudentCourseViewMixin, CreateView):
     """
-        Used to process form data served from the SpeakingPracticeViewResults on the frontend.
+        Used to process and save review request form in SpeakingPracticeResultsView. 
         Implements the standard Django CreateView
     """
     # TODO: Update this model and fields with new model for requests
@@ -914,8 +914,7 @@ class SpeakingPracticeTeacherReviewRequestCreateView(StudentCourseViewMixin, Cre
     def form_valid(self, form):
         """
             Defines the behavior for a valid form submission.
-            Processes audio data from the form, creates the SpeakingPracticeAttempt
-            entry in the database and returns the transcription and score data back to the frontend
+            creates the SpeakingPracticeReviewRequest entry in the database
         """
         #TODO: fill this in with steps to save review requests to model
         return JsonResponse(None, status=201)
