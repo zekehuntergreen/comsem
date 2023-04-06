@@ -325,7 +325,7 @@ class SpeakingPracticeAttempt(models.Model):
     expression = models.ForeignKey(Expression, on_delete=models.CASCADE, related_name="speaking_practice_attempts")
     # The student who attempted
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, blank=True, null=True)
-    # The audio file from the student's attempt
+    # The audio file from the student's attemptt
     audio = models.FileField(upload_to=speaking_practice_audio_directory, null=False, blank=False)
     # The transcription of the student's attempt
     transcription = models.TextField(null=False, blank=False)
