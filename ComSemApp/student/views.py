@@ -835,7 +835,7 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
 
         context['attempts'] = [
             {
-            'id' : attempt.pk,
+            'id' : attempt.id,
             'transcription' : attempt.transcription,
             'audio_path' : attempt.audio.url,
             'score' : attempt.correct,
@@ -891,10 +891,10 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         yield (score, None)
         for attempt in correct_attempts:
             if score == MAX_SCORE:
-                raise StopIteration
+                return
             score = self.grade_against_correct(transcription, attempt.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)))
             yield (score, attempt)
-        raise StopIteration
+        return
 
     def grade_against_correct(self,transcription : string, correct_formulation : string):
         # TODO: Implement
@@ -928,3 +928,34 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
 
         attempt.save()
         return JsonResponse({'id' : attempt.id}, status=201)
+    
+
+class SpeakingPracticeTeacherReviewRequestCreateView(StudentCourseViewMixin, CreateView):
+    """
+        Used to process and save review request form in SpeakingPracticeResultsView. 
+        Implements the standard Django CreateView
+    """
+
+    model = SpeakingPracticeAttemptReviewRequest
+    fields = []
+
+    def form_invalid(self, form):
+        """
+            Defines the behavior for an invalid form submission.
+            Reports whatever errors are found back to the frontend.
+        """
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form):
+        """
+            Defines the behavior for a valid form submission.
+            creates the SpeakingPracticeReviewRequest entry in the database
+        """
+        attempt_id = self.request.POST.get('attempt_id')
+        attempt = get_object_or_404(SpeakingPracticeAttempt, pk=attempt_id)
+        
+        review_request = form.save(commit=False)  # create a new review request object without saving it
+        review_request.attempt = attempt  # set the attempt for the review request
+        review_request.save()  # save the review request
+        
+        return JsonResponse({}, status=201)
