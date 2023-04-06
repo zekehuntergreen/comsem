@@ -276,13 +276,14 @@ $(document).ready(() => {
   });
 
   // page initializations 
-  $("#expression-text").html(sentence);
   $("#timer-bar").visibility = "hidden";
   $("#timer-text").visibility = "hidden";
-  show("show-expression");
   setEqualHeight("sec");
   initializeRecorder()
     .then(() => {
+      $("#expression-text").html(sentence);
+      setEqualHeight("sec");
+      show("show-expression");
       // runs the initial reading timer
       timerPromise(sentence);
     })
