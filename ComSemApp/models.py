@@ -329,6 +329,17 @@ class SpeakingPracticeSession(models.Model):
     def __str__(self):
         return f"{self.student.user.last_name}, {self.student.user.first_name} - {self.date.strftime('%d %b %Y')} - {self.attempts.count()} attempts"
 
+    def average_correctness(self):
+        '''
+            Returns the average correctness score of all attempts in a session
+        '''
+        attempts = self.attempts.all()
+        if attempts:
+            total_correctness = sum([attempt.correct for attempt in attempts])
+            return total_correctness / len(attempts)
+        else:
+            return 0
+
     class Meta:
         verbose_name = "Speaking Practice Session"
 
@@ -371,6 +382,12 @@ class SpeakingPracticeAttemptReviewRequest(models.Model):
     attempt = models.OneToOneField(SpeakingPracticeAttempt, on_delete=models.CASCADE, primary_key=True)
     # The date on which the request was created
     date = models.DateField(auto_now_add=True)
+    
+    def is_reviewed(self):
+        '''
+            Returns true if there is a review for this request
+        '''
+        return hasattr(self,'review')
 
     def __str__(self):
         return f"{self.attempt.pk}: {self.date}"
@@ -388,7 +405,7 @@ class SpeakingPracticeAttemptReview(models.Model):
             satisfied by one review
     """
     # The SpeakingPracticeAttemptReviewRequest that this review is satisfying
-    request = models.OneToOneField(SpeakingPracticeAttemptReviewRequest, on_delete=models.CASCADE, primary_key=True)
+    request = models.OneToOneField(SpeakingPracticeAttemptReviewRequest, on_delete=models.CASCADE, primary_key=True, related_name="review")
     # The Teacher that reviewed the attempt
     reviewer = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
     # The date on which the review was completed

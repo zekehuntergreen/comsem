@@ -925,20 +925,6 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         attempt.save()
         return JsonResponse({'id' : attempt.id}, status=201)
 
-
-session_dummy_data = [
-    {'id' : 1, 'date':'1/21/2000', 'avg_score':72.3},
-    {'id' : 2, 'date':'2/22/2000', 'avg_score':0},
-    {'id' : 3, 'date':'3/23/2000', 'avg_score':100},
-    {'id' : 4, 'date':'4/25/2000', 'avg_score':32.7}
-]
-
-request_dummy_data = [
-    {'id': 1, 'expression' : 'this is the expression', 'date':'1/21/2000', 'session':19, 'pending':True},
-    {'id': 2,'expression' : 'the dog is walking', 'date':'1/21/2000', 'session':19, 'pending':False},
-    {'id': 3,'expression' : 'he did a silly', 'date':'3/24/2000', 'session':24, 'pending':True},
-]
-
 class SpeakingPracticeReviewDetailView(StudentViewMixin, CourseViewMixin, DetailView, SpeakingPracticeInfoMixin):
     """
       Serves the content of the speaking practice results page presented after a
@@ -962,32 +948,45 @@ class SpeakingPracticeReviewDetailView(StudentViewMixin, CourseViewMixin, Detail
         return context
 
 class SpeakingPracticeReviewSessionListView(StudentViewMixin, CourseViewMixin, SpeakingPracticeInfoMixin, ListView):
+    '''
+        Serves the context object of session information for the Speaking Practice Sessions List
+    '''
     context_object_name = 'sessions'
     template_name = "ComSemApp/student/speaking_practice_sessions_list.html"
 
     def get_queryset(self):
+        # grabs the sessions for the student and the course
         sessions : QuerySet[SpeakingPracticeSession] = SpeakingPracticeSession.objects.filter(student=self.student, attempts__expression__worksheet__course= self.course).distinct().order_by('-date')
-
+        
+        # formats the context data with correct info
         sessions_data = [
             {
-                'id':session.pk,
+                'id':session.id,
                 'date':session.date,
-                'avg_score': 0
+                'avg_score': session.average_correctness()
             } for session in sessions]
         return sessions_data
 
 class SpeakingPracticeReviewRequestListView(StudentViewMixin, CourseViewMixin, SpeakingPracticeInfoMixin, ListView):
+    '''
+        Serves the context object of review request information for the Speaking Practice Review Request List on the student side
+    '''
     context_object_name = 'requests'
     template_name = "ComSemApp/student/speaking_practice_requests_list.html"
 
     def get_queryset(self):
-        requests : QuerySet[SpeakingPracticeAttemptReviewRequest] = SpeakingPracticeAttemptReviewRequest.objects.filter(attempt__expression__worksheet__course=self.course, attempt__session__student=self.student)
+        # grabs the requests for the student and course
+        requests : QuerySet[SpeakingPracticeAttemptReviewRequest] = SpeakingPracticeAttemptReviewRequest.objects.filter(attempt__expression__worksheet__course=self.course, attempt__session__student=self.student).order_by('-date')
+        
+        # formats the context data with the correct info
+        request_data = [
+            {
+                'id':request.pk,
+                'expression':request.attempt.transcription,
+                'date':request.date,
+                'session': request.attempt.session.id,
+                'reviewed': request.is_reviewed(),
 
-        request_data =[]
-        for request in requests:
-            data = {}
-            data['pending'] = request.review
-            request_data.append(data)
-            print(data['pending'])
-            
-        return request_dummy_data
+            } for request in requests]
+    
+        return request_data
