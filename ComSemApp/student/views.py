@@ -806,10 +806,11 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
         if(not (attempt_ids or session_ids)):
             raise BadRequest("No attempt id or session id given")
         
+        # get all attempts that requested or part of a requested session
         attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(
             Q(session__student=self.student)
             & Q(worksheet__course=self.course)
-            & (Q(id__in=attempt_ids) | Q(session__id__in=attempt_ids)))
+            & (Q(id__in=attempt_ids) | Q(session__id__in=session_ids)))
         expressions : set[Expression] = set([attempt.expression for attempt in attempts])
         familiarity_scores : dict[int, int] = {}
 
