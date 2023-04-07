@@ -18,7 +18,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, T
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
-from django.core.exceptions import BadRequest
+from django.core.exceptions import BadRequest, ObjectDoesNotExist
 
 from ComSemApp.teacher import constants as teacher_constants
 from ComSemApp.models import *
@@ -632,7 +632,7 @@ class SpeakingPracticeInfoMixin(object):
 
         # Get the current date in UTC so python allows us to compare with the dates in the database
         curr_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
-        last_attempt = attempts.latest('session__date')
+        last_attempt = attempts.latest()
         data['days_since_review'] = (curr_time - last_attempt.session.date).days
         data['last_score'] = last_attempt.correct
 
@@ -696,7 +696,13 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
         context['problems'] : list[dict[str, str | float]] = {}
         context['student'] : int = self.student.id
 
-        session : SpeakingPracticeSession = SpeakingPracticeSession.objects.filter(student=self.student).latest('date')
+        session : SpeakingPracticeSession = None
+        # This try-except is necessary because latest() will throw an exception if the queryset is empty
+        try:
+            session = SpeakingPracticeSession.objects.filter(student=self.student).latest()
+        except ObjectDoesNotExist:
+            pass
+
         if session is None or session.attempts.count() != 0:
             session = SpeakingPracticeSession(student=self.student)
             session.save()

@@ -333,6 +333,7 @@ class SpeakingPracticeSession(models.Model):
 
     class Meta:
         verbose_name = "Speaking Practice Session"
+        get_latest_by = "date"
 
 class SpeakingPracticeAttempt(models.Model):
     """
@@ -360,6 +361,7 @@ class SpeakingPracticeAttempt(models.Model):
 
     class Meta:
         verbose_name = "Speaking Practice Attempt"
+        get_latest_by = "session__date"
 
 # WORDS, SEQUENTIAL WORDS, TAG
 
