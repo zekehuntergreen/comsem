@@ -166,6 +166,8 @@ function sendPostRequestForm(){
   attemptFormData.append('session', SESSION_ID);
   attemptFormData.append('expression', form_expression); 
   attemptFormData.append('audio', audioBlob);
+  // This is temporary. Remove before merging
+  attemptFormData.append('test', 'test_string');
   var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
 
   // returns a promise that calls the ajax, if successful resolves, if error OR takes more than 5 seconds

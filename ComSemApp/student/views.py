@@ -18,7 +18,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, T
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
-from django.core.exceptions import BadRequest, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 
 from ComSemApp.teacher import constants as teacher_constants
 from ComSemApp.models import *
@@ -811,8 +811,8 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
         elif session_ids:
             predicate = Q(session__id__in=session_ids)
         else:
-            # if both are null
-            raise BadRequest("No attempt id or session id given")
+            # if both are null, return
+            return context
 
         # get all attempts that requested or part of a requested session
         attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(
