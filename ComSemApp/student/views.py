@@ -891,11 +891,11 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         yield (score, None)
         for attempt in correct_attempts:
             if score == MAX_SCORE:
-                raise StopIteration
+                return
             score = self.grade_against_correct(transcription, attempt.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)))
             yield (score, attempt)
-        raise StopIteration
-
+        return
+    
     def grade_against_correct(self,transcription : string, correct_formulation : string):
         # TODO: Implement
         return 100
