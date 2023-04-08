@@ -802,15 +802,23 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
         attempt_ids : list[str] = dict(self.request.GET).get('attempt', None)
         session_ids : list[str] = dict(self.request.GET).get('session', None)
 
-        # if both are null
-        if(not (attempt_ids or session_ids)):
+        # Creates a Django filter node with the proper predicates to prevent an attempt to iterate over a null list
+        predicate : Q = None
+        if attempt_ids and session_ids:
+            predicate = Q(Q(id__in=attempt_ids) | Q(session__id__in=session_ids))
+        elif attempt_ids:
+            predicate = Q(id__in=attempt_ids)
+        elif session_ids:
+            predicate = Q(session__id__in=session_ids)
+        else:
+            # if both are null
             raise BadRequest("No attempt id or session id given")
-        
+
         # get all attempts that requested or part of a requested session
         attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(
             Q(session__student=self.student)
-            & Q(worksheet__course=self.course)
-            & (Q(id__in=attempt_ids) | Q(session__id__in=session_ids)))
+            & Q(expression__worksheet__course=self.course)
+            & predicate)
         expressions : set[Expression] = set([attempt.expression for attempt in attempts])
         familiarity_scores : dict[int, int] = {}
 
