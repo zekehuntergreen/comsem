@@ -146,7 +146,7 @@ function teacherRequestClick(attempt_id){
 
         $.ajax({ // send POST request
             type: "POST",
-            url: "{% url 'student:speaking_practice_teacher_request' course.id%}", // links SpeakingPracticeTeacherReviewRequestCreateView
+            url: "{% url 'student:speaking_practice_review_request' course.id%}", // links SpeakingPracticeTeacherReviewRequestCreateView
             data: requestFormData,
             processData: false,
             contentType: false,
