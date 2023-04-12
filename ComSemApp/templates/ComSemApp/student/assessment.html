@@ -360,14 +360,18 @@ $(document).ready(() => {
   });
 
   // page initializations 
-  $("#expression-text").html(sentence);
   $("#timer-bar").visibility = "hidden";
   $("#timer-text").visibility = "hidden";
-  show("show-expression");
   setEqualHeight("sec");
-  initializeRecorder();
-  //runs the initial reading timer
-  timerPromise(sentence)
+  initializeRecorder()
+    .then(() => {
+      $("#expression-text").html(sentence);
+      setEqualHeight("sec");
+      show("show-expression");
+      // runs the initial reading timer
+      timerPromise(sentence);
+    })
+    .catch((msg) => cs_notification('error', msg));
 });
 </script>
 {% endblock %}
