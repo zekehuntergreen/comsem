@@ -11,5 +11,5 @@ The documentation should include the different categories of grading, the criter
 25% is based upon the postion of words in the expression. <br />
 75% is based upon the order in which the words appear. <br />
 
-## Overall Equation : ((Word Presence + Word Count + Extra Words) * .5) + ((Word Position + Word Order) * .5)
+## Overall Equation : ((Word Presence + Word Count + Extra Words) * Percentage Weight) + ((Word Position + Word Order) * Percentage Weight)
 Percentage Based : ((60% + 20% + 20%) * .5) + ((25% + 75%) * .5)
