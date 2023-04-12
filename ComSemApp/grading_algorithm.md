@@ -7,9 +7,9 @@ The documentation should include the different categories of grading, the criter
 20% is based upon having the same number of words in the expression. <br />
 20% is based upon the presence and amount of student added words <br />
 
-## Word Order : 50 % of total
+## Word Order : 50% of total
 25% is based upon the postion of words in the expression. <br />
 75% is based upon the order in which the words appear. <br />
 
 ## Overall Equation : ((Correct Word Presence + Word Count + Extra Words) * Presence Percentage Weight) + ((Word Position + Correct Word Order) * Order Percentage Weight)
-Percentage Based : ((60% + 20% + 20%) * .5) + ((25% + 75%) * .5)
+Percentage Based : ((60% + 20% + 20%) * 50%) + ((25% + 75%) * 50%)
