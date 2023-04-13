@@ -746,8 +746,12 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView, Speaking
             for expression in worksheet.expression_list:
                 exp_data[expression] = self.get_expression_data(practice_attempts.filter(expression=expression))
     
-        mins = { key : min([y[key] for y in exp_data.values()]) for key in DATA_KEYS }
-        maxes = { key: max([y[key] for y in exp_data.values()]) for key in DATA_KEYS }
+        if exp_data.values():
+            mins = { key : min([y[key] for y in exp_data.values()]) for key in DATA_KEYS }
+            maxes = { key: max([y[key] for y in exp_data.values()]) for key in DATA_KEYS }
+        else:
+            mins = { key : 0 for key in DATA_KEYS }
+            maxes = { key : 0 for key in DATA_KEYS }
         ranges = { key : maxes[key] - mins[key] if maxes[key] > mins[key] else 1 for key in DATA_KEYS }
 
         for worksheet in completed:
