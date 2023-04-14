@@ -1,0 +1,85 @@
+<!--
+This HTML code creates a webpage that uses jQuery and the YouTube iFrame API to display a video player and allows the user to navigate between videos.
+It also includes a custom JavaScript file that interacts with the Youglish API to fetch videos and update the player.
+
+jQuery: A JavaScript library used to simplify HTML DOM manipulation and event handling
+YouTube iFrame API: A JavaScript API by YouTube that allows for the embedding of YouTube videos on a webpage and interaction with them using the iFrame player API.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Test</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    /* Add these styles to center the buttons and text */
+    #controls-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    /* Add this style to add a border around the display text */
+    #sentence-container {
+      color: #000;
+      background-color: #f8f9fa;
+      border: 1px solid #ced4da;
+      border-radius: 5px;
+      margin-top: 20px;
+      padding: 20px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    /* Add this style to make the display text look more like Youglish */
+    #sentence-container mark {
+      background-color: #ffff7f;
+      font-weight: bold;
+      padding: 0 5px;
+    }
+    
+    #video-container {
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+    }
+
+  </style>
+</head>
+
+<body>
+  <h1>Youglish API Test</h1>
+  <div id="video-container"></div>
+
+  <!-- Wrap the buttons and index in a container div and center it -->
+  <div id="controls-container">
+    <button id="prev-video">Previous Video</button>
+    <span id="video-index" style="font-size: 24px;"></span> / <span id="total-videos" style="font-size: 24px;"></span>
+    <button id="next-video">Next Video</button>
+  </div>
+
+  <!-- Add a border around the display text -->
+  <div id="sentence-container" style="border: 1px solid #ced4da;">
+  </div>
+
+  <script src="youglish-api.js"></script>
+</body>
+
+</html>
+
+
+
+
+
