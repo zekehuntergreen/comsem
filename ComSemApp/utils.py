@@ -133,6 +133,3 @@ def get_youglish_videos(request : HttpRequest) -> HttpResponse:
         return Http404("No clips available")
 
     return JsonResponse(json)
-
-    pass
-    pass
