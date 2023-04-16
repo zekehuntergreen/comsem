@@ -362,16 +362,20 @@ class SpeakingPracticeAttempt(models.Model):
         return False
 
     def get_review(self):
-        '''
-            if there is a review for a speaking practice attempt
-            returns it, else returns None
-        '''
+        """
+        Returns the review if there is one, None otherwise
+        """
         try:
-            review = SpeakingPracticeAttemptReviewRequest.objects.get(request__attempt=self)
-            return review
-        except:
-            pass
-        return None
+            review_request = self.request
+        except SpeakingPracticeAttemptReviewRequest.DoesNotExist:
+            return None
+        
+        try:
+            review = review_request.review
+        except SpeakingPracticeAttemptReview.DoesNotExist:
+            return None
+
+        return review
 
 class SpeakingPracticeAttemptReviewRequest(models.Model):
     """

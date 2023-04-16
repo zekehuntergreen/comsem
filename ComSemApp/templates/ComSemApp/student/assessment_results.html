@@ -38,7 +38,7 @@
                             <th class=>Student Transcription</th> 
                             <th class="text-center">Accuracy Score</th>
                             <th class="text-center">Fluency Score</th> 
-                            <th class="text-center invisible"><button class="show-more" type="button">Show More</button></th>
+                            <th class="text-center invisible"><button>Show More</button></th>
                         </div>
                         <tbody id="result_body">
                             <!--displays each item from context[practice data] in this table-->
@@ -48,6 +48,9 @@
                                         {{attempt.transcription}}
                                     </td>
                                     <td class="text-center">
+                                        {% if attempt.teacher_reviewed %}
+                                            Teacher Updated Score: 
+                                        {% endif %}
                                         {{attempt.score}}%
                                     </td>
                                     <td class="text-center">
@@ -75,16 +78,16 @@
                                             <table style="margin-top: 0px; width: 500px; margin-left:40px">
                                                 <thead>
                                                     <tr>
-                                                        <th style="text-align: center;">Your Recording</th>
-                                                        <th style="text-align: center;">Teacher Reformulation Audio</th>
+                                                        <th style="text-align: Left;">Your Recording</th>
+                                                        <th style="text-align: Left;">Teacher Reformulation Audio</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr>
-                                                        <td style="text-align: center;">
+                                                        <td style="text-align: Left;">
                                                             <audio controls title="Your Recording" style="width: 200px;" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio>
                                                         </td>
-                                                        <td style="text-align: center;">
+                                                        <td style="text-align: Left;">
                                                             <audio controls title="Teacher Reformulation Audio" style="width: 200px;" class="previous_attempt_audio" src="{{ attempt.teacher_audio }}"></audio>
                                                         </td>
                                                     </tr>
@@ -92,7 +95,6 @@
                                             </table>
                                         {% else %}
                                             <p style="margin-left:40px">
-                                                <br>
                                                 <b>Your Recording</b><br>
                                                 <audio controls title="Your Recording" style="width: 200px;" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio>
                                             </p>
