@@ -366,13 +366,8 @@ class SpeakingPracticeAttempt(models.Model):
         Returns the review if there is one, None otherwise
         """
         try:
-            review_request = self.request
-        except SpeakingPracticeAttemptReviewRequest.DoesNotExist:
-            return None
-        
-        try:
-            review = review_request.review
-        except SpeakingPracticeAttemptReview.DoesNotExist:
+            review = self.request.review
+        except:
             return None
 
         return review

@@ -846,7 +846,7 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
             'teacher_audio': attempt.expression.audio.url if attempt.expression.audio else None,
             'review_requested': attempt.review_requested(),
             'teacher_reviewed': attempt.teacher_reviewed(),
-            'teacher_comments': attempt.get_review().comments if attempt.get_review() else "test",
+            'teacher_comments': attempt.get_review().comments if attempt.get_review() else None
             } for attempt in attempts]
 
         return context
