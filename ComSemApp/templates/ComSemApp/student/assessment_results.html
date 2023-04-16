@@ -17,13 +17,6 @@
         */
         $("#" + row).toggle();
     }
-
-    function disableRequestButton(attempt_id){
-        /*
-            disables the request review button
-        */
-        $("#request" + attempt_id).removeClass("btn-warning").addClass("btn-secondary").prop("disabled", true);
-    }
 </script>
 
 <div class="row h-100">
@@ -117,8 +110,6 @@
                                         
                                     </td>
                                 </tr>
-                                
-                                
                                 <script>
                                     // called on instantitiation to hide the "show more" row
                                     showHideRow({{attempt.id}});
