@@ -12,6 +12,13 @@
         */
         $("#" + row).toggle();
     }
+
+    function disableRequestButton(attempt_id){
+        /*
+            disables the request review button
+        */
+        $("#request" + attempt_id).removeClass("btn-warning").addClass("btn-secondary").prop("disabled", true);
+    }
 </script>
 
 <div class="row h-100">
@@ -54,23 +61,71 @@
                                     </td>
                                 </tr>
                                 <!--row that shows hidden information-->
-                                <tr id={{attempt.id}} class="hidden_row">  <!--row id corresponds to individual item id-->
-                                    <td colspan=4> <!-- merges all four columns in this row-->
-                                        <p style="margin-left:40px"> <!--indentation for this paragraph-->
+                                <tr id="{{attempt.id}}" class="hidden_row">
+                                    <td colspan=4>
+                                        <p style="margin-left:40px">
                                             <b>Correct Expression</b><br> 
                                             {{attempt.correct_formulation}} <br>
                                             <b>Given Expression</b><br> 
                                             {{attempt.incorrect_expression}} <br>
                                             <b>Graded Expression</b> (hover for details about each error)<br> 
-                                            <mark><span title="There could be errors shown here">{{attempt.transcription}}</span></mark><br>
-                                            <b>Audio Recording</b><br>
-                                            <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio><br>
+                                            <mark><span title="There could be errors shown here">{{attempt.transcription}}</span></mark>
                                         </p>
+                                        {% if attempt.teacher_audio %}
+                                            <table style="margin-top: 0px; width: 500px; margin-left:40px">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="text-align: center;">Your Recording</th>
+                                                        <th style="text-align: center;">Teacher Reformulation Audio</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="text-align: center;">
+                                                            <audio controls title="Your Recording" style="width: 200px;" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio>
+                                                        </td>
+                                                        <td style="text-align: center;">
+                                                            <audio controls title="Teacher Reformulation Audio" style="width: 200px;" class="previous_attempt_audio" src="{{ attempt.teacher_audio }}"></audio>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        {% else %}
+                                            <p style="margin-left:40px">
+                                                <br>
+                                                <b>Your Recording</b><br>
+                                                <audio controls title="Your Recording" style="width: 200px;" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio>
+                                            </p>
+                                        {% endif %}
+                                        {% if attempt.review_requested %}
+                                            <script>
+                                                disableRequestButton({{attempt.id}});
+                                            </script>
+
+                                            {% if attempt.teacher_reviewed %}
+                                                <p style="margin-left:40px">
+                                                    <b>Teacher Comments</b><br>
+                                                    {{ attempt.teacher_comments }} <br>
+                                                </p>
+                                            {% else %}
+                                                <p style="margin-left:40px">
+                                                    <b>Review Pending</b><br>
+                                                </p>
+                                            {% endif %}
+                                        {% else%}
+                                            <p style="margin-left:40px">
+                                                <br>
+                                                <button type="button" id="request{{attempt.id}}" data-submit-id="{{attempt.id}}" class="request-btn sbtn btn-warning btn-sm" data-toggle="modal" data-target="#confirm-modal">Request Teacher Review</button><br>
+                                            </p>
+                                        {% endif %}
+                                        
                                     </td>
                                 </tr>
+                                
+                                
                                 <script>
                                     // called on instantitiation to hide the "show more" row
-                                    showHideRow({{attempt.id}});
+                                    //showHideRow({{attempt.id}});
                                 </script>
                             {% endfor %}
                         </tbody>

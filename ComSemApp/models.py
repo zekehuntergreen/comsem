@@ -343,6 +343,35 @@ class SpeakingPracticeAttempt(models.Model):
 
     class Meta:
         verbose_name = "Speaking Practice Attempt"
+    
+    def review_requested(self):
+        '''
+            Returns true if there is a teacher review request for
+            this attempt
+        '''
+        return hasattr(self,'request')
+
+    def teacher_reviewed(self):
+        '''
+            Returns true if there is a request and a review for the request
+            for this attempt
+        '''
+        if self.review_requested():
+            review_request = SpeakingPracticeAttemptReviewRequest.objects.get(attempt=self)
+            return review_request.is_reviewed()
+        return False
+
+    def get_review(self):
+        '''
+            if there is a review for a speaking practice attempt
+            returns it, else returns None
+        '''
+        try:
+            review = SpeakingPracticeAttemptReviewRequest.objects.get(request__attempt=self)
+            return review
+        except:
+            pass
+        return None
 
 class SpeakingPracticeAttemptReviewRequest(models.Model):
     """
@@ -354,7 +383,7 @@ class SpeakingPracticeAttemptReviewRequest(models.Model):
             review of the same attempt more than once.
     """
     # The attempt which the student has requested review for
-    attempt = models.OneToOneField(SpeakingPracticeAttempt, on_delete=models.CASCADE, primary_key=True)
+    attempt = models.OneToOneField(SpeakingPracticeAttempt, on_delete=models.CASCADE, primary_key=True, related_name='request')
     # The date on which the request was created
     date = models.DateField(auto_now_add=True)
 
@@ -363,6 +392,12 @@ class SpeakingPracticeAttemptReviewRequest(models.Model):
     
     class Meta:
         verbose_name = "Instructor Review Request for Speaking Practice Attempt"
+
+    def is_reviewed(self):
+        '''
+            Returns true if there is a review for this request
+        '''
+        return hasattr(self,'review')
 
 class SpeakingPracticeAttemptReview(models.Model):
     """
@@ -374,7 +409,7 @@ class SpeakingPracticeAttemptReview(models.Model):
             satisfied by one review
     """
     # The SpeakingPracticeAttemptReviewRequest that this review is satisfying
-    request = models.OneToOneField(SpeakingPracticeAttemptReviewRequest, on_delete=models.CASCADE, primary_key=True)
+    request = models.OneToOneField(SpeakingPracticeAttemptReviewRequest, on_delete=models.CASCADE, primary_key=True, related_name='review')
     # The Teacher that reviewed the attempt
     reviewer = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
     # The date on which the review was completed
