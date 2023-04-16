@@ -937,13 +937,15 @@ class SpeakingPracticeTeacherReviewRequestCreateView(StudentCourseViewMixin, Cre
     """
 
     model = SpeakingPracticeAttemptReviewRequest
-    fields = []
+    fields = ['attempt']
 
     def form_invalid(self, form):
         """
             Defines the behavior for an invalid form submission.
             Reports whatever errors are found back to the frontend.
         """
+        print("form data:::\n\n")
+        print(form.data)
         return JsonResponse(form.errors, status=400)
 
     def form_valid(self, form):
@@ -951,11 +953,5 @@ class SpeakingPracticeTeacherReviewRequestCreateView(StudentCourseViewMixin, Cre
             Defines the behavior for a valid form submission.
             creates the SpeakingPracticeReviewRequest entry in the database
         """
-        attempt_id = self.request.POST.get('attempt_id')
-        attempt = get_object_or_404(SpeakingPracticeAttempt, pk=attempt_id)
-        
-        review_request = form.save(commit=False)  # create a new review request object without saving it
-        review_request.attempt = attempt  # set the attempt for the review request
-        review_request.save()  # save the review request
-        
+        form.save()
         return JsonResponse({}, status=201)

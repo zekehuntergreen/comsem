@@ -141,7 +141,7 @@ function teacherRequestClick(attempt_id){
         $("#request" + attempt_id).removeClass("btn-warning").addClass("btn-secondary").prop("disabled", true);
 
         let requestFormData = new FormData(); // creates new form
-        requestFormData.append( 'attempt_id', attempt_id);
+        requestFormData.append( 'attempt', attempt_id);
         var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
 
         $.ajax({ // send POST request
