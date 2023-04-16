@@ -90,4 +90,50 @@
 </div>
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
 
+<script>
+function gradeSentenceHighlighting(sentence, highlight_input){
+    /*
+    sentence : string = The sentence that is being highlighted
+    highlight_input : array[dict[str | int]] = an array of dictionaries =
+            start : int = start index, will be highlighted
+            end : int = end index, will also be highlighted
+            comment : string = comment that will be shown when hovering over highlight
+
+        if two highlights overlap on indexes, only the first will show and other highlight 
+        will not generate
+    */
+    start_index = 0;
+    end_index = sentence.length;
+    hl_index = 0;
+    html_str = "";
+    background_color = "#FFFF00";
+
+    for(let i = 0; i < end_index; i++){
+        if (hl_index < highlight_input.length && i == highlight_input[hl_index]['start']){
+            html_str += "<span style='background-color: " + background_color + "'";
+            html_str += "title='" + highlight_input[hl_index]['comment'] + "'>"; 
+            html_str += sentence.substring(i,highlight_input[hl_index]['end']+1);
+            html_str += "</span>";
+            i = highlight_input[hl_index]['end'];
+            hl_index++;
+        }
+        else{
+            html_str += sentence[i];
+        }
+    }
+
+    return html_str
+}
+
+function placeHighlightedSentence(html_str, element_id){
+    /*
+        html_str : str = string of html data
+        element_id : str = string id to a elemnt in the html body
+        
+    */
+    let $element = $('#' + element_id);
+    // Set the HTML content of the selected element to the generated HTML string
+    $element.html(html_str);
+}
+</script>
 {% endblock %}
