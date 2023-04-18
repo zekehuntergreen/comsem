@@ -38,19 +38,18 @@
 {% else %}
     <p>No review requests currently.
 {% endif %}
-
 <script>
     function populateEditor(url){
         // url is either expression create or update url
-    
         $("#attempt_reviewer").load(url, function(){
         });
-    
     }
+    
     $(function(){
         // bind edit button to its function
         $('.editExpression').on('click', function(e){
             populateEditor($(this).attr('url'));
         });
-    })
+    });
 </script>
+

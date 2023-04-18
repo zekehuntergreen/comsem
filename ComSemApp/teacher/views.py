@@ -403,6 +403,7 @@ class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView
 class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView):
     model = SpeakingPracticeAttemptReview
     template_name = "ComSemApp/teacher/attempt_request_info.html"
+    fields = ["reviewer", "comments", "original_score"]
     context_object_name = 'review'
 
     def get_object(self, **kwargs):

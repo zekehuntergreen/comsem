@@ -33,59 +33,25 @@
                         <textarea id="teacher_comments_box" style="width:100%;" rows="4">{{ review.comments }}</textarea>
                     </div>
                     <br>
-                    {% if review %}
-                        <button id="save">Save Changes</button>
-                    {% else %}
-                        <button id="submit">Submit</button>
-                    {% endif %}
+                    
+                    <button id="submitForm">
+                        {% if review %}
+                            Save Changes
+                        {% else %}
+                            Submit
+                        {% endif %}
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div> 
 <script>
-    $("#submit").click(() => {
+$(document).ready(() => {
+    $("#submitForms").click(() => {
         console.log("submit clicked");
-            submitForm("{% url 'teacher:request_review' course_id=course.id attempt_id=request.attempt.id %}")
-        }
-      });
-
-    function submitForm(url){
-        /*
-          takes current data and send it in a post request to the server (SpeakingPracticeAttemptCreateView)
-        */
-        console.log("save in form called");
-        console.log($("$teacher_comment_box").val())
-        let reviewFormData = new FormData(); // creates new form
-        reviewFormData.append('comments', $("$teacher_comment_box").val()); 
-        reviewFormData.append('student', student);
-        reviewFormData.append('audio', audioBlob);
-        var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
-      
-        // returns a promise that calls the ajax, if successful resolves, if error OR takes more than 5 seconds
-        // to return then rejects
-        /*$.ajax({ // send POST request
-            type: "POST",
-            url: url, // links to html form above which specifies the url to recieve request
-            data: attemptFormData,
-            processData: false,
-            contentType: false,
-            timeout: 5000, // if takes longer than 5 secs, return timeout error
-            headers: { // places token in request so that it is certified by server
-              'X-CSRFToken': csrf_token
-            },
-            success:(response) => {
-              cs_notification('success', "Attempt Saved")
-              // inputs the id recieved into the html form
-              $("#form").append("<input type='hidden' value="+response['id']+" name='attempt_ids'></input>");
-              resolve();
-            },
-            error: (jqXHR, textStatus, errorThrown) => {
-              cs_ajax_error(jqXHR, textStatus, errorThrown);
-              reject();
-            }
-          });*/
-      }
+    )};
+};
 </script>
 </body>
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
