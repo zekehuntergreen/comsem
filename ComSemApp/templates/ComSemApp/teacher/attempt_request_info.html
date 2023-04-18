@@ -8,7 +8,7 @@
                     <b>Student</b><br>
                     {{attempt.student}} <br>
                     <b>Course</b><br>
-                    {{ course }}<br>
+                    {{ course.session }}<br>
                     <b>Correct Expression</b><br> 
                     {{attempt.expression.reformulation_text}} <br>
                     <b>Problem Expression</b><br> 
@@ -20,45 +20,71 @@
                     <b>Fluency Score</b><br>
                     {{attempt.wpm}}<br>
                     <b>Correctness Score</b><br>
-                    {{attempt.correct}}<br>
+                    {% if review.original_score%}
+                        {{ review.original_score}}
+                    {% else %}
+                        {{attempt.correct}}
+                    {% endif %}
                     <br>
-                    <div class="checkbox checkbox-primary">
-                        <input type="checkbox" id="new_score_check">
-                        <label for="new_score_check">
-                            Assign new correctness score?
-                        </label>
-                    </div>
+                    <b>New Correctness Score <input type="number" min="0" max="100" style="width:85px;" id="myPercent" {% if review.original_score %}value="{{ attempt.correct }}"{% endif %}></b>
                     <div id="myTextboxContainer"></div>
                     <div style="position: relative;">
-                        <button type="button" onclick="editText()" style="position: absolute; top: 0; right: 0;">Edit</button>
-                        <b>Teacher Comments</b><br>
-                        <textarea id="teacher_comments_box" rows="4" cols="30"></textarea>
+                        <b>Comments</b><br>
+                        <textarea id="teacher_comments_box" style="width:100%;" rows="4">{{ review.comments }}</textarea>
                     </div>
                     <br>
-                    <button type="button" onclick="submitText()">Submit</button>
+                    {% if review %}
+                        <button id="save">Save Changes</button>
+                    {% else %}
+                        <button id="submit">Submit</button>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div> 
-<script>      
-    const checkbox = $("#new_score_check");
-    checkbox.on("click", () =>{
-        // get the container element for the text box
-        const container = $("#myTextboxContainer");
-      
-        // check if the checkbox is checked
-        if (checkbox.prop("checked")) {
-          // create the number text box element
-          const textbox = $("<input type='number'>");
-      
-          // add the text box to the container
-          container.append(textbox);
-        } else {
-          // remove the text box
-          container.empty();
+<script>
+    $("#submit").click(() => {
+        console.log("submit clicked");
+            submitForm("{% url 'teacher:request_review' course_id=course.id attempt_id=request.attempt.id %}")
         }
-        console.log("checked")
+      });
+
+    function submitForm(url){
+        /*
+          takes current data and send it in a post request to the server (SpeakingPracticeAttemptCreateView)
+        */
+        console.log("save in form called");
+        console.log($("$teacher_comment_box").val())
+        let reviewFormData = new FormData(); // creates new form
+        reviewFormData.append('comments', $("$teacher_comment_box").val()); 
+        reviewFormData.append('student', student);
+        reviewFormData.append('audio', audioBlob);
+        var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
+      
+        // returns a promise that calls the ajax, if successful resolves, if error OR takes more than 5 seconds
+        // to return then rejects
+        /*$.ajax({ // send POST request
+            type: "POST",
+            url: url, // links to html form above which specifies the url to recieve request
+            data: attemptFormData,
+            processData: false,
+            contentType: false,
+            timeout: 5000, // if takes longer than 5 secs, return timeout error
+            headers: { // places token in request so that it is certified by server
+              'X-CSRFToken': csrf_token
+            },
+            success:(response) => {
+              cs_notification('success', "Attempt Saved")
+              // inputs the id recieved into the html form
+              $("#form").append("<input type='hidden' value="+response['id']+" name='attempt_ids'></input>");
+              resolve();
+            },
+            error: (jqXHR, textStatus, errorThrown) => {
+              cs_ajax_error(jqXHR, textStatus, errorThrown);
+              reject();
+            }
+          });*/
       }
 </script>
 </body>

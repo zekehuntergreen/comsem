@@ -5,6 +5,7 @@
             <th>Date</th>
             <th>Student</th>
             <th>Problem Expression</th>
+            <th>Reviewed</th>
             <th></th>
         </tr>
     </thead>
@@ -14,11 +15,21 @@
             <td>{{ request.attempt.date }}</td>
             <td>{{ request.attempt.student }}</td>
             <td>{{ request.attempt.expression.expression }}</td>
-            <td>
-                <button class='btn btn-sm btn-outline-primary editExpression' url="{% url 'teacher:request_review' course_id=course.id request_id=1 %}">
-                    <i class='fa fa-pencil-square-o'></i>
-                </button>
-            </td>
+            {% if request.is_reviewed %}
+                <td>Reviewed</td>
+                <td>
+                    <button class='btn btn-sm btn-outline-primary editExpression' url="{% url 'teacher:request_review_update' course_id=course.id attempt_id=request.attempt.id %}">
+                        <i class='fa fa-pencil-square-o'></i>
+                    </button>
+                </td>
+            {% else %}
+                <td>Pending</td>
+                <td>
+                    <button class='btn btn-sm btn-outline-primary editExpression' url="{% url 'teacher:request_review' course_id=course.id attempt_id=request.attempt.id %}">
+                        <i class='fa fa-pencil-square-o'></i>
+                    </button>
+                </td>
+            {% endif %}
         </tr>
         {% endfor %}
     </tbody>

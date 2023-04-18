@@ -361,7 +361,6 @@ def delete_file(url):
 
 class SpeakingPracticeAttemptReviewView(TeacherCourseViewMixin, ListView):
     model = SpeakingPracticeAttempt
-    fields = ["correct"]
     template_name = "ComSemApp/teacher/attempt_request_review.html"
 
     def get_context_data(self, **kwargs: any) -> dict[str, any]:
@@ -376,28 +375,47 @@ class SpeakingPracticeReviewRequestsListView(TeacherCourseViewMixin, ListView):
     context_object_name = 'requests'
 
     def get_queryset(self):
-        q = self.course.get_speaking_practice_review_requests().order_by('-date')
-        print(q)
-        return q
+        requests_queryset = self.course.get_speaking_practice_review_requests().order_by('review','-date')
+
+        return requests_queryset
 
 
-class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView):
+class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView):
     model = SpeakingPracticeAttemptReview
     template_name = "ComSemApp/teacher/attempt_request_info.html"
     fields = ["reviewer", "comments", "original_score"]
-    context_object_name = "object"
 
-    def get_object(self):
-        request_id = self.kwargs.get('request_id', None)
-        attempt = SpeakingPracticeAttempt.objects.filter(id=request_id.attempt.id)
-        object = {}
-        object['attempt'] = attempt.first
-        if not attempts.exists():
-            # only ajax right now
-            response = JsonResponse({"error": 'Invalid Attempt ID.'})
-            response.status_code = 403
-            return response
-        return object
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        attempt_id = self.kwargs.get('attempt_id')
+        attempt = get_object_or_404(SpeakingPracticeAttempt, id=attempt_id)
+        context['attempt'] = attempt
+        return context
+    
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form):
+        return JsonResponse({}, status=200)
+    
+class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView):
+    model = SpeakingPracticeAttemptReview
+    template_name = "ComSemApp/teacher/attempt_request_info.html"
+    context_object_name = 'review'
+
+    def get_object(self, **kwargs):
+        attempt_id = self.kwargs.get('attempt_id')
+        review = get_object_or_404(SpeakingPracticeAttemptReview, request=attempt_id)
+        return review
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        attempt_id = self.kwargs.get('attempt_id')
+        attempt = get_object_or_404(SpeakingPracticeAttempt, id=attempt_id)
+        context['attempt'] = attempt
+        return context
 
     def form_invalid(self, form):
         response = super().form_invalid(form)
