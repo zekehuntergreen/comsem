@@ -45,7 +45,7 @@ def added_words(expression, correct_expression):
     
     return added_words
 
-def number_of_words_words(expression, correct_expression):
+def number_of_words(expression, correct_expression):
     """
 
     Args:
@@ -94,7 +94,7 @@ def number_of_words_words(expression, correct_expression):
     return extra_present_words, missing_present_words
 
 
-def wrong_postion(expression, correct_expression):
+def wrong_position(expression, correct_expression):
     """
 
     Args:
@@ -110,17 +110,36 @@ def wrong_postion(expression, correct_expression):
     correct_expression_list = lower_correct_expression.split()
     words_in_wrong_position = []
     correct_expression_length = len(correct_expression_list)
+    expression_length = len(expression_list)
 
-    for x in range(correct_expression_length):
+    if(expression_length > correct_expression_length):
+        min_length = correct_expression_length
+    else:
+        min_length = expression_length
+
+    for x in range(min_length):
         if correct_expression_list[x] != expression_list[x]:
             words_in_wrong_position.append(correct_expression_list[x])
+
+
 
     return words_in_wrong_position
             
 
 
 if __name__ == "__main__":
-    correct_expression = "Hello."
-    expression = "Hello."
+    correct_expression = "Hello My Name is Elder Price."
+    expression = "Hello My Elder is named Price."
     print(expression)
     print(correct_expression)
+
+    extra, lacking = number_of_words(expression, correct_expression)
+    added = added_words(expression, correct_expression)
+    missing = missing_words(expression, correct_expression)
+    position = wrong_position(expression, correct_expression)
+
+    print("Added words: ", added)
+    print("Missing words: ", missing)
+    print("Extra words: ", extra)
+    print("Too little words: ", lacking)
+    print("Words in the wrong postion: ", position)
