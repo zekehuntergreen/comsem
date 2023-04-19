@@ -383,7 +383,7 @@ class SpeakingPracticeReviewRequestsListView(TeacherCourseViewMixin, ListView):
 class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView):
     model = SpeakingPracticeAttemptReview
     template_name = "ComSemApp/teacher/attempt_request_info.html"
-    fields = ["reviewer", "comments", "original_score"]
+    fields = ["request", "reviewer", "comments"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -398,12 +398,24 @@ class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView
         return JsonResponse(form.errors, status=400)
 
     def form_valid(self, form):
+        form.save()
+        newScore = self.request.POST.get('newScore')
+        id = self.request.POST.get('request')
+        attempt = get_object_or_404(SpeakingPracticeAttempt, id=id)
+
+        if newScore is not None or newScore is not "":
+            attempt.correct = newScore
+            attempt.save()
+            review = get_object_or_404(SpeakingPracticeAttemptReview, request=id)
+            review.original_score = self.request.POST.get('originalScore')
+            review.save()
+
         return JsonResponse({}, status=200)
     
 class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView):
     model = SpeakingPracticeAttemptReview
     template_name = "ComSemApp/teacher/attempt_request_info.html"
-    fields = ["reviewer", "comments", "original_score"]
+    fields = ["reviewer", "comments"]
     context_object_name = 'review'
 
     def get_object(self, **kwargs):
@@ -420,7 +432,19 @@ class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView
 
     def form_invalid(self, form):
         response = super().form_invalid(form)
+        print(form.errors)
         return JsonResponse(form.errors, status=400)
 
     def form_valid(self, form):
+        form.save()
+        newScore = self.request.POST.get('newScore')
+        id = self.request.POST.get('request')
+        attempt = get_object_or_404(SpeakingPracticeAttempt, id=id)
+
+        if newScore is not None or newScore is not "":
+            attempt.correct = newScore
+            attempt.save()
+            review = get_object_or_404(SpeakingPracticeAttemptReview, request=id)
+            review.original_score = self.request.POST.get('originalScore')
+            review.save()
         return JsonResponse({}, status=200)

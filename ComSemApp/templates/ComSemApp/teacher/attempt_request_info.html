@@ -34,24 +34,75 @@
                     </div>
                     <br>
                     
-                    <button id="submitForm">
-                        {% if review %}
-                            Save Changes
-                        {% else %}
-                            Submit
-                        {% endif %}
-                    </button>
+                    {% if review %}
+                        <button id="saveChanges">Save Changes</button>
+                    {% else %}
+                        <button id="submit">Submit</button>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div> 
 <script>
+let reviewer = "{{ user.id | safe }}";
+
+function isNumber(value) {
+    return !isNaN(value) && !isNaN(parseFloat(value));
+  }
+
+function submitForm(url){
+    /*
+        takes current data and send it in a post request to the server (SpeakingPracticeAttemptCreateView)
+    */
+    var newScore = $('#myPercent').val();
+
+    if (!isNumber(newScore) || newScore < 0 || newScore > 100) {
+        alert('Please enter a valid Correctness Score between 0 and 100.');
+        e.preventDefault();
+    }
+
+    let reviewFormData = new FormData(); // creates new form
+    reviewFormData.append('request', "{{ attempt.id }}");
+    reviewFormData.append('reviewer', reviewer);
+    reviewFormData.append('comments', $("#teacher_comments_box").val());
+    reviewFormData.append('newScore', newScore)
+    
+    reviewFormData.append('originalScore', {% if review.original_score%}{{ review.original_score}}{% else %}{{attempt.correct}}{% endif %})
+
+    var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
+
+    $.ajax({ // send POST request
+        type: "POST",
+        url: url, // links to html form above which specifies the url to recieve request
+        data: reviewFormData,
+        processData: false,
+        contentType: false,
+        timeout: 5000, // if takes longer than 5 secs, return timeout error
+        headers: { // places token in request so that it is certified by server
+            'X-CSRFToken': csrf_token
+        },
+        success:(response) => {
+            cs_notification('success', "Attempt Saved")
+            resolve();
+        },
+        error: (jqXHR, textStatus, errorThrown) => {
+            cs_ajax_error(jqXHR, textStatus, errorThrown);
+            reject();
+        }
+        });
+}
+
 $(document).ready(() => {
-    $("#submitForms").click(() => {
+    $("#submit").click(() => {
         console.log("submit clicked");
-    )};
-};
+        submitForm("{% url 'teacher:request_review' course_id=course.id attempt_id=attempt.id %}")
+    });
+    $("#saveChanges").click(() => {
+        console.log("submit clicked");
+        submitForm("{% url 'teacher:request_review_update' course_id=course.id attempt_id=attempt.id %}")
+    });
+});
 </script>
 </body>
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
