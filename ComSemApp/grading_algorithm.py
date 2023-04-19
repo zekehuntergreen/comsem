@@ -185,6 +185,11 @@ def word_position(expression, correct_expression):
         if x < correct_expression_length:
             if expression_list[x] != correct_expression_list[x]:
                 error_count += 1
+        else:
+            error_count += 1
+    
+    if error_count > correct_expression_length:
+        error_count = correct_expression_length
 
     percentage = ((correct_expression_length - error_count) / correct_expression_length) * 100
     return percentage
