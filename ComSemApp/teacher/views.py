@@ -398,7 +398,7 @@ class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView
         return JsonResponse(form.errors, status=400)
 
     def form_valid(self, form):
-        form.save()
+        review = form.save(commit=False)
         newScore = self.request.POST.get('newScore')
         id = self.request.POST.get('request')
         attempt = get_object_or_404(SpeakingPracticeAttempt, id=id)
@@ -406,9 +406,8 @@ class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView
         if newScore is not None or newScore is not "":
             attempt.correct = newScore
             attempt.save()
-            review = get_object_or_404(SpeakingPracticeAttemptReview, request=id)
             review.original_score = self.request.POST.get('originalScore')
-            review.save()
+        review.save()
 
         return JsonResponse({}, status=200)
     
@@ -436,7 +435,7 @@ class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView
         return JsonResponse(form.errors, status=400)
 
     def form_valid(self, form):
-        form.save()
+        review = form.save(commit=False)
         newScore = self.request.POST.get('newScore')
         id = self.request.POST.get('request')
         attempt = get_object_or_404(SpeakingPracticeAttempt, id=id)
@@ -444,7 +443,7 @@ class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView
         if newScore is not None or newScore is not "":
             attempt.correct = newScore
             attempt.save()
-            review = get_object_or_404(SpeakingPracticeAttemptReview, request=id)
             review.original_score = self.request.POST.get('originalScore')
-            review.save()
+        review.save()
         return JsonResponse({}, status=200)
+

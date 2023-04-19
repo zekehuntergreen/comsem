@@ -48,7 +48,7 @@
 let reviewer = "{{ user.id | safe }}";
 
 function isNumber(value) {
-    return !isNaN(value) && !isNaN(parseFloat(value));
+    return !isNaN(parseFloat(value));
   }
 
 function submitForm(url){
@@ -84,6 +84,7 @@ function submitForm(url){
         },
         success:(response) => {
             cs_notification('success', "Attempt Saved")
+            drawRequests()
             resolve();
         },
         error: (jqXHR, textStatus, errorThrown) => {
