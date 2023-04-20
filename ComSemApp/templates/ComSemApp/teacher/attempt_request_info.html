@@ -56,19 +56,17 @@ function submitForm(url){
         takes current data and send it in a post request to the server (SpeakingPracticeAttemptCreateView)
     */
     var newScore = $('#myPercent').val();
-
-    if (!isNumber(newScore) || newScore < 0 || newScore > 100) {
-        alert('Please enter a valid Correctness Score between 0 and 100.');
-        e.preventDefault();
+    if (newScore != ""){
+        if (!isNumber(newScore) || newScore < 0 || newScore > 100) {
+            alert('Please enter a valid Correctness Score between 0 and 100.');
+            e.preventDefault();
+        }
     }
-
     let reviewFormData = new FormData(); // creates new form
     reviewFormData.append('request', "{{ attempt.id }}");
     reviewFormData.append('reviewer', reviewer);
     reviewFormData.append('comments', $("#teacher_comments_box").val());
     reviewFormData.append('newScore', newScore)
-    
-    reviewFormData.append('originalScore', {% if review.original_score%}{{ review.original_score}}{% else %}{{attempt.correct}}{% endif %})
 
     var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
 
@@ -85,13 +83,11 @@ function submitForm(url){
         success:(response) => {
             cs_notification('success', "Attempt Saved")
             drawRequests()
-            resolve();
         },
         error: (jqXHR, textStatus, errorThrown) => {
             cs_ajax_error(jqXHR, textStatus, errorThrown);
-            reject();
         }
-        });
+    });
 }
 
 $(document).ready(() => {
