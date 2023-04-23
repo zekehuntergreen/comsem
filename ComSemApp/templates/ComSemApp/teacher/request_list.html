@@ -18,14 +18,14 @@
             {% if request.is_reviewed %}
                 <td>Reviewed</td>
                 <td>
-                    <button class='btn btn-sm btn-outline-primary editExpression' url="{% url 'teacher:request_review_update' course_id=course.id attempt_id=request.attempt.id %}">
+                    <button class='btn btn-sm btn-outline-primary editExpression' url="{% url 'teacher:speaking_practice_review_update' course_id=course.id attempt_id=request.attempt.id %}">
                         <i class='fa fa-pencil-square-o'></i>
                     </button>
                 </td>
             {% else %}
                 <td>Pending</td>
                 <td>
-                    <button class='btn btn-sm btn-outline-primary editExpression' url="{% url 'teacher:request_review' course_id=course.id attempt_id=request.attempt.id %}">
+                    <button class='btn btn-sm btn-outline-primary editExpression' url="{% url 'teacher:speaking_practice_review_create' course_id=course.id attempt_id=request.attempt.id %}">
                         <i class='fa fa-pencil-square-o'></i>
                     </button>
                 </td>

@@ -93,11 +93,11 @@ function submitForm(url){
 $(document).ready(() => {
     $("#submit").click(() => {
         console.log("submit clicked");
-        submitForm("{% url 'teacher:request_review' course_id=course.id attempt_id=attempt.id %}")
+        submitForm("{% url 'teacher:speaking_practice_review_create' course_id=course.id attempt_id=attempt.id %}")
     });
     $("#saveChanges").click(() => {
         console.log("submit clicked");
-        submitForm("{% url 'teacher:request_review_update' course_id=course.id attempt_id=attempt.id %}")
+        submitForm("{% url 'teacher:speaking_practice_review_update' course_id=course.id attempt_id=attempt.id %}")
     });
 });
 </script>

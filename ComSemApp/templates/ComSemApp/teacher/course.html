@@ -76,33 +76,7 @@
 			</div>
 		</div>
 	</div>
-
-	<!-- attempt review requests -->
-	<!--
-	<div class="row">
-
-		<div class="col-12">
-
-			<div class="card-box">
-
-				<div class="row">
-
-					<div class="col-6">
-					<h4 class="m-t-0 header-title"><b>Speaking Practice Attempt Review Requests</b></h4>
-					</div>
-
-				</div>
-
-				<div class="panel-body mt-3">
-
-				<div id="requests_table"></div>
-
-				</div>
-			</div>
-		</div>
-	</div>
-	-->
-	<a type="button" class="btn btn-primary btn-lg btn-block" href="{% url 'teacher:request_attempt' course_id=course.id %}">
+	<a type="button" class="btn btn-primary btn-lg btn-block" href="{% url 'teacher:speaking_practice_requests' course_id=course.id %}">
 		Speaking Practice Attempt Review Requests
 	</a>
 
@@ -169,7 +143,7 @@
 		}
 
 function drawRequests(){
-	$("#requests_table").load("{% url 'teacher:request_list' course_id=course.id %}", function(){
+	$("#requests_table").load("{% url 'teacher:speaking_practice_request_list' course_id=course.id %}", function(){
 		initialize_tablesorter()
 	});
 }

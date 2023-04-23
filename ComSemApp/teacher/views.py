@@ -399,7 +399,7 @@ class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView
 
     def form_valid(self, form):
         review = form.save(commit=False)
-        newScore = self.request.POST.get('newScore')
+        newScore = form['newScore']
 
         if newScore:
             id = self.request.POST.get('request')
@@ -431,7 +431,6 @@ class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView
 
     def form_invalid(self, form):
         response = super().form_invalid(form)
-        print(form.errors)
         return JsonResponse(form.errors, status=400)
 
     def form_valid(self, form):
