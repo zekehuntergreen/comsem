@@ -391,9 +391,9 @@ class SpeakingPracticeAttemptReviewRequest(models.Model):
         verbose_name = "Instructor Review Request for Speaking Practice Attempt"
 
     def is_reviewed(self) -> bool:
-        '''
+        """
             Returns true if there is a review for this request
-        '''
+        """
         return hasattr(self,'review')
 
 class SpeakingPracticeAttemptReview(models.Model):
