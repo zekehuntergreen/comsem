@@ -1,5 +1,6 @@
 from __future__ import annotations # This is necessary for some type hinting
 import datetime, uuid
+from typing import Optional
 
 from django.db import models
 from django.conf import settings
@@ -344,33 +345,29 @@ class SpeakingPracticeAttempt(models.Model):
     class Meta:
         verbose_name = "Speaking Practice Attempt"
     
-    def review_requested(self):
-        '''
+    def review_requested(self) -> bool:
+        """
             Returns true if there is a teacher review request for
             this attempt
-        '''
+        """
         return hasattr(self,'request')
 
-    def teacher_reviewed(self):
-        '''
+    def teacher_reviewed(self) -> bool:
+        """
             Returns true if there is a request and a review for the request
             for this attempt
-        '''
+        """
         if self.review_requested():
-            review_request = SpeakingPracticeAttemptReviewRequest.objects.get(attempt=self)
-            return review_request.is_reviewed()
+            return SpeakingPracticeAttemptReviewRequest.objects.get(attempt=self).is_reviewed()
         return False
 
-    def get_review(self):
+    def get_review(self) -> Optional[SpeakingPracticeAttemptReview]:
         """
-        Returns the review if there is one, None otherwise
+            Returns the review if there is one, None otherwise
         """
-        try:
-            review = self.request.review
-        except:
-            return None
-
-        return review
+        if hasattr(self.request, 'review'):
+            return self.request.review
+        return None
 
 class SpeakingPracticeAttemptReviewRequest(models.Model):
     """
@@ -392,7 +389,7 @@ class SpeakingPracticeAttemptReviewRequest(models.Model):
     class Meta:
         verbose_name = "Instructor Review Request for Speaking Practice Attempt"
 
-    def is_reviewed(self):
+    def is_reviewed(self) -> bool:
         '''
             Returns true if there is a review for this request
         '''
