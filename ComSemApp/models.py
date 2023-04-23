@@ -365,8 +365,9 @@ class SpeakingPracticeAttempt(models.Model):
         """
             Returns the review if there is one, None otherwise
         """
-        if hasattr(self.request, 'review'):
-            return self.request.review
+        if self.review_requested():
+            if hasattr(self.request, 'review'):
+                return self.request.review
         return None
 
 class SpeakingPracticeAttemptReviewRequest(models.Model):
