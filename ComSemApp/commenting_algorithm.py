@@ -121,15 +121,71 @@ def wrong_position(expression, correct_expression):
         if correct_expression_list[x] != expression_list[x]:
             words_in_wrong_position.append(correct_expression_list[x])
 
-
-
     return words_in_wrong_position
             
 
 
+def get_comments(expression, correct_expression):
+    """
+
+    Args:
+        expression (string): The student provided version of the expression, the reformulation.
+        correct_expression (string): The correct expression the given expression will be compared to.
+    
+    Returns:
+        comments: 
+    """
+    comments = []
+    lower_expression = expression.lower()
+
+    extra, lacking = number_of_words(expression, correct_expression)
+    added = added_words(expression, correct_expression)
+    missing = missing_words(expression, correct_expression)
+    position = wrong_position(expression, correct_expression)
+
+    i = 0
+    word = ""
+    start_index = 0
+    while i != len(lower_expression):
+        if lower_expression[i] == " ":
+            end_index = i-1
+            if word in position and word in extra:
+                comments.append({'start':start_index,'end':end_index,'comment':"There is extra of this word and one or more of it is in the wrong postion."})
+            elif word in position and word in lacking:
+                comments.append({'start':start_index,'end':end_index,'comment':"There is too little of this word and one or more of it is in the wrong postion."})
+            elif word in position:
+                comments.append({'start':start_index,'end':end_index,'comment':"This word is in the wrong postion."})
+            elif word in added:
+                comments.append({'start':start_index,'end':end_index,'comment':"This word is not orginally part of the expression."})
+            elif word in lacking:
+                comments.append({'start':start_index,'end':end_index,'comment':"There is too little of the this word in your reformulation."})
+            word = ""
+            i +=1
+            start_index = i
+        else:
+            word = word + lower_expression[i]
+            i +=1
+
+    # For the last word in the expression
+    end_index = i-1
+    if word in position and word in extra:
+        comments.append({'start':start_index,'end':end_index,'comment':"There is extra of this word and one or more of it is in the wrong postion."})
+    elif word in position and word in lacking:
+        comments.append({'start':start_index,'end':end_index,'comment':"There is too little of this word and one or more of it is in the wrong postion."})
+    elif word in position:
+        comments.append({'start':start_index,'end':end_index,'comment':"This word is in the wrong postion."})
+    elif word in added:
+        comments.append({'start':start_index,'end':end_index,'comment':"This word is not orginally part of the expression."})
+    elif word in lacking:
+        comments.append({'start':start_index,'end':end_index,'comment':"There is too little of the this word in your reformulation."})
+
+    for left_over_word in missing:
+            comments.append({'start':len(expression),'end':len(expression)+1,'comment':"You are missing " + left_over_word + " from the sentence"})
+    return comments
+
 if __name__ == "__main__":
-    correct_expression = "Hello My Name is Elder Price."
-    expression = "Hello My Elder is named Price."
+    correct_expression = "Hello My Name is Elder Price"
+    expression = "Hello My Elder is named Price elder"
     print(expression)
     print(correct_expression)
 
@@ -137,6 +193,11 @@ if __name__ == "__main__":
     added = added_words(expression, correct_expression)
     missing = missing_words(expression, correct_expression)
     position = wrong_position(expression, correct_expression)
+
+    comments = get_comments(expression, correct_expression)
+
+    for x in range(len(comments)):
+        print(comments[x])
 
     print("Added words: ", added)
     print("Missing words: ", missing)
