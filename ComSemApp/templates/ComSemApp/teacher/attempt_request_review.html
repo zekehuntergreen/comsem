@@ -60,7 +60,7 @@
 </div>
 <script>
     function drawRequests(){
-        $("#requests_table").load("{% url 'teacher:request_list' course_id=course.id %}", function(){
+        $("#requests_table").load("{% url 'teacher:speaking_practice_request_list' course_id=course.id %}", function(){
             initialize_tablesorter();
         });
     }
