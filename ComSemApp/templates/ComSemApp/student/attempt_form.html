@@ -5,70 +5,134 @@
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
 
 <input hidden type="text" id="create_or_update_url">
+<style>
+    .grid_container {
+        display: grid;
+        grid-template-columns: 1fr 447px; 
+        grid-gap: 10px;
+    }
 
+    button:disabled {
+    background-color: #dcdcdc;
+    }
+    .highlight {
+        background-color: yellow;
+        color: black;
+      }
+      
+</style>
 <!-- original -->
-{% if worksheet.display_original %}
-<div class="row">
-    <div class="col-12">
-        <label>Original Expression:</label>
-        <p id="ExprToEdit">{{ expression.expression }}</p>
-    </div>
-</div>
-{% endif %}
+<div class="grid_container">
+    <div>
+        {% if worksheet.display_original %}
+        <div class="row">
+            <div class="col-12">
+                <label>Original Expression:</label>
+                <p id="ExprToEdit">{{ expression.expression }}</p>
+            </div>
+        </div>
+        {% endif %}
 
-<div class="row">
-    <div class="col-12">
-        <label>Context / Vocabulary:</label>
-        <p id="contextVocabulary">{{ expression.context_vocabulary }}</p>
-    </div>
-</div>
+        <div class="row">
+            <div class="col-12">
+                <label>Context / Vocabulary:</label>
+                <p id="contextVocabulary">{{ expression.context_vocabulary }}</p>
+            </div>
+        </div>
 
-<div class="row">
-    <div class="col-12">
-        <label>Pronunciation:</label>
-        <p id="pronunciation">{{ expression.pronunciation }}</p>
-    </div>
-</div>
+        <div class="row">
+            <div class="col-12">
+                <label>Pronunciation:</label>
+                <p id="pronunciation">{{ expression.pronunciation }}</p>
+            </div>
+        </div>
+        <style>
+            .bubble-container {
+                display: flex;
+                flex-wrap: wrap;
+                max-width: 600px;
+                padding-left: 5px;
+            }
 
-<!-- teacher reformulation -->
-{% if worksheet.display_reformulation_text %}
-<div class="row">
-    <div class="col-12">
-        <label>Reformulation:</label>
-        <p id="teacherReformulation">{{ expression.reformulation_text }}</p>
-    </div>
-</div>
-{% endif %}
+            .bubble {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 5px 10px;
+                border-radius: 20px;
+                background-color: #007bff;
+                color: #fff;
+                margin: 5px;
+                position: relative;
+                font-size: 16px;
+                transition: all 0.2s ease-in-out;
+            }
 
-<!-- reformulation audio -->
-{% if worksheet.display_reformulation_audio %}
-    <div class="row">
-        <div class="col-12">
-            <div class="form-group">
-                <label for="teacherReformulationAudio">Audio Reformulation:</label><br />
-                <audio id="teacherReformulationAudio" src="" controls></audio>
+        </style>
+        <div class="row">
+            <div class="col-12">
+                <label>YouGlish:</label>
+                <div class="bubble-container" id="bubbleContainer"><div class="bubble">enthusiastic</div></div>
+            </div>
+        </div>
+
+        <!-- teacher reformulation -->
+        {% if worksheet.display_reformulation_text %}
+        <div class="row">
+            <div class="col-12">
+                <label>Reformulation:</label>
+                <p id="teacherReformulation">{{ expression.reformulation_text }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- reformulation audio -->
+        {% if worksheet.display_reformulation_audio %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="teacherReformulationAudio">Audio Reformulation:</label><br />
+                        <audio id="teacherReformulationAudio" src="" controls></audio>
+                    </div>
+                </div>
+            </div>
+            {% if expression.audio %}
+                <script>
+                    $(function(){
+                        $("#teacherReformulationAudio").attr("src", "{{ expression.audio.url }}")
+                    });
+                </script>
+            {% endif %}
+        {% endif %}
+
+        <!-- correction -->
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="CorrectedExpr">Correction:</label>
+                    <input type="text" class="form-control" value="{{ attempt.reformulation_text|default_if_none:'' }}" id="CorrectedExpr" autocomplete="off" />
+                </div>
             </div>
         </div>
     </div>
-    {% if expression.audio %}
-        <script>
-            $(function(){
-                $("#teacherReformulationAudio").attr("src", "{{ expression.audio.url }}")
-            })
-        </script>
-    {% endif %}
-{% endif %}
-
-<!-- correction -->
-<div class="row">
-    <div class="col-12">
-        <div class="form-group">
-            <label for="CorrectedExpr">Correction:</label>
-            <input type="text" class="form-control" value="{{ attempt.reformulation_text|default_if_none:'' }}" id="CorrectedExpr" autocomplete="off" />
+    <div>
+        <div id="player_container" style="background-color: #f5f5f5; padding: 10px; width=460px;">
+            <b>YouGlish:</b> enthusiastic
+            <iframe id="player" allowfullscreen="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" title="How to College: Preview" src="https://www.youtube.com/embed/fvzpoTpfj3g?playsinline=1&amp;iv_load_policy=3&amp;rel=0&amp;showinfo=0&amp;controls=1&amp;fs=0&amp;start=28&amp;autoplay=1&amp;enablejsapi=1&amp;origin=https%3A%2F%2Fyouglish.com&amp;widgetid=1" width="427" height="240" frameborder="0"></iframe>
+            <div class="d-flex justify-content-between mt-3">
+                <button id="backward" class="btn btn-primary">
+                  <i class="mdi mdi-arrow-left-bold"></i>
+                </button>
+                <button id="forward" class="btn btn-primary">
+                  <i class="mdi mdi-arrow-right-bold"></i>
+                </button>
+            </div>
+            <div style="text-align: center;background-color: #f2f2f2; padding: 10px;">
+                <span style="font-size: 1.2em; font-weight: bold;"><span class="highlight">enthusiastic</span> about life. One of the people that was actually one of the keynote speakers</span>
+            </div>  
         </div>
     </div>
 </div>
-
 
 <!-- AUDIO RECORDING -->
 <div class="row" id="display_reformulation_audioRow" style="{% if not worksheet.display_reformulation_audio %}display: none{% endif %}">
