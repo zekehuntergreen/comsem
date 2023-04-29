@@ -632,8 +632,12 @@ class SpeakingPracticeInfoMixin(object):
 
         # Get the current date in UTC so python allows us to compare with the dates in the database
         curr_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
-        last_attempt = attempts.latest()
-        data['days_since_review'] = (curr_time - last_attempt.session.date).days
+        try:
+            last_attempt = attempts.latest()
+            data['days_since_review'] = (curr_time - last_attempt.session.date).days
+        except ObjectDoesNotExist:
+            pass
+
         data['last_score'] = last_attempt.correct
 
         return data
@@ -706,6 +710,9 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
         if session is None or session.attempts.count() != 0:
             session = SpeakingPracticeSession(student=self.student)
             session.save()
+        else:
+            session.date = datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+
         context['session'] = session.id
 
         expression_ids : list[str] = dict(self.request.GET)['choice']
