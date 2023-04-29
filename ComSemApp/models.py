@@ -214,14 +214,24 @@ class Worksheet(models.Model):
 
 
 class Expression(models.Model):
-    worksheet = models.ForeignKey('Worksheet', related_name="expressions", on_delete=models.CASCADE)
+    # The worksheet this expression is a part of
+    worksheet = models.ForeignKey(Worksheet, related_name='expressions', on_delete=models.CASCADE)
+    # The text of the expression
     expression = models.TextField()
-    student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True)
+    # The student who misformulated this expression (optional)
+    student = models.ForeignKey(Student, on_delete=models.SET_NULL, blank=True, null=True)
+    # Whether all students should practice, or just the specified student
     all_do = models.BooleanField(default=False)
+    # Words for the student to focus on their pronunciation for
     pronunciation = models.CharField(max_length=255, blank=True, null=True)
+    # Vocabulary related to the expression 
     context_vocabulary = models.CharField(max_length=255, blank=True, null=True)
+    # The Teacher's written reformulation of the expression
     reformulation_text = models.TextField(blank=True, null=True)
+    # The audio of the Teacher's spoken reformulation
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
+    # The Teacher's words to request from the YouGlish API
+    youglish_query = models.TextField(max_length=64, null=True, blank=True)
 
     def __str__(self):
         return self.expression
