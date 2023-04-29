@@ -110,11 +110,19 @@ class Course(models.Model):
         self.worksheets : QuerySet[Worksheet]
         return self.worksheets.exclude(status=teacher_constants.WORKSHEET_STATUS_PENDING)
 
-    def get_speaking_practice_review_requests(self):
-        requests = SpeakingPracticeAttemptReviewRequest.objects.filter(
+    def get_speaking_practice_review_requests(self: Course) -> QuerySet[SpeakingPracticeAttemptReviewRequest]:
+        """
+        Returns a QuerySet of SpeakingPracticeAttemptReviewRequest objects that belong to attempts made by students in this course.
+        
+        Args:
+        - self: the Course instance for which to retrieve the requests
+        
+        Returns:
+        - requests: a QuerySet of SpeakingPracticeAttemptReviewRequest objects that belong to attempts made by students in this course.
+        """
+        return SpeakingPracticeAttemptReviewRequest.objects.filter(
             attempt__expression__worksheet__course=self
         )
-        return requests
 
     class Meta:
         ordering = ('-session__start_date',)
@@ -370,10 +378,10 @@ class SpeakingPracticeAttemptReviewRequest(models.Model):
     class Meta:
         verbose_name = "Instructor Review Request for Speaking Practice Attempt"
     
-    def is_reviewed(self):
-        '''
+    def is_reviewed(self: SpeakingPracticeAttemptReviewRequest) -> bool:
+        """
             Returns true if there is a review for this request
-        '''
+        """
         return hasattr(self,'review')
 
 class SpeakingPracticeAttemptReview(models.Model):

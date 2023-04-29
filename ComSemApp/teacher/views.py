@@ -58,8 +58,6 @@ class TeacherWorksheetViewMixin(TeacherViewMixin, WorksheetViewMixin):
         return HttpResponseRedirect(reverse("teacher:course", kwargs={"course_id": self.course.id}))
 
 
-
-
 class CourseListView(TeacherViewMixin, ListView):
     # teacher home page
     model = Course
@@ -360,14 +358,13 @@ def delete_file(url):
 
 
 class SpeakingPracticeAttemptReviewView(TeacherCourseViewMixin, ListView):
+    """
+    This view displays the SpeakingPracticeReviewRequestListView and the
+    SpeakingPracticeAttemptReviewCreateView/SpeakingPracticeAttemptReviewUpdateView
+    """
     model = SpeakingPracticeAttempt
     template_name = "ComSemApp/teacher/attempt_request_review.html"
 
-    def get_context_data(self, **kwargs: any) -> dict[str, any]:
-
-        context = super().get_context_data(**kwargs)
-
-        return context
 
 class SpeakingPracticeReviewRequestsListView(TeacherCourseViewMixin, ListView):
     model = SpeakingPracticeAttemptReviewRequest
@@ -399,7 +396,7 @@ class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView
 
     def form_valid(self, form):
         review = form.save(commit=False)
-        newScore = form['newScore']
+        newScore = self.request.POST.get('newScore')
 
         if newScore:
             id = self.request.POST.get('request')
