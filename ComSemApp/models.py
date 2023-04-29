@@ -361,7 +361,7 @@ class SpeakingPracticeAttempt(models.Model):
             return SpeakingPracticeAttemptReviewRequest.objects.get(attempt=self).is_reviewed()
         return False
 
-    def get_review(self) -> Optional[SpeakingPracticeAttemptReview]:
+    def get_review(self) -> SpeakingPracticeAttemptReview | None:
         """
             Returns the review if there is one, None otherwise
         """
