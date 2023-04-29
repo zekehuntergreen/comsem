@@ -27,19 +27,23 @@ function get_youglish_videos(phrase, accent = "", page = 1) {
         })
             .then((data, status) => {
                 if (status != 200) {
-                    if (status == 400) {
+                    switch (status) {
+                    case 400:
                         // TODO : Establish standard for these promise resolutions
                         reject("Bad request");
-                    }
-                    if (status == 404) {
+                        break;
+                    case 404:
                         reject("");
-                    }
-                    if (status == 500) {
+                        break;
+                    case 500:
+                        reject("");
+                        break;
+                    default:
                         reject("");
                     }
                 }
                 else {
-                    resolve(data)
+                    resolve(data);
                 }
             })
             .catch((reason) => reject(reason))

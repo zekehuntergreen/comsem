@@ -122,6 +122,8 @@ def get_youglish_videos(request : HttpRequest) -> HttpResponse:
     
     response = get(ENDPOINT, params=params)
     
+    # This try-except is here in order to ensure whatever YouGlish returns is valid json
+    # ex: bad api key gives a text response, not json
     try:
         json = response.json()
     except(ValueError):
