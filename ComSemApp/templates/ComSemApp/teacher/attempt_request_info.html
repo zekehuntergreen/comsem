@@ -18,17 +18,17 @@
                     <b>Audio Recording</b><br>
                     <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio.url }}"></audio><br>
                     <b>Fluency Score</b><br>
-                    {{attempt.wpm}}<br>
+                    {{ attempt.wpm }}<br>
                     <b>Correctness Score</b><br>
-                    {% if review.original_score%}
-                        {{ review.original_score}}
+                    {% if review.original_score %}
+                        {{ review.original_score }}
                     {% else %}
-                        {{attempt.correct}}
+                        {{ attempt.correct }}
                     {% endif %}
                     <br>
-                    <b>New Correctness Score <input type="number" min="0" max="100" style="width:85px;" id="myPercent" {% if review.original_score %}value="{{ attempt.correct }}"{% endif %}></b>
+                    <b>New Correctness Score <input type="number" min="0" max="100" style="width:85px;" id="newScore" {% if review.original_score %}value="{{ attempt.correct }}"{% endif %}></b>
                     <div id="myTextboxContainer"></div>
-                    <div style="position: relative;">
+                    <div class="position-relative;">
                         <b>Comments</b><br>
                         <textarea id="teacher_comments_box" style="width:100%;" rows="4">{{ review.comments }}</textarea>
                     </div>
@@ -48,14 +48,21 @@
 let reviewer = "{{ user.id | safe }}";
 
 function isNumber(value) {
+    /*
+     * returns true if the value can be converted to a float
+     * Args:
+     *      value | string
+     * Returns:
+     *      bool
+    */
     return !isNaN(parseFloat(value));
-  }
+}
 
 function submitForm(url){
     /*
-        takes current data and send it in a post request to the server (SpeakingPracticeAttemptCreateView)
+     * takes current data and send it in a post request to the server (SpeakingPracticeAttemptCreateView)
     */
-    var newScore = $('#myPercent').val();
+    var newScore = $('#newScore').val();
     if (newScore != ""){
         if (!isNumber(newScore) || newScore < 0 || newScore > 100) {
             alert('Please enter a valid Correctness Score between 0 and 100.');
@@ -66,7 +73,7 @@ function submitForm(url){
     reviewFormData.append('request', "{{ attempt.id }}");
     reviewFormData.append('reviewer', reviewer);
     reviewFormData.append('comments', $("#teacher_comments_box").val());
-    reviewFormData.append('newScore', newScore)
+    reviewFormData.append('newScore', newScore);
 
     var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
 
@@ -76,13 +83,13 @@ function submitForm(url){
         data: reviewFormData,
         processData: false,
         contentType: false,
-        timeout: 5000, // if takes longer than 5 secs, return timeout error
+        timeout: 10000, // if takes longer than 10 secs, return timeout error
         headers: { // places token in request so that it is certified by server
             'X-CSRFToken': csrf_token
         },
         success:(response) => {
-            cs_notification('success', "Attempt Saved")
-            drawRequests()
+            cs_notification('success', "Attempt Saved");
+            drawRequests();
         },
         error: (jqXHR, textStatus, errorThrown) => {
             cs_ajax_error(jqXHR, textStatus, errorThrown);
@@ -93,11 +100,11 @@ function submitForm(url){
 $(document).ready(() => {
     $("#submit").click(() => {
         console.log("submit clicked");
-        submitForm("{% url 'teacher:speaking_practice_review_create' course_id=course.id attempt_id=attempt.id %}")
+        submitForm("{% url 'teacher:speaking_practice_review_create' course_id=course.id attempt_id=attempt.id %}");
     });
     $("#saveChanges").click(() => {
         console.log("submit clicked");
-        submitForm("{% url 'teacher:speaking_practice_review_update' course_id=course.id attempt_id=attempt.id %}")
+        submitForm("{% url 'teacher:speaking_practice_review_update' course_id=course.id attempt_id=attempt.id %}");
     });
 });
 </script>

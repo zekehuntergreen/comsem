@@ -367,22 +367,33 @@ class SpeakingPracticeAttemptReviewView(TeacherCourseViewMixin, ListView):
 
 
 class SpeakingPracticeReviewRequestsListView(TeacherCourseViewMixin, ListView):
+    """
+    This view presents the list of review requests. on tghe SpeakingPracticeAttemptReviewPage 
+    """
     model = SpeakingPracticeAttemptReviewRequest
     template_name = 'ComSemApp/teacher/request_list.html'
     context_object_name = 'requests'
 
-    def get_queryset(self):
-        requests_queryset = self.course.get_speaking_practice_review_requests().order_by('review','-date')
-
-        return requests_queryset
+    def get_queryset(self) -> QuerySet[SpeakingPracticeAttemptReviewRequest]:
+        """
+        Returns the queryset of SpeakingPracticeAttemptReviewRequests
+        """
+        return self.course.get_speaking_practice_review_requests().order_by('review','-date')
 
 
 class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView):
+    """
+        This view presents SpeakingPracticeAttempt information and then creates a SpeakingPracticeAttemptReview
+        for a SpeakingPracticeAttemptReviewRequest
+    """
     model = SpeakingPracticeAttemptReview
     template_name = "ComSemApp/teacher/attempt_request_info.html"
     fields = ["request", "reviewer", "comments"]
 
     def get_context_data(self, **kwargs):
+        """
+            returns context data. This data is the SpeakingPracticeAttempt
+        """
         context = super().get_context_data(**kwargs)
         attempt_id = self.kwargs.get('attempt_id')
         attempt = get_object_or_404(SpeakingPracticeAttempt, id=attempt_id)
@@ -417,17 +428,28 @@ class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView
         return HttpResponse(status=201)
     
 class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView):
+    """
+        This view presents SpeakingPracticeAttempt information and then updates a SpeakingPracticeAttemptReview
+        for a SpeakingPracticeAttemptReviewRequest
+    """
     model = SpeakingPracticeAttemptReview
     template_name = "ComSemApp/teacher/attempt_request_info.html"
     fields = ["reviewer", "comments"]
     context_object_name = 'review'
 
     def get_object(self, **kwargs):
+        """
+            Returns an SpeakingPracticeAttemptReview. This is the instance that is updated
+            in this view.
+        """
         attempt_id = self.kwargs.get('attempt_id')
         review = get_object_or_404(SpeakingPracticeAttemptReview, request=attempt_id)
         return review
 
     def get_context_data(self, **kwargs):
+        """
+            returns context data. This data is the SpeakingPracticeAttempt
+        """
         context = super().get_context_data(**kwargs)
         attempt_id = self.kwargs.get('attempt_id')
         attempt = get_object_or_404(SpeakingPracticeAttempt, id=attempt_id)
