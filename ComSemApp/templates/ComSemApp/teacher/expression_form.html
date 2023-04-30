@@ -4,92 +4,6 @@
 <script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
 
-<style>
-    .container {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        margin-top: 10px;
-    }
-
-    .input-group {
-        display: flex;
-        align-items: center;
-        width: 300px;
-        border: 1px solid #ccc;
-        border-radius: 20px;
-        padding: 5px 10px;
-    }
-
-    .input-group input {
-        flex: 1;
-        border: none;
-        outline: none;
-        margin-right: 10px;
-        font-size: 16px;
-    }
-
-    .input-group button {
-        border: none;
-        background-color: #007bff;
-        color: #fff;
-        padding: 5px 10px;
-        border-radius: 20px;
-        cursor: pointer;
-        font-size: 16px;
-    }
-
-    .bubble-container {
-        display: flex;
-        flex-wrap: wrap;
-        margin-top: 20px;
-        max-width: 600px;
-        padding-left: 20px;
-    }
-
-    .bubble {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 5px 10px;
-        border-radius: 20px;
-        background-color: #007bff;
-        color: #fff;
-        margin: 5px;
-        position: relative;
-        font-size: 16px;
-        transition: all 0.2s ease-in-out;
-    }
-
-    .bubble:hover {
-        background-color: #dc3545;
-        color: #fff;
-        cursor: pointer;
-        transform: scale(1.2);
-    }
-
-    .bubble:hover:before,
-    .bubble:hover:after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        border-radius: 50%;
-    }
-
-    .bubble:hover:before {
-        width: 30px;
-        height: 30px;
-        background-color: #dc3545;
-    }
-
-    .bubble:hover:after {
-        content: 'x';
-        color: #fff;
-        font-size: 20px;
-    }
-</style>
 <div class="control-group controls" id="ExpressionEditor" style="display: none">
 
     <input hidden type="text" id="create_or_update_url">
@@ -170,22 +84,53 @@
             <div class="form-group">
                 <label for="youglish">YouGlish:</label>
                 <div class="container">
-                    <div class="input-group">
-                        <input type="text" id="wordInput" placeholder="Enter a word">
-                        <button type="button" id="addButton">+</button>
+                    <div class="input-group mb-3">
+                        <input class="form-control" type="text" id="wordInput" placeholder="Enter a word">
+                        <button class="btn btn-primary" type="button" id="addButton">+</button>
                     </div>
-                    <div class="bubble-container" id="bubbleContainer"></div>
+                    <div class="d-flex flex-wrap" id="bubbleContainer"></div>
                 </div>
-            
+                <style>
+                    .btn-bubble:{
+                        padding: 5px 10px;
+                        border-radius: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 5px 10px;
+                        border-radius: 20px;
+                        background-color: #007bff;
+                        color: #fff;
+                        margin: 5px;
+                        position: relative;
+                        font-size: 16px;
+                        transition: all 0.2s ease-in-out;
+                    }
+                    .btn-bubble:hover {
+                        color: #DB1A1A;
+                        background-color: #DB1A1A;
+                        border-color: #DB1A1A; 
+                      }
+                      .btn-bubble:hover::before {
+                        content: 'x';
+                        display: block;
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        color: #fff;
+                        font-size: 16px;
+                      }
+                </style>
                 <script>
                     const wordInput = document.getElementById('wordInput');
                     const bubbleContainer = document.getElementById('bubbleContainer');
-            
+                    
                     document.getElementById('addButton').addEventListener('click', () => {
                         const word = wordInput.value.trim();
                         if (word) {
                             const bubble = document.createElement('div');
-                            bubble.className = 'bubble';
+                            bubble.className = 'btn btn-primary btn-bubble';
                             bubble.innerText = word;
             
                             bubble.addEventListener('click', () => {
