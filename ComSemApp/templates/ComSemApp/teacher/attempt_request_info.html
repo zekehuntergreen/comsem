@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 {% load static %}
 <div class="row h-100">
     <div class="col-12 h-100">
@@ -26,7 +27,7 @@
                         {{ attempt.correct }}
                     {% endif %}
                     <br>
-                    <b>New Correctness Score <input type="number" min="0" max="100" pattern="[0-9]" style="width:85px;" id="newScore" {% if review.original_score %}value="{{ attempt.correct }}"{% endif %}></b>
+                    <b>New Correctness Score <input name="correct" style="width:85px;" id="newScore" {% if review.original_score %}value="{{ attempt.correct }}"{% endif %}></b>
                     <div id="myTextboxContainer"></div>
                     <div class="position-relative;">
                         <b>Comments</b><br>
@@ -47,26 +48,25 @@
 <script>
 let reviewer = "{{ user.id | safe }}";
 
-function isNumber(value) {
-    /*
-     * returns true if the value can be converted to a float
-     * Args:
-     *      value | string
-     * Returns:
-     *      bool
+ function hasOnlyNumbers(inputString) {
+    /**
+    * Checks whether a string contains only numbers and a decimal point.
+    *
+    * @param {string} inputString - The input string to check.
+    * @returns {boolean} - True if the string contains only numbers and a decimal point, false otherwise.
     */
-    return !isNaN(parseFloat(value));
-}
-
+    return /^[0-9.]+$/.test(inputString);
+  }
 function submitForm(url){
     /*
      * takes current data and send it in a post request to the server (SpeakingPracticeAttemptCreateView)
     */
-    var newScore = $('#newScore').val();
+    let newScore = $('#newScore').val();
     if (newScore != ""){
-        if (!isNumber(newScore) || newScore < 0 || newScore > 100) {
+        newScoreVal = parseFloat(newScore);
+        if (!hasOnlyNumbers(newScore) || isNaN(newScoreVal) || newScoreVal < 0 || newScoreVal > 100) {
             alert('Please enter a valid Correctness Score between 0 and 100.');
-            e.preventDefault();
+            return;
         }
     }
     let reviewFormData = new FormData(); // creates new form
@@ -88,7 +88,7 @@ function submitForm(url){
             'X-CSRFToken': csrf_token
         },
         success:(response) => {
-            cs_notification('success', "Attempt Saved");
+            cs_notification('success', "Review Saved");
             drawRequests();
         },
         error: (jqXHR, textStatus, errorThrown) => {

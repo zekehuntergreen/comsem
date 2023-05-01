@@ -418,7 +418,7 @@ class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView
         """
         review = form.save(commit=False)
         newScore = self.request.POST.get('newScore')
-        if newScore:
+        if newScore != "":
             id = self.request.POST.get('request')
             attempt = get_object_or_404(SpeakingPracticeAttempt, id=id)
             review.original_score = attempt.correct
@@ -473,7 +473,7 @@ class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView
         """
         review = form.save(commit=False)
         newScore = self.request.POST.get('newScore')
-        if newScore:
+        if newScore != "":
             id = self.request.POST.get('request')
             attempt = get_object_or_404(SpeakingPracticeAttempt, id=id)
             if review.original_score is None:
