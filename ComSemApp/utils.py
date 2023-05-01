@@ -1,11 +1,18 @@
-import ssl
+import api_keys
 import nltk
+import ssl
+import tempfile
 import speech_recognition as sr
+
+from os import close
 from django.http import HttpResponse
 from django.core.files.uploadedfile import UploadedFile
 import tempfile
 import os
 from pydub import AudioSegment
+from requests import get, Response
+
+from django.http import HttpResponse, HttpRequest, HttpResponseBadRequest, HttpResponseServerError, Http404, JsonResponse
 
 def pos_tag(expression):
     from ComSemApp.models import Tag, Word, SequentialWords
@@ -71,14 +78,14 @@ def transcribe(request):
             try:
                 text = r.recognize_google(audio)
                 #closes the temp files
-                os.close(in_file_handle)
-                os.close(out_file_handle)
+                close(in_file_handle)
+                close(out_file_handle)
                 # capitalize sentence
                 return HttpResponse(text.capitalize())
             
             except Exception:
-                os.close(in_file_handle)
-                os.close(out_file_handle)
+                close(in_file_handle)
+                close(out_file_handle)
                 return HttpResponse("")
 
 
@@ -128,3 +135,54 @@ def transcribe_and_get_length_audio_file(file : UploadedFile) -> tuple[str, int]
             os.close(in_file_handle)
             os.close(out_file_handle)
             return ("", length)
+def get_youglish_videos(request : HttpRequest) -> HttpResponse:
+    """
+        Polls YouGlish REST API for YouTube video clips containing the phrase given in an HTTP GET request
+
+        Arguments:
+            request : HttpRequest - a Django HttpRequest object which should contain GET request data
+                phrase (required) - The phrase to search for
+                accent (optional) - A code which allows the client to search for a particular accent
+                page   (optional) - Used for pagination to get more results
+        
+        Returns:
+            HttpResponse - A Django HttpResponse object indicating the outcome of the request:
+                JsonResponse           (200) - A success message containing the requested data in JSON format
+                HttpResponseBadRequst  (400) - If the request does not have the required GET arguments
+                Http404                (404) - If the requested phrase has no available video clips
+                HttpResponeServerError (500) - If some problem occurs in communicating with YouGlish
+
+        Remarks:
+            The YouGlish REST API for videos can be found at https://youglish.com/api/doc/rest/videos
+    """
+    ENDPOINT : str = 'https://youglish.com/api/v1/videos/search?{}'
+
+    response : Response
+
+    params : dict[str,str] = {
+        'key' : api_keys.YOUGLISH,
+        'query' : request.GET.get('phrase', ''),
+        'lg' : 'english',
+        'accent' : request.GET.get('accent', ''),
+        'restricted' : 'yes',
+        'page' : request.GET.get('page', '1'),
+    }
+
+    if not params['query']:
+        return HttpResponseBadRequest()
+    
+    response = get(ENDPOINT, params=params)
+    
+    # This try-except is here in order to ensure whatever YouGlish returns is valid json
+    # ex: bad api key gives a text response, not json
+    try:
+        json = response.json()
+    except(ValueError):
+        return HttpResponseServerError()
+    
+    if not 'total_results' in json:
+        return HttpResponseServerError()
+    if json['total_results'] == 0:
+        return Http404("No clips available")
+
+    return JsonResponse(json)
