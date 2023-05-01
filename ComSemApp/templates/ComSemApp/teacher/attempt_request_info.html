@@ -26,11 +26,11 @@
                         {{ attempt.correct }}
                     {% endif %}
                     <br>
-                    <b>New Correctness Score <input type="number" min="0" max="100" style="width:85px;" id="newScore" {% if review.original_score %}value="{{ attempt.correct }}"{% endif %}></b>
+                    <b>New Correctness Score <input type="number" min="0" max="100" pattern="[0-9]" style="width:85px;" id="newScore" {% if review.original_score %}value="{{ attempt.correct }}"{% endif %}></b>
                     <div id="myTextboxContainer"></div>
                     <div class="position-relative;">
                         <b>Comments</b><br>
-                        <textarea id="teacher_comments_box" style="width:100%;" rows="4">{{ review.comments }}</textarea>
+                        <textarea id="teacher_comments_box" class="w-100" >{{ review.comments }}</textarea>
                     </div>
                     <br>
                     
