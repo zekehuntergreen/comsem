@@ -3,6 +3,15 @@
 {% load static %}
 
 {% block content %}
+<style>
+    .row-indent {
+        padding-left: 40px !important;
+    }
+    .my-table th, .my-table td {
+        text-align: left;
+        width: 33%%
+    }
+</style>
 
 <script type="text/javascript">
     function showHideRow(row){
@@ -26,27 +35,30 @@
                 <div class='card-body'>
                     <h1 class="card-title">Review complete!</h1>
                     <!--table for displaying results of a practice-->
-                    <table id="results_table" class="table table-hover"> 
+                    <table id="results_table" class="table table-hover" style="table-layout: fixed"> 
                         <div class="row header">
-                            <th class=>Student Transcription</th> 
+                            <th class="text-left">Student Transcription</th> 
                             <th class="text-center">Accuracy Score</th>
                             <th class="text-center">Fluency Score</th> 
-                            <th class="text-center invisible"><button class="show-more" type="button">Show More</button></th>
+                            <th class="text-right invisible"><button>Show More</button></th>
                         </div>
                         <tbody id="result_body">
                             <!--displays each item from context[practice data] in this table-->
-                            {% for attempt in attempts%}
-                                <tr>
-                                    <td>
+                            {% for attempt in attempts %}
+                                <tr style="border-top: 2px solid gray;">
+                                    <td class="text-left">
                                         {{attempt.transcription}}
                                     </td>
                                     <td class="text-center">
+                                        {% if attempt.teacher_reviewed %}
+                                            Teacher Updated Score: 
+                                        {% endif %}
                                         {{attempt.score}}%
                                     </td>
                                     <td class="text-center">
-                                        {{attempt.score}}%
+                                        {{attempt.wpm}}%
                                     </td>
-                                    <td class="text-center">
+                                    <td class="text-right">
                                         <button onclick="showHideRow({{attempt.id}})" class="sbtn btn-outline-primary btn-sm">
                                             <!--Calls the showHideRow function when pressed, with the item id as the input-->
                                             Show More
@@ -54,18 +66,67 @@
                                     </td>
                                 </tr>
                                 <!--row that shows hidden information-->
-                                <tr id={{attempt.id}} class="hidden_row">  <!--row id corresponds to individual item id-->
-                                    <td colspan=4> <!-- merges all four columns in this row-->
-                                        <p style="margin-left:40px"> <!--indentation for this paragraph-->
-                                            <b>Correct Expression</b><br> 
-                                            {{attempt.correct_formulation}} <br>
-                                            <b>Given Expression</b><br> 
-                                            {{attempt.incorrect_expression}} <br>
-                                            <b>Graded Expression</b> (hover for details about each error)<br> 
-                                            <mark><span title="There could be errors shown here">{{attempt.transcription}}</span></mark><br>
-                                            <b>Audio Recording</b><br>
-                                            <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio><br>
-                                        </p>
+                                <tr id="{{attempt.id}}" class="hidden_row">
+                                    <td colspan=4 class="row-indent">
+                                        <table style="table-layout: fixed; margin-top: 0px; width: 100%;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="text-align: Left;">Correct Expression</th>
+                                                    <th style="text-align: Left;">Given Expression</th>
+                                                    <th style="text-align: Left;">Graded Expression (hover for details about each error)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td style="text-align: Left;">
+                                                        {{attempt.correct_formulation}}
+                                                    </td>
+                                                    <td style="text-align: Left;">
+                                                        {{attempt.incorrect_expression}}
+                                                    </td>
+                                                    <td style="text-align: Left;">
+                                                        <mark><span title="There could be errors shown here">{{attempt.transcription}}</span></mark>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <br>
+                                        <table style="margin-top: 0px; width: 500px; display:inline-block;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="text-align: Left;">Your Recording</th>
+                                                    {% if attempt.teacher_audio %}
+                                                        <th style="text-align: Left;">Teacher Reformulation Audio</th>
+                                                    {% endif %}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td style="text-align: Left;">
+                                                        <audio controls title="Your Recording" style="width: 200px;" class="previous_attempt_audio" src="{{ attempt.audio_path }}"></audio>
+                                                    </td>
+                                                    {% if attempt.teacher_audio %}
+                                                        <td style="text-align: Left;">
+                                                            <audio controls title="Teacher Reformulation Audio" style="width: 200px;" class="previous_attempt_audio" src="{{ attempt.teacher_audio }}"></audio>
+                                                        </td>
+                                                    {% endif %}
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        {% if attempt.review_requested %}
+                                            <br>
+                                            {% if attempt.teacher_reviewed %}
+                                                <b>Teacher Comments</b><br>
+                                                {{ attempt.teacher_comments }}
+                                            {% else %}
+                                                <b>Review Pending</b>
+                                            {% endif %}
+                                        {% else%}
+                                            <button style="float: right; margin-top: 80px;" type="button" id="request{{attempt.id}}" data-submit-id="{{attempt.id}}" class="request-btn sbtn btn-warning btn-sm" data-toggle="modal" data-target="#confirm-modal">
+                                                Request Teacher Review
+                                            </button>
+                                        {% endif %}
+                                        
                                     </td>
                                 </tr>
                                 <script>

@@ -839,10 +839,16 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
             'transcription' : attempt.transcription,
             'audio_path' : attempt.audio.url,
             'score' : attempt.correct,
-            'expression_id' : expression.pk,
+            # TODO : replace wpm with function that calculates fluency score based on wpm
+            'wpm' : round((attempt.wpm / 60) * 100 if attempt.wpm < 135 else 100.00, 2),
+            'expression_id' : attempt.expression.id,
             'incorrect_expression': attempt.expression.expression,
             'correct_formulation' : attempt.expression.reformulation_text,
-            'familiarity' : familiarity_scores[attempt.expression.pk]
+            'familiarity' : familiarity_scores[attempt.expression.id],
+            'teacher_audio' : attempt.expression.audio.url if attempt.expression.audio else None,
+            'review_requested' : attempt.review_requested(),
+            'teacher_reviewed' : attempt.teacher_reviewed(),
+            'teacher_comments' : attempt.get_review().comments if attempt.get_review() else None
             } for attempt in attempts]
 
         return context
@@ -891,10 +897,10 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         yield (score, None)
         for attempt in correct_attempts:
             if score == MAX_SCORE:
-                raise StopIteration
+                return
             score = self.grade_against_correct(transcription, attempt.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)))
             yield (score, attempt)
-        raise StopIteration
+        return
 
     def grade_against_correct(self,transcription : string, correct_formulation : string):
         # TODO: Implement
