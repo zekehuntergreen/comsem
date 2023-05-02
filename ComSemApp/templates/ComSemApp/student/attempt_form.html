@@ -5,8 +5,9 @@
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
 
 <input hidden type="text" id="create_or_update_url">
-<script src="{% static "ComSemApp/js/youglish.js" %}"></script>
+
 <input type="hidden" id="youglish-endpoint" data-url="{% url 'get_youglish_videos' %}" />
+
 <!-- original -->
 <div class="container p-0 m-0">
     <div class="row">
@@ -135,13 +136,26 @@
     </div>
 </div>
 
-<script>
 
-</script>
-
+<script src="{% static "ComSemApp/js/youglish.js" %}"></script>
 <script>
 
 let word_str = "{{ expression.youglish_query|default_if_none:'' }}";
+function populateYouglish(word_id){
+    /*
+        populates YouGlish Container with videos based on
+        the word that was clicked
+    */
+    console.log(word_id);
+    let word = document.getElementById(word_id).innerHTML;
+    console.log(word);
+    let youglish_promise = get_youglish_videos(word);
+    youglish_promise.then((data) => {
+        console.log("then"); // log the response data to the console
+    }).catch((error) => {
+        console.log("catch"); // log the error message to the console
+    });
+}
 
 function generateYouglishBubbles(){
     /*
@@ -170,24 +184,6 @@ function generateYouglishBubbles(){
         }
         return words_list;
     }
-}
-
-function populateYouglish(word_id){
-    /*
-        populates YouGlish Container with videos based on
-        the word that was clicked
-    */
-    console.log(word_id);
-    let word = document.getElementById(word_id).innerHTML;
-    console.log(word);
-    get_youglish_videos(word)
-    .then((data) => {
-        console.log(data); // log the response data to the console
-    })
-    .catch((error) => {
-        console.log(error); // log the error message to the console
-    });
-
 }
 
 $(document).ready(() => {
