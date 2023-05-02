@@ -707,14 +707,6 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
         except ObjectDoesNotExist:
             pass
 
-        if session is None or session.attempts.count() != 0:
-            session = SpeakingPracticeSession(student=self.student)
-            session.save()
-        else:
-            session.date = datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
-
-        context['session'] = session.id
-
         expression_ids : list[str] = dict(self.request.GET)['choice']
         # This list comprehension grabs all the data necessary for problems and filters out invalid expressions
         context['problems'] = [problem_data for expression_id in expression_ids if (problem_data := self.generate_problem_info(expression_id)) is not None]
@@ -953,3 +945,29 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
 
         attempt.save()
         return JsonResponse({'id' : attempt.id}, status=201)
+
+class SpeakingPracticeSessionCreateView(StudentCourseViewMixin, CreateView):
+    model = SpeakingPracticeSession
+    fields = []
+
+    def form_invalid(self, form):
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form):
+        session : SpeakingPracticeSession
+        status : int
+
+        try:
+            session = SpeakingPracticeSession.objects.filter(student=self.student).latest()
+        except ObjectDoesNotExist:
+            pass
+
+        if session is None or session.attempts.count() != 0:
+            session = SpeakingPracticeSession(student=self.student)
+            session.save()
+            status = 201
+        else:
+            session.date = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+            status = 200
+        
+        return HttpResponse(session.id, status=status)

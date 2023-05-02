@@ -47,6 +47,13 @@
   <input hidden type="text" id="save_attempt_url" value="{% url 'student:speaking_practice_submit' course.id%}">
 </form>
 
+<!-- session form holder, input specifies url "speaking_practice_session_create" which links to SpeakingPracticeSessionCreateView" -->
+<form id="sessionForm" method="POST">
+  <input hidden type="text" id="create_session_url" value="{% url 'student:speaking_practice_session_create' course.id%}">
+</form>
+
+<input hidden type="text" id="session_id">
+
 {% include 'ComSemApp/audio_recording_background.html' %}
 
 <!-- loads recording javascript file which creates eventlisteners for invisible recording buttons-->
@@ -58,7 +65,6 @@
 <script>
 const READING_OFFSET = 2;
 const RECORDING_OFFSET = 3;
-const SESSION_ID = {{ session | safe }};
 const encoderPath = "{% static 'ComSemApp/js/opus-recorder/dist/encoderWorker.min.js' %}"; // used in ComSemRecording
 
 //index for tracking current problem
@@ -163,7 +169,7 @@ function sendPostRequestForm(){
   // if, for whatever reason, the user pressed next problem before the sentence is appended to the form
   // then the next (and wrong) sentence might get appended to the form
   // form_expression just holds the correct expression for this form
-  attemptFormData.append('session', SESSION_ID);
+  attemptFormData.append('session', $('#session_id').val());
   attemptFormData.append('expression', form_expression); 
   attemptFormData.append('audio', audioBlob);
   // This is temporary. Remove before merging
@@ -272,15 +278,34 @@ function getNow() {
 $(document).ready(() => {
   console.log( "document loaded" );
 
+  $.ajax({ // send POST request
+    type: "POST",
+    url: $("#create_session_url").val(), // links to html form above which specifies the url to recieve request
+    data: new FormData(),
+    processData: false,
+    contentType: false,
+    timeout: 10000, // if takes longer than 5 secs, return timeout error
+    headers: { // places token in request so that it is certified by server
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    success:(content, status, _) => {
+      // Add session to results form_expression
+      $("#session_id").val(content)
+      console.log(content)
+      console.log($("#session_id").val())
+    },
+    error: (jqXHR, textStatus, errorThrown) => {
+      cs_ajax_error(jqXHR, textStatus, errorThrown);
+    }
+  })
+
+
   $(window).on("beforeunload", (event) => {
     event.preventDefault();
     // This text won't show in modern browsers :(
     event.returnValue = 'WARNING: If you leave this page, you will not be able to continue the review where you left off. Exit anyway?';
     return event.returnValue;
   });
-
-  // Add session to results form
-  $("#form").append(`<input type='hidden' value='${SESSION_ID}' name='session'></input>`);
 
   // initializing review
   $("#begin-review").click(() => {
