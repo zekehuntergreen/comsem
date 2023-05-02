@@ -944,8 +944,6 @@ class SpeakingPracticeTeacherReviewRequestCreateView(StudentCourseViewMixin, Cre
             Defines the behavior for an invalid form submission.
             Reports whatever errors are found back to the frontend.
         """
-        print("form data:::\n\n")
-        print(form.data)
         return JsonResponse(form.errors, status=400)
 
     def form_valid(self, form):
