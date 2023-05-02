@@ -135,6 +135,7 @@ def transcribe_and_get_length_audio_file(file : UploadedFile) -> tuple[str, int]
             os.close(in_file_handle)
             os.close(out_file_handle)
             return ("", length)
+
 def get_youglish_videos(request : HttpRequest) -> HttpResponse:
     """
         Polls YouGlish REST API for YouTube video clips containing the phrase given in an HTTP GET request
