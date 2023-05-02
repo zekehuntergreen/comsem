@@ -368,7 +368,7 @@ class SpeakingPracticeAttemptReviewView(TeacherCourseViewMixin, ListView):
 
 class SpeakingPracticeReviewRequestsListView(TeacherCourseViewMixin, ListView):
     """
-    This view presents the list of review requests. on tghe SpeakingPracticeAttemptReviewPage 
+    This view presents the list of review requests on the SpeakingPracticeAttemptReviewPage 
     """
     model = SpeakingPracticeAttemptReviewRequest
     template_name = 'ComSemApp/teacher/request_list.html'
@@ -421,7 +421,8 @@ class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView
         if newScore != "":
             id = self.request.POST.get('request')
             attempt = get_object_or_404(SpeakingPracticeAttempt, id=id)
-            review.original_score = attempt.correct
+            if review.original_score is None:
+                review.original_score = attempt.correct
             attempt.correct = newScore
             attempt.save()
         review.save()

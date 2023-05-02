@@ -110,7 +110,7 @@ class Course(models.Model):
         self.worksheets : QuerySet[Worksheet]
         return self.worksheets.exclude(status=teacher_constants.WORKSHEET_STATUS_PENDING)
 
-    def get_speaking_practice_review_requests(self: Course) -> QuerySet[SpeakingPracticeAttemptReviewRequest]:
+    def get_speaking_practice_review_requests(self) -> QuerySet[SpeakingPracticeAttemptReviewRequest]:
         """
         Returns a QuerySet of SpeakingPracticeAttemptReviewRequest objects that belong to attempts made by students in this course.
         
@@ -378,7 +378,7 @@ class SpeakingPracticeAttemptReviewRequest(models.Model):
     class Meta:
         verbose_name = "Instructor Review Request for Speaking Practice Attempt"
     
-    def is_reviewed(self: SpeakingPracticeAttemptReviewRequest) -> bool:
+    def is_reviewed(self) -> bool:
         """
             Returns true if there is a review for this request
         """
