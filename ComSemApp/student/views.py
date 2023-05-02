@@ -840,7 +840,7 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
             'audio_path' : attempt.audio.url,
             'score' : attempt.correct,
             # TODO : replace wpm with function that calculates fluency score based on wpm
-            'wpm' : round((attempt.wpm/60)*100 if attempt.wpm < 135 else 100.00,2),
+            'wpm' : round((attempt.wpm / 60) * 100 if attempt.wpm < 135 else 100.00, 2),
             'expression_id' : attempt.expression.id,
             'incorrect_expression': attempt.expression.expression,
             'correct_formulation' : attempt.expression.reformulation_text,
