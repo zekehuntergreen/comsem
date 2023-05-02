@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+{% load static %}
+<div class="row h-100">
+    <div class="col-12 h-100">
+        <div class="card-box">
+            <div class="card">
+                <div class='card-body'>
+                    <!--card for displaying results-->
+                    <b>Student</b><br>
+                    {{attempt.student}} <br>
+                    <b>Course</b><br>
+                    {{ course.session }}<br>
+                    <b>Correct Expression</b><br> 
+                    {{attempt.expression.reformulation_text}} <br>
+                    <b>Problem Expression</b><br> 
+                    {{attempt.expression.expression}} <br>
+                    <b>Graded Expression</b> (hover for details about each error)<br> 
+                    <mark><span title="There could be errors shown here">{{attempt.transcription}}</span></mark><br>
+                    <b>Audio Recording</b><br>
+                    <audio controls title="Reformulation" style="width: 200px" class="previous_attempt_audio" src="{{ attempt.audio.url }}"></audio><br>
+                    <b>Fluency Score</b><br>
+                    {{ attempt.wpm }}<br>
+                    <b>Correctness Score</b><br>
+                    {% if review.original_score %}
+                        {{ review.original_score }}
+                    {% else %}
+                        {{ attempt.correct }}
+                    {% endif %}
+                    <br>
+                    <b>New Correctness Score <input name="correct" style="width:85px;" id="new_score" {% if review.original_score %}value="{{ attempt.correct }}"{% endif %}></b>
+                    <div id="myTextboxContainer"></div>
+                    <div class="position-relative;">
+                        <b>Comments</b><br>
+                        <textarea id="teacher_comments_box" class="w-100" >{{ review.comments }}</textarea>
+                    </div>
+                    <br>
+                    
+                    {% if review %}
+                        <button id="saveChanges">Save Changes</button>
+                    {% else %}
+                        <button id="submit">Submit</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
+<script>
+let reviewer = "{{ user.id | safe }}";
+
+ function hasOnlyNumbers(inputString) {
+    /**
+    * Checks whether a string contains only numbers and a decimal point.
+    *
+    * @param {string} inputString - The input string to check.
+    * @returns {boolean} - True if the string contains only numbers and a decimal point, false otherwise.
+    */
+    return /^[0-9.]+$/.test(inputString);
+  }
+function submitForm(url){
+    /*
+     * takes current data and send it in a post request to the server (SpeakingPracticeAttemptCreateView)
+    */
+    let new_score = $('#new_score').val();
+    if (new_score != ""){
+        new_score_val = parseFloat(new_score);
+        if (!hasOnlyNumbers(new_score) || isNaN(new_score_val) || new_score_val < 0 || new_score_val > 100) {
+            alert('Please enter a valid Correctness Score between 0 and 100.');
+            return;
+        }
+    }
+    let reviewFormData = new FormData(); // creates new form
+    reviewFormData.append('request', "{{ attempt.id }}");
+    reviewFormData.append('reviewer', reviewer);
+    reviewFormData.append('comments', $("#teacher_comments_box").val());
+    reviewFormData.append('new_score', new_score);
+
+    var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
+
+    $.ajax({ // send POST request
+        type: "POST",
+        url: url, // links to html form above which specifies the url to recieve request
+        data: reviewFormData,
+        processData: false,
+        contentType: false,
+        timeout: 10000, // if takes longer than 10 secs, return timeout error
+        headers: { // places token in request so that it is certified by server
+            'X-CSRFToken': csrf_token
+        },
+        success:(response) => {
+            cs_notification('success', "Review Saved");
+            drawRequests();
+        },
+        error: (jqXHR, textStatus, errorThrown) => {
+            cs_ajax_error(jqXHR, textStatus, errorThrown);
+        }
+    });
+}
+
+$(document).ready(() => {
+    $("#submit").click(() => {
+        console.log("submit clicked");
+        submitForm("{% url 'teacher:speaking_practice_review_create' course_id=course.id attempt_id=attempt.id %}");
+    });
+    $("#saveChanges").click(() => {
+        console.log("submit clicked");
+        submitForm("{% url 'teacher:speaking_practice_review_update' course_id=course.id attempt_id=attempt.id %}");
+    });
+});
+</script>
+</body>
+<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
