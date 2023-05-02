@@ -5,83 +5,125 @@
 <script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
 
 <input hidden type="text" id="create_or_update_url">
-
+<script src="{% static "ComSemApp/js/youglish.js" %}"></script>
+<input type="hidden" id="youglish-endpoint" data-url="{% url 'get_youglish_videos' %}" />
 <!-- original -->
-{% if worksheet.display_original %}
-<div class="row">
-    <div class="col-12">
-        <label>Original Expression:</label>
-        <p id="ExprToEdit">{{ expression.expression }}</p>
-    </div>
-</div>
-{% endif %}
-
-<div class="row">
-    <div class="col-12">
-        <label>Context / Vocabulary:</label>
-        <p id="contextVocabulary">{{ expression.context_vocabulary }}</p>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
-        <label>Pronunciation:</label>
-        <p id="pronunciation">{{ expression.pronunciation }}</p>
-    </div>
-</div>
-
-<!-- teacher reformulation -->
-{% if worksheet.display_reformulation_text %}
-<div class="row">
-    <div class="col-12">
-        <label>Reformulation:</label>
-        <p id="teacherReformulation">{{ expression.reformulation_text }}</p>
-    </div>
-</div>
-{% endif %}
-
-<!-- reformulation audio -->
-{% if worksheet.display_reformulation_audio %}
+<div class="container p-0 m-0">
     <div class="row">
-        <div class="col-12">
-            <div class="form-group">
-                <label for="teacherReformulationAudio">Audio Reformulation:</label><br />
-                <audio id="teacherReformulationAudio" src="" controls></audio>
+        <div class="col sm-auto">
+            {% if worksheet.display_original %}
+            <div class="row">
+                <div class="col">
+                    <label>Original Expression:</label>
+                    <p id="ExprToEdit">{{ expression.expression }}</p>
+                </div>
             </div>
-        </div>
-    </div>
-    {% if expression.audio %}
-        <script>
-            $(function(){
-                $("#teacherReformulationAudio").attr("src", "{{ expression.audio.url }}")
-            })
-        </script>
-    {% endif %}
-{% endif %}
+            {% endif %}
 
+            <div class="row">
+                <div class="col">
+                    <label>Context / Vocabulary:</label>
+                    <p id="contextVocabulary">{{ expression.context_vocabulary }}</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <label>Pronunciation:</label>
+                    <p id="pronunciation">{{ expression.pronunciation }}</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <label>YouGlish:</label>
+                    <div id="bubbleContainer">
+                    </div>
+                </div>
+            </div>
+
+            <!-- teacher reformulation -->
+            {% if worksheet.display_reformulation_text %}
+            <div class="row">
+                <div class="col">
+                    <label>Reformulation:</label>
+                    <p id="teacherReformulation">{{ expression.reformulation_text }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- reformulation audio -->
+            {% if worksheet.display_reformulation_audio %}
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="teacherReformulationAudio">Audio Reformulation:</label><br />
+                            <audio id="teacherReformulationAudio" src="" controls></audio>
+                        </div>
+                    </div>
+                </div>
+                {% if expression.audio %}
+                    <script>
+                        $(function(){
+                            $("#teacherReformulationAudio").attr("src", "{{ expression.audio.url }}")
+                        });
+                    </script>
+                {% endif %}
+            {% endif %}
+
+        </div>
+        {% if expression.youglish_query %}
+            <div class="col">
+                <div class="row w-100 bg-light mb-0 p-2" >
+                    <b>YouGlish:</b><div id="word_holder"></div>
+                    <button class="btn btn-primary ml-auto btn-sm" data-toggle="collapse" data-target="#youglish_div">
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                </div>
+                <div class="row collapse bg-light p-2" id="youglish_div">
+                    <div id="youglish_container">
+                        <iframe id="player" allowfullscreen="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" src="" width="427" height="240" frameborder="0"></iframe>
+                        <div class="d-flex justify-content-between mt-3">
+                            <button id="backward" class="btn btn-primary">
+                                <i class="mdi mdi-arrow-left-bold"></i>
+                            </button>
+                            <button id="forward" class="btn btn-primary">
+                                <i class="mdi mdi-arrow-right-bold"></i>
+                            </button>
+                        </div>
+                        <div style="text-align: center;background-color: #f2f2f2; padding: 10px;" class="w-100">
+                            <span id= "captionHolder" style="font-size: 1.2em; font-weight: bold;">
+                            </span>
+                        </div>  
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
 <!-- correction -->
 <div class="row">
-    <div class="col-12">
+    <div class="col">
         <div class="form-group">
             <label for="CorrectedExpr">Correction:</label>
             <input type="text" class="form-control" value="{{ attempt.reformulation_text|default_if_none:'' }}" id="CorrectedExpr" autocomplete="off" />
         </div>
     </div>
 </div>
-
-
 <!-- AUDIO RECORDING -->
 <div class="row" id="display_reformulation_audioRow" style="{% if not worksheet.display_reformulation_audio %}display: none{% endif %}">
-    {% include 'ComSemApp/audio_recording.html' %}
+    {% if worksheet.display_reformulation_audio %}
+        {% include 'ComSemApp/audio_recording.html' %}
+    {% endif %}
 </div>
 
 {% if attempt.audio %}
-<script>
-    $(function(){
-        $('#recordingslist').html("<audio controls id='audioElement' src='" + "{{ attempt.audio.url }}" + "' type='audio/mpeg'></audio>");
-        $('#deleteRecordingButton').show();
-    })
-</script>
+    <script>
+        $(function(){
+            $('#recordingslist').html("<audio controls id='audioElement' src='" + "{{ attempt.audio.url }}" + "' type='audio/mpeg'></audio>");
+            $('#deleteRecordingButton').show();
+        });
+    </script>
 {% endif %}
 
 
@@ -93,45 +135,111 @@
     </div>
 </div>
 
+<script>
+
+</script>
 
 <script>
-$("#saveAttempt").click(function(e){
-    e.preventDefault()
 
-    if( $("#CorrectedExpr").val().trim() == "" ){
-        // must have a valid expression
-        alert("Please enter a correction")
-        return;
+let word_str = "{{ expression.youglish_query|default_if_none:'' }}";
+
+function generateYouglishBubbles(){
+    /*
+        generates the bubbles for the youglish words
+        and returns a list of the words
+    */
+    if (word_str == ''){
+        let no_youglish = document.createElement('div');
+        no_youglish.innerHTML = "<p>None</p>";
+        bubbleContainer.appendChild(no_youglish);
+        return null;
     }
-
-    // because of audio, we must send a formdata object
-    var attemptFormData = new FormData();
-    attemptFormData.append( 'reformulation_text', $("#CorrectedExpr").val() );
-
-    var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? true : false
-    if (reformulation_audio){
-        attemptFormData.append( 'audio', audioReformulationBlob )
-    } else {
-        attemptFormData.append('delete_audio', true)
+    else{
+        let words_list = word_str.split(',');
+        for (let i = 0; i < words_list.length; i++) {
+            let word = words_list[i];
+            let bubble = document.createElement('div');
+            bubble.className = 'btn btn-primary m-1';
+            bubble.setAttribute('id', 'youglish_word_' + i);
+            bubble.innerHTML = word;
+            bubbleContainer.appendChild(bubble);
+            // Bind click event to the button
+            $(bubble).on('click', function() {
+                populateYouglish(this.id);
+            });
+        }
+        return words_list;
     }
+}
 
-    $.ajax({
-        type: "POST",
-        url: $("#create_or_update_url").val(),
-        data: attemptFormData,
-        processData: false,
-        contentType: false,
-        success: function(response){
-            cs_notification('success', "Expression Saved")
-            // update expressions table
-            drawExpressionsTable();
-        },
-        error: function(jqXHR, textStatus, errorThrown){
-            cs_ajax_error(jqXHR, textStatus, errorThrown)
-        },
+function populateYouglish(word_id){
+    /*
+        populates YouGlish Container with videos based on
+        the word that was clicked
+    */
+    console.log(word_id);
+    let word = document.getElementById(word_id).innerHTML;
+    console.log(word);
+    get_youglish_videos("example phrase")
+    .then((data) => {
+        console.log(data); // log the response data to the console
+    })
+    .catch((error) => {
+        console.log(error); // log the error message to the console
     });
 
-    clearEditor()
-    audioReformulationBlob = null; // clears reformulation
+}
+
+$(document).ready(() => {
+    $("#saveAttempt").click(function(e){
+        e.preventDefault()
+
+        if( $("#CorrectedExpr").val().trim() == "" ){
+            // must have a valid expression
+            alert("Please enter a correction")
+            return;
+        }
+
+        // because of audio, we must send a formdata object
+        var attemptFormData = new FormData();
+        attemptFormData.append( 'reformulation_text', $("#CorrectedExpr").val() );
+
+        var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? true : false
+        if (reformulation_audio){
+            attemptFormData.append( 'audio', audioReformulationBlob )
+        } else {
+            attemptFormData.append('delete_audio', true)
+        }
+
+        $.ajax({
+            type: "POST",
+            url: $("#create_or_update_url").val(),
+            data: attemptFormData,
+            processData: false,
+            contentType: false,
+            success: function(response){
+                cs_notification('success', "Expression Saved")
+                // update expressions table
+                drawExpressionsTable();
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                cs_ajax_error(jqXHR, textStatus, errorThrown)
+            },
+        });
+
+        clearEditor()
+        audioReformulationBlob = null; // clears reformulation
+    });
+
+    $('.collapse').on('shown.bs.collapse', function(){
+        $(this).prev().find(".fa").removeClass("fa-angle-down").addClass("fa-angle-up");
+        }).on('hidden.bs.collapse', function(){
+        $(this).prev().find(".fa").removeClass("fa-angle-up").addClass("fa-angle-down");
+    });
+
+    let words_list = generateYouglishBubbles();
+
+
 });
 </script>
+
