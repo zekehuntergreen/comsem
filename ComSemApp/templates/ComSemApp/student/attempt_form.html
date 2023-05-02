@@ -180,7 +180,7 @@ function populateYouglish(word_id){
     console.log(word_id);
     let word = document.getElementById(word_id).innerHTML;
     console.log(word);
-    get_youglish_videos("example phrase")
+    get_youglish_videos(word)
     .then((data) => {
         console.log(data); // log the response data to the console
     })
