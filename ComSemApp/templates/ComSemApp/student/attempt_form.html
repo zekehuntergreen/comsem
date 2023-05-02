@@ -6,7 +6,7 @@
 
 <input hidden type="text" id="create_or_update_url">
 
-<input type="hidden" id="youglish-endpoint" data-url="{% url 'get_youglish_videos' %}" />
+<input type="hidden" id="youglish-endpoint" data-url="{% url 'get_youglish_videos' %}">
 
 <!-- original -->
 <div class="container p-0 m-0">
@@ -151,7 +151,10 @@ function populateYouglish(word_id){
     console.log(word);
     let youglish_promise = get_youglish_videos(word);
     youglish_promise.then((data) => {
+        console.log(data);
         console.log("then"); // log the response data to the console
+        $("#backward").addClass("disabled");
+        
     }).catch((error) => {
         console.log("catch"); // log the error message to the console
     });
