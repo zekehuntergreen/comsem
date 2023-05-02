@@ -27,7 +27,7 @@
                         {{ attempt.correct }}
                     {% endif %}
                     <br>
-                    <b>New Correctness Score <input name="correct" style="width:85px;" id="newScore" {% if review.original_score %}value="{{ attempt.correct }}"{% endif %}></b>
+                    <b>New Correctness Score <input name="correct" style="width:85px;" id="new_score" {% if review.original_score %}value="{{ attempt.correct }}"{% endif %}></b>
                     <div id="myTextboxContainer"></div>
                     <div class="position-relative;">
                         <b>Comments</b><br>
@@ -61,10 +61,10 @@ function submitForm(url){
     /*
      * takes current data and send it in a post request to the server (SpeakingPracticeAttemptCreateView)
     */
-    let newScore = $('#newScore').val();
-    if (newScore != ""){
-        newScoreVal = parseFloat(newScore);
-        if (!hasOnlyNumbers(newScore) || isNaN(newScoreVal) || newScoreVal < 0 || newScoreVal > 100) {
+    let new_score = $('#new_score').val();
+    if (new_score != ""){
+        new_score_val = parseFloat(new_score);
+        if (!hasOnlyNumbers(new_score) || isNaN(new_score_val) || new_score_val < 0 || new_score_val > 100) {
             alert('Please enter a valid Correctness Score between 0 and 100.');
             return;
         }
@@ -73,7 +73,7 @@ function submitForm(url){
     reviewFormData.append('request', "{{ attempt.id }}");
     reviewFormData.append('reviewer', reviewer);
     reviewFormData.append('comments', $("#teacher_comments_box").val());
-    reviewFormData.append('newScore', newScore);
+    reviewFormData.append('new_score', new_score);
 
     var csrf_token = '{{ csrf_token }}'; // grabs csrf_token for certification
 

@@ -412,18 +412,18 @@ class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView
         """
             Handles a form to update data in the SpeakingPracticeAttemptReview Model.
 
-            If there is a newScore, that field is changed on the attempt. 
+            If there is a new_score, that field is changed on the attempt. 
             If this is the first time a new score is being inputted, the original score
             field will be set. 
         """
         review = form.save(commit=False)
-        newScore = self.request.POST.get('newScore')
-        if newScore != "":
+        new_score = self.request.POST.get('new_score')
+        if new_score != "":
             id = self.request.POST.get('request')
             attempt = get_object_or_404(SpeakingPracticeAttempt, id=id)
             if review.original_score is None:
                 review.original_score = attempt.correct
-            attempt.correct = newScore
+            attempt.correct = new_score
             attempt.save()
         review.save()
         return HttpResponse(status=201)
@@ -468,18 +468,18 @@ class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView
         """
             Handles a form to update data in the SpeakingPracticeAttemptReview Model.
 
-            If there is a newScore, that field is changed on the attempt. 
+            If there is a new_score, that field is changed on the attempt. 
             If this is the first time a new score is being inputted, the original score
             field will be set. 
         """
         review = form.save(commit=False)
-        newScore = self.request.POST.get('newScore')
-        if newScore != "":
+        new_score = self.request.POST.get('new_score')
+        if new_score != "":
             id = self.request.POST.get('request')
             attempt = get_object_or_404(SpeakingPracticeAttempt, id=id)
             if review.original_score is None:
                 review.original_score = attempt.correct
-            attempt.correct = newScore
+            attempt.correct = new_score
             attempt.save()
         review.save()
         return HttpResponse(status=204)
