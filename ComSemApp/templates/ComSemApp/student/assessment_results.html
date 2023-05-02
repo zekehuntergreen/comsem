@@ -19,7 +19,10 @@
             toggles (hides/shows) the "show more" row that
             is inputted as a parameter
         */
-        $("#row" + row).toggle();
+        $("#" + row).toggle();
+        $("#showMoreButton" + row).text((i, text) => {
+            return text === "Show More" ? "Show Less" : "Show More";
+        });
     }
 </script>
 
@@ -59,7 +62,7 @@
                                         {{attempt.wpm}}%
                                     </td>
                                     <td class="text-right">
-                                        <button onclick="showHideRow({{attempt.id}})" class="sbtn btn-outline-primary btn-sm">
+                                        <button id="showMoreButton{{ attempt.id }}" onclick="showHideRow({{attempt.id}})" class="sbtn btn-outline-primary btn-sm">
                                             <!--Calls the showHideRow function when pressed, with the item id as the input-->
                                             Show More
                                         </button>
