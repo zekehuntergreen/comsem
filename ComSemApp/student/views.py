@@ -835,7 +835,7 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
 
         context['attempts'] = [
             {
-            'id' : attempt.pk,
+            'id' : attempt.id,
             'transcription' : attempt.transcription,
             'audio_path' : attempt.audio.url,
             'score' : attempt.correct,
@@ -934,3 +934,28 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
 
         attempt.save()
         return JsonResponse({'id' : attempt.id}, status=201)
+    
+
+class SpeakingPracticeTeacherReviewRequestCreateView(StudentCourseViewMixin, CreateView):
+    """
+        Used to process and save review request form in SpeakingPracticeResultsView. 
+        Implements the standard Django CreateView
+    """
+
+    model = SpeakingPracticeAttemptReviewRequest
+    fields = ['attempt']
+
+    def form_invalid(self, form):
+        """
+            Defines the behavior for an invalid form submission.
+            Reports whatever errors are found back to the frontend.
+        """
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form):
+        """
+            Defines the behavior for a valid form submission.
+            creates the SpeakingPracticeReviewRequest entry in the database
+        """
+        form.save()
+        return JsonResponse({}, status=201)
