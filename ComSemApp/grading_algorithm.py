@@ -12,7 +12,7 @@ def grade_reformulation(reformulation, correct_expression) :
     """
 
     # This checks if the expression has no errors and if it does returns full credit
-    if reformulation == correct_expression:
+    if reformulation.lower() == correct_expression.lower():
         return 100
     # Initialize the total scores
     total_order_score = 0
@@ -258,8 +258,11 @@ def extra_words(expression, correct_expression):
     return percentage
     
 if __name__ == "__main__":
-    correct_expression = "Hello My Name is Elder Price."
-    expression = "Hello My Pineapple is Elder Price."
+    correct_expression = "He walked the dog"
+    expression = "She walked the dog"
     print(expression)
     print(correct_expression)
+    print(extra_words(expression,correct_expression))
+    print(word_order(expression, correct_expression, 100))
+    print(word_position(expression, correct_expression))
     print("Your overall grade was:", grade_reformulation(expression, correct_expression))

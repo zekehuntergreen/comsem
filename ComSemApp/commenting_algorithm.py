@@ -1,12 +1,12 @@
 def missing_words(expression, correct_expression):
     """
-
+    A function that returns words that are present in correct expression, but not in expression as a list of strings.
     Args:
         expression (string): The student provided version of the expression, the reformulation.
         correct_expression (string): The correct expression the given expression will be compared to.
     
     Returns:
-        missing_words
+        missing_words (list): A list of strings, each string is a word that is not present in expression
 
     """
     lower_expression = expression.lower()
@@ -23,13 +23,13 @@ def missing_words(expression, correct_expression):
 
 def added_words(expression, correct_expression):
     """
-
+    A function that returns words that are present in expression, but not in correct expression as a list of strings.
     Args:
         expression (string): The student provided version of the expression, the reformulation.
         correct_expression (string): The correct expression the given expression will be compared to.
     
     Returns:
-        added_words
+        added_words (list): A list of strings, each string is a word that should not be in expression
     """
     lower_expression = expression.lower()
     expression_list = lower_expression.split()
@@ -47,13 +47,15 @@ def added_words(expression, correct_expression):
 
 def number_of_words(expression, correct_expression):
     """
-
+    A function that deals with words that are present in both the correct expression and the reformualtion, but are
+    too great or too little in amount. It returns these words as two lists of strings
     Args:
         expression (string): The student provided version of the expression, the reformulation.
         correct_expression (string): The correct expression the given expression will be compared to.
     
     Returns:
-        extra_present_words
+        extra_present_words (list): A list of strings that stores the words that are too great in amount.
+        missing_present_words (list): A list of strings that stores the words that are too little in amount.
     """
     lower_expression = expression.lower()
     expression_list = lower_expression.split()
@@ -96,13 +98,14 @@ def number_of_words(expression, correct_expression):
 
 def wrong_position(expression, correct_expression):
     """
-
+    A function that returns a list, of strings, of words that are in expression, but not in the same positon as 
+    correct_expression.
     Args:
         expression (string): The student provided version of the expression, the reformulation.
         correct_expression (string): The correct expression the given expression will be compared to.
     
     Returns:
-        words_in_wrong_position
+        words_in_wrong_position (list): A list of strings that stores words in the wrong position in expression
     """
     lower_expression = expression.lower()
     expression_list = lower_expression.split()
@@ -127,13 +130,14 @@ def wrong_position(expression, correct_expression):
 
 def get_comments(expression, correct_expression):
     """
-
+    This function utlizes the other functions in this file to find errors and provide feedback on those errors for students to 
+    improve. This funciton is used in the review page to get the higlighsts and comments on student work.
     Args:
         expression (string): The student provided version of the expression, the reformulation.
         correct_expression (string): The correct expression the given expression will be compared to.
     
     Returns:
-        comments: 
+        comments (list): A list of dictionaries the indexs of errors made in the sentence and comments to identify them.
     """
     comments = []
     lower_expression = expression.lower()
@@ -186,21 +190,10 @@ def get_comments(expression, correct_expression):
 if __name__ == "__main__":
     correct_expression = "Hello My Name is Elder Price"
     expression = "Hello My Elder is named Price elder"
-    print(expression)
-    print(correct_expression)
-
-    extra, lacking = number_of_words(expression, correct_expression)
-    added = added_words(expression, correct_expression)
-    missing = missing_words(expression, correct_expression)
-    position = wrong_position(expression, correct_expression)
+    print("Correct Expression: " + correct_expression)
+    print("Student Reformulation: " + expression)
 
     comments = get_comments(expression, correct_expression)
 
     for x in range(len(comments)):
         print(comments[x])
-
-    print("Added words: ", added)
-    print("Missing words: ", missing)
-    print("Extra words: ", extra)
-    print("Too little words: ", lacking)
-    print("Words in the wrong postion: ", position)
