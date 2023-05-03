@@ -222,7 +222,8 @@ class Expression(models.Model):
     context_vocabulary = models.CharField(max_length=255, blank=True, null=True)
     reformulation_text = models.TextField(blank=True, null=True)
     audio = models.FileField(upload_to=audio_directory_path, null=True, blank=True)
-
+    # The Teacher's words to request from the YouGlish API
+    youglish_query = models.TextField(max_length=64, null=True, blank=True)
     def __str__(self):
         return self.expression
 

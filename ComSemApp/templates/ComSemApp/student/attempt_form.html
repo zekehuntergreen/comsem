@@ -92,7 +92,7 @@
                                 <i class="mdi mdi-arrow-right-bold"></i>
                             </button>
                         </div>
-                        <div class="w-100 p-4 font-weight-bold text-wrap">
+                        <div class="w-100 p-4 font-weight-bold text-wrap text-center">
                             <span id= "captionHolder" class="text-break text-wrap">
                             </span>
                         </div>  
@@ -178,20 +178,21 @@ function loadVideos(){
         and adds the results to the end of the youglish_cache
     */
 
-    /*
-    let youglish_promise = get_youglish_videos(youglish_word,, youglish_page);
+    
+    let youglish_promise = get_youglish_videos(youglish_word,"",youglish_page);
     youglish_promise.then((data) => {
         console.log(data);
         console.log("then"); // log the response data to the console
         // youglish_cache.push.apply(youglish_cache, data[results]);
         youglish_page += 1;
+        results = data['results'];
+        youglish_cache.push.apply(youglish_cache, results);
     }).catch((error) => {
-        console.log("catch"); // log the error message to the console
+        cs_ajax_error(error.name);
     });
-    */
-
-    results = {
-        'results': [
+    
+    /*
+    results = [
             {
                 'display': 'as it is to order cat food to my house?',
                 'vid': '3OgsRa7VDtI',
@@ -206,9 +207,9 @@ function loadVideos(){
                 'id': '41269315',
                 'zone': 'US'
             }
-        ]
-    }
-    youglish_cache.push.apply(youglish_cache, results["results"]);
+        ];
+    youglish_cache.push.apply(youglish_cache, results);
+    */
 }
 
 function highlightWord(sentence, phrase) {
