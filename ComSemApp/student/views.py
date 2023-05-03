@@ -18,8 +18,9 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, T
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
-from ComSemApp.teacher import constants as teacher_constants
+from django.core.exceptions import ObjectDoesNotExist
 
+from ComSemApp.teacher import constants as teacher_constants
 from ComSemApp.models import *
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin, SubmissionViewMixin
 from ComSemApp.utils import transcribe_and_get_length_audio_file
@@ -30,7 +31,7 @@ class StudentViewMixin(RoleViewMixin):
 
     def _set_role_obj(self):
         # role_obj self in RoleViewMixin
-        self.student = self.role_obj
+        self.student : Student = self.role_obj
 
     def _check_valid_course(self, course_id):
         courses = Course.objects.filter(students=self.request.user.student, id=course_id)
@@ -485,7 +486,7 @@ class ReviewsheetView(StudentCourseViewMixin, DetailView):
         use_audio = dict(self.request.GET)['audio-choice'][0] == '1'
         raw_expressions = []
         for expression_id in expression_ids:
-            expression_object = get_object_or_404(Expression, pk=expression_id)
+            expression_object = get_object_or_404(Expression, id=expression_id)
             expression_object.last_submission = StudentSubmission.objects.filter(student=self.student, worksheet=expression_object.worksheet).latest('date').date.date()
             expression_object.attempts = self.get_attempts(expression_object)
             raw_expressions.append(expression_object)
@@ -618,30 +619,26 @@ class SpeakingPracticeInfoMixin(object):
         """
         # data is initialized with the worst possible values
         data : dict[str, float | int] = {'correct_attempts' : 0, 'days_since_review' : 999, 'wpm' : 0, 'last_score' : 0}
-        time_since_curr : timedelta
-        time_since_last : timedelta
+        correct_attempts : QuerySet[SpeakingPracticeAttempt]
+        last_attempt : SpeakingPracticeAttempt
         curr_time : datetime 
 
         if(attempts.count() == 0):
             return data
         
-        curr_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
-        time_since_last = curr_time - attempts[0].date
-        for attempt in attempts:
-            if attempt.correct == 100:
-                data['correct_attempts'] += 1
-                # wpm will sum all the correct attempts and be averaged later (divided by correct_attempts)
-                data['wpm'] += attempt.wpm
-            
-            # days_since_review is calculated at the end from the time_since_last timedelta
-            time_since_curr = curr_time - attempt.date
-            if time_since_curr < time_since_last:
-                time_since_last = time_since_curr
-                data['last_score'] = attempt.correct
+        correct_attempts = attempts.filter(correct=100)
+        data['correct_attempts'] = correct_attempts.count()
+        data['wpm'] = mean([attempt.wpm for attempt in correct_attempts]) if data['correct_attempts'] > 0 else 0
 
-        if(data['correct_attempts'] > 1):
-            data['wpm'] = data['wpm'] / data['correct_attempts']
-        data['days_since_review'] = time_since_last.days
+        # Get the current date in UTC so python allows us to compare with the dates in the database
+        curr_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+        try:
+            last_attempt = attempts.latest()
+            data['days_since_review'] = (curr_time - last_attempt.session.date).days
+        except ObjectDoesNotExist:
+            pass
+
+        data['last_score'] = last_attempt.correct
 
         return data
 
@@ -672,7 +669,7 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
         attempts : QuerySet[StudentAttempt] = StudentAttempt.objects.filter(student_submission__student=self.student, expression=id)
 
         try:
-            expression_object = Expression.objects.get(pk=id)
+            expression_object = Expression.objects.get(id=id)
         except(Expression.DoesNotExist):
             return None
 
@@ -702,7 +699,14 @@ class SpeakingPracticeView(StudentViewMixin, CourseViewMixin, TemplateView):
         context : dict[str, Any] = super(SpeakingPracticeView, self).get_context_data(**kwargs)
         context['problems'] : list[dict[str, str | float]] = {}
         context['student'] : int = self.student.id
-        
+
+        session : SpeakingPracticeSession = None
+        # This try-except is necessary because latest() will throw an exception if the queryset is empty
+        try:
+            session = SpeakingPracticeSession.objects.filter(student=self.student).latest()
+        except ObjectDoesNotExist:
+            pass
+
         expression_ids : list[str] = dict(self.request.GET)['choice']
         # This list comprehension grabs all the data necessary for problems and filters out invalid expressions
         context['problems'] = [problem_data for expression_id in expression_ids if (problem_data := self.generate_problem_info(expression_id)) is not None]
@@ -732,7 +736,7 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView, Speaking
         """
         context : dict[str, Any] = super(SpeakingPracticeGeneratorView, self).get_context_data(**kwargs)
         worksheets : QuerySet[Worksheet] = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
-        practice_attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(student=self.student, expression__worksheet__course=self.course)
+        practice_attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(session__student=self.student, expression__worksheet__course=self.course)
         completed : list[Worksheet] = []
         # every completed expression will have an entry in exp_data
         # each entry will have the following data: 'correct_attempts', 'days_since_review', 'wpm', 'last_score'
@@ -756,10 +760,10 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView, Speaking
                 
                 # These weights are based on the formula: attempt - min / range
                 # the days_since_review score is subtracted from one since less days since review is higher familiarity
-                expression.norm_figs['correct_attempts'] = max(0, exp_data[expression]['correct_attempts'] - mins['correct_attempts']) / ranges['correct_attempts']
+                expression.norm_figs['correct_attempts'] = max(1, exp_data[expression]['correct_attempts'] - mins['correct_attempts']) / ranges['correct_attempts']
                 expression.norm_figs['days_since_review'] = 1 - (max(0, exp_data[expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review'])
-                expression.norm_figs['wpm'] = max(0, exp_data[expression]['wpm'] - mins['wpm']) / ranges['wpm']
-                expression.norm_figs['last_score'] = max(0, exp_data[expression]['last_score'] - mins['last_score']) / ranges['last_score']
+                expression.norm_figs['wpm'] = max(1, exp_data[expression]['wpm'] - mins['wpm']) / ranges['wpm']
+                expression.norm_figs['last_score'] = max(1, exp_data[expression]['last_score'] - mins['last_score']) / ranges['last_score']
                 expression.familiarity : int = round(sum([float(expression.norm_figs[key]) * WEIGHTS[key] for key in DATA_KEYS]) * 100)
 
                 # we need to set the style of each expression's score bar
@@ -773,11 +777,6 @@ class SpeakingPracticeGeneratorView(StudentCourseViewMixin, DetailView, Speaking
         
         return context
 
-# Array of Dictionaries for result data
-practice_data = [
-                    {'id':1,'transcription1':"This is a sentence transcription.",'accuracy1':50,'fluency1':75, 'correct':'This is the correct sentence.'},
-                    {'id':2,'transcription1':"This is a second sentence transcription.",'accuracy1':90,'fluency1':70, 'correct':'This is another correct sentence.'}
-                ]
 class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView, SpeakingPracticeInfoMixin):
     """
       Serves the content of the speaking practice results page presented after a
@@ -799,17 +798,32 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
         """
         context : dict[str, Any] = super(SpeakingPracticeResultsView, self).get_context_data(**kwargs)
         context['attempts'] : list[dict[str, str | float]] = {}
-        try:
-            attempt_ids : list[str] = dict(self.request.GET)['attempt_ids']
-        except:
+        attempt_ids : list[str] = dict(self.request.GET).get('attempt', None)
+        session_ids : list[str] = dict(self.request.GET).get('session', None)
+
+        # Creates a Django filter node with the proper predicates to prevent an attempt to iterate over a null list
+        predicate : Q = None
+        if attempt_ids and session_ids:
+            predicate = Q(Q(id__in=attempt_ids) | Q(session__id__in=session_ids))
+        elif attempt_ids:
+            predicate = Q(id__in=attempt_ids)
+        elif session_ids:
+            predicate = Q(session__id__in=session_ids)
+        else:
+            # if both are null, return
             return context
-        attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(student=self.student, pk__in=attempt_ids)
+
+        # get all attempts that requested or part of a requested session
+        attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(
+            Q(session__student=self.student)
+            & Q(expression__worksheet__course=self.course)
+            & predicate)
         expressions : set[Expression] = set([attempt.expression for attempt in attempts])
         familiarity_scores : dict[int, int] = {}
 
         # In order to generate familiarity scores, we must get some data for all expressions.
         worksheets : QuerySet[Worksheet] = self.course.worksheets.filter(status=teacher_constants.WORKSHEET_STATUS_RELEASED)
-        practice_attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(student=self.student, expression__worksheet__course=self.course)
+        practice_attempts : QuerySet[SpeakingPracticeAttempt] = SpeakingPracticeAttempt.objects.filter(session__student=self.student, expression__worksheet__course=self.course)
         completed : list[Worksheet] = []
         exp_data : dict[Expression, dict[str, float | int]] = {}
         WEIGHTS : dict[str,float] = {'correct_attempts': 0.15, 'days_since_review' : 0.1,  'wpm' : 0.25, 'last_score' : 0.5}
@@ -831,18 +845,18 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
             normalized_data['days_since_review'] = 1 - (max(0, exp_data[expression]['days_since_review'] - mins['days_since_review']) / ranges['days_since_review'])
             normalized_data['wpm'] = max(0, exp_data[expression]['wpm'] - mins['wpm']) / ranges['wpm']
             normalized_data['last_score'] = max(0, exp_data[expression]['last_score'] - mins['last_score']) / ranges['last_score']
-            familiarity_scores[expression.pk] = round(sum([float(normalized_data[key]) * WEIGHTS[key] for key in DATA_KEYS]) * 100)
+            familiarity_scores[expression.id] = round(sum([float(normalized_data[key]) * WEIGHTS[key] for key in DATA_KEYS]) * 100)
 
         context['attempts'] = [
             {
-            'id' : attempt.pk,
+            'id' : attempt.id,
             'transcription' : attempt.transcription,
             'audio_path' : attempt.audio.url,
             'score' : attempt.correct,
-            'expression_id' : expression.pk,
+            'expression_id' : expression.id,
             'incorrect_expression': attempt.expression.expression,
             'correct_formulation' : attempt.expression.reformulation_text,
-            'familiarity' : familiarity_scores[attempt.expression.pk]
+            'familiarity' : familiarity_scores[attempt.expression.id]
             } for attempt in attempts]
 
         return context
@@ -862,7 +876,7 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         Implements the standard Django CreateView
     """
     model = SpeakingPracticeAttempt
-    fields = ["expression", "student", "audio"]
+    fields = ["expression", "session", "audio"]
 
     def score_generator(self, transcription : str, expression : Expression) -> Iterable[tuple[float, StudentAttempt | None]]:
         """
@@ -891,10 +905,10 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         yield (score, None)
         for attempt in correct_attempts:
             if score == MAX_SCORE:
-                raise StopIteration
+                return
             score = self.grade_against_correct(transcription, attempt.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)))
             yield (score, attempt)
-        raise StopIteration
+        return
 
     def grade_against_correct(self,transcription : string, correct_formulation : string):
         # TODO: Implement
@@ -918,13 +932,42 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         length : int
         score : tuple[float, StudentAttempt | None]
 
+        if attempt.session.student != self.student:
+            return HttpResponse(f"Student does not own session {attempt.session}", status=403)
+
         transcription, length = transcribe_and_get_length_audio_file(attempt.audio)
         # The Counter call gets the number of words, the division on the bottom get the length in minutes
         attempt.wpm = Counter(transcription.split()).total() / (length / 60000)
-        score = max(self.score_generator(transcription,attempt.expression), key=lambda score : score[1])
+        score = max(self.score_generator(transcription,attempt.expression), key=lambda score : score[0])
         attempt.correct = score[0]
         # TODO: ADD ASSOCIATED STUDENTATTEMPT ONCE MODEL IS UPDATED
         attempt.transcription = transcription
 
         attempt.save()
         return JsonResponse({'id' : attempt.id}, status=201)
+
+class SpeakingPracticeSessionCreateView(StudentCourseViewMixin, CreateView):
+    model = SpeakingPracticeSession
+    fields = []
+
+    def form_invalid(self, form):
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form):
+        session : SpeakingPracticeSession
+        status : int
+
+        try:
+            session = SpeakingPracticeSession.objects.filter(student=self.student).latest()
+        except ObjectDoesNotExist:
+            pass
+
+        if session is None or session.attempts.count() != 0:
+            session = SpeakingPracticeSession(student=self.student)
+            session.save()
+            status = 201
+        else:
+            session.date = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+            status = 200
+        
+        return HttpResponse(session.id, status=status)
