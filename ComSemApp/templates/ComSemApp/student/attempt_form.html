@@ -92,8 +92,8 @@
                                 <i class="mdi mdi-arrow-right-bold"></i>
                             </button>
                         </div>
-                        <div style="text-align: center;background-color: #f2f2f2; padding: 10px;" class="w-100">
-                            <span id= "captionHolder" style="font-size: 1.2em; font-weight: bold;">
+                        <div class="w-100 p-4 font-weight-bold text-wrap">
+                            <span id= "captionHolder" class="text-break text-wrap">
                             </span>
                         </div>  
                     </div>
@@ -232,7 +232,7 @@ function setVideo(){
     let caption = youglish_cache[youglish_index].display;
     let youtube_url = "https://www.youtube.com/embed/" + url_ending + "?start=" + start + "&autoplay=0&mute=0";
     $("#player").attr("src", youtube_url);
-    $("#captionHolder").html(highlightWord(caption, "cat"));
+    $("#captionHolder").html(highlightWord(caption, youglish_word));
 }
 
 function nextVideo(){
