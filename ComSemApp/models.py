@@ -1,6 +1,5 @@
 from __future__ import annotations # This is necessary for some type hinting
 import datetime, uuid
-from typing import Optional
 
 from django.db import models
 from django.conf import settings
