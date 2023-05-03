@@ -1,5 +1,6 @@
 from __future__ import annotations # This is necessary for some type hinting
 import datetime, uuid
+from typing import Optional
 
 from django.db import models
 from django.conf import settings
@@ -109,6 +110,20 @@ class Course(models.Model):
     def get_visible_worksheets(self):
         self.worksheets : QuerySet[Worksheet]
         return self.worksheets.exclude(status=teacher_constants.WORKSHEET_STATUS_PENDING)
+
+    def get_speaking_practice_review_requests(self) -> QuerySet[SpeakingPracticeAttemptReviewRequest]:
+        """
+        Returns a QuerySet of SpeakingPracticeAttemptReviewRequest objects that belong to attempts made by students in this course.
+        
+        Args:
+        - self: the Course instance for which to retrieve the requests
+        
+        Returns:
+        - requests: a QuerySet of SpeakingPracticeAttemptReviewRequest objects that belong to attempts made by students in this course.
+        """
+        return SpeakingPracticeAttemptReviewRequest.objects.filter(
+            attempt__expression__worksheet__course=self
+        )
 
     class Meta:
         ordering = ('-session__start_date',)
@@ -357,6 +372,87 @@ class SpeakingPracticeAttempt(models.Model):
 
     class Meta:
         verbose_name = "Speaking Practice Attempt"
+    
+    def review_requested(self) -> bool:
+        """
+            Returns true if there is a teacher review request for
+            this attempt
+        """
+        return hasattr(self,'request')
+
+    def teacher_reviewed(self) -> bool:
+        """
+            Returns true if there is a request and a review for the request
+            for this attempt
+        """
+        if self.review_requested():
+            return SpeakingPracticeAttemptReviewRequest.objects.get(attempt=self).is_reviewed()
+        return False
+
+    def get_review(self) -> SpeakingPracticeAttemptReview | None:
+        """
+            Returns the review if there is one, None otherwise
+        """
+        if self.review_requested():
+            if hasattr(self.request, 'review'):
+                return self.request.review
+        return None
+
+class SpeakingPracticeAttemptReviewRequest(models.Model):
+    """
+        This model stores students' requests for teacher review on their Speaking Practice attempts
+        Inherits from:
+            django.db.models.Model
+        Remarks:
+            The 'attempt' field is the primary key for this model because students cannot request
+            review of the same attempt more than once.
+    """
+    # The attempt which the student has requested review for
+    attempt = models.OneToOneField(SpeakingPracticeAttempt, on_delete=models.CASCADE, primary_key=True, related_name='request')
+    # The date on which the request was created
+    date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.attempt.pk}: {self.date}"
+    
+    class Meta:
+        verbose_name = "Instructor Review Request for Speaking Practice Attempt"
+    
+    def is_reviewed(self) -> bool:
+        """
+            Returns true if there is a review for this request
+        """
+        return hasattr(self,'review')
+
+    def is_reviewed(self) -> bool:
+        """
+            Returns true if there is a review for this request
+        """
+        return hasattr(self,'review')
+
+class SpeakingPracticeAttemptReview(models.Model):
+    """
+        This model stores teachers' reviews of students' SpeakingPracticeAttemptReviewRequests
+        Inherits from:
+            django.db.models.Model
+        Remarks:
+            The 'request' field is the primary key for this model because each attempt can be
+            satisfied by one review
+    """
+    # The SpeakingPracticeAttemptReviewRequest that this review is satisfying
+    request = models.OneToOneField(SpeakingPracticeAttemptReviewRequest, on_delete=models.CASCADE, primary_key=True, related_name='review')
+    # The Teacher that reviewed the attempt
+    reviewer = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
+    # The date on which the review was completed
+    date = models.DateField(auto_now_add=True)
+    # The comments the teacher has provided during review
+    comments = models.TextField(null=True, blank=True, verbose_name="Teacher Comments")
+    # The original score of the attempt. If null, the score was not updated
+    # The teacher's new scoring is stored in the SpeakingPracticeAttempt associated with the SpeakingPracticeAttemptReviewRequest
+    original_score = models.DecimalField(null=True, blank=False, max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], verbose_name='Original Score')
+
+    class Meta:
+        verbose_name = "Speaking Practice Attempt Review"
 
 # WORDS, SEQUENTIAL WORDS, TAG
 
