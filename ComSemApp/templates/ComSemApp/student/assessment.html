@@ -339,8 +339,6 @@ $(document).ready(() => {
     success:(content, status, _) => {
       // Add session to results form_expression
       $("#session").val(content);
-      console.log(content);
-      console.log($("#session").val());
     },
     error: (jqXHR, textStatus, errorThrown) => {
       cs_ajax_error(jqXHR, textStatus, errorThrown);
