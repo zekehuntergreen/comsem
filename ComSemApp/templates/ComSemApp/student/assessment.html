@@ -34,7 +34,9 @@
             <button class="btn btn-success btn-lg sec ec w-100 control disabled" value="next" id="next">NEXT EXPRESSION</button>
           </div>
         </div>
-        <form action="{% url 'student:speaking_practice_results' course.id  %}" method="GET" id="form"></form>
+        <form action="{% url 'student:speaking_practice_results' course.id  %}" method="GET" id="form">
+          <input hidden type="text" id="session" name="session"></input>
+        </form>
         <button class="btn btn-warning btn-lg w-100 mt-1" id="results-button">RESULTS</button>
         <button class="btn btn-warning btn-lg w-100 mt-1" onclick="window.location.href='{% url 'student:course' course.id %}';">RETURN TO COURSE</button>
       </div>
@@ -52,7 +54,6 @@
   <input hidden type="text" id="create_session_url" value="{% url 'student:speaking_practice_session_create' course.id%}">
 </form>
 
-<input hidden type="text" id="session_id">
 
 {% include 'ComSemApp/audio_recording_background.html' %}
 
@@ -169,7 +170,7 @@ function sendPostRequestForm(){
   // if, for whatever reason, the user pressed next problem before the sentence is appended to the form
   // then the next (and wrong) sentence might get appended to the form
   // form_expression just holds the correct expression for this form
-  attemptFormData.append('session', $('#session_id').val());
+  attemptFormData.append('session', $('#session').val());
   attemptFormData.append('expression', form_expression); 
   attemptFormData.append('audio', audioBlob);
   // This is temporary. Remove before merging
@@ -290,9 +291,10 @@ $(document).ready(() => {
     },
     success:(content, status, _) => {
       // Add session to results form_expression
-      $("#session_id").val(content)
+      $("#session").val(content)
+      $("#form")
       console.log(content)
-      console.log($("#session_id").val())
+      console.log($("#session").val())
     },
     error: (jqXHR, textStatus, errorThrown) => {
       cs_ajax_error(jqXHR, textStatus, errorThrown);
