@@ -909,7 +909,7 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
             score = self.grade_against_correct(transcription, attempt.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)))
             yield (score, attempt)
         return
-
+    
     def grade_against_correct(self,transcription : string, correct_formulation : string):
         # TODO: Implement
         return 100
