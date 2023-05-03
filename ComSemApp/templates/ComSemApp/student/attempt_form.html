@@ -142,7 +142,13 @@
 
 let word_str = "{{ expression.youglish_query|default_if_none:'' }}";
 let youglish_index = 0;
-let youglish_cache = [];
+let youglish_cache = [
+{'vid' : 'fvzpoTpfj3g', 'start': '28', 'display': 'enthusiastic about life. One of the people that was actually'},
+{'vid' : 'G8csJtDwjzk', 'start': '74', 'display': "We've always been wildly enthusiastic about the power of education"},
+{'vid' : 'BA0eO6Mu6uo', 'start': '370', 'display': 'I think I got a little bit over enthusiastic'},
+{'vid' : '--i1O2tPw0o', 'start': '225', 'display': 'but enthusiastic fan base'},
+{'vid' : 'E4yVofxXpT0', 'start': '147', 'display': 'it makes us enthusiastic to try it makes us want to pursue the potential'}
+];
 let youglish_word = "";
 let youglish_page = 0;
 
@@ -153,7 +159,6 @@ function populateYouglish(word_id){
         and sets up the previous and next buttons
     */
     // reset cache, index, and page
-    youglish_cache = [];
     youglish_index = 0;
     youglish_page = 0;
 
@@ -178,7 +183,7 @@ function loadVideos(){
         and adds the results to the end of the youglish_cache
     */
 
-    
+    /*
     let youglish_promise = get_youglish_videos(youglish_word,"",youglish_page);
     youglish_promise.then((data) => {
         console.log(data);
@@ -190,7 +195,7 @@ function loadVideos(){
     }).catch((error) => {
         cs_ajax_error(error.name);
     });
-    
+    */
     /*
     results = [
             {

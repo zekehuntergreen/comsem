@@ -12,8 +12,8 @@
     <tbody>
         {% for request in requests %}
         <tr attempt_id="{{ request.attempt.id }}">
-            <td>{{ request.attempt.date }}</td>
-            <td>{{ request.attempt.student }}</td>
+            <td>{{ request.attempt.session.date }}</td>
+            <td>{{ request.attempt.session.student }}</td>
             <td>{{ request.attempt.expression.expression }}</td>
             {% if request.is_reviewed %}
                 <td>Reviewed</td>
