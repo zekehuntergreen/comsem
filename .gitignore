@@ -12,3 +12,6 @@ app-messages/*
 
 # dev database
 db.sqlite3
+
+# api key file
+api_keys.py
