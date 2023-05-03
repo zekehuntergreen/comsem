@@ -126,13 +126,13 @@ def transcribe_and_get_length_audio_file(file : UploadedFile) -> tuple[str, int]
         try:
             text = r.recognize_google(audio)
             #closes the temp files
-            os.close(in_file_handle)
-            os.close(out_file_handle)
+            close(in_file_handle)
+            close(out_file_handle)
             # capitalize sentence
             return (text, length)
         except Exception:
-            os.close(in_file_handle)
-            os.close(out_file_handle)
+            close(in_file_handle)
+            close(out_file_handle)
             return ("", length)
 def get_youglish_videos(request : HttpRequest) -> HttpResponse:
     """
