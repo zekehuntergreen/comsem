@@ -141,6 +141,10 @@ const wordInput = document.getElementById('wordInput');
 const bubbleContainer = document.getElementById('bubbleContainer');
 
 document.getElementById('addButton').addEventListener('click', () => {
+    /*
+    *   Adds a word bubble for youglish from the text input
+    */
+
     const word = wordInput.value.trim();
     if (word) {
         const bubble = document.createElement('div');
@@ -152,12 +156,14 @@ document.getElementById('addButton').addEventListener('click', () => {
         });
 
         bubbleContainer.appendChild(bubble);
-
         wordInput.value = '';
     }
 });
 
 function joinYouglishWords() {
+    /*
+    *   Joins the words in the youglish bubbles into a comma separated string
+    */
     var contents = $("#bubbleContainer div").map(function() {
       return $(this).text();
     }).get();
