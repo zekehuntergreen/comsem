@@ -1002,3 +1002,69 @@ class SpeakingPracticeSessionCreateView(StudentCourseViewMixin, CreateView):
             status = 200
         
         return HttpResponse(session.id, status=status)
+
+class SpeakingPracticeReviewDetailView(StudentViewMixin, CourseViewMixin, DetailView, SpeakingPracticeInfoMixin):
+    """
+      Serves the content of the speaking practice results page presented after a
+      session of practice.
+    """
+    template_name: str = 'ComSemApp/student/speaking_practice_review.html'
+
+    def get_object(self) -> Course:
+        """
+            implements Django DetailView function
+        """
+        return self.course
+
+    def get_context_data(self, **kwargs) -> dict[str, dict[str, str | int | float]]:
+        """
+            implements Django's DetailView get_context_data function 
+            Returns:
+                context -- context data used by assessment_results.html
+        """
+        context : dict[str, Any] = super(SpeakingPracticeReviewDetailView, self).get_context_data(**kwargs)
+        return context
+
+class SpeakingPracticeReviewSessionListView(StudentViewMixin, CourseViewMixin, SpeakingPracticeInfoMixin, ListView):
+    '''
+        Serves the context object of session information for the Speaking Practice Sessions List
+    '''
+    context_object_name = 'sessions'
+    template_name = "ComSemApp/student/speaking_practice_sessions_list.html"
+
+    def get_queryset(self) -> list[dict[str, str | int | float]]:
+        # grabs the sessions for the student and the course
+        sessions : QuerySet[SpeakingPracticeSession] = SpeakingPracticeSession.objects.filter(student=self.student, attempts__expression__worksheet__course= self.course).distinct().order_by('-date')
+
+        # formats the context data with correct info
+        sessions_data = [
+            {
+                'id':session.id,
+                'date':session.date,
+                'avg_score': session.average_correctness()
+            } for session in sessions]
+        return sessions_data
+
+class SpeakingPracticeReviewRequestListView(StudentViewMixin, CourseViewMixin, SpeakingPracticeInfoMixin, ListView):
+    '''
+        Serves the context object of review request information for the Speaking Practice Review Request List on the student side
+    '''
+    context_object_name = 'requests'
+    template_name = "ComSemApp/student/speaking_practice_requests_list.html"
+
+    def get_queryset(self) -> list[dict[str, str | int | float]]:
+        # grabs the requests for the student and course
+        requests : QuerySet[SpeakingPracticeAttemptReviewRequest] = SpeakingPracticeAttemptReviewRequest.objects.filter(attempt__expression__worksheet__course=self.course, attempt__session__student=self.student).order_by('-date')
+
+        # formats the context data with the correct info
+        request_data = [
+            {
+                'id':request.pk,
+                'expression':request.attempt.transcription,
+                'date':request.date,
+                'session': request.attempt.session.id,
+                'reviewed': request.is_reviewed(),
+
+            } for request in requests]
+
+        return request_data

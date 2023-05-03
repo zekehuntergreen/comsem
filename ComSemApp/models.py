@@ -344,7 +344,18 @@ class SpeakingPracticeSession(models.Model):
 
     def __str__(self):
         return f"{self.student.user.last_name}, {self.student.user.first_name} - {self.date.strftime('%d %b %Y')} - {self.attempts.count()} attempts"
-
+    
+    def average_correctness(self) -> float:
+        '''
+            Returns the average correctness score of all attempts in a session
+        '''
+        attempts = self.attempts.all()
+        if attempts:
+            total_correctness = sum([attempt.correct for attempt in attempts])
+            return total_correctness / len(attempts)
+        else:
+            return 0
+    
     class Meta:
         verbose_name = "Speaking Practice Session"
         get_latest_by = "date"
