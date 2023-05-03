@@ -144,6 +144,7 @@ document.getElementById('addButton').addEventListener('click', () => {
     /*
     *   Adds a word bubble for youglish from the text input
     */
+
     const word = wordInput.value.trim();
     if (word) {
         const bubble = document.createElement('div');
@@ -163,11 +164,9 @@ function joinYouglishWords() {
     /*
     *   Joins the words in the youglish bubbles into a comma separated string
     */
-    var contents = $("#bubbleContainer div").map(() => {
-      return $(this).text();
-    }).get();
+    const contents = $("#bubbleContainer div").map((index, element) => $(element).text()).get();
     return contents.join(",");
-}
+  }
 
 function hide_select_student(){ // hides student selection
     var x = document.getElementById("select_student");
