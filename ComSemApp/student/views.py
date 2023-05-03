@@ -1020,7 +1020,7 @@ class SpeakingPracticeReviewDetailView(StudentViewMixin, CourseViewMixin, Detail
         """
             implements Django's DetailView get_context_data function 
             Returns:
-                context -- context data used by assessment_results.html
+                context -- context data used by speaking_practice_review.html
         """
         context : dict[str, Any] = super(SpeakingPracticeReviewDetailView, self).get_context_data(**kwargs)
         return context
@@ -1032,18 +1032,12 @@ class SpeakingPracticeReviewSessionListView(StudentViewMixin, CourseViewMixin, S
     context_object_name = 'sessions'
     template_name = "ComSemApp/student/speaking_practice_sessions_list.html"
 
-    def get_queryset(self) -> list[dict[str, str | int | float]]:
+    def get_queryset(self) -> QuerySet[SpeakingPracticeSession] :
+        """
+            Gets the queryset of speaking practice sessions
+        """
         # grabs the sessions for the student and the course
-        sessions : QuerySet[SpeakingPracticeSession] = SpeakingPracticeSession.objects.filter(student=self.student, attempts__expression__worksheet__course= self.course).distinct().order_by('-date')
-
-        # formats the context data with correct info
-        sessions_data = [
-            {
-                'id':session.id,
-                'date':session.date,
-                'avg_score': session.average_correctness()
-            } for session in sessions]
-        return sessions_data
+        return SpeakingPracticeSession.objects.filter(student=self.student, attempts__expression__worksheet__course= self.course).distinct().order_by('-date')
 
 class SpeakingPracticeReviewRequestListView(StudentViewMixin, CourseViewMixin, SpeakingPracticeInfoMixin, ListView):
     '''
@@ -1052,19 +1046,8 @@ class SpeakingPracticeReviewRequestListView(StudentViewMixin, CourseViewMixin, S
     context_object_name = 'requests'
     template_name = "ComSemApp/student/speaking_practice_requests_list.html"
 
-    def get_queryset(self) -> list[dict[str, str | int | float]]:
-        # grabs the requests for the student and course
-        requests : QuerySet[SpeakingPracticeAttemptReviewRequest] = SpeakingPracticeAttemptReviewRequest.objects.filter(attempt__expression__worksheet__course=self.course, attempt__session__student=self.student).order_by('-date')
-
-        # formats the context data with the correct info
-        request_data = [
-            {
-                'id':request.pk,
-                'expression':request.attempt.transcription,
-                'date':request.date,
-                'session': request.attempt.session.id,
-                'reviewed': request.is_reviewed(),
-
-            } for request in requests]
-
-        return request_data
+    def get_queryset(self) -> QuerySet[SpeakingPracticeAttemptReviewRequest]:
+        """
+            grabs the requests for the student and course
+        """
+        return SpeakingPracticeAttemptReviewRequest.objects.filter(attempt__expression__worksheet__course=self.course, attempt__session__student=self.student).order_by('-date')

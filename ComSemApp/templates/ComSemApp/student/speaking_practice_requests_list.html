@@ -12,25 +12,25 @@
     </thead>
     <tbody name='requestTable'>
         {% for request in requests %}
-        <tr request_pk='{{ request.id }}'>
+        <tr>
             <td>
-                {{ request.expression }}
+                {{ request.attempt.transcription }}
             </td>
             <td>
                 {{ request.date }}
             </td>
             <td>
-                {{ request.session }}
+                {{ request.attempt.session.id }}
             </td>
             <td>
-                {% if request.reviewed %}
+                {% if request.is_reviewed %}
                     Reviewed!
                 {% else %}
                     Pending...
                 {% endif %}
             </td>
             <td>
-                <a class='btn btn-sm btn-outline-primary' href="{% url 'student:speaking_practice_results' course.id %}?attempt={{ request.id }}">
+                <a class='btn btn-sm btn-outline-primary' href="{% url 'student:speaking_practice_results' course.id %}?attempt={{ request.attempt.id }}">
                     Review Session
                 </a>
             </td>
