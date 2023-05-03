@@ -36,7 +36,6 @@
             <div class="card">
                 <!--card for displaying results-->
                 <div class='card-body'>
-                    <h1 class="card-title">Review complete!</h1>
                     <!--table for displaying results of a practice-->
                     <table id="results_table" class="table table-hover" style="table-layout: fixed"> 
                         <div class="row header">
@@ -139,6 +138,9 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                    {% else %}
+                    <h1>No results available</h1>
+                    {% endif %}
                 </div>
             </div>
         </div>
