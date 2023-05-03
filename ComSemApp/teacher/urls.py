@@ -24,4 +24,9 @@ urlpatterns = [
 
     url(r'^corpus/search$', corpus_views.corpus_search, name='corpus_search'),
     url(r'^corpus/error_search', corpus_views.error_search, name='error_search'),
+
+    url(r'^course/(?P<course_id>[0-9]+)/speakingpractice/requests/$', views.SpeakingPracticeAttemptReviewView.as_view(), name='speaking_practice_requests'),
+    url(r'^course/(?P<course_id>[0-9]+)/speakingpractice/requests/list/$', views.SpeakingPracticeReviewRequestsListView.as_view(), name='speaking_practice_request_list'),
+    url(r'^course/(?P<course_id>[0-9]+)/speakingpractice/requests/(?P<attempt_id>[0-9]+)/review/create/$', views.SpeakingPracticeAttemptReviewCreateView.as_view(), name='speaking_practice_review_create'),
+    url(r'^course/(?P<course_id>[0-9]+)/speakingpractice/requests/(?P<attempt_id>[0-9]+)/review/update/$', views.SpeakingPracticeAttemptReviewUpdateView.as_view(), name='speaking_practice_review_update')
 ]
