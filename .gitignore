@@ -12,7 +12,7 @@ app-messages/*
 
 # dev database
 db.sqlite3
-.vscode/
+.vscode/*
 
 # api key file
 api_keys.py
