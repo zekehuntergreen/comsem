@@ -30,10 +30,9 @@
                 {% endif %}
             </td>
             <td>
-                <!-- TODO: update button to point to results page-->
-                <button class='btn btn-sm btn-outline-primary editExpression'>
-                    Review
-                </button>
+                <a class='btn btn-sm btn-outline-primary' href="{% url 'student:speaking_practice_results' course.id %}?attempt={{ request.id }}">
+                    Review Session
+                </a>
             </td>
         </tr>
         {% endfor %}
