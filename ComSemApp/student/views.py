@@ -853,10 +853,16 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
             'transcription' : attempt.transcription,
             'audio_path' : attempt.audio.url,
             'score' : attempt.correct,
-            'expression_id' : expression.id,
+            # TODO : replace wpm with function that calculates fluency score based on wpm
+            'wpm' : round((attempt.wpm / 60) * 100 if attempt.wpm < 135 else 100.00, 2),
+            'expression_id' : attempt.expression.id,
             'incorrect_expression': attempt.expression.expression,
             'correct_formulation' : attempt.expression.reformulation_text,
-            'familiarity' : familiarity_scores[attempt.expression.id]
+            'familiarity' : familiarity_scores[attempt.expression.id],
+            'teacher_audio' : attempt.expression.audio.url if attempt.expression.audio else None,
+            'review_requested' : attempt.review_requested(),
+            'teacher_reviewed' : attempt.teacher_reviewed(),
+            'teacher_comments' : attempt.get_review().comments if attempt.get_review() else None
             } for attempt in attempts]
 
         return context
@@ -909,7 +915,7 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
             score = self.grade_against_correct(transcription, attempt.reformulation_text.lower().translate(str.maketrans('', '', string.punctuation)))
             yield (score, attempt)
         return
-    
+
     def grade_against_correct(self,transcription : string, correct_formulation : string):
         # TODO: Implement
         return 100
@@ -945,7 +951,32 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
 
         attempt.save()
         return JsonResponse({'id' : attempt.id}, status=201)
+    
 
+
+class SpeakingPracticeTeacherReviewRequestCreateView(StudentCourseViewMixin, CreateView):
+    """
+        Used to process and save review request form in SpeakingPracticeResultsView. 
+        Implements the standard Django CreateView
+    """
+
+    model = SpeakingPracticeAttemptReviewRequest
+    fields = ['attempt']
+
+    def form_invalid(self, form):
+        """
+            Defines the behavior for an invalid form submission.
+            Reports whatever errors are found back to the frontend.
+        """
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form):
+        """
+            Defines the behavior for a valid form submission.
+            creates the SpeakingPracticeReviewRequest entry in the database
+        """
+        form.save()
+        return JsonResponse({}, status=201)
 class SpeakingPracticeSessionCreateView(StudentCourseViewMixin, CreateView):
     model = SpeakingPracticeSession
     fields = []

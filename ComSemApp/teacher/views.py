@@ -355,3 +355,132 @@ def delete_file(url):
         os.remove(url)
     except FileNotFoundError:
         pass
+
+
+class SpeakingPracticeAttemptReviewView(TeacherCourseViewMixin, ListView):
+    """
+    This view displays the SpeakingPracticeReviewRequestListView and the
+    SpeakingPracticeAttemptReviewCreateView/SpeakingPracticeAttemptReviewUpdateView
+    """
+    model = SpeakingPracticeAttempt
+    template_name = "ComSemApp/teacher/attempt_request_review.html"
+
+
+class SpeakingPracticeReviewRequestsListView(TeacherCourseViewMixin, ListView):
+    """
+    This view presents the list of review requests on the SpeakingPracticeAttemptReviewPage 
+    """
+    model = SpeakingPracticeAttemptReviewRequest
+    template_name = 'ComSemApp/teacher/request_list.html'
+    context_object_name = 'requests'
+
+    def get_queryset(self) -> QuerySet[SpeakingPracticeAttemptReviewRequest]:
+        """
+        Returns the queryset of SpeakingPracticeAttemptReviewRequests
+        """
+        return self.course.get_speaking_practice_review_requests().order_by('review','-date')
+
+
+class SpeakingPracticeAttemptReviewCreateView(TeacherCourseViewMixin, CreateView):
+    """
+        This view presents SpeakingPracticeAttempt information and then creates a SpeakingPracticeAttemptReview
+        for a SpeakingPracticeAttemptReviewRequest
+    """
+    model = SpeakingPracticeAttemptReview
+    template_name = "ComSemApp/teacher/attempt_request_info.html"
+    fields = ["request", "reviewer", "comments"]
+
+    def get_context_data(self, **kwargs):
+        """
+            returns context data. This data is the SpeakingPracticeAttempt
+        """
+        context = super().get_context_data(**kwargs)
+        attempt_id = self.kwargs.get('attempt_id')
+        attempt = get_object_or_404(SpeakingPracticeAttempt, id=attempt_id)
+        context['attempt'] = attempt
+        return context
+    
+
+    def form_invalid(self, form) -> JsonResponse:
+        """
+            If there is incorrect information in the form sent, it will receive
+            a Http 400 error
+        """
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form) -> HttpResponse:
+        """
+            Handles a form to update data in the SpeakingPracticeAttemptReview Model.
+
+            If there is a new_score, that field is changed on the attempt. 
+            If this is the first time a new score is being inputted, the original score
+            field will be set. 
+        """
+        review = form.save(commit=False)
+        new_score = self.request.POST.get('new_score')
+        if new_score:
+            id = self.request.POST.get('request')
+            attempt = get_object_or_404(SpeakingPracticeAttempt, id=id)
+            if review.original_score is None:
+                review.original_score = attempt.correct
+            attempt.correct = new_score
+            attempt.save()
+        review.save()
+        return HttpResponse(status=201)
+    
+class SpeakingPracticeAttemptReviewUpdateView(TeacherCourseViewMixin, UpdateView):
+    """
+        This view presents SpeakingPracticeAttempt information and then updates a SpeakingPracticeAttemptReview
+        for a SpeakingPracticeAttemptReviewRequest
+    """
+    model = SpeakingPracticeAttemptReview
+    template_name = "ComSemApp/teacher/attempt_request_info.html"
+    fields = ["reviewer", "comments"]
+    context_object_name = 'review'
+
+    def get_object(self, **kwargs):
+        """
+            Returns an SpeakingPracticeAttemptReview. This is the instance that is updated
+            in this view.
+        """
+        attempt_id = self.kwargs.get('attempt_id')
+        review = get_object_or_404(SpeakingPracticeAttemptReview, request=attempt_id)
+        return review
+
+    def get_context_data(self, **kwargs):
+        """
+            returns context data. This data is the SpeakingPracticeAttempt
+        """
+        context = super().get_context_data(**kwargs)
+        attempt_id = self.kwargs.get('attempt_id')
+        attempt = get_object_or_404(SpeakingPracticeAttempt, id=attempt_id)
+        context['attempt'] = attempt
+        return context
+
+    def form_invalid(self, form) -> JsonResponse:
+        """
+            If there is incorrect information in the form sent, it will receive
+            a Http 400 error
+        """
+        return JsonResponse(form.errors, status=400)
+
+    def form_valid(self, form) -> HttpResponse:
+        """
+            Handles a form to update data in the SpeakingPracticeAttemptReview Model.
+
+            If there is a new_score, that field is changed on the attempt. 
+            If this is the first time a new score is being inputted, the original score
+            field will be set. 
+        """
+        review = form.save(commit=False)
+        new_score = self.request.POST.get('new_score')
+        if new_score:
+            id = self.request.POST.get('request')
+            attempt = get_object_or_404(SpeakingPracticeAttempt, id=id)
+            if review.original_score is None:
+                review.original_score = attempt.correct
+            attempt.correct = new_score
+            attempt.save()
+        review.save()
+        return HttpResponse(status=204)
+

@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^course/(?P<course_id>[0-9]+)/speakingpractice/instructions/$', views.SpeakingPracticeInstructionsView.as_view(), name='speaking_practice_instructions'),
     url(r'^course/(?P<course_id>[0-9]+)/speakingpractice/save$', views.SpeakingPracticeAttemptCreateView.as_view(), name='speaking_practice_submit'),
     url(r'^course/(?P<course_id>[0-9]+)/speakingpractice/session$', views.SpeakingPracticeSessionCreateView.as_view(), name='speaking_practice_session_create'),
+    url(r'^course/(?P<course_id>[0-9]+)/speakingpractice/request$', views.SpeakingPracticeTeacherReviewRequestCreateView.as_view(), name='speaking_practice_review_request')
 ]
