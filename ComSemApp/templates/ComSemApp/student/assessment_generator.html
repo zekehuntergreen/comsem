@@ -19,6 +19,11 @@
 						id='start-review' disabled><i class="fa fa-play"></i> Start Practice</button>
 				</span>
 			</div>
+			<div class="card-box w-100">
+				<a class="btn btn-lg btn-success w-100" href="{% url 'student:speaking_practice_review' course.id%}">
+					Review Previous Attempts
+				</a>
+			</div>
 		</div>
 
 		<div class="col-md-12 col-xl-9">

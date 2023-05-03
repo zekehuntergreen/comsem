@@ -13,3 +13,4 @@ app-messages/*
 # dev database
 db.sqlite3
 .vscode
+api_keys.py
