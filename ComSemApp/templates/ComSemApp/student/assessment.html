@@ -45,17 +45,13 @@
             </div>
             <br>
           </div>
-
-          <div class="btn-group d-flex card-footer" role="group" aria-label="...">
-            
-            <!-- button display cycles same as secs -->
-            <button class='btn btn-success btn-lg sec w-100 start' id='begin-review'>BEGIN REVIEW</button>
-            <button class="btn btn-success btn-lg sec ec w-100 control disabled" value="next" id="next">NEXT EXPRESSION</button>
-          </div>
         </div>
+        <button class="btn btn-success btn-lg w-100 mt-1 disabled" value="next" id="next">NEXT EXPRESSION</button>
+
         <form action="{% url 'student:speaking_practice_results' course.id  %}" method="GET" id="form">
           <input hidden type="text" id="session" name="session"></input>
         </form>
+        
         <button class="btn btn-warning btn-lg w-100 mt-1" id="results-button">RESULTS</button>
         <button class="btn btn-warning btn-lg w-100 mt-1" onclick="window.location.href='{% url 'student:course' course.id %}';">RETURN TO COURSE</button>
       </div>
