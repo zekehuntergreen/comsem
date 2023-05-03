@@ -47,5 +47,5 @@ function get_youglish_videos(phrase, accent = "", page = 1) {
                 }
             })
             .catch((reason) => reject(reason))
-    })
+    });
 }
