@@ -22,10 +22,10 @@
                 {{ session.avg_score }}%
             </td>
             <td>
-                <!-- TODO: update button to point to results page-->
-                <button class='btn btn-sm btn-outline-primary editExpression'>
+                <a class='btn btn-sm btn-outline-primary' href="{% url 'student:speaking_practice_results' course.id %}?session={{ session.id }}">
                     Review Session
-                </button>
+                </a>
+                
             </td>
         </tr>
         {% endfor %}
