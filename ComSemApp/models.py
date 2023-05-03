@@ -34,6 +34,7 @@ def speaking_practice_audio_directory(directory, instance):
 # STUDENTS, TEACHERS, ADMINS
 
 class Student(models.Model):
+    id = models.AutoField(primary_key=True, serialize=False, verbose_name='ID')
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     institution = models.ForeignKey('Institution', on_delete=models.CASCADE)
     country = models.ForeignKey('Country', on_delete=models.SET_NULL, blank=True, null=True)
@@ -234,6 +235,7 @@ class Worksheet(models.Model):
 
 
 class Expression(models.Model):
+    id = models.AutoField(primary_key=True, serialize=False, verbose_name='ID')
     worksheet = models.ForeignKey('Worksheet', related_name="expressions", on_delete=models.CASCADE)
     expression = models.TextField()
     student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True)
@@ -356,6 +358,7 @@ class SpeakingPracticeSession(models.Model):
             return 0
     class Meta:
         verbose_name = "Speaking Practice Session"
+        get_latest_by = "date"
 
 class SpeakingPracticeAttempt(models.Model):
     """
@@ -364,6 +367,7 @@ class SpeakingPracticeAttempt(models.Model):
         Inherits from:
             django.db.models.Model
     """
+    id = models.AutoField(primary_key=True, serialize=False, verbose_name='ID')
     # The expression the student attempted
     expression = models.ForeignKey(Expression, on_delete=models.CASCADE)
     # The session which this attempt is a part of
@@ -382,7 +386,8 @@ class SpeakingPracticeAttempt(models.Model):
 
     class Meta:
         verbose_name = "Speaking Practice Attempt"
-    
+        get_latest_by = "session__date"
+
     def review_requested(self) -> bool:
         """
             Returns true if there is a teacher review request for
