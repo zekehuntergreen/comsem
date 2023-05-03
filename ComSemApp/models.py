@@ -33,6 +33,7 @@ def speaking_practice_audio_directory(directory, instance):
 # STUDENTS, TEACHERS, ADMINS
 
 class Student(models.Model):
+    id = models.AutoField(primary_key=True, serialize=False, verbose_name='ID')
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     institution = models.ForeignKey('Institution', on_delete=models.CASCADE)
     country = models.ForeignKey('Country', on_delete=models.SET_NULL, blank=True, null=True)
@@ -233,6 +234,7 @@ class Worksheet(models.Model):
 
 
 class Expression(models.Model):
+    id = models.AutoField(primary_key=True, serialize=False, verbose_name='ID')
     worksheet = models.ForeignKey('Worksheet', related_name="expressions", on_delete=models.CASCADE)
     expression = models.TextField()
     student = models.ForeignKey('Student', on_delete=models.SET_NULL, blank=True, null=True)
@@ -329,6 +331,23 @@ class ReviewAttempt(models.Model):
     class Meta:
         verbose_name = "Review Attempt"
 
+class SpeakingPracticeSession(models.Model):
+    """
+        This model groups Speaking Practice attempts into sessions so they can be reviewed as such later.
+        Inherits from:
+            django.db.models.Model
+    """
+    # The date and time of the session
+    date = models.DateTimeField(auto_now_add=True, verbose_name='Date and Time')
+    # The student who owns the session
+    student = models.ForeignKey(Student, on_delete=models.SET_NULL, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.student.user.last_name}, {self.student.user.first_name} - {self.date.strftime('%d %b %Y')} - {self.attempts.count()} attempts"
+
+    class Meta:
+        verbose_name = "Speaking Practice Session"
+        get_latest_by = "date"
 
 class SpeakingPracticeAttempt(models.Model):
     """
@@ -337,27 +356,27 @@ class SpeakingPracticeAttempt(models.Model):
         Inherits from:
             django.db.models.Model
     """
+    id = models.AutoField(primary_key=True, serialize=False, verbose_name='ID')
     # The expression the student attempted
     expression = models.ForeignKey(Expression, on_delete=models.CASCADE)
-    # The student who attempted
-    student = models.ForeignKey(Student, on_delete=models.SET_NULL, blank=True, null=True)
+    # The session which this attempt is a part of
+    session = models.ForeignKey(SpeakingPracticeSession, on_delete=models.CASCADE, related_name='attempts')
     # The audio file from the student's attempt
     audio = models.FileField(upload_to=speaking_practice_audio_directory, null=False, blank=False)
     # The transcription of the student's attempt
     transcription = models.TextField(null=False, blank=False)
-    # The date and time the student made the attempt
-    date = models.DateTimeField(auto_now_add=True, verbose_name='Date and Time')
     # The student's correctness score --- Accepts numbers 00.00-100.00
     correct = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], verbose_name='Correctness Score')
     # The number of words per minute in the student's recording --- Accepts numbers 000.00-999.99
     wpm = models.DecimalField(max_digits=5,decimal_places=2, validators=[MinValueValidator(0)], verbose_name='Words per Minute')
 
     def __str__(self):
-        return f"{self.pk}: {self.expression} - {self.correct}% ({self.date.strftime('%d %b %Y')})"
+        return f"{self.id} - {self.expression} - {self.correct}% ({self.session.date.strftime('%d %b %Y')}) [Session {self.session.pk}]"
 
     class Meta:
         verbose_name = "Speaking Practice Attempt"
-    
+        get_latest_by = "session__date"
+
     def review_requested(self) -> bool:
         """
             Returns true if there is a teacher review request for
