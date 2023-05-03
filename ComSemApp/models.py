@@ -409,12 +409,6 @@ class SpeakingPracticeAttemptReviewRequest(models.Model):
         """
         return hasattr(self,'review')
 
-    def is_reviewed(self) -> bool:
-        """
-            Returns true if there is a review for this request
-        """
-        return hasattr(self,'review')
-
 class SpeakingPracticeAttemptReview(models.Model):
     """
         This model stores teachers' reviews of students' SpeakingPracticeAttemptReviewRequests
