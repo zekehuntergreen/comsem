@@ -1,4 +1,3 @@
-
 /* NOTE
  * Due to the way that Django assigns URLs, they cannot be dynamically acquired
  * in a JavaScript file. Therefore, in any HTML file this script is used in, an html
@@ -25,14 +24,13 @@ function get_youglish_videos(phrase, accent = "", page = 1) {
             },
             dataType : "json",
             timeout : 10000,
-            // statusCode : {
-                // 200 : (data) => resolve(data), 
-                // 400 : (_,_,reason) => reject(reason),
-                // 404 : (_,_,reason) => reject(reason),
-                // 500 : (_,_,reason) => reject(reason)
-            // },
-            success : (data) => {resolve(data)},
-            error : (_,reason,_) => { console.log(reason); reject(reason) }
+            statusCode : {
+                200 : (data) => { console.log("a"); resolve(data); }, 
+                400 : () => { console.log("b"); reject("Bad request");} ,
+                404 : () => { console.log("c"); reject("");} ,
+                500 : () => { console.log("d"); reject("");}
+            },
+            error : (reason) => { console.log("e"); reject(reason); } 
         })
     });
 }

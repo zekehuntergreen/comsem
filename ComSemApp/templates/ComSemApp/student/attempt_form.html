@@ -166,6 +166,7 @@ function populateYouglish(word_id){
     $("#backward").addClass("disabled");
     
     loadVideos();
+
     if (!setVideo()){
 
     }
@@ -184,10 +185,10 @@ function loadVideos(){
         and adds the results to the end of the youglish_cache
     */
 
+    /*
     get_youglish_videos(youglish_word,"",youglish_page)
     .then((data) => {
-        console.log(data);
-        console.log("then"); // log the response data to the console
+         // log the response data to the console
         // youglish_cache.push.apply(youglish_cache, data[results]);
         youglish_page += 1;
         results = data['results'];
@@ -202,7 +203,15 @@ function loadVideos(){
     })
     .catch((error) => {
         console.log(error);
-        cs_ajax_error(error);
+    });*/
+
+    get_youglish_videos(youglish_word,"",youglish_page)
+    .then((data) => {
+        youglish_page += 1;
+        results = data['results'];
+        youglish_cache.push.apply(youglish_cache, results);
+    }).catch((error) => {
+        console.log(error)
     });
 }
 

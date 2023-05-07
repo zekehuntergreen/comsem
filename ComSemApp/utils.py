@@ -3,6 +3,9 @@ import nltk
 import ssl
 import tempfile
 import speech_recognition as sr
+from django.http import HttpResponse
+from django.core.files.uploadedfile import UploadedFile
+import tempfile
 
 from os import close
 from pydub import AudioSegment
@@ -84,10 +87,56 @@ def transcribe(request):
                 close(out_file_handle)
                 return HttpResponse("")
 
+
+def transcribe_and_get_length_audio_file(file : UploadedFile) -> tuple[str, int]:
+    """
+        Utilizes the Google audio transcription API to transcribe and get the length of an
+        audio file of the Django UploadedFile class
+        
+        Arguments:
+            file : UploadedFile -- The file to transcribe and get length of
+        Returns:
+            tuple(str, int) -- The transcription and length (in milliseconds) of the file
+    """
+    # tempfile.mkstemp returns a tuple containing an OS level handle
+    # and absolute path of the temp file
+    in_file_handle : int
+    temp_in_path : bytes
+    out_file_handle : int
+    temp_out_path : bytes
+
+    in_file_handle, temp_in_path = tempfile.mkstemp(suffix=".ogg")
+    out_file_handle, temp_out_path = tempfile.mkstemp(suffix=".wav")
+    with open(temp_in_path, 'wb') as temp_in:
+        temp_in.write(file.read())
+        
+    # pydub is needed to change an ogg file to a wav file
+    audio : AudioSegment = AudioSegment.from_file(temp_in_path, format="ogg")
+    audio.export(temp_out_path, format="wav")
+    length = len(audio)
+
+    # r is an object of an import "speech_recognition" declared at the top
+    r = sr.Recognizer()
+
+    # sr.Recognizer can only take .wav files
+    audio_file = temp_out_path
+    with sr.AudioFile(audio_file) as source:
+        audio = r.listen(source)
+        try:
+            text = r.recognize_google(audio)
+            #closes the temp files
+            close(in_file_handle)
+            close(out_file_handle)
+            # capitalize sentence
+            return (text, length)
+        except Exception:
+            close(in_file_handle)
+            close(out_file_handle)
+            return ("", length)
+        
 def get_youglish_videos(request : HttpRequest) -> HttpResponse:
     """
         Polls YouGlish REST API for YouTube video clips containing the phrase given in an HTTP GET request
-
         Arguments:
             request : HttpRequest - a Django HttpRequest object which should contain GET request data
                 phrase (required) - The phrase to search for
@@ -100,7 +149,6 @@ def get_youglish_videos(request : HttpRequest) -> HttpResponse:
                 HttpResponseBadRequst  (400) - If the request does not have the required GET arguments
                 Http404                (404) - If the requested phrase has no available video clips
                 HttpResponeServerError (500) - If some problem occurs in communicating with YouGlish
-
         Remarks:
             The YouGlish REST API for videos can be found at https://youglish.com/api/doc/rest/videos
     """
