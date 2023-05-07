@@ -1,4 +1,4 @@
-def grade_reformulation(reformulation, correct_expression) :
+def grade_reformulation(reformulation, correct_expression) -> float :
     """
     This function takes in the reformulation the student provided as well as the correct expression 
     it then uses the functions in this file to grade their answer
@@ -63,7 +63,7 @@ def grade_reformulation(reformulation, correct_expression) :
     overall_grade = (total_order_score * order_weight) + (total_presence_score * presence_weight)
     return overall_grade
 
-def word_prescence(expression, correct_expression):
+def word_prescence(expression, correct_expression) -> float :
     """
     This is a function that determines if the words from the given correct expression 
     are present within the given expression. It then calculates a percentage score 
@@ -116,7 +116,7 @@ def word_prescence(expression, correct_expression):
         percentage = ((correct_expression_length - error_count) / correct_expression_length) * 100
     return percentage
 
-def word_order(expression, correct_expression, presence_grade):
+def word_order(expression, correct_expression, presence_grade) -> float :
     """
     This is a function that determines if there is an error with the order of words in the given
     expression based upon the order of words in the given correct expression. It then calculates 
@@ -161,7 +161,7 @@ def word_order(expression, correct_expression, presence_grade):
     percentage = ((correct_expression_length - error_count) / correct_expression_length) * 100
     return percentage
 
-def word_position(expression, correct_expression):
+def word_position(expression, correct_expression) -> float :
     """
     This is a function that determines if there is an error with word positions in the given
     expression, compared to the given correct expression. The function then calculates 
@@ -195,7 +195,7 @@ def word_position(expression, correct_expression):
     return percentage
 
 
-def expression_length(expression, correct_expression):
+def expression_length(expression, correct_expression) -> float :
     """
     This is a function that determines if the number of words in the given expression and
     given correct expression are the same. If they are not and the deffecernce is greater
@@ -226,7 +226,7 @@ def expression_length(expression, correct_expression):
         percentage = percentage * 100
     return percentage
     
-def extra_words(expression, correct_expression):
+def extra_words(expression, correct_expression) -> float :
     """
     This is a function that determines if the student added extra words to their given expression
     by comparing to the given correct expression. Once again if they add more words than half
