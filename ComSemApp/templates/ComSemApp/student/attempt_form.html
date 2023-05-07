@@ -166,7 +166,9 @@ function populateYouglish(word_id){
     $("#backward").addClass("disabled");
     
     loadVideos();
-    setVideo();
+    if (!setVideo()){
+
+    }
 
     if (youglish_cache.length  < 2){
         $("#forward").addClass("disabled");
@@ -210,6 +212,8 @@ function highlightWord(sentence, phrase) {
         If the phrase is not in the sentence, the sentence
         is returned
     */
+
+
     return sentence
 }
 
@@ -225,7 +229,9 @@ function setVideo(){
         let youtube_url = "https://www.youtube.com/embed/" + url_ending + "?start=" + start + "&autoplay=0&mute=0";
         $("#player").attr("src", youtube_url);
         $("#captionHolder").html(highlightWord(caption, youglish_word));
+        return true
     }
+    return false
 }
 
 function nextVideo(){
