@@ -144,7 +144,7 @@ let word_str = "{{ expression.youglish_query|default_if_none:'' }}";
 let youglish_index = 0;
 let youglish_cache = [];
 let youglish_word = "";
-let youglish_page = 0;
+let youglish_page = 1;
 
 function populateYouglish(word_id){
     /*
@@ -155,7 +155,7 @@ function populateYouglish(word_id){
     // reset cache, index, and page
     youglish_cache = [];
     youglish_index = 0;
-    youglish_page = 0;
+    youglish_page = 1;
 
     $("#collapse_icon").removeClass("fa-angle-down").addClass("fa-angle-up");
     $("#youglish_div").collapse("show");
@@ -183,8 +183,9 @@ function loadVideos(){
         Makes a call to the get_youglish_videos function
         and adds the results to the end of the youglish_cache
     */
-    //let youglish_promise = get_youglish_videos(youglish_word,"",youglish_page);
-    youglish_promise.then((data) => {
+
+    get_youglish_videos(youglish_word,"",youglish_page)
+    .then((data) => {
         console.log(data);
         console.log("then"); // log the response data to the console
         // youglish_cache.push.apply(youglish_cache, data[results]);
@@ -198,7 +199,9 @@ function loadVideos(){
         else{
             $("#forward").removeClass("disabled");
         }
-    }).catch((error) => {
+    })
+    .catch((error) => {
+        console.log(error);
         cs_ajax_error(error);
     });
 }
@@ -212,16 +215,26 @@ function highlightWord(sentence, phrase) {
         If the phrase is not in the sentence, the sentence
         is returned
     */
-
-
-    return sentence
+    let index_of_phrase = sentence.indexOf(phrase);
+    console.log(index_of_phrase);
+    if (index_of_phrase == -1){
+        return sentence
+    }
+    else{
+        let html_string = sentence.substring(0,index_of_phrase);
+        console.log(html_string);
+        html_string += "<span style='background-color:#FFFF00'>"+ phrase + "</span>";
+        console.log(html_string);
+        html_string += sentence.substring(index_of_phrase + phrase.length, sentence.length);
+        console.log(html_string);
+        return html_string
+    }
 }
 
 function setVideo(){
     /*
         sets the video and captions to the current index in the cache
     */
-
     if (youglish_cache.length > youglish_index){
         let url_ending = youglish_cache[youglish_index].vid;
         let start = youglish_cache[youglish_index].start;

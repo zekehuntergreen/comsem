@@ -129,7 +129,7 @@ def get_youglish_videos(request : HttpRequest) -> HttpResponse:
     except(ValueError):
         return HttpResponseServerError()
     
-    if not 'total_results' in json:
+    if not json or not 'total_results' in json:
         return HttpResponseServerError()
     if json['total_results'] == 0:
         return Http404("No clips available")
