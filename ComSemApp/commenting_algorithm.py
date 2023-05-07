@@ -2,19 +2,17 @@ def missing_words(expression, correct_expression) -> list[str] :
     """
     A function that returns words that are present in correct expression, but not in expression as a list of strings.
     Args:
-        expression (string): The student provided version of the expression, the reformulation.
-        correct_expression (string): The correct expression the given expression will be compared to.
+        expression (list): A list version of the student provided version of the expression, the reformulation.
+        correct_expression (list): A list version of the correct expression the given expression will be compared to.
     
     Returns:
         missing_words (list): A list of strings, each string is a word that is not present in expression
 
     """
-    expression_list = expression.split()
-    correct_expression_list = correct_expression.split()
     missing_words = []
 
-    for word in correct_expression_list:
-        if word not in expression_list:
+    for word in correct_expression:
+        if word not in expression:
             missing_words.append(word)
 
     return missing_words
@@ -29,12 +27,10 @@ def added_words(expression, correct_expression) -> list[str] :
     Returns:
         added_words (list): A list of strings, each string is a word that should not be in expression
     """
-    expression_list = expression.split()
-    correct_expression_list = correct_expression.split()
     added_words = []
 
-    for word in expression_list:
-        if word in correct_expression_list:
+    for word in expression:
+        if word in correct_expression:
             continue
         else:
             added_words.append(word)
@@ -46,25 +42,23 @@ def number_of_words(expression, correct_expression) -> list[str] :
     A function that deals with words that are present in both the correct expression and the reformualtion, but are
     too great or too little in amount. It returns these words as two lists of strings
     Args:
-        expression (string): The student provided version of the expression, the reformulation.
-        correct_expression (string): The correct expression the given expression will be compared to.
+        expression (list): A list version of the student provided version of the expression, the reformulation.
+        correct_expression (list): A list version of the correct expression the given expression will be compared to.
     
     Returns:
         extra_present_words (list): A list of strings that stores the words that are too great in amount.
         missing_present_words (list): A list of strings that stores the words that are too little in amount.
     """
-    expression_list = expression.split()
-    correct_expression_list = correct_expression.split()
     extra_present_words = []
     missing_present_words = []
 
     present_words = [] # A list of strings that will hold the words that have been recorded
-    number_present = [] # A list that will record the number of each word that is not present in the student submission
-    correct_present_words = [] # A list of strings that will hold the words that have been recorded
-    correct_number_present = [] # A list that will record the number of each word that is not present in the student submission
+    number_present = [] # A list that will record the number of each word that is is present in the student submission
+    correct_present_words = [] # A list of strings that will hold the words that have been recorded, in the correct expression
+    correct_number_present = [] # A list that will record the number of each word that is preset in the correct expression
 
     # Get the words in the correct expression and their counts 
-    for word in correct_expression_list:
+    for word in correct_expression:
         if word not in present_words:
             correct_present_words.append(word)
             correct_number_present.append(1)
@@ -73,7 +67,7 @@ def number_of_words(expression, correct_expression) -> list[str] :
             correct_number_present[temp] += 1
 
     # Words in the inccorect expression
-    for word in expression_list:
+    for word in expression:
         if word not in present_words:
             present_words.append(word)
             number_present.append(1)
@@ -82,8 +76,8 @@ def number_of_words(expression, correct_expression) -> list[str] :
             number_present[temp] += 1
 
     # Compares the present words in each expression to determine if there are extra or less of a given word
-    for word in correct_expression_list:
-        if word in expression_list:
+    for word in correct_expression:
+        if word in expression:
             temp_correct = correct_present_words.index(word)
             temp =  present_words.index(word)
             if correct_number_present[temp_correct] > number_present[temp]:
@@ -100,17 +94,15 @@ def wrong_position(expression, correct_expression) -> list[str] :
     A function that returns a list, of strings, of words that are in expression, but not in the same positon as 
     correct_expression.
     Args:
-        expression (string): The student provided version of the expression, the reformulation.
-        correct_expression (string): The correct expression the given expression will be compared to.
+        expression (list): A list version of the student provided version of the expression, the reformulation.
+        correct_expression (list): A list version of the correct expression the given expression will be compared to.
     
     Returns:
         words_in_wrong_position (list): A list of strings that stores words in the wrong position in expression
     """
-    expression_list = expression.split()
-    correct_expression_list = correct_expression.split()
     words_in_wrong_position = []
-    correct_expression_length = len(correct_expression_list)
-    expression_length = len(expression_list)
+    correct_expression_length = len(correct_expression)
+    expression_length = len(expression)
 
     if(expression_length > correct_expression_length):
         min_length = correct_expression_length
@@ -118,8 +110,8 @@ def wrong_position(expression, correct_expression) -> list[str] :
         min_length = expression_length
 
     for x in range(min_length):
-        if expression_list[x] != correct_expression_list[x] and expression_list[x] in correct_expression_list:
-            words_in_wrong_position.append(expression_list[x])
+        if expression[x] != correct_expression[x] and expression[x] in correct_expression:
+            words_in_wrong_position.append(expression[x])
 
     return words_in_wrong_position
             
@@ -139,11 +131,14 @@ def get_comments(expression, correct_expression) -> list[dict] :
     comments = []
     lower_expression = expression.lower()
     lower_correct_expression = correct_expression.lower()
+    expression_list = lower_expression.split()
+    correct_expression_list = lower_correct_expression.split()
 
-    extra, lacking = number_of_words(lower_expression, lower_correct_expression)
-    added = added_words(lower_expression, lower_correct_expression)
-    missing = missing_words(lower_expression, lower_correct_expression)
-    position = wrong_position(lower_expression, lower_correct_expression)
+
+    extra, lacking = number_of_words(expression_list, correct_expression_list)
+    added = added_words(expression_list, correct_expression_list)
+    missing = missing_words(expression_list, correct_expression_list)
+    position = wrong_position(expression_list, correct_expression_list)
 
     i = 0
     word = ""
