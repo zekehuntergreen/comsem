@@ -120,7 +120,7 @@ def wrong_position(expression, correct_expression) -> list[str] :
 def get_comments(expression, correct_expression) -> list[dict] :
     """
     This function utlizes the other functions in this file to find errors and provide feedback on those errors for students to 
-    improve. This funciton is used in the review page to get the higlighsts and comments on student work.
+    improve. This funciton is used in the review page to get the higlights and comments on student work.
     Args:
         expression (string): The student provided version of the expression, the reformulation.
         correct_expression (string): The correct expression the given expression will be compared to.
