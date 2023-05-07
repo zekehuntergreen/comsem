@@ -23,29 +23,14 @@ function get_youglish_videos(phrase, accent = "", page = 1) {
                 page : page
             },
             dataType : "json",
-            timeout : 10000
+            timeout : 10000,
+            statusCode : {
+                200 : (data) => resolve(data), 
+                400 : () => reject("Bad request"),
+                404 : () => reject(""),
+                500 : () => reject("")
+            },
+            error : (reason) => reject(reason)
         })
-            .then((data, status) => {
-                if (status != 200) {
-                    switch (status) {
-                    case 400:
-                        // TODO : Establish standard for these promise resolutions
-                        reject("Bad request");
-                        break;
-                    case 404:
-                        reject("");
-                        break;
-                    case 500:
-                        reject("");
-                        break;
-                    default:
-                        reject("");
-                    }
-                }
-                else {
-                    resolve(data);
-                }
-            })
-            .catch((reason) => reject(reason))
     });
 }

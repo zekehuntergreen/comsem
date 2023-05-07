@@ -160,7 +160,7 @@ function populateYouglish(word_id){
     */
     // reset cache, index, and page
     youglish_index = 0;
-    youglish_page = 0;
+    youglish_page = 1;
 
     // get the word
     youglish_word = document.getElementById(word_id).innerHTML;
@@ -183,38 +183,14 @@ function loadVideos(){
         and adds the results to the end of the youglish_cache
     */
 
-    /*
-    let youglish_promise = get_youglish_videos(youglish_word,"",youglish_page);
-    youglish_promise.then((data) => {
-        console.log(data);
-        console.log("then"); // log the response data to the console
-        // youglish_cache.push.apply(youglish_cache, data[results]);
+    get_youglish_videos(youglish_word,"",youglish_page)
+    .then((data) => {
         youglish_page += 1;
         results = data['results'];
         youglish_cache.push.apply(youglish_cache, results);
     }).catch((error) => {
-        cs_ajax_error(error.name);
+        console.log(error)
     });
-    */
-    /*
-    results = [
-            {
-                'display': 'as it is to order cat food to my house?',
-                'vid': '3OgsRa7VDtI',
-                'start': '304',
-                'id': '10474658',
-                'zone': 'US'
-            },
-            {
-                'display': 'The entire crew? One cat.',
-                'vid': 'trr8Sy1wYa0',
-                'start': '80',
-                'id': '41269315',
-                'zone': 'US'
-            }
-        ];
-    youglish_cache.push.apply(youglish_cache, results);
-    */
 }
 
 function highlightWord(sentence, phrase) {
