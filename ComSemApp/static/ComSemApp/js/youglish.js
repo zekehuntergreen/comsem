@@ -25,12 +25,12 @@ function get_youglish_videos(phrase, accent = "", page = 1) {
             dataType : "json",
             timeout : 10000,
             statusCode : {
-                200 : (data) => resolve(data), 
-                400 : () => reject("Bad request"),
-                404 : () => reject(""),
-                500 : () => reject("")
+                200 : (data) => { console.log("a"); resolve(data) }, 
+                400 : () => { console.log("b"); reject("Bad request")} ,
+                404 : () => { console.log("c"); reject("")} ,
+                500 : () => { console.log("d"); reject("")}
             },
-            error : (reason) => reject(reason)
+            error : (reason) => { console.log("e"); reject(reason) } 
         })
     });
 }
