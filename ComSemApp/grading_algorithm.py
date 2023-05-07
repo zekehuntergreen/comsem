@@ -262,7 +262,4 @@ if __name__ == "__main__":
     expression = "She walked the dog"
     print(expression)
     print(correct_expression)
-    print(extra_words(expression,correct_expression))
-    print(word_order(expression, correct_expression, 100))
-    print(word_position(expression, correct_expression))
     print("Your overall grade was:", grade_reformulation(expression, correct_expression))
