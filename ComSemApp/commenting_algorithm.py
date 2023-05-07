@@ -9,10 +9,8 @@ def missing_words(expression, correct_expression) -> list[str] :
         missing_words (list): A list of strings, each string is a word that is not present in expression
 
     """
-    lower_expression = expression.lower()
-    expression_list = lower_expression.split()
-    lower_correct_expression = correct_expression.lower()
-    correct_expression_list = lower_correct_expression.split()
+    expression_list = expression.split()
+    correct_expression_list = correct_expression.split()
     missing_words = []
 
     for word in correct_expression_list:
@@ -31,10 +29,8 @@ def added_words(expression, correct_expression) -> list[str] :
     Returns:
         added_words (list): A list of strings, each string is a word that should not be in expression
     """
-    lower_expression = expression.lower()
-    expression_list = lower_expression.split()
-    lower_correct_expression = correct_expression.lower()
-    correct_expression_list = lower_correct_expression.split()
+    expression_list = expression.split()
+    correct_expression_list = correct_expression.split()
     added_words = []
 
     for word in expression_list:
@@ -57,10 +53,8 @@ def number_of_words(expression, correct_expression) -> list[str] :
         extra_present_words (list): A list of strings that stores the words that are too great in amount.
         missing_present_words (list): A list of strings that stores the words that are too little in amount.
     """
-    lower_expression = expression.lower()
-    expression_list = lower_expression.split()
-    lower_correct_expression = correct_expression.lower()
-    correct_expression_list = lower_correct_expression.split()
+    expression_list = expression.split()
+    correct_expression_list = correct_expression.split()
     extra_present_words = []
     missing_present_words = []
 
@@ -112,10 +106,8 @@ def wrong_position(expression, correct_expression) -> list[str] :
     Returns:
         words_in_wrong_position (list): A list of strings that stores words in the wrong position in expression
     """
-    lower_expression = expression.lower()
-    expression_list = lower_expression.split()
-    lower_correct_expression = correct_expression.lower()
-    correct_expression_list = lower_correct_expression.split()
+    expression_list = expression.split()
+    correct_expression_list = correct_expression.split()
     words_in_wrong_position = []
     correct_expression_length = len(correct_expression_list)
     expression_length = len(expression_list)
@@ -146,11 +138,12 @@ def get_comments(expression, correct_expression) -> list[dict] :
     """
     comments = []
     lower_expression = expression.lower()
+    lower_correct_expression = correct_expression.lower()
 
-    extra, lacking = number_of_words(expression, correct_expression)
-    added = added_words(expression, correct_expression)
-    missing = missing_words(expression, correct_expression)
-    position = wrong_position(expression, correct_expression)
+    extra, lacking = number_of_words(lower_expression, lower_correct_expression)
+    added = added_words(lower_expression, lower_correct_expression)
+    missing = missing_words(lower_expression, lower_correct_expression)
+    position = wrong_position(lower_expression, lower_correct_expression)
 
     i = 0
     word = ""
