@@ -28,7 +28,7 @@ function get_youglish_videos(phrase, accent = "", page = 1) {
                 200 : (data) => {resolve(data);},
                 400 : () => {reject("Bad request");},
                 404 : () => {reject("Error");},
-                500 : () => {reject("YouGlish Serer Error");}
+                500 : () => {reject("YouGlish Server Error");}
             },
             error : (reason) => {reject("Server Error");}
         })
