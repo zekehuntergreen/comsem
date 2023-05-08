@@ -132,15 +132,15 @@ def get_comments(expression, correct_expression) -> list[dict] :
         if lower_expression[i] == " ":
             end_index = i-1
             if word in position and word in extra:
-                comments.append({'start':start_index,'end':end_index,'comment':"There is extra of this word and one or more of it is in the wrong postion."})
+                comments.append({"start":start_index,"end":end_index,"comment":"There is extra of this word and one or more of it is in the wrong postion."})
             elif word in position and word in lacking:
-                comments.append({'start':start_index,'end':end_index,'comment':"There is too little of this word and one or more of it is in the wrong postion."})
+                comments.append({"start":start_index,"end":end_index,"comment":"There is too little of this word and one or more of it is in the wrong postion."})
             elif word in position:
-                comments.append({'start':start_index,'end':end_index,'comment':"This word is in the wrong postion."})
+                comments.append({"start":start_index,"end":end_index,"comment":"This word is in the wrong postion."})
             elif word in added:
-                comments.append({'start':start_index,'end':end_index,'comment':"This word is not orginally part of the expression."})
+                comments.append({"start":start_index,"end":end_index,"comment":"This word is not orginally part of the expression."})
             elif word in lacking:
-                comments.append({'start':start_index,'end':end_index,'comment':"There is too little of the this word in your reformulation."})
+                comments.append({"start":start_index,"end":end_index,"comment":"There is too little of the this word in your reformulation."})
             word = ""
             i +=1
             start_index = i
@@ -151,15 +151,15 @@ def get_comments(expression, correct_expression) -> list[dict] :
     # For the last word in the expression
     end_index = i-1
     if word in position and word in extra:
-        comments.append({'start':start_index,'end':end_index,'comment':"There is extra of this word and one or more of it is in the wrong postion."})
+        comments.append({"start":start_index,"end":end_index,"comment":"There is extra of this word and one or more of it is in the wrong postion."})
     elif word in position and word in lacking:
-        comments.append({'start':start_index,'end':end_index,'comment':"There is too little of this word and one or more of it is in the wrong postion."})
+        comments.append({"start":start_index,"end":end_index,"comment":"There is too little of this word and one or more of it is in the wrong postion."})
     elif word in position:
-        comments.append({'start':start_index,'end':end_index,'comment':"This word is in the wrong postion."})
+        comments.append({"start":start_index,"end":end_index,"comment":"This word is in the wrong postion."})
     elif word in added:
-        comments.append({'start':start_index,'end':end_index,'comment':"This word is not orginally part of the expression."})
+        comments.append({"start":start_index,"end":end_index,"comment":"This word is not orginally part of the expression."})
     elif word in lacking:
-        comments.append({'start':start_index,'end':end_index,'comment':"There is too little of the this word in your reformulation."})
+        comments.append({"start":start_index,"end":end_index,"comment":"There is too little of the this word in your reformulation."})
 
     left_over_words = ""
     for left_over_word in missing:
@@ -169,7 +169,7 @@ def get_comments(expression, correct_expression) -> list[dict] :
             left_over_words = left_over_words + ", " + left_over_word
             
     if len(missing) != 0:
-        comments.append({'start':len(expression),'end':len(expression)+1,'comment':"You are missing these words:" + left_over_words + "."})
+        comments.append({"start":len(expression),"end":len(expression)+1,"comment":"You are missing these words:" + left_over_words + "."})
     return comments
 
 

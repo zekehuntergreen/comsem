@@ -1,5 +1,6 @@
 import itertools
 import json
+import html
 from statistics import mean, stdev
 import string
 from typing import Any, Iterable
@@ -26,6 +27,7 @@ from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewM
 from ComSemApp.utils import transcribe_and_get_length_audio_file
 
 from ComSemApp.grading_algorithm import grade_reformulation
+from ComSemApp.commenting_algorithm import get_comments
 
 class StudentViewMixin(RoleViewMixin):
 
@@ -857,6 +859,7 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
             'score' : attempt.correct,
             # TODO : replace wpm with function that calculates fluency score based on wpm
             'wpm' : round((attempt.wpm / 60) * 100 if attempt.wpm < 135 else 100.00, 2),
+            'comments' : html.unescape(json.dumps(get_comments(attempt.transcription, attempt.expression.reformulation_text), ensure_ascii=False)),
             'expression_id' : attempt.expression.id,
             'incorrect_expression': attempt.expression.expression,
             'correct_formulation' : attempt.expression.reformulation_text,
@@ -866,7 +869,7 @@ class SpeakingPracticeResultsView(StudentViewMixin, CourseViewMixin, DetailView,
             'teacher_reviewed' : attempt.teacher_reviewed(),
             'teacher_comments' : attempt.get_review().comments if attempt.get_review() else None
             } for attempt in attempts]
-
+        
         return context
 
 class SpeakingPracticeInstructionsView(StudentViewMixin, CourseViewMixin, TemplateView):
