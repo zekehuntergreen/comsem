@@ -63,6 +63,7 @@ def grade_reformulation(reformulation, correct_expression) -> float :
     overall_grade = (total_order_score * order_weight) + (total_presence_score * presence_weight)
     return overall_grade
 
+
 def word_prescence(expression, correct_expression) -> float :
     """
     This is a function that determines if the words from the given correct expression 
@@ -116,6 +117,7 @@ def word_prescence(expression, correct_expression) -> float :
         percentage = ((correct_expression_length - error_count) / correct_expression_length) * 100
     return percentage
 
+
 def word_order(expression, correct_expression, presence_grade) -> float :
     """
     This is a function that determines if there is an error with the order of words in the given
@@ -160,6 +162,7 @@ def word_order(expression, correct_expression, presence_grade) -> float :
 
     percentage = ((correct_expression_length - error_count) / correct_expression_length) * 100
     return percentage
+
 
 def word_position(expression, correct_expression) -> float :
     """
@@ -225,7 +228,8 @@ def expression_length(expression, correct_expression) -> float :
         percentage = (correct_expression_len - error_count) / correct_expression_len
         percentage = percentage * 100
     return percentage
-    
+
+
 def extra_words(expression, correct_expression) -> float :
     """
     This is a function that determines if the student added extra words to their given expression
@@ -257,6 +261,7 @@ def extra_words(expression, correct_expression) -> float :
         percentage = percentage * 100
     return percentage
     
+
 if __name__ == "__main__":
     correct_expression = "He walked the dog"
     expression = "She walked the dog"

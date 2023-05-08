@@ -17,6 +17,7 @@ def missing_words(expression, correct_expression) -> list[str] :
 
     return missing_words
 
+
 def added_words(expression, correct_expression) -> list[str] :
     """
     A function that returns words that are present in expression, but not in correct expression as a list of strings.
@@ -36,6 +37,7 @@ def added_words(expression, correct_expression) -> list[str] :
             added_words.append(word)
     
     return added_words
+
 
 def number_of_words(expression, correct_expression) -> list[str] :
     """
@@ -116,7 +118,6 @@ def wrong_position(expression, correct_expression) -> list[str] :
     return words_in_wrong_position
             
 
-
 def get_comments(expression, correct_expression) -> list[dict] :
     """
     This function utlizes the other functions in this file to find errors and provide feedback on those errors for students to 
@@ -133,7 +134,6 @@ def get_comments(expression, correct_expression) -> list[dict] :
     lower_correct_expression = correct_expression.lower()
     expression_list = lower_expression.split()
     correct_expression_list = lower_correct_expression.split()
-
 
     extra, lacking = number_of_words(expression_list, correct_expression_list)
     added = added_words(expression_list, correct_expression_list)
@@ -186,6 +186,7 @@ def get_comments(expression, correct_expression) -> list[dict] :
     if len(missing) != 0:
         comments.append({'start':len(expression),'end':len(expression)+1,'comment':"You are missing these words:" + left_over_words + "."})
     return comments
+
 
 if __name__ == "__main__":
     correct_expression = "Hello My Name is Elder Price"
