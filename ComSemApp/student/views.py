@@ -25,6 +25,8 @@ from ComSemApp.models import *
 from ComSemApp.libs.mixins import RoleViewMixin, CourseViewMixin, WorksheetViewMixin, SubmissionViewMixin
 from ComSemApp.utils import transcribe_and_get_length_audio_file
 
+from ComSemApp.grading_algorithm import grade_reformulation
+
 class StudentViewMixin(RoleViewMixin):
 
     role_class = Student
@@ -917,8 +919,8 @@ class SpeakingPracticeAttemptCreateView(StudentCourseViewMixin, CreateView):
         return
 
     def grade_against_correct(self,transcription : string, correct_formulation : string):
-        # TODO: Implement
-        return 100
+        
+        return grade_reformulation(transcription, correct_formulation)
 
     def form_invalid(self, form):
         """
