@@ -1003,7 +1003,7 @@ class SpeakingPracticeSessionCreateView(StudentCourseViewMixin, CreateView):
         
         return HttpResponse(session.id, status=status)
 
-class SpeakingPracticeReviewDetailView(StudentViewMixin, CourseViewMixin, DetailView, SpeakingPracticeInfoMixin):
+class SpeakingPracticeReviewDetailView(StudentCourseViewMixin, DetailView, SpeakingPracticeInfoMixin):
     """
       Serves the content of the speaking practice results page presented after a
       session of practice.
@@ -1025,10 +1025,10 @@ class SpeakingPracticeReviewDetailView(StudentViewMixin, CourseViewMixin, Detail
         context : dict[str, Any] = super(SpeakingPracticeReviewDetailView, self).get_context_data(**kwargs)
         return context
 
-class SpeakingPracticeReviewSessionListView(StudentViewMixin, CourseViewMixin, SpeakingPracticeInfoMixin, ListView):
-    '''
+class SpeakingPracticeReviewSessionListView(StudentCourseViewMixin, SpeakingPracticeInfoMixin, ListView):
+    """
         Serves the context object of session information for the Speaking Practice Sessions List
-    '''
+    """
     context_object_name = 'sessions'
     template_name = "ComSemApp/student/speaking_practice_sessions_list.html"
 
@@ -1039,12 +1039,12 @@ class SpeakingPracticeReviewSessionListView(StudentViewMixin, CourseViewMixin, S
         # grabs the sessions for the student and the course
         return SpeakingPracticeSession.objects.filter(student=self.student, attempts__expression__worksheet__course= self.course).distinct().order_by('-date')
 
-class SpeakingPracticeReviewRequestListView(StudentViewMixin, CourseViewMixin, SpeakingPracticeInfoMixin, ListView):
-    '''
+class SpeakingPracticeReviewRequestListView(StudentCourseViewMixin, SpeakingPracticeInfoMixin, ListView):
+    """
         Serves the context object of review request information for the Speaking Practice Review Request List on the student side
-    '''
+    """
     context_object_name = 'requests'
-    template_name = "ComSemApp/student/speaking_practice_requests_list.html"
+    template_name = 'ComSemApp/student/speaking_practice_requests_list.html'
 
     def get_queryset(self) -> QuerySet[SpeakingPracticeAttemptReviewRequest]:
         """

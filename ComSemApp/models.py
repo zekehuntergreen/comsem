@@ -1,5 +1,6 @@
 from __future__ import annotations # This is necessary for some type hinting
 import datetime, uuid
+from statistics import mean
 
 from django.db import models
 from django.conf import settings
@@ -346,16 +347,18 @@ class SpeakingPracticeSession(models.Model):
         return f"{self.student.user.last_name}, {self.student.user.first_name} - {self.date.strftime('%d %b %Y')} - {self.attempts.count()} attempts"
     
     def average_correctness(self) -> float:
-        '''
+        """
             Returns the average correctness score of all attempts in a session
-        '''
+        """
+        
         attempts = self.attempts.all()
+        
+        # if statement needed to avoid ZeroDivisionError
         if attempts:
-            total_correctness = sum([attempt.correct for attempt in attempts])
-            return total_correctness / len(attempts)
+            return mean([attempt.correct for attempt in attempts])
         else:
             return 0
-    
+
     class Meta:
         verbose_name = "Speaking Practice Session"
         get_latest_by = "date"
