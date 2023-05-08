@@ -145,6 +145,7 @@ let youglish_index = 0;
 let youglish_cache = [];
 let youglish_word = "";
 let youglish_page = 1;
+let accent = "";
 
 function populateYouglish(word_id){
     /*
@@ -166,17 +167,6 @@ function populateYouglish(word_id){
     $("#backward").addClass("disabled");
     
     loadVideos();
-
-    if (!setVideo()){
-
-    }
-
-    if (youglish_cache.length  < 2){
-        $("#forward").addClass("disabled");
-    }
-    else{
-        $("#forward").removeClass("disabled");
-    }
 }
 
 function loadVideos(){
@@ -185,11 +175,8 @@ function loadVideos(){
         and adds the results to the end of the youglish_cache
     */
 
-    /*
-    get_youglish_videos(youglish_word,"",youglish_page)
+    get_youglish_videos(youglish_word,accent,youglish_page)
     .then((data) => {
-         // log the response data to the console
-        // youglish_cache.push.apply(youglish_cache, data[results]);
         youglish_page += 1;
         results = data['results'];
         youglish_cache.push.apply(youglish_cache, results);
@@ -200,19 +187,12 @@ function loadVideos(){
         else{
             $("#forward").removeClass("disabled");
         }
-    })
-    .catch((error) => {
-        console.log(error);
-    });*/
-
-    get_youglish_videos(youglish_word,"",youglish_page)
-    .then((data) => {
-        youglish_page += 1;
-        results = data['results'];
-        youglish_cache.push.apply(youglish_cache, results);
+        setVideo();
     }).catch((error) => {
-        console.log(error)
+        cs_notification('error', error)
     });
+
+
 }
 
 function highlightWord(sentence, phrase) {
@@ -225,17 +205,13 @@ function highlightWord(sentence, phrase) {
         is returned
     */
     let index_of_phrase = sentence.indexOf(phrase);
-    console.log(index_of_phrase);
     if (index_of_phrase == -1){
         return sentence
     }
     else{
         let html_string = sentence.substring(0,index_of_phrase);
-        console.log(html_string);
         html_string += "<span style='background-color:#FFFF00'>"+ phrase + "</span>";
-        console.log(html_string);
         html_string += sentence.substring(index_of_phrase + phrase.length, sentence.length);
-        console.log(html_string);
         return html_string
     }
 }
@@ -244,16 +220,18 @@ function setVideo(){
     /*
         sets the video and captions to the current index in the cache
     */
+    console.log("SET VIDEO");
+    console.log(youglish_cache.length);
+    console.log(youglish_index);
     if (youglish_cache.length > youglish_index){
-        let url_ending = youglish_cache[youglish_index].vid;
-        let start = youglish_cache[youglish_index].start;
-        let caption = youglish_cache[youglish_index].display;
+        let url_ending = youglish_cache[youglish_index]['vid'];
+        console.log(url_ending);
+        let start = youglish_cache[youglish_index]['start'];
+        let caption = youglish_cache[youglish_index]['display'];
         let youtube_url = "https://www.youtube.com/embed/" + url_ending + "?start=" + start + "&autoplay=0&mute=0";
         $("#player").attr("src", youtube_url);
         $("#captionHolder").html(highlightWord(caption, youglish_word));
-        return true
     }
-    return false
 }
 
 function nextVideo(){
