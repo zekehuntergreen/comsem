@@ -1,3 +1,5 @@
+from collections import Counter
+
 def missing_words(expression, correct_expression) -> list[str] :
     """
     A function that returns words that are present in correct expression, but not in expression as a list of strings.
@@ -54,39 +56,29 @@ def number_of_words(expression, correct_expression) -> list[str] :
     extra_present_words = []
     missing_present_words = []
 
-    present_words = [] # A list of strings that will hold the words that have been recorded
     number_present = [] # A list that will record the number of each word that is is present in the student submission
-    correct_present_words = [] # A list of strings that will hold the words that have been recorded, in the correct expression
     correct_number_present = [] # A list that will record the number of each word that is preset in the correct expression
 
     # Get the words in the correct expression and their counts 
-    for word in correct_expression:
-        if word not in present_words:
-            correct_present_words.append(word)
-            correct_number_present.append(1)
-        else:
-            temp = present_words.index(word)
-            correct_number_present[temp] += 1
+    correct_number_present = Counter(correct_expression)
+    print(correct_number_present)
 
     # Words in the inccorect expression
-    for word in expression:
-        if word not in present_words:
-            present_words.append(word)
-            number_present.append(1)
-        else:
-            temp = present_words.index(word)
-            number_present[temp] += 1
+    number_present = Counter(expression)
+    print(number_present)
 
     # Compares the present words in each expression to determine if there are extra or less of a given word
-    for word in correct_expression:
-        if word in expression:
-            temp_correct = correct_present_words.index(word)
-            temp =  present_words.index(word)
-            if correct_number_present[temp_correct] > number_present[temp]:
-                missing_present_words.append(word)
-            elif number_present[temp] > correct_number_present[temp_correct]:
-                extra_present_words.append(word)
+    number_present.subtract(correct_number_present)
+    print(number_present)
 
+    # Traverse throguh the counter and add words that are present/not equal to zero, to one of the returns.
+    for key in number_present:
+        if(key in correct_expression) and number_present[key] > 0:
+            if key not in extra_present_words:
+                extra_present_words.append(key)
+        elif(key in correct_expression) and number_present[key] < 0:
+            if key not in missing_present_words:
+                missing_present_words.append(key)
 
     return extra_present_words, missing_present_words
 
@@ -106,11 +98,7 @@ def wrong_position(expression, correct_expression) -> list[str] :
     correct_expression_length = len(correct_expression)
     expression_length = len(expression)
 
-    if(expression_length > correct_expression_length):
-        min_length = correct_expression_length
-    else:
-        min_length = expression_length
-
+    min_length = min(expression_length, correct_expression_length)
     for x in range(min_length):
         if expression[x] != correct_expression[x] and expression[x] in correct_expression:
             words_in_wrong_position.append(expression[x])
