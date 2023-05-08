@@ -188,7 +188,8 @@ function loadVideos(){
             $("#forward").removeClass("disabled");
         }
         setVideo();
-    }).catch((error) => {
+    })
+    .catch((error) => {
         cs_notification('error', error)
     });
 
