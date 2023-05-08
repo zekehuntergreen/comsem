@@ -1,0 +1,25 @@
+{% extends 'ComSemApp/sidebar.html' %}
+
+{% block content %}
+
+<div id="sessions_table"></div>
+<br>
+<div id="requests_table"></div>
+
+
+<script>
+    function drawSessionsTable(){
+        $("#sessions_table").load("{% url 'student:speaking_practice_sessions_list' course_id=course.id %}", () => {
+            initialize_tablesorter()
+        })
+    }
+    drawSessionsTable()
+
+    function drawRequestsTable(){
+        $("#requests_table").load("{% url 'student:speaking_practice_requests_list' course_id=course.id %}", () => {
+            initialize_tablesorter()
+        })
+    }
+    drawRequestsTable()
+</script>
+{% endblock %}

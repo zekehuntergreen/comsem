@@ -1,0 +1,36 @@
+<h3>Practice Sessions</h3>
+{% if sessions %}
+<table class='table table-hover tablesorter'>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Average Score</th>
+            <th data-filter="false" data-sorter="false"></th>
+        </tr>
+    </thead>
+    <tbody name='sessionsTable'>
+        {% for session in sessions %}
+        <tr>
+            <td>
+                {{ forloop.counter }}
+            </td>
+            <td>
+                {{ session.date }}
+            </td>
+            <td>
+                {{ session.average_correctness }}%
+            </td>
+            <td>
+                <a class='btn btn-sm btn-outline-primary' href="{% url 'student:speaking_practice_results' course.id %}?session={{ session.id }}">
+                    Review Session
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    {% include 'ComSemApp/tablesorter_footer.html'%}
+</table>
+{% else %}
+    <p>No sessions have been created yet. </p>
+{% endif %}

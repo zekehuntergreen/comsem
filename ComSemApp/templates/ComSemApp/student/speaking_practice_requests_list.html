@@ -1,0 +1,44 @@
+<h3>Review Requests</h3>
+{% if requests %}
+<table class='table table-hover tablesorter'>
+    <thead>
+        <tr>
+            <th>Transcription</th>
+            <th>Date</th>
+            <th>Session</th>
+            <th>Status</th>
+            <th data-filter="false" data-sorter="false"></th>
+        </tr>
+    </thead>
+    <tbody name='requestTable'>
+        {% for request in requests %}
+        <tr>
+            <td>
+                {{ request.attempt.transcription }}
+            </td>
+            <td>
+                {{ request.date }}
+            </td>
+            <td>
+                {{ request.attempt.session.id }}
+            </td>
+            <td>
+                {% if request.is_reviewed %}
+                    Reviewed!
+                {% else %}
+                    Pending...
+                {% endif %}
+            </td>
+            <td>
+                <a class='btn btn-sm btn-outline-primary' href="{% url 'student:speaking_practice_results' course.id %}?attempt={{ request.attempt.id }}">
+                    Review
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    {% include 'ComSemApp/tablesorter_footer.html'%}
+</table>
+{% else %}
+    <p>No requests have been created yet. </p>
+{% endif %}
