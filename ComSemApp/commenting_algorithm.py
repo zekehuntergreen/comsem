@@ -61,15 +61,12 @@ def number_of_words(expression, correct_expression) -> list[str] :
 
     # Get the words in the correct expression and their counts 
     correct_number_present = Counter(correct_expression)
-    print(correct_number_present)
 
     # Words in the inccorect expression
     number_present = Counter(expression)
-    print(number_present)
 
     # Compares the present words in each expression to determine if there are extra or less of a given word
     number_present.subtract(correct_number_present)
-    print(number_present)
 
     # Traverse throguh the counter and add words that are present/not equal to zero, to one of the returns.
     for key in number_present:
