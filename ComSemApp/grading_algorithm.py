@@ -1,4 +1,4 @@
-def grade_reformulation(reformulation, correct_expression) :
+def grade_reformulation(reformulation, correct_expression) -> float :
     """
     This function takes in the reformulation the student provided as well as the correct expression 
     it then uses the functions in this file to grade their answer
@@ -12,7 +12,7 @@ def grade_reformulation(reformulation, correct_expression) :
     """
 
     # This checks if the expression has no errors and if it does returns full credit
-    if reformulation == correct_expression:
+    if reformulation.lower() == correct_expression.lower():
         return 100
     # Initialize the total scores
     total_order_score = 0
@@ -63,7 +63,8 @@ def grade_reformulation(reformulation, correct_expression) :
     overall_grade = (total_order_score * order_weight) + (total_presence_score * presence_weight)
     return overall_grade
 
-def word_prescence(expression, correct_expression):
+
+def word_prescence(expression, correct_expression) -> float :
     """
     This is a function that determines if the words from the given correct expression 
     are present within the given expression. It then calculates a percentage score 
@@ -116,7 +117,8 @@ def word_prescence(expression, correct_expression):
         percentage = ((correct_expression_length - error_count) / correct_expression_length) * 100
     return percentage
 
-def word_order(expression, correct_expression, presence_grade):
+
+def word_order(expression, correct_expression, presence_grade) -> float :
     """
     This is a function that determines if there is an error with the order of words in the given
     expression based upon the order of words in the given correct expression. It then calculates 
@@ -161,7 +163,8 @@ def word_order(expression, correct_expression, presence_grade):
     percentage = ((correct_expression_length - error_count) / correct_expression_length) * 100
     return percentage
 
-def word_position(expression, correct_expression):
+
+def word_position(expression, correct_expression) -> float :
     """
     This is a function that determines if there is an error with word positions in the given
     expression, compared to the given correct expression. The function then calculates 
@@ -185,12 +188,17 @@ def word_position(expression, correct_expression):
         if x < correct_expression_length:
             if expression_list[x] != correct_expression_list[x]:
                 error_count += 1
+        else:
+            error_count += 1
+    
+    if error_count > correct_expression_length:
+        error_count = correct_expression_length
 
     percentage = ((correct_expression_length - error_count) / correct_expression_length) * 100
     return percentage
 
 
-def expression_length(expression, correct_expression):
+def expression_length(expression, correct_expression) -> float :
     """
     This is a function that determines if the number of words in the given expression and
     given correct expression are the same. If they are not and the deffecernce is greater
@@ -220,8 +228,9 @@ def expression_length(expression, correct_expression):
         percentage = (correct_expression_len - error_count) / correct_expression_len
         percentage = percentage * 100
     return percentage
-    
-def extra_words(expression, correct_expression):
+
+
+def extra_words(expression, correct_expression) -> float :
     """
     This is a function that determines if the student added extra words to their given expression
     by comparing to the given correct expression. Once again if they add more words than half
@@ -252,9 +261,10 @@ def extra_words(expression, correct_expression):
         percentage = percentage * 100
     return percentage
     
+
 if __name__ == "__main__":
-    correct_expression = "Hello My Name is Elder Price."
-    expression = "Hello My Pineapple is Elder Price."
+    correct_expression = "He walked the dog"
+    expression = "She walked the dog"
     print(expression)
     print(correct_expression)
     print("Your overall grade was:", grade_reformulation(expression, correct_expression))
