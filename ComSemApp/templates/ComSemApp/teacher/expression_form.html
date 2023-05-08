@@ -176,7 +176,6 @@ function hide_select_student(){ // hides student selection
     hide_select_student();
 {% endif %}
 
-
 $("#saveExpression").click(function(e){
     e.preventDefault()
 
@@ -192,7 +191,6 @@ $("#saveExpression").click(function(e){
     if (student_id != "0"){
         worksheetFormData.append( 'student', student_id );
     }
-
 
     worksheetFormData.append('expression', $("#expression").val() );
     worksheetFormData.append('all_do', $("#all_do").prop("checked") );
