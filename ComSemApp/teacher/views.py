@@ -238,7 +238,7 @@ class ExpressionCreateView(TeacherWorksheetViewMixin, CreateView):
     model = Expression
     template_name = "ComSemApp/teacher/expression_form.html"
     fields = ["expression", "student", "all_do", "pronunciation", "context_vocabulary",
-                "reformulation_text", "audio"]
+                "reformulation_text", "audio", "youglish_query"]
 
     def form_invalid(self, form):
         response = super().form_invalid(form)
@@ -255,7 +255,7 @@ class ExpressionUpdateView(TeacherWorksheetViewMixin, UpdateView):
     model = Expression
     template_name = "ComSemApp/teacher/expression_form.html"
     fields = ["expression", "student", "all_do", "pronunciation", "context_vocabulary",
-                "reformulation_text", "audio"]
+                "reformulation_text", "audio", "youglish_query"]
 
     def get_object(self):
         expression_id = self.kwargs.get('expression_id', None)
