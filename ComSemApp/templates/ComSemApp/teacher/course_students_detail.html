@@ -1,0 +1,32 @@
+{% load static %}
+{% if course.students.all %}
+<thead>
+	<tr>
+		<th>Name</th>
+		<th>Worksheets Assigned</th>
+		<th>Ungraded Submissions</th>
+		<th>Number of Attempts</th>
+
+	</tr>
+</thead>
+
+<tbody>
+	{% for student in course.students.all %}
+	<tr>
+		<td>{{student}}</td>
+		<td> 			<!-- using username to get the calculated count for submissions for that student in this class section -->
+			{{ worksheets|get_item:student.user.username }}</td>
+		<td>
+			<!-- using username to get the calculated count for submissions for that student in this class section -->
+			{{ ungraded|get_item:student.user.username }}
+		</td>
+		<td>
+			{{ attempts|get_item:student.user.username }}
+		</td>
+		<td><a href="mailto:{{student.user.email}}">Email</a></td>
+	</tr>
+	{% endfor %}
+</tbody>
+{% else %}
+	<h4>No Enrolled Students</h4>
+{% endif %}

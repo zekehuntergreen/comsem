@@ -4,6 +4,9 @@ from ComSemApp.student import views
 app_name = 'student'
 urlpatterns = [
     url(r'^$', views.CourseListView.as_view(), name='courses'),
+
+    # url(r'^course/googleTranscribe/$', views.googleTranscribe, name="googleTranscribe"),
+
     url(r'^course/(?P<course_id>[0-9]+)/$', views.CourseDetailView.as_view(), name='course'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/submission/list/$', views.SubmissionListView.as_view(), name='submission_list'),
     url(r'^course/(?P<course_id>[0-9]+)/worksheet/(?P<worksheet_id>[0-9]+)/submission/create/$', views.SubmissionCreateView.as_view(), name='create_submission'),
