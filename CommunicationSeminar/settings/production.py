@@ -70,7 +70,6 @@ INSTALLED_APPS = [
     "storages",
     "django_select2",
     "django_extensions",
-    "mysql_ssl",
 ]
 
 MIDDLEWARE = [
