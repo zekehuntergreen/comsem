@@ -121,9 +121,9 @@ if LIVE:
             "PASSWORD": os.environ["DATABASE_PASSWORD"],
             "HOST": os.environ["DATABASE_HOST"],
             "PORT": os.environ["DATABASE_PORT"],
+            "ENGINE": "django.db.backends.mysql",
+            "OPTIONS": {"ssl": {"ca": "config/amazon-rds-ca-cert.pem"}},
         },
-        "ENGINE": "django.db.backends.mysql",
-        "OPTIONS": {"ssl": {"ca": "config/amazon-rds-ca-cert.pem"}},
     }
 else:
     DATABASES = {
