@@ -122,7 +122,7 @@ if LIVE:
             "HOST": os.environ["DATABASE_HOST"],
             "PORT": os.environ["DATABASE_PORT"],
             "ENGINE": "django.db.backends.mysql",
-            "OPTIONS": {"ssl": {"ca": "config/amazon-rds-ca-cert.pem"}},
+            "OPTIONS": {"ssl": {"ca": "config/us-west-2-bundle.pem"}},
         },
     }
 else:
