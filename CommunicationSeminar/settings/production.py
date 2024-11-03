@@ -113,24 +113,18 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 DATABASES = {}
 
 if LIVE:
-    # Register database schemes in URLs.
-    urllib.parse.uses_netloc.append("mysql")
-
-    # Ensure default database exists.
-    DATABASES["default"] = DATABASES.get("default", {})
-
     # Update with environment configuration.
-    DATABASES["default"].update(
-        {
+    DATABASES = {
+        "default": {
             "NAME": os.environ["DATABASE_NAME"],
             "USER": os.environ["DATABASE_USER"],
             "PASSWORD": os.environ["DATABASE_PASSWORD"],
             "HOST": os.environ["DATABASE_HOST"],
             "PORT": os.environ["DATABASE_PORT"],
-        }
-    )
-
-    DATABASES["default"]["ENGINE"] = "django.db.backends.mysql"
+            "ENGINE": "django.db.backends.mysql",
+            "OPTIONS": {"ssl": {"ca": "config/us-west-2-bundle.pem"}},
+        },
+    }
 else:
     DATABASES = {
         "default": {
