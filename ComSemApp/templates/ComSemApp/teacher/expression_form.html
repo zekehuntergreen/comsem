@@ -1,11 +1,12 @@
 {% load static %}
 
 <!-- recordmp3 needed by ComSemRecording -->
-<script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
-<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
+<script src="{% static 'ComSemApp/js/opus-recorder/dist/recorder.min.js' %}"></script>
+<script src="{% static 'ComSemApp/js/ComSemRecording-opus.js' %}?{% now 'U' %}"></script>
+
+
 
 <div class="control-group controls" id="ExpressionEditor" style="display: none">
-
     <input hidden type="text" id="create_or_update_url">
 
     <div class="form-group row">
@@ -28,6 +29,7 @@
                 <label for="all_do">
                     All Do
                 </label>
+                <button onclick="helpEditExpression()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
             </div>
         </div>
         {% else %}
@@ -87,7 +89,13 @@
             </div>
         </div>
     </div>
-    
+
+    <div class="row" id="SpeechTranscription" name="SpeechTranscription">
+        <button id="transcribeTest" style="margin:10px; margin-right:20px">Transcribe Test</button>
+        <div id="transcribeTestResult" name="transcribeTestResult" ><p></p></div>
+    </div>
+    <br>
+
     <div class="row" id="display_reformulation_audioRow">
         {% include 'ComSemApp/audio_recording.html' %}
     </div>
@@ -117,6 +125,18 @@
 </div>
 
 <script>
+// source: https://tutorialzine.com/2017/08/converting-from-speech-to-text-with-javascript
+var SpeechRecognition;
+var recognition;
+var noteContent = '';
+var speechSupport = false;
+try {
+    SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    speechSupport = true;
+} catch(e) {
+    console.log(e)
+}
 
 function hide_select_student(){ // hides student selection
     var x = document.getElementById("select_student");
@@ -135,43 +155,122 @@ $("#saveExpression").click(function(e){
         alert("Please enter an expression")
         return;
     }
-
-    // because of audio, we must send a formdata object
-    var worksheetFormData = new FormData();
-    student_id = $("#studentID").val()
-    if (student_id != "0"){
-        worksheetFormData.append( 'student', student_id );
+    catch(e) {
+        console.error(e);
+        $("#SpeechTranscription").hide();
+        alert("No browser support for audio transcription. Please sign in with Google Chrome to use this feature.");
     }
-    worksheetFormData.append('expression', $("#expression").val() );
-    worksheetFormData.append('all_do', $("#all_do").prop("checked") );
-    worksheetFormData.append('context_vocabulary', $("#contextVocabulary").val() );
-    worksheetFormData.append('reformulation_text', $("#reformulation").val() );
-    worksheetFormData.append('pronunciation', $("#pronunciation").val() );
-
-    var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? true : false
-    if (reformulation_audio){
-        worksheetFormData.append('audio', audioReformulationBlob)
-    } else {
-        worksheetFormData.append('delete_audio', true)
+    recognition.continuous = true;
+    recognition.onresult = function(event) {
+        var current = event.resultIndex;
+        var transcript = event.results[current][0].transcript;
+        var mobileRepeatBug = (current == 1 && transcript == event.results[0][0].transcript);
+        if(!mobileRepeatBug) {
+            noteContent += transcript;
+            if (noteContent === '') {
+                $('#transcribeTestResult').html("<p>Please try again.</p>");
+            }
+            else {
+                $('#reformulation').val(noteContent);
+                $('#transcribeTestResult').html("");
+                noteContent = '';
+            }
+        }
     }
-
-    inspectFormData(worksheetFormData)
-
-    $.ajax({
-        type: "POST",
-        url: $("#create_or_update_url").val(),
-        data: worksheetFormData,
-        processData: false,
-        contentType: false,
-        success: function(response){
-            cs_notification('success', "Expression Saved")
-            // update expressions table
-            drawExpressionsTable();
-        },
-        error: function(jqXHR, textStatus, errorThrown){
-            cs_ajax_error(jqXHR, textStatus, errorThrown)
-        },
+    var recording = false;
+    $("#transcribeTest").click(function(e) {
+        if (speechSupport === true) {
+            if (recording === false) {
+                $(this).css('color', 'red');
+                recording = true;
+                recognition.start();
+            }
+            else {
+                recording = false;
+                recognition.stop();
+                $(this).css('color', 'black');
+            }
+        }
     });
+    // end voice recognition
+    $("#saveExpression").click(function(e){
+        e.preventDefault()
+        if( $("#expression").val().trim() == "" ){
+            // must have a valid expression
+            alert("Please enter an expression")
+            return;
+        }
+        // because of audio, we must send a formdata object
+        var worksheetFormData = new FormData();
+        student_id = $("#studentID").val()
+        if (student_id != "0"){
+            worksheetFormData.append( 'student', student_id );
+        }
+        worksheetFormData.append('expression', $("#expression").val() );
+        worksheetFormData.append('all_do', $("#all_do").prop("checked") );
+        worksheetFormData.append('context_vocabulary', $("#contextVocabulary").val() );
+        worksheetFormData.append('reformulation_text', $("#reformulation").val() );
+        worksheetFormData.append('pronunciation', $("#pronunciation").val() );
+        var reformulation_audio = $("#recordingslist #audioElement").length > 0 ? true : false
+        if (reformulation_audio){
+            worksheetFormData.append('audio', audioReformulationBlob)
+        } else {
+            worksheetFormData.append('delete_audio', true)
+        }
+        inspectFormData(worksheetFormData)
+        $.ajax({
+            type: "POST",
+            url: $("#create_or_update_url").val(),
+            data: worksheetFormData,
+            processData: false,
+            contentType: false,
+            success: function(response){
+                cs_notification('success', "Expression Saved")
+                // update expressions table
+                drawExpressionsTable();
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                cs_ajax_error(jqXHR, textStatus, errorThrown)
+            },
+        });
+        // clear editor
+        $("#ExpressionEditor").slideUp();
+    });
+</script>
+
+<script>
+function helpEditExpression(){
+    Tour.run([
+        {
+            element: $('#studentID'),
+            content: 'Choose a student to assign this sentence to or choose Anonymous if you don\'t want to assign names.'
+        },
+        {
+            element: $('#expression'),
+            content: 'Enter the Expression (what the student said) Here'
+        },
+        {
+            element: $('#contextVocabulary'),
+            content: 'Enter Context\/Vocab Here'
+        },
+        {
+            element: $('#pronunciation'),
+            content: 'Enter Pronunciation Here'
+        },
+        {
+            element: $('#reformulation'),
+            content: 'Enter Reformulation Here'
+        },
+		{
+            element: $('#display_reformulation_audioRow'),
+            content: 'Click the RED button to record your reformulation. Click the GREEN button to stop recording.'
+        },
+        {
+            element: $('#saveExpression'),
+            content: 'Be sure to click here to SAVE your worksheet item.'
+        },
+	]);
+}
 
     // clear editor
     $("#ExpressionEditor").slideUp();
