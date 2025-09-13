@@ -39,6 +39,7 @@ temp = "==2020.7.2"
 tqdm = "==4.64.1"
 urllib3 = "==1.25.11"
 whitenoise = "==4.1.2"
+setuptools = "*"
 
 [dev-packages]
 
