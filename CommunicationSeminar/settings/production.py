@@ -177,6 +177,7 @@ if LIVE:
     EMAIL_HOST_PASSWORD = env_get("SENDGRID_API_KEY")
     EMAIL_USE_TLS = env_get("EMAIL_USE_TLS", True)
     DEFAULT_FROM_EMAIL = env_get("DEFAULT_FROM_EMAIL", "ComSem <noreply@comsem.net>")
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 else:
     EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
     EMAIL_FILE_PATH = "app-messages"
