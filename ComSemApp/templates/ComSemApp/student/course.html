@@ -3,6 +3,94 @@
 {% block content %}
 
 <div class="row">
+	<div class="col-md-12 col-lg-12">
+		<div class="row">
+
+			<div class="col-md-12 col-lg-4">
+				<div class = "portlet">
+					<!--first -->
+					<h4 style="padding-top:20px; padding-left:20px;" class="header-title">Stats</h4>
+					<div class="row" >
+						<div class="col" style = "padding-bottom: 20px;">
+							<div class="row" style = "margin-top: 10px; padding-bottom: 20px;">
+								<div class ="col">
+									<div class = "row">
+										<h1 style = "margin-right: auto; margin-left: auto;">{{ expressionCount }}</h1>
+									</div>
+									<div class = "row">
+										<p style = "margin-right: auto; margin-left: auto;">Expressions Completed</p>
+									</div>
+								</div>
+							</div>
+							<div class="row"  style = "padding-bottom: 20px;">
+								<div class ="col">
+									<div class = "row">
+										<h1 style = "margin-right: auto; margin-left: auto;">{{ complete }}</h1>
+									</div>
+									<div class = "row">
+										<p style = "margin-right: auto; margin-left: auto;">Worksheets Completed</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col">
+							<div class="row" style = "margin-top: 10px; padding-bottom: 20px;">
+								<div class ="col">
+									<div class = "row">
+										<h1 style = "margin-right: auto; margin-left: auto;">{{ incomplete }}</h1>
+									</div>
+									<div class = "row">
+										<p style = "margin-right: auto; margin-left: auto;">Worksheets Incomplete</p>
+									</div>
+								</div>
+							</div>
+							<div class="row" >
+								<div class ="col">
+									<div class = "row">
+										<h1 style = "margin-right: auto; margin-left: auto;">{{ ungraded }} </h1>
+									</div>
+									<div class = "row">
+										<p style = "margin-right: auto; margin-left: auto;">Worksheets to Grade</p>
+									</div>										
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="col-md-12 col-lg-4">
+					<div class ="portlet">
+						<h4 style="padding-top:20px; padding-left:20px;" class="header-title">Worksheet Status</h4>
+						<!--second -->
+						<div class="column" id="chart_div"></div>
+					</div>
+			</div>
+			
+			<div class="col-md-12 col-lg-4">
+					<div class ="portlet">
+						<div class="card-box">
+						<h4 class="header-title">Assigned Expressions</h4>
+						<!--third -->
+						<div style="height:300px;overflow:auto;">
+						<table class ="table">
+							<thead>
+
+							</thead>
+							<tbody>
+								{% for expression in expressions %}
+								<tr style = "background-color:lightblue">  
+									<td> {{ expression }}</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<div class="col-md-12 col-xl-3">
 		{% include 'ComSemApp/course_details.html' %}
@@ -48,11 +136,51 @@
 				</tbody>
 				{% include 'ComSemApp/tablesorter_footer.html'%}
 			</table>
-			{% else %} <!-- message displays if no worksheets are available-->
+			{% else %}
 				<p>No worksheets available</p>
 			{% endif %}
 		</div>
 	</div>
 </div>
+
+
+<div> 
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+		<script type="text/javascript">
+	
+		  google.charts.load('current', {'packages':['corechart']});
+	
+		  // Set a callback to run when the Google Visualization API is loaded.
+		  google.charts.setOnLoadCallback(drawChart);
+	
+		  // Callback that creates and populates a data table,
+		  // instantiates the pie chart, passes in the data and
+		  // draws it.
+		  function drawChart() {
+	
+			// Create the data table.
+			var data = new google.visualization.DataTable();
+
+			var data = google.visualization.arrayToDataTable([
+			  ['Source', 'Clicks'],
+			  ['Completed', {{ complete }}],
+			  ['Incomplete', {{ incomplete }}],
+			  ['Ungraded', {{ ungraded }}]
+			]);
+	
+	
+			// Set chart options
+			var options = {'height':300};
+	
+			// Instantiate and draw our chart, passing in some options.
+			var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+			chart.draw(data, options);
+	
+	
+			google.charts.load('current', {packages: ['corechart', 'line']});
+			google.charts.setOnLoadCallback(drawBackgroundColor);
+		  }
+		  </script>
+	</div>
 
 {% endblock %}

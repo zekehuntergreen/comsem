@@ -1,8 +1,8 @@
 {% load static %}
 
 <!-- recordmp3 needed by ComSemRecording -->
-<script src="{% static "ComSemApp/js/opus-recorder/dist/recorder.min.js" %}"></script>
-<script src="{% static "ComSemApp/js/ComSemRecording-opus.js" %}?{% now "U" %}"></script>
+<script src="{% static 'ComSemApp/js/opus-recorder/dist/recorder.min.js' %}"></script>
+<script src="{% static 'ComSemApp/js/ComSemRecording-opus.js' %}?{% now 'U' %}"></script>
 
 <input hidden type="text" id="create_or_update_url">
 
@@ -11,6 +11,7 @@
 <div class="row">
     <div class="col-12">
         <label>Original Expression:</label>
+        <button onclick="helpAttemptForm()" type="save" class="btn btn-sm btn-outline-info float-right">Help</button>
         <p id="ExprToEdit">{{ expression.expression }}</p>
     </div>
 </div>
@@ -69,6 +70,11 @@
     </div>
 </div>
 
+<div class="row" id="SpeechTranscription" name="SpeechTranscription">
+    <button id="transcribeTest" style="margin:10px; margin-right:20px">Transcribe Test</button>
+    <div id="transcribeTestResult" name="transcribeTestResult" ><p></p></div>
+</div>
+<br>
 
 <!-- AUDIO RECORDING -->
 <div class="row" id="display_reformulation_audioRow" style="{% if not worksheet.display_reformulation_audio %}display: none{% endif %}">
@@ -95,6 +101,61 @@
 
 
 <script>
+
+    // source: https://tutorialzine.com/2017/08/converting-from-speech-to-text-with-javascript
+    var SpeechRecognition;
+    var recognition;
+    var noteContent = '';
+    var speechSupport = false;
+    try {
+        SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+
+        speechSupport = true;
+    }
+    catch(e) {
+        console.error(e);
+        $("#SpeechTranscription").hide();
+        alert("No browser support for audio transcription. Please sign in with Google Chrome to use this feature.");
+    }
+
+    recognition.continuous = true;
+    recognition.onresult = function(event) {
+        var current = event.resultIndex;
+        var transcript = event.results[current][0].transcript;
+        var mobileRepeatBug = (current == 1 && transcript == event.results[0][0].transcript);
+        if(!mobileRepeatBug) {
+            noteContent += transcript;
+            if (noteContent === '') {
+                $('#transcribeTestResult').html("<p>Please try again.</p>");
+            }
+            else {
+                $('#CorrectedExpr').val(noteContent);
+                $('#transcribeTestResult').html("");
+                noteContent = '';
+            }
+        }
+    }
+
+    var recording = false;
+
+    $("#transcribeTest").click(function(e) {
+        if (speechSupport === true) {
+            if (recording === false) {
+                $(this).css('color', 'red');
+                recording = true;
+                recognition.start();
+            }
+            else {
+                recording = false;
+                recognition.stop();
+                $(this).css('color', 'black');
+            }
+        }
+    });
+
+    // end voice recognition
+
 $("#saveAttempt").click(function(e){
     e.preventDefault()
 
@@ -134,4 +195,27 @@ $("#saveAttempt").click(function(e){
     clearEditor()
     audioReformulationBlob = null; // clears reformulation
 });
+</script>
+
+<script>
+function helpAttemptForm() {
+	Tour.run([
+	    {
+			element: $('#teacherReformulationAudio'),
+			content: 'Click HERE to listen to your teacher\'s correction.'
+		},
+		{
+			element: $('#CorrectedExpr'),
+			content: 'Write the correct version here.'
+		},
+		{
+			element: $('#display_reformulation_audioRow'),
+			content: 'Click the RED button to record your correct version.'
+		},
+		{
+			element: $('#saveAttempt'),
+			content: 'When you are finished, click HERE to save this correction and SEND it to your teacher.'
+		},
+		]);
+}
 </script>

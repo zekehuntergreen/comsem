@@ -8,14 +8,15 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, FormView, DeleteView
 from django.views import View
 from django.core.mail import send_mail
+from django.core.validators import validate_email
 from django.contrib import messages
+import re
 from django.contrib.auth.models import User
 
 from ComSemApp.models import *
 from ComSemApp.administrator.forms import CourseForm, CourseTypeForm, SessionForm, SessionTypeForm, TeacherForm, \
             StudentForm, UserForm
 from ComSemApp.libs.mixins import RoleViewMixin
-
 
 
 class AdminViewMixin(RoleViewMixin):
@@ -65,6 +66,104 @@ class StudentListView(AdminViewMixin, ListView):
             [user.email],
             fail_silently=False,
         )
+
+    def db_create_user(self, **kwargs):
+        user = User.objects.create(**kwargs)
+        password = User.objects.make_random_password()
+        user.set_password(password)
+        user.save()
+        self._send_email(user, password)
+        return user
+
+    def db_create_student(self, **kwargs):
+        institution = self.insititution
+        user = self.db_create_user(**kwargs)
+        return Student.objects.create(user=user, institution=institution)
+
+    #handle CSV upload
+    def post(self, request, *args, **kwargs):
+        if (len(request.FILES) > 0): #check to make sure file was uploaded
+            csv_file = request.FILES['file']
+            file_data = csv_file.read().decode("utf-8")	
+            lines = file_data.split("\n")
+            message_content = [""]
+            linecount = 0
+            rejectcount = 0
+            for line in lines:
+                if len(line): #make sure line isnt empty
+                    fields = line.split(",")
+                    okToCreate = True
+                    rejected = False
+                    linecount += 1
+                    if (fields[0] == "" or fields[0] == ""):
+                        #end of file
+                        break
+                    if (len(fields) < 4):
+                        message = "!!! Missing columns, please make sure you have columns as follows: firstname,lastname,email,username"
+                        message_content.append(message)
+                        rejected = True
+                        rejectcount += 1
+                        break
+                    if (fields[0].isalpha() == False or fields[1].isalpha() == False):
+                        message = (str(linecount) + " " + fields[0] + " " + fields[1] + "      " + fields[2] + "       " + fields[3] + "        Invalid First or Last Name \n")
+                        message_content.append(message)
+                        rejectcount += 1
+                        rejected = True
+                        okToCreate = False
+                    for user in Student.objects.filter(institution=self.institution):
+                        if(user.user.email== fields[2]):
+                            okToCreate = False
+                            if (rejected == False):     ##if rejected is false, we need to increment the number of rejects, if its already false, dont increment it but still log error
+                                rejectcount += 1
+                                rejected = True
+                            message = (str(linecount) + " " + fields[0] + " " + fields[1] + "      " + fields[2] + "       " + fields[3] + "        Duplicate Email Address  \n")
+                            message_content.append(message)
+                            
+                        if(user.user.username== fields[3]):
+                            okToCreate = False
+                            if (rejected == False):     ##if rejected is false, we need to increment the number of rejects, if its already false, dont increment it but still log error
+                                rejectcount += 1
+                                rejected = True
+                            message = (str(linecount) + " " + fields[0] + " " + fields[1] + "      " + fields[2] + "       " + fields[3] + "        Duplicate Username  \n")
+                            message_content.append(message)
+                        if(okToCreate == False):
+                            break
+                    
+                    # Check if a valid email address
+                    match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', fields[2].lower())
+
+                    if (match == None):
+                        if(rejected == False):
+                            rejectcount += 1
+                            rejected = True
+                        okToCreate = False 
+                        message = (str(linecount) + " " + fields[0] + " " + fields[1] + "      " + fields[2] + "       " + fields[3] + "        Invalid Email Address  \n")
+                        message_content.append(message)
+
+                    # Check for valid username
+                    usernameCheck = re.match('^[\w.@+-]+$', fields[3])
+                    if (usernameCheck == None):
+                        if(rejected == False):
+                            rejectcount += 1
+                            rejected = True
+                        okToCreate = False 
+                        message = (str(linecount) + " " + fields[0] + " " + fields[1] + "      " + fields[2] + "       " + fields[3] + "        Invalid Username  \n")
+                        message_content.append(message)
+                        
+                    if (okToCreate == True):
+                        user = {
+                            "first_name": fields[0],
+                            "last_name": fields[1],
+                            "email": fields[2],
+                            "username": fields[3]
+                        }
+                        self.db_create_student(**user)
+                        print("student made")
+            message_content.insert(0, ("" +  str((linecount - rejectcount)) + "/" + str(linecount)+ " Accounts created sucessfully\n" + "The below users were not added, Their line numbers are listed to the left,\nLines with multiple errors will be listed multiple times \n \n"))
+            message_disp = "".join(message_content)
+            messages.add_message(request, messages.ERROR, message_disp)
+            request.FILES.pop('file', None) #delete the csv file from memory
+        return HttpResponseRedirect(self.success_url)
 
     @atomic
     def _create_student(self, **kwargs):
@@ -134,10 +233,8 @@ class StudentListView(AdminViewMixin, ListView):
             messages.add_message(request, messages.ERROR, message)
         return HttpResponseRedirect(self.success_url)
 
-
-    def get_queryset(self):
+    def get_queryset(self):        
         return Student.objects.filter(institution=self.institution)
-
 
 class CourseListView(AdminViewMixin, ListView):
     model = Course
